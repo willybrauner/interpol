@@ -25,9 +25,9 @@ const inter = new Interpol({
   from: 0,
   to: 1400,
   duration: 1000,
-  delay: 300,
+//  delay: 300,
   paused: true,
-  ease: Ease.outExpo,
+  ease: Ease.inOutQuad,
   onUpdate: ({ value, time, advancement }) => {
     console.log({ value, time, advancement })
     const x = advancement * 100
@@ -38,3 +38,5 @@ const inter = new Interpol({
     $el.style.transform = `translateX(${0}vw) translateY(${0}vh)`
   },
 })
+
+

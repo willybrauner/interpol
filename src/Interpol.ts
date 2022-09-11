@@ -41,6 +41,7 @@ export class Interpol {
   protected advancement: number = 0
   protected timer: number
   protected value: number = 0
+  protected timeout
 
   protected _isPlaying = false
   get isPlaying() {
@@ -69,8 +70,7 @@ export class Interpol {
     this.onComplete = onComplete
 
     // start
-    if (this.paused) return
-    this.play()
+    if (!this.paused) this.play()
   }
 
   async play(): Promise<any> {
@@ -85,7 +85,10 @@ export class Interpol {
     this._isPlaying = true
     // Delay is set only on first play.
     // If this play is retrigger before onComplete, we don't wait again
-    setTimeout(() => this.render(), this.time > 0 ? 0 : this.delay)
+    this.timeout = setTimeout(
+      () => this.render(),
+      this.time > 0 ? 0 : this.delay
+    )
 
     // create new onComplete deferred Promise and return it
     this.onCompleteDeferred = deferredPromise()
@@ -94,7 +97,7 @@ export class Interpol {
 
   async replay(): Promise<any> {
     this.stop()
-    return this.play()
+    await this.play()
   }
 
   pause(): void {
@@ -113,6 +116,7 @@ export class Interpol {
     this.time = 0
     this.timer = undefined
     CANCEL_RAF(this.raf)
+    clearTimeout(this.timeout)
   }
 
   protected render(): void {
