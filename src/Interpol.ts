@@ -1,4 +1,5 @@
 import { Ease } from "./Ease"
+import { deferredPromise } from "./helpers/deferredPromise"
 
 interface IUpdateParams {
   value: number
@@ -17,6 +18,14 @@ interface IInterpolConstruct {
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 
+const RAF =
+  typeof window === "undefined"
+    ? (cb) => setTimeout(cb, 16)
+    : requestAnimationFrame
+
+const CANCEL_RAF =
+  typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
+
 export class Interpol {
   from: number
   to: number
@@ -27,12 +36,18 @@ export class Interpol {
   onUpdate: (e: IUpdateParams) => void
   onComplete: (e: IUpdateParams) => void
 
-  protected raf: number
-  protected currentTime: number = 0
+  protected raf
+  protected time: number = 0
   protected advancement: number = 0
-  protected time: number
+  protected timer: number
   protected value: number = 0
-  protected isPlaying = false
+
+  protected _isPlaying = false
+  get isPlaying() {
+    return this._isPlaying
+  }
+
+  protected onCompleteDeferred = deferredPromise()
 
   constructor({
     from = 0,
@@ -58,71 +73,77 @@ export class Interpol {
     this.play()
   }
 
-  /**
-   * Play
-   */
-  play(): Interpol {
-    if (this.isPlaying) return this
-    this.isPlaying = true
-    setTimeout(() => this.render(), this.delay)
-    return this
+  async play(): Promise<any> {
+    if (this._isPlaying) {
+      // FIXME est ce qu'on veut que le code après la promesse soit exécuté autant de fois que l'on a executé play() ?
+      console.log("is already playing")
+      return this.onCompleteDeferred.promise
+    }
+    this._isPlaying = true
+
+    // Delay is set only on first play.
+    // If this play is retrigger before onComplete, we don't wait again
+    setTimeout(() => this.render(), this.time > 0 ? 0 : this.delay)
+
+    // create new onComplete deferred Promise and return it
+    this.onCompleteDeferred = deferredPromise()
+    return this.onCompleteDeferred.promise
   }
 
-  pause(): Interpol {
-    if (!this.isPlaying) return this
-    this.isPlaying = false
-    this.time = undefined // reset time
-    cancelAnimationFrame(this.raf)
-    return this
+  async replay(): Promise<any> {
+    this.stop()
+    return this.play()
   }
 
-  resume(): Interpol {
-    if (this.isPlaying) return this
-    this.isPlaying = true
-    this.render()
-    return this
+  pause(): void {
+    if (!this._isPlaying) return
+    this._isPlaying = false
+
+    // reset timer and raf
+    this.timer = undefined
+    CANCEL_RAF(this.raf)
   }
 
-  stop(): Interpol {
-    this.isPlaying = false
-    this.currentTime = 0
-    this.time = undefined
-    cancelAnimationFrame(this.raf)
-    return this
+  stop(): void {
+    this._isPlaying = false
+
+    // reset time, timer and raf
+    this.time = 0
+    this.timer = undefined
+    CANCEL_RAF(this.raf)
   }
 
   protected render(): void {
     // prepare delta
-    if (!this.time) this.time = Date.now()
+    if (!this.timer) this.timer = Date.now()
     const _currentTime = Date.now()
-    const deltaTime = _currentTime - this.time
-    this.time = _currentTime
+    const deltaTime = _currentTime - this.timer
+    this.timer = _currentTime
 
     // calc
-    this.currentTime = Math.min(this.duration, this.currentTime + deltaTime)
-    this.advancement = this.currentTime / this.duration
+    this.time = Math.min(this.duration, this.time + deltaTime)
+    this.advancement = this.time / this.duration
     this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
 
     // exe onUpdate func
-    this.onUpdate({
+    this.onUpdate?.({
       value: this.value,
-      time: this.currentTime,
+      time: this.time,
       advancement: this.advancement,
     })
 
     // recursive call render
-    this.raf = requestAnimationFrame(this.render.bind(this))
+    this.raf = RAF(this.render.bind(this))
 
     // end
     if (this.value === this.to) {
-      this.onComplete({
+      this.onComplete?.({
         value: this.value,
-        time: this.currentTime,
+        time: this.time,
         advancement: this.advancement,
       })
+      this.onCompleteDeferred.resolve()
       this.stop()
     }
   }
 }
-
-

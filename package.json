@@ -19,19 +19,17 @@
     "build": "npm run clean && microbundle --jsx React.createElement",
     "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
     "dev:basic": "pnpm --filter ./examples/basic run dev",
-    "test": "jest && npm run size",
-    "test:watch": "jest --watch",
+    "test:watch": "vitest",
+    "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
   },
   "devDependencies": {
     "microbundle": "^0.15.0",
     "prettier": "^2.7.1",
+    "vitest": "^0.23.2",
     "typescript": "^4.6.4"
   },
   "prettier": {
     "semi": false
-  },
-  "dependencies": {
-    "interpol": "^0.0.0"
   }
 }

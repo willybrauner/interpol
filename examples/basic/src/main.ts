@@ -3,14 +3,27 @@ import { Interpol, Ease } from "interpol"
 
 const $playButton = document.querySelector<HTMLDivElement>(".play")
 const $pauseButton = document.querySelector<HTMLDivElement>(".pause")
-const $resumeButton = document.querySelector<HTMLDivElement>(".resume")
+const $replayButton = document.querySelector<HTMLDivElement>(".replay")
 const $stopButton = document.querySelector<HTMLDivElement>(".stop")
+
+$playButton.addEventListener("click", async () => {
+  await inter.play()
+  console.log("play is complete!")
+})
+$replayButton.addEventListener("click", async () => {
+  await inter.replay()
+  console.log("replay is complete!")
+})
+
+$pauseButton.addEventListener("click", () => inter.pause())
+$stopButton.addEventListener("click", () => inter.stop())
+
 const $el = document.querySelector<HTMLDivElement>(".el")
 
 const inter = new Interpol({
   from: 0,
   to: 1400,
-  duration: 2000,
+  duration: 1000,
   delay: 300,
   paused: true,
   ease: Ease.outExpo,
@@ -23,17 +36,4 @@ const inter = new Interpol({
   onComplete: () => {
     $el.style.transform = `translateX(${0}vw) translateY(${0}vh)`
   },
-})
-
-$playButton.addEventListener("click", () => {
-  inter.play()
-})
-$pauseButton.addEventListener("click", () => {
-  inter.pause()
-})
-$resumeButton.addEventListener("click", () => {
-  inter.resume()
-})
-$stopButton.addEventListener("click", () => {
-  inter.stop()
 })
