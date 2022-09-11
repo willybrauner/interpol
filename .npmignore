@@ -1,0 +1,15 @@
+.idea
+.cache
+.github
+node_modules
+src
+src/*
+src/**
+test
+example
+example-node
+.babelrc
+.prettierignore
+.prettierrc
+jest.config.ts
+tsconfig.json

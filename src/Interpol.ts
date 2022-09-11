@@ -17,7 +17,7 @@ interface IInterpolConstruct {
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 
-class Interpol {
+export class Interpol {
   from: number
   to: number
   duration: number
@@ -125,4 +125,4 @@ class Interpol {
   }
 }
 
-export default Interpol
+
