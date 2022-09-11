@@ -1,0 +1,36 @@
+{
+  "name": "interpol",
+  "private": false,
+  "version": "0.0.0",
+  "type": "module",
+  "source": "src/index.ts",
+  "main": "dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/willybrauner/interpol.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && microbundle --jsx React.createElement",
+    "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
+    "dev:basic": "pnpm --filter ./examples/basic run dev",
+    "dev:basic-timeline": "pnpm --filter ./examples/basic-timeline run dev",
+    "test:watch": "vitest",
+    "test": "vitest run",
+    "pre-publish": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "microbundle": "^0.15.0",
+    "prettier": "^2.7.1",
+    "vitest": "^0.23.2",
+    "typescript": "^4.6.4"
+  },
+  "prettier": {
+    "semi": false
+  }
+}
