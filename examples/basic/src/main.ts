@@ -6,6 +6,7 @@ const $pauseButton = document.querySelector<HTMLDivElement>(".pause")
 const $replayButton = document.querySelector<HTMLDivElement>(".replay")
 const $stopButton = document.querySelector<HTMLDivElement>(".stop")
 
+
 $playButton.addEventListener("click", async () => {
   await inter.play()
   console.log("play is complete!")

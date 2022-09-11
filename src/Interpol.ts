@@ -75,12 +75,14 @@ export class Interpol {
 
   async play(): Promise<any> {
     if (this._isPlaying) {
-      // FIXME est ce qu'on veut que le code après la promesse soit exécuté autant de fois que l'on a executé play() ?
-      console.log("is already playing")
+      // recreate deferred promise to avoid multi callback:
+      // ex:
+      //  await play()
+      //  some code... -> need to be called once even if play() is called multi times
+      this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
     this._isPlaying = true
-
     // Delay is set only on first play.
     // If this play is retrigger before onComplete, we don't wait again
     setTimeout(() => this.render(), this.time > 0 ? 0 : this.delay)
@@ -124,6 +126,7 @@ export class Interpol {
     this.time = Math.min(this.duration, this.time + deltaTime)
     this.advancement = this.time / this.duration
     this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
+    this.value = Math.round(this.value * 1000) / 1000
 
     // exe onUpdate func
     this.onUpdate?.({
