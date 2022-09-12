@@ -24,7 +24,9 @@ const RAF =
     : requestAnimationFrame
 
 const CANCEL_RAF =
-  typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
+  typeof window === "undefined"
+    ? (cb) => {}
+    : cancelAnimationFrame
 
 export class Interpol {
   from: number

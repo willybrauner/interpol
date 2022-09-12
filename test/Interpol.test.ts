@@ -54,3 +54,9 @@ it("play() should return a resolved promise when complete", async () => {
   expect(inter.isPlaying).toBe(false)
   expect(mock).toBeCalledTimes(1)
 })
+
+
+it('should execute onComplete once', ()=>
+{
+
+})
