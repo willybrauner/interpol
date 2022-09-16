@@ -1,12 +1,12 @@
 import { Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
-
-interface ITimelineConstruct {
-  paused?: boolean
-}
+import Ticker from "./helpers/Ticker"
+import { ad } from "vitest/dist/global-d05ffb3f"
 
 export class Timeline {
   protected _isPaused = false
+  protected onComplete: () => void
+
   public get isPaused() {
     return this._isPaused
   }
@@ -16,13 +16,22 @@ export class Timeline {
     return this._isPlaying
   }
 
+  protected ticker: Ticker
   protected adds: Add[] = []
-  // protected timeline = []
+
   protected onCompleteDeferred = deferredPromise()
   protected timeouts: ReturnType<typeof setTimeout>[] = []
 
-  constructor({ paused = true }: ITimelineConstruct = {}) {
+  constructor({
+    paused = true,
+    onComplete = () => {},
+  }: {
+    paused?: boolean
+    onComplete?: () => void
+  } = {}) {
     this._isPaused = paused
+    this.ticker = new Ticker()
+    this.onComplete = onComplete
   }
 
   /**
@@ -30,9 +39,9 @@ export class Timeline {
    *
    *
    */
-  add(interpol: Interpol, offsetPosition: number = 0) {
+  add(interpol: Interpol, offsetPosition: number = 0): Timeline {
+    console.log("this.adds before new register", this.adds)
     const lastAdd = this.adds[this.adds.length - 1]
-    console.log(">", this.adds)
 
     // if lastAdd exist, calc start position of this new Add, else, this is the first one
     const startPositionInTl = lastAdd
@@ -58,26 +67,55 @@ export class Timeline {
     return this
   }
 
-  async play() {
-    if (this.isPlaying) {
-      this.onCompleteDeferred = deferredPromise()
-      return this.onCompleteDeferred.promise
+  async play(): Promise<any> {
+    if (this.adds.length === 0) {
+      console.warn("No Interpol instance added to this TimeLine, return")
+      return
     }
 
-    for (let i = 0; i < this.adds.length; i++) {
-      const curr = this.adds[i]
+    // if (this.isPlaying) {
+    //   this.onCompleteDeferred = deferredPromise()
+    //   return this.onCompleteDeferred.promise
+    // }
 
-      const timeout = setTimeout(async () => {
-        await curr.interpol.play()
-        if (curr.isLastOfTl) {
-          return this.onCompleteDeferred.resolve()
+    this.ticker.start()
+    this.ticker.onUpdate = ({ delta, time, elapsedTime }) => {
+      console.log({ elapsedTime })
+
+      for (let i = 0; i < this.adds.length; i++) {
+        const currentAdd = this.adds[i]
+        // currentAdd.update()
+
+        const currentAddEnd =
+          currentAdd.startPositionInTl + currentAdd.interpol.duration
+
+        if (
+          elapsedTime >= currentAdd.startPositionInTl &&
+          elapsedTime < currentAddEnd
+        ) {
+          currentAdd.interpol.play()
         }
-      }, curr.startPositionInTl)
 
-      this.timeouts.push(timeout)
+        if (currentAdd.isLastOfTl && elapsedTime >= currentAddEnd) {
+          this.ticker.stop()
+          this.onComplete()
+        }
+      }
     }
 
-    
+    // for (let i = 0; i < this.adds.length; i++) {
+    //   const curr = this.adds[i]
+    //
+    //   const timeout = setTimeout(async () => {
+    //     await curr.interpol.play()
+    //     if (curr.isLastOfTl) {
+    //       return this.onCompleteDeferred.resolve()
+    //     }
+    //   }, curr.startPositionInTl)
+    //
+    //   this.timeouts.push(timeout)
+    // }
+
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
@@ -86,6 +124,7 @@ export class Timeline {
 
   pause() {
     this.adds.forEach((e) => e.interpol.pause())
+    this.ticker.pause()
 
     // ne peut pas clear ici
     // this.timeouts.forEach((e) => clearTimeout(e))
@@ -94,6 +133,7 @@ export class Timeline {
   stop() {
     this.adds.forEach((e) => e.interpol.stop())
     this.timeouts.forEach((e) => clearTimeout(e))
+    this.ticker.stop()
   }
 }
 

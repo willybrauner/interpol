@@ -1,5 +1,6 @@
 import { Ease } from "./Ease"
 import { deferredPromise } from "./helpers/deferredPromise"
+import { CANCEL_RAF, RAF } from "./helpers/Ticker"
 
 interface IUpdateParams {
   value: number
@@ -18,16 +19,6 @@ interface IInterpolConstruct {
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 
-const RAF =
-  typeof window === "undefined"
-    ? (cb) => setTimeout(cb, 16)
-    : requestAnimationFrame
-
-const CANCEL_RAF =
-  typeof window === "undefined"
-    ? (cb) => {}
-    : cancelAnimationFrame
-
 export class Interpol {
   from: number
   to: number
@@ -41,7 +32,7 @@ export class Interpol {
   protected raf
   protected time: number = 0
   protected advancement: number = 0
-  protected timer: number
+  protected currentTime: number
   protected value: number = 0
   protected timeout
 
@@ -107,7 +98,7 @@ export class Interpol {
     this._isPlaying = false
 
     // reset timer and raf
-    this.timer = undefined
+    this.currentTime = undefined
     CANCEL_RAF(this.raf)
   }
 
@@ -116,17 +107,17 @@ export class Interpol {
 
     // reset time, timer and raf
     this.time = 0
-    this.timer = undefined
+    this.currentTime = undefined
     CANCEL_RAF(this.raf)
     clearTimeout(this.timeout)
   }
 
   protected render(): void {
     // prepare delta
-    if (!this.timer) this.timer = Date.now()
-    const _currentTime = Date.now()
-    const deltaTime = _currentTime - this.timer
-    this.timer = _currentTime
+    const currentTime = Date.now()
+    if (!this.currentTime) this.currentTime = Date.now()
+    const deltaTime = currentTime - this.currentTime
+    this.currentTime = currentTime
 
     // calc
     this.time = Math.min(this.duration, this.time + deltaTime)

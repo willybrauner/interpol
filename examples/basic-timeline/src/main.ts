@@ -18,6 +18,8 @@ $pauseButton.addEventListener("click", () => tl.pause())
 $stopButton.addEventListener("click", () => tl.stop())
 
 const $el = document.querySelector<HTMLDivElement>(".el")
+const $el2 = document.querySelector<HTMLDivElement>(".el2")
+const $el3 = document.querySelector<HTMLDivElement>(".el3")
 
 const go = new Interpol({
   from: 0,
@@ -52,9 +54,9 @@ const back = new Interpol({
   },
 })
 
-const tl = new Timeline()
+const tl = new Timeline({onComplete: ()=> { console.log('--- TL complete !') }})
 tl.add(go, 0)
-tl.add(back, -400)
+tl.add(back, 0)
 tl.add(go, 500)
 
 //await tl.play()
