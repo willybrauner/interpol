@@ -11,39 +11,46 @@ interface IAdd {
 }
 
 export class Timeline {
-  interpols: IAdd[] = []
+  public adds: IAdd[] = []
 
-  paused: boolean
+  protected _isPaused = false
+  public get isPaused() {
+    return this._isPaused
+  }
 
   protected _isPlaying = false
-  get isPlaying() {
+  public get isPlaying() {
     return this._isPlaying
   }
+
   protected onCompleteDeferred = deferredPromise()
   protected timeouts: ReturnType<typeof setTimeout>[] = []
 
   constructor({ paused = true }: ITimelineConstruct = {}) {
-    this.paused = paused
+    this._isPaused = paused
   }
 
+  /**
+   * API
+   *
+   *
+   */
   add(interpol: Interpol, offsetDuration: number = 0) {
-    this.interpols.push({ interpol, offsetDuration })
+    this.adds.push({ interpol, offsetDuration })
     return this
   }
 
   async play() {
-    if (this._isPlaying) {
+    if (this.isPlaying) {
       this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
-
-    // console.log(this.interpols)
+    
     const durations: number[] = []
-    for (let i = 0; i < this.interpols.length; i++) {
-
-      const prev: IAdd = this.interpols[i - 1]
-      const curr: IAdd = this.interpols[i]
-      const isLast = i === this.interpols.length - 1
+    for (let i = 0; i < this.adds.length; i++) {
+      const prev: IAdd = this.adds[i - 1]
+      const curr: IAdd = this.adds[i]
+      const isLast = i === this.adds.length - 1
 
       // TODO faire ce calc dans add pour avoir directement les valeurs dispo
       // add new duration
@@ -73,7 +80,15 @@ export class Timeline {
 
   replay() {}
 
-  pause() {}
+  pause() {
+    this.adds.forEach((e) => e.interpol.pause())
 
-  stop() {}
+    // ne peut pas clear ici
+    // this.timeouts.forEach((e) => clearTimeout(e))
+  }
+
+  stop() {
+    this.adds.forEach((e) => e.interpol.stop())
+    this.timeouts.forEach((e) => clearTimeout(e))
+  }
 }

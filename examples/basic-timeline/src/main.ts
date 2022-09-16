@@ -54,7 +54,7 @@ const back = new Interpol({
 
 const tl = new Timeline()
 tl.add(go, 0)
-tl.add(back, -300)
+tl.add(back, -400)
 tl.add(go, 500)
 
 //await tl.play()
