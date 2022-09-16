@@ -64,34 +64,20 @@ export class Timeline {
       return this.onCompleteDeferred.promise
     }
 
-    const durations: number[] = []
     for (let i = 0; i < this.adds.length; i++) {
-      const prev: Add = this.adds[i - 1]
-      const curr: Add = this.adds[i]
-      const isLast = i === this.adds.length - 1
-
-      // TODO faire ce calc dans add pour avoir directement les valeurs dispo
-      // add new duration
-      durations.push((prev?.interpol.duration || 0) + curr.offsetPosition)
-      console.log("durations after push", durations)
-
-      const pos = durations.reduce((a, b) => a + b)
-      console.log("pos", pos)
+      const curr = this.adds[i]
 
       const timeout = setTimeout(async () => {
-        prev?.interpol.stop()
-
-        if (isLast) {
-          await curr.interpol.play()
-          // create new onComplete deferred Promise and return it
+        await curr.interpol.play()
+        if (curr.isLastOfTl) {
           return this.onCompleteDeferred.resolve()
-        } else {
-          curr.interpol.play()
         }
-      }, pos)
+      }, curr.startPositionInTl)
+
       this.timeouts.push(timeout)
     }
 
+    
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
