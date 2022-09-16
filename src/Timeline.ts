@@ -8,10 +8,15 @@ interface ITimelineConstruct {
 interface IAdd {
   interpol: Interpol
   offsetDuration: number
+  // Start position of this add inside the full timeline
+  startPositionInTl: number
+  // position progress (where we are) inside this current add
+  position: number
+  // play state of this add
+  play: boolean
 }
 
 export class Timeline {
-  public adds: IAdd[] = []
 
   protected _isPaused = false
   public get isPaused() {
@@ -23,8 +28,12 @@ export class Timeline {
     return this._isPlaying
   }
 
+
+  protected adds: IAdd[] = []
+  protected timeline = []
   protected onCompleteDeferred = deferredPromise()
   protected timeouts: ReturnType<typeof setTimeout>[] = []
+
 
   constructor({ paused = true }: ITimelineConstruct = {}) {
     this._isPaused = paused
@@ -36,16 +45,23 @@ export class Timeline {
    *
    */
   add(interpol: Interpol, offsetDuration: number = 0) {
-    this.adds.push({ interpol, offsetDuration })
+    this.adds.push({
+      interpol,
+      offsetDuration,
+      startPositionInTl: 0,
+      position: 0,
+      play: false,
+    })
     return this
   }
+
 
   async play() {
     if (this.isPlaying) {
       this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
-    
+
     const durations: number[] = []
     for (let i = 0; i < this.adds.length; i++) {
       const prev: IAdd = this.adds[i - 1]
@@ -92,3 +108,5 @@ export class Timeline {
     this.timeouts.forEach((e) => clearTimeout(e))
   }
 }
+
+
