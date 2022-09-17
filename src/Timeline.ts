@@ -74,12 +74,18 @@ export class Timeline {
       return
     }
 
-    // if (this.isPlaying) {
-    //   this.onCompleteDeferred = deferredPromise()
-    //   return this.onCompleteDeferred.promise
-    // }
+    if (this.isPlaying) {
+      console.log("    this._isPlaying", this._isPlaying)
+      this.onCompleteDeferred = deferredPromise()
+      return this.onCompleteDeferred.promise
+    }
 
+    this._isPlaying = true
+
+    // start ticker
     this.ticker.start()
+
+    // on ticker update
     this.ticker.onUpdate = ({ elapsed }) => {
       console.log({ elapsed })
 
@@ -93,14 +99,13 @@ export class Timeline {
         ) {
           currentAdd.interpol.play()
         } else {
+          currentAdd.interpol.stop()
         }
 
         // stop at the end
-        if (
-          currentAdd.isLastOfTl &&
-          elapsed >= currentAdd.endPositionInTl
-        ) {
+        if (currentAdd.isLastOfTl && elapsed >= currentAdd.endPositionInTl) {
           this.ticker.stop()
+          this.stop()
           this.onComplete()
           this.onCompleteDeferred.resolve()
         }
@@ -114,11 +119,13 @@ export class Timeline {
   replay() {}
 
   pause() {
+    this._isPlaying = false
     this.adds.forEach((e) => e.interpol.pause())
     this.ticker.pause()
   }
 
   stop() {
+    this._isPlaying = false
     this.adds.forEach((e) => e.interpol.stop())
     this.ticker.stop()
   }

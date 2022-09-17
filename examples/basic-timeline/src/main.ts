@@ -57,7 +57,7 @@ const back = new Interpol({
 const tl = new Timeline({onComplete: ()=> { console.log('--- TL complete !') }})
 tl.add(go, 0)
 tl.add(back, 0)
-tl.add(go, 500)
+//tl.add(go, 500)
 
 
 //await tl.play()
