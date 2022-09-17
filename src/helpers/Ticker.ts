@@ -1,3 +1,5 @@
+import { Beeper } from "./Beeper"
+
 export const RAF =
   typeof window === "undefined"
     ? (cb) => setTimeout(cb, 16)
@@ -26,10 +28,19 @@ export default class Ticker {
   //  there is between two frames at 60fps.
   public delta: number
 
+  public onUpdate = Beeper<{
+    delta: number
+    time: number
+    elapsed: number
+  }>()
+
   // store the raf
   protected raf
 
+  protected isRunning = false
+
   public start(): void {
+    this.isRunning = true
     this.debut = Date.now()
     this.time = this.debut
     this.elapsed = 0
@@ -37,20 +48,15 @@ export default class Ticker {
     this.raf = RAF(this.tick.bind(this))
   }
   public pause(): void {
+    this.isRunning = false
     CANCEL_RAF(this.raf)
   }
 
   public stop(): void {
-    // if (!this.raf) return
+    this.isRunning = false
     this.elapsed = 0
     CANCEL_RAF(this.raf)
   }
-
-  public onUpdate = (_: {
-    delta: number
-    time: number
-    elapsed: number
-  }): void => {}
 
   protected tick(): void {
     const time = Date.now()
@@ -59,11 +65,12 @@ export default class Ticker {
     this.elapsed = this.time - this.debut
 
     this.raf = RAF(this.tick.bind(this))
-
-    this.onUpdate?.({
-      delta: this.delta,
-      time: this.time,
-      elapsed: this.elapsed,
-    })
+    if (this.isRunning) {
+      this.onUpdate.dispatch({
+        delta: this.delta,
+        time: this.time,
+        elapsed: this.elapsed,
+      })
+    }
   }
 }

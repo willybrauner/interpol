@@ -1,7 +1,6 @@
 import { Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./helpers/Ticker"
-import { roundedValue } from "./helpers/roundValue"
 
 export class Timeline {
   protected _isPaused = false
@@ -16,9 +15,10 @@ export class Timeline {
     return this._isPlaying
   }
 
-  protected ticker: Ticker
   protected adds: Add[] = []
   protected onCompleteDeferred = deferredPromise()
+  protected ticker = new Ticker()
+  protected tlDuration: number = 0
 
   constructor({
     paused = true,
@@ -28,7 +28,6 @@ export class Timeline {
     onComplete?: () => void
   } = {}) {
     this._isPaused = paused
-    this.ticker = new Ticker()
     this.onComplete = onComplete
   }
 
@@ -37,8 +36,15 @@ export class Timeline {
    *
    *
    */
-  add(interpol: Interpol, offsetPosition: number = 0): Timeline {
-    console.log("this.adds before new register", this.adds)
+  public add(interpol: Interpol, offsetPosition: number = 0): Timeline {
+    // bind Timeline ticker to each interpol instance
+    interpol.ticker = this.ticker
+    interpol.inTl = true
+
+    // register full TL duration
+    this.tlDuration += interpol.duration + offsetPosition
+
+    // get last add
     const lastAdd = this.adds[this.adds.length - 1]
 
     // if lastAdd exist, calc start position of this new Add, else, this is the first one
@@ -69,9 +75,7 @@ export class Timeline {
     return this
   }
 
-  protected time = 0
-
-  async play(): Promise<any> {
+  public async play(): Promise<any> {
     if (this.adds.length === 0) {
       console.warn("No Interpol instance added to this TimeLine, return")
       return
@@ -81,41 +85,32 @@ export class Timeline {
       return this.onCompleteDeferred.promise
     }
     this._isPlaying = true
-
-    // start ticker
     this.ticker.start()
-
-    // on ticker update
-    this.ticker.onUpdate = ({ delta, time, elapsed }) => {
-      console.log("=== TL", { elapsed, delta, time })
-
-      // calc
-      this.time = elapsed
-
-      for (let i = 0; i < this.adds.length; i++) {
-        const currentAdd = this.adds[i]
-
-        // play
-        if (
-          currentAdd.startPositionInTl < this.time &&
-          this.time < currentAdd.endPositionInTl
-        ) {
-          currentAdd.interpol.play()
-        } else {
-           currentAdd.interpol.stop()
-        }
-
-        // stop at the end
-        if (currentAdd.isLastOfTl &&  this.time >= currentAdd.endPositionInTl) {
-          this.onComplete()
-          this.onCompleteDeferred.resolve()
-          this.stop()
-        }
-      }
-    }
-
+    this.ticker.onUpdate.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
+  }
+
+  protected handleTickerUpdate = ({ delta, time, elapsed }) => {
+    // clamp elapse time with full duration
+    elapsed = Math.min(elapsed, this.tlDuration)
+    console.log("=== TL", { elapsed, delta, time })
+
+    // witch one is playing
+
+    // pas possible de garder comme ça car on aura peut-être deux anim a exe en meme temps
+    this.adds.forEach((e) => {
+      if (elapsed > e.startPositionInTl && elapsed <= e.endPositionInTl) {
+        e.interpol.play()
+      }
+      // stop at the end
+      if (e?.isLastOfTl && elapsed === this.tlDuration) {
+        console.log("Timeline > stop!")
+        this.onComplete()
+        this.onCompleteDeferred.resolve()
+        this.stop()
+      }
+    })
   }
 
   replay() {}
@@ -123,13 +118,14 @@ export class Timeline {
   pause() {
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.pause())
+    this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
 
   stop() {
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.stop())
-    this.time = 0
+    this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.ticker.stop()
   }
 }

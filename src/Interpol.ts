@@ -30,10 +30,11 @@ export class Interpol {
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
 
-  protected ticker = new Ticker()
+  public inTl = false
+  public ticker = new Ticker()
+  public advancement = 0
   protected timeout: ReturnType<typeof setTimeout>
   protected time = 0
-  protected advancement = 0
   protected value = 0
   protected onCompleteDeferred = deferredPromise()
 
@@ -98,52 +99,57 @@ export class Interpol {
   pause(): void {
     if (!this._isPlaying) return
     this._isPlaying = false
-    this.ticker.pause()
+    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    if (!this.inTl) this.ticker.pause()
   }
 
   stop(): void {
     if (!this._isPlaying) return
     this._isPlaying = false
-    // reset
+    // reset timeout
     clearTimeout(this.timeout)
     this.value = 0
     this.time = 0
     this.advancement = 0
-    this.ticker.stop()
+    this.ticker.onUpdate.off(this.handleTickerUpdate)
+
+    if (!this.inTl) this.ticker.stop()
   }
 
   protected async render(): Promise<void> {
     // start ticker
-    this.ticker.start()
+    if (!this.inTl) this.ticker.start()
 
     // on ticker update
-    this.ticker.onUpdate = async ({ delta }) => {
-      // calc
-      this.time = Math.min(this.duration, this.time + delta)
-      this.advancement = roundedValue(this.time / this.duration)
-      this.value = roundedValue(
-        this.from + (this.to - this.from) * this.ease(this.advancement)
-      )
+    this.ticker.onUpdate.on(this.handleTickerUpdate)
+  }
 
-      // exe onUpdate local method with params
-      this.onUpdate?.({
+  protected handleTickerUpdate = ({ delta }) => {
+    // calc
+    this.time = Math.min(this.duration, this.time + delta)
+    this.advancement = roundedValue(this.time / this.duration)
+    this.value = roundedValue(
+      this.from + (this.to - this.from) * this.ease(this.advancement)
+    )
+
+    // exe onUpdate local method with params
+    this.onUpdate?.({
+      value: this.value,
+      time: this.time,
+      advancement: this.advancement,
+    })
+
+    // end, exe onComplete
+    if (this.value === this.to) {
+      console.log("this.value === this.to", this.value, this.to)
+
+      this.onComplete?.({
         value: this.value,
         time: this.time,
         advancement: this.advancement,
       })
-
-      // end, exe onComplete
-      if (this.value === this.to) {
-        console.log("this.value === this.to", this.value, this.to)
-
-        this.onComplete?.({
-          value: this.value,
-          time: this.time,
-          advancement: this.advancement,
-        })
-        this.onCompleteDeferred.resolve()
-        this.stop()
-      }
+      this.onCompleteDeferred.resolve()
+      this.stop()
     }
   }
 }
