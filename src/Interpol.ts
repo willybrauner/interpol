@@ -20,28 +20,27 @@ interface IInterpolConstruct {
 }
 
 export class Interpol {
-  from: number
-  to: number
-  duration: number
-  ease: (t: number) => number
-  paused: boolean
-  delay: number
-  onUpdate: (e: IUpdateParams) => void
-  onComplete: (e: IUpdateParams) => void
+  public from: number
+  public to: number
+  public duration: number
+  public ease: (t: number) => number
+  public paused: boolean
+  public delay: number
+  public onUpdate: (e: IUpdateParams) => void
+  public onComplete: (e: IUpdateParams) => void
 
   protected ticker = new Ticker()
-
   protected timeout: ReturnType<typeof setTimeout>
   protected time = 0
   protected advancement = 0
   protected value = 0
+  protected onCompleteDeferred = deferredPromise()
 
   protected _isPlaying = false
-  get isPlaying() {
+  public get isPlaying() {
     return this._isPlaying
   }
 
-  protected onCompleteDeferred = deferredPromise()
 
   constructor({
     from = 0,
@@ -78,7 +77,6 @@ export class Interpol {
     this._isPlaying = true
     // Delay is set only on first play.
     // If this play is retrigger before onComplete, we don't wait again
-
     this.timeout = setTimeout(
       () => {
         // start ticker
@@ -114,12 +112,13 @@ export class Interpol {
     this.ticker.stop()
   }
 
-  protected render(): void {
+  protected async render(): Promise<void> {
     // start ticker
     this.ticker.start()
 
     // on ticker update
-    this.ticker.onUpdate = ({ delta }) => {
+    this.ticker.onUpdate = async ({ delta }) => {
+      // calc
       this.time = Math.min(this.duration, this.time + delta)
       this.advancement = this.roundedValue(this.time / this.duration)
       this.value = this.roundedValue(
