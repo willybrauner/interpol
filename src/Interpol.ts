@@ -1,5 +1,6 @@
 import { Ease } from "./Ease"
 import { deferredPromise } from "./helpers/deferredPromise"
+import { roundedValue } from "./helpers/roundValue"
 import Ticker from "./helpers/Ticker"
 
 interface IUpdateParams {
@@ -40,7 +41,6 @@ export class Interpol {
   public get isPlaying() {
     return this._isPlaying
   }
-
 
   constructor({
     from = 0,
@@ -102,8 +102,8 @@ export class Interpol {
   }
 
   stop(): void {
+    if (!this._isPlaying) return
     this._isPlaying = false
-
     // reset
     clearTimeout(this.timeout)
     this.value = 0
@@ -120,8 +120,8 @@ export class Interpol {
     this.ticker.onUpdate = async ({ delta }) => {
       // calc
       this.time = Math.min(this.duration, this.time + delta)
-      this.advancement = this.roundedValue(this.time / this.duration)
-      this.value = this.roundedValue(
+      this.advancement = roundedValue(this.time / this.duration)
+      this.value = roundedValue(
         this.from + (this.to - this.from) * this.ease(this.advancement)
       )
 
@@ -145,9 +145,5 @@ export class Interpol {
         this.stop()
       }
     }
-  }
-
-  protected roundedValue(v: number): number {
-    return Math.round(v * 1000) / 1000
   }
 }

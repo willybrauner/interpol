@@ -1,6 +1,7 @@
 import { Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./helpers/Ticker"
+import { roundedValue } from "./helpers/roundValue"
 
 export class Timeline {
   protected _isPaused = false
@@ -68,46 +69,47 @@ export class Timeline {
     return this
   }
 
+  protected time = 0
+
   async play(): Promise<any> {
     if (this.adds.length === 0) {
       console.warn("No Interpol instance added to this TimeLine, return")
       return
     }
-
     if (this.isPlaying) {
-      console.log("    this._isPlaying", this._isPlaying)
       this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
-
     this._isPlaying = true
 
     // start ticker
     this.ticker.start()
 
     // on ticker update
-    this.ticker.onUpdate = ({ elapsed }) => {
-      console.log({ elapsed })
+    this.ticker.onUpdate = ({ delta, time, elapsed }) => {
+      console.log("=== TL", { elapsed, delta, time })
+
+      // calc
+      this.time = elapsed
 
       for (let i = 0; i < this.adds.length; i++) {
         const currentAdd = this.adds[i]
 
         // play
         if (
-          elapsed >= currentAdd.startPositionInTl &&
-          elapsed < currentAdd.endPositionInTl
+          currentAdd.startPositionInTl < this.time &&
+          this.time < currentAdd.endPositionInTl
         ) {
           currentAdd.interpol.play()
         } else {
-          currentAdd.interpol.stop()
+           currentAdd.interpol.stop()
         }
 
         // stop at the end
-        if (currentAdd.isLastOfTl && elapsed >= currentAdd.endPositionInTl) {
-          this.ticker.stop()
-          this.stop()
+        if (currentAdd.isLastOfTl &&  this.time >= currentAdd.endPositionInTl) {
           this.onComplete()
           this.onCompleteDeferred.resolve()
+          this.stop()
         }
       }
     }
@@ -127,6 +129,7 @@ export class Timeline {
   stop() {
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.stop())
+    this.time = 0
     this.ticker.stop()
   }
 }

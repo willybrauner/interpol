@@ -26,7 +26,7 @@ const go = new Interpol({
   to: 100,
   duration: 1160,
   paused: true,
-  ease: Ease.inOutQuart,
+  ease: Ease.inOutSine,
   onUpdate: ({ value, time, advancement }) => {
     console.log("> go >", { value, time, advancement })
     const x = value
@@ -41,7 +41,7 @@ const go = new Interpol({
 const back = new Interpol({
   from: 100,
   to: 0,
-  duration: 500,
+  duration: 1000,
   paused: true,
   onUpdate: ({ value, time, advancement }) => {
     console.log("> back >", { value, time, advancement })
