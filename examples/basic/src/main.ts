@@ -24,8 +24,8 @@ const $el = document.querySelector<HTMLDivElement>(".el")
 const inter = new Interpol({
   from: 0,
   to: 1400,
-  duration: 1000,
-//  delay: 300,
+  duration: 1300,
+  delay: 300,
   paused: true,
   ease: Ease.inOutQuad,
   onUpdate: ({ value, time, advancement }) => {

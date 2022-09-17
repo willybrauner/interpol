@@ -12,56 +12,58 @@ export const CANCEL_RAF =
  *
  */
 export default class Ticker {
-  // will contain the timestamp when the experience starts and will stay the same.
-  public startTime: number
-  // will contain the current timestamp and will change on each frame.
-  public currentTime: number
-  // will contain how much time was spent since the start of the experience.
-  public elapsedTime: number
+  // Contain timestamp when the experience starts and will stay the same
+  public debut: number
+
+  // contain the current timestamp and will change on each frame
+  public time: number
+
+  // How much time was spent since the start of the experience
+  public elapsed: number
+
   // will contain how much time was spent since the previous frame.
   // We set it as 16 by default which is close to how many milliseconds
   //  there is between two frames at 60fps.
-  public deltaTime: number
-  // store raf
+  public delta: number
+
+  // store the raf
   protected raf
 
-  public start() {
-    this.startTime = Date.now()
-    this.currentTime = this.startTime
-    this.elapsedTime = 0
-    this.deltaTime = 16
+  public start(): void {
+    this.debut = Date.now()
+    this.time = this.debut
+    this.elapsed = 0
+    this.delta = 16
     this.raf = RAF(this.tick.bind(this))
   }
-  public pause() {
+  public pause(): void {
     CANCEL_RAF(this.raf)
   }
 
-  public stop() {
+  public stop(): void {
     // if (!this.raf) return
-    this.elapsedTime = 0
+    this.elapsed = 0
     CANCEL_RAF(this.raf)
-    console.log("----------------------------------------------------")
   }
 
-  public onUpdate = (p: {
+  public onUpdate = (_: {
     delta: number
     time: number
-    elapsedTime: number
+    elapsed: number
   }): void => {}
 
-  protected tick() {
-
-    const currentTime = Date.now()
-    this.deltaTime = currentTime - this.currentTime
-    this.currentTime = currentTime
-    this.elapsedTime = this.currentTime - this.startTime
+  protected tick(): void {
+    const time = Date.now()
+    this.delta = time - this.time
+    this.time = time
+    this.elapsed = this.time - this.debut
 
     this.raf = RAF(this.tick.bind(this))
 
     this.onUpdate?.({
-      delta: this.deltaTime,
-      time: this.currentTime,
-      elapsedTime: this.elapsedTime,
+      delta: this.delta,
+      time: this.time,
+      elapsed: this.elapsed,
     })
   }
 }

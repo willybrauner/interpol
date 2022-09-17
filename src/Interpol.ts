@@ -1,6 +1,6 @@
 import { Ease } from "./Ease"
 import { deferredPromise } from "./helpers/deferredPromise"
-import { CANCEL_RAF, RAF } from "./helpers/Ticker"
+import Ticker from "./helpers/Ticker"
 
 interface IUpdateParams {
   value: number
@@ -29,12 +29,12 @@ export class Interpol {
   onUpdate: (e: IUpdateParams) => void
   onComplete: (e: IUpdateParams) => void
 
-  protected raf
-  protected time: number = 0
-  protected advancement: number = 0
-  protected currentTime: number
-  protected value: number = 0
-  protected timeout
+  protected ticker = new Ticker()
+
+  protected timeout: ReturnType<typeof setTimeout>
+  protected time = 0
+  protected advancement = 0
+  protected value = 0
 
   protected _isPlaying = false
   get isPlaying() {
@@ -78,8 +78,12 @@ export class Interpol {
     this._isPlaying = true
     // Delay is set only on first play.
     // If this play is retrigger before onComplete, we don't wait again
+
     this.timeout = setTimeout(
-      () => this.render(),
+      () => {
+        // start ticker
+        this.render()
+      },
       this.time > 0 ? 0 : this.delay
     )
 
@@ -96,54 +100,55 @@ export class Interpol {
   pause(): void {
     if (!this._isPlaying) return
     this._isPlaying = false
-
-    // reset timer and raf
-    this.currentTime = undefined
-    CANCEL_RAF(this.raf)
+    this.ticker.pause()
   }
 
   stop(): void {
     this._isPlaying = false
 
-    // reset time, timer and raf
-    this.time = 0
-    this.currentTime = undefined
-    CANCEL_RAF(this.raf)
+    // reset
     clearTimeout(this.timeout)
+    this.value = 0
+    this.time = 0
+    this.advancement = 0
+    this.ticker.stop()
   }
 
   protected render(): void {
-    // prepare delta
-    const currentTime = Date.now()
-    if (!this.currentTime) this.currentTime = Date.now()
-    const deltaTime = currentTime - this.currentTime
-    this.currentTime = currentTime
+    // start ticker
+    this.ticker.start()
 
-    // calc
-    this.time = Math.min(this.duration, this.time + deltaTime)
-    this.advancement = this.time / this.duration
-    this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
-    this.value = Math.round(this.value * 1000) / 1000
+    // on ticker update
+    this.ticker.onUpdate = ({ delta }) => {
+      this.time = Math.min(this.duration, this.time + delta)
+      this.advancement = this.roundedValue(this.time / this.duration)
+      this.value = this.roundedValue(
+        this.from + (this.to - this.from) * this.ease(this.advancement)
+      )
 
-    // exe onUpdate func
-    this.onUpdate?.({
-      value: this.value,
-      time: this.time,
-      advancement: this.advancement,
-    })
-
-    // recursive call render
-    this.raf = RAF(this.render.bind(this))
-
-    // end
-    if (this.value === this.to) {
-      this.onComplete?.({
+      // exe onUpdate local method with params
+      this.onUpdate?.({
         value: this.value,
         time: this.time,
         advancement: this.advancement,
       })
-      this.onCompleteDeferred.resolve()
-      this.stop()
+
+      // end, exe onComplete
+      if (this.value === this.to) {
+        console.log("this.value === this.to", this.value, this.to)
+
+        this.onComplete?.({
+          value: this.value,
+          time: this.time,
+          advancement: this.advancement,
+        })
+        this.onCompleteDeferred.resolve()
+        this.stop()
+      }
     }
+  }
+
+  protected roundedValue(v: number): number {
+    return Math.round(v * 1000) / 1000
   }
 }

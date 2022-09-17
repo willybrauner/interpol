@@ -80,16 +80,16 @@ export class Timeline {
     // }
 
     this.ticker.start()
-    this.ticker.onUpdate = ({ elapsedTime }) => {
-      console.log({ elapsedTime })
+    this.ticker.onUpdate = ({ elapsed }) => {
+      console.log({ elapsed })
 
       for (let i = 0; i < this.adds.length; i++) {
         const currentAdd = this.adds[i]
 
         // play
         if (
-          elapsedTime >= currentAdd.startPositionInTl &&
-          elapsedTime < currentAdd.endPositionInTl
+          elapsed >= currentAdd.startPositionInTl &&
+          elapsed < currentAdd.endPositionInTl
         ) {
           currentAdd.interpol.play()
         } else {
@@ -98,7 +98,7 @@ export class Timeline {
         // stop at the end
         if (
           currentAdd.isLastOfTl &&
-          elapsedTime >= currentAdd.endPositionInTl
+          elapsed >= currentAdd.endPositionInTl
         ) {
           this.ticker.stop()
           this.onComplete()
