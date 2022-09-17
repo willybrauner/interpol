@@ -24,33 +24,33 @@ const $el3 = document.querySelector<HTMLDivElement>(".el3")
 const go = new Interpol({
   from: 0,
   to: 100,
-  duration: 1000,
+  duration: 1160,
   paused: true,
   ease: Ease.inOutQuart,
   onUpdate: ({ value, time, advancement }) => {
-    console.log("go >", { value, time, advancement })
+    console.log("> go >", { value, time, advancement })
     const x = value
     const y = -((value / go.to) * 100)
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
   onComplete: ({ value, time, advancement }) => {
-    console.log("END go >", { value, time, advancement })
+    console.log("----------END go >", { value, time, advancement })
   },
 })
 
 const back = new Interpol({
   from: 100,
   to: 0,
-  duration: 1000,
+  duration: 500,
   paused: true,
   onUpdate: ({ value, time, advancement }) => {
-    console.log("back >", { value, time, advancement })
+    console.log("> back >", { value, time, advancement })
     const x = value
     const y = -((value / back.from) * 100)
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
   onComplete: ({ value, time, advancement }) => {
-    console.log("END back >", { value, time, advancement })
+    console.log("----------END back >", { value, time, advancement })
   },
 })
 
@@ -58,5 +58,6 @@ const tl = new Timeline({onComplete: ()=> { console.log('--- TL complete !') }})
 tl.add(go, 0)
 tl.add(back, 0)
 tl.add(go, 500)
+
 
 //await tl.play()

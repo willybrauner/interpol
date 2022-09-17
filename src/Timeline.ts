@@ -1,7 +1,6 @@
 import { Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./helpers/Ticker"
-import { ad } from "vitest/dist/global-d05ffb3f"
 
 export class Timeline {
   protected _isPaused = false
@@ -18,9 +17,7 @@ export class Timeline {
 
   protected ticker: Ticker
   protected adds: Add[] = []
-
   protected onCompleteDeferred = deferredPromise()
-  protected timeouts: ReturnType<typeof setTimeout>[] = []
 
   constructor({
     paused = true,
@@ -48,7 +45,10 @@ export class Timeline {
       ? lastAdd.startPositionInTl + interpol.duration + offsetPosition
       : 0
 
-    // update all "isLastOfTl property
+    // calc end position in TL (start pos + duration of interpolation)
+    const endPositionInTl = startPositionInTl + interpol.duration
+
+    // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) {
       this.adds[i].isLastOfTl = false
     }
@@ -59,6 +59,7 @@ export class Timeline {
         interpol,
         offsetPosition,
         startPositionInTl,
+        endPositionInTl,
         isLastOfTl: true,
       })
     )
@@ -79,42 +80,32 @@ export class Timeline {
     // }
 
     this.ticker.start()
-    this.ticker.onUpdate = ({ delta, time, elapsedTime }) => {
+    this.ticker.onUpdate = ({ elapsedTime }) => {
       console.log({ elapsedTime })
 
       for (let i = 0; i < this.adds.length; i++) {
         const currentAdd = this.adds[i]
-        // currentAdd.update()
 
-        const currentAddEnd =
-          currentAdd.startPositionInTl + currentAdd.interpol.duration
-
+        // play
         if (
           elapsedTime >= currentAdd.startPositionInTl &&
-          elapsedTime < currentAddEnd
+          elapsedTime < currentAdd.endPositionInTl
         ) {
           currentAdd.interpol.play()
+        } else {
         }
 
-        if (currentAdd.isLastOfTl && elapsedTime >= currentAddEnd) {
+        // stop at the end
+        if (
+          currentAdd.isLastOfTl &&
+          elapsedTime >= currentAdd.endPositionInTl
+        ) {
           this.ticker.stop()
           this.onComplete()
+          this.onCompleteDeferred.resolve()
         }
       }
     }
-
-    // for (let i = 0; i < this.adds.length; i++) {
-    //   const curr = this.adds[i]
-    //
-    //   const timeout = setTimeout(async () => {
-    //     await curr.interpol.play()
-    //     if (curr.isLastOfTl) {
-    //       return this.onCompleteDeferred.resolve()
-    //     }
-    //   }, curr.startPositionInTl)
-    //
-    //   this.timeouts.push(timeout)
-    // }
 
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
@@ -125,14 +116,10 @@ export class Timeline {
   pause() {
     this.adds.forEach((e) => e.interpol.pause())
     this.ticker.pause()
-
-    // ne peut pas clear ici
-    // this.timeouts.forEach((e) => clearTimeout(e))
   }
 
   stop() {
     this.adds.forEach((e) => e.interpol.stop())
-    this.timeouts.forEach((e) => clearTimeout(e))
     this.ticker.stop()
   }
 }
@@ -155,8 +142,9 @@ class Add {
   public interpol: Interpol
   // offset of position
   public offsetPosition: number = 0
-  // Start position of this add inside the full timeline
+  // Start/end position of this add inside the full timeline
   public startPositionInTl: number = 0
+  public endPositionInTl: number = 0
   // is last "Add" instance of the parent TL
   public isLastOfTl: boolean = true
   // play state of this add
@@ -168,6 +156,7 @@ class Add {
     interpol,
     offsetPosition,
     startPositionInTl,
+    endPositionInTl,
     isLastOfTl,
     play,
     position,
@@ -175,6 +164,7 @@ class Add {
     interpol: Interpol
     offsetPosition: number
     startPositionInTl: number
+    endPositionInTl: number
     isLastOfTl: boolean
     play?: boolean
     position?: number
@@ -182,6 +172,7 @@ class Add {
     this.interpol = interpol
     this.offsetPosition = offsetPosition
     this.startPositionInTl = startPositionInTl
+    this.endPositionInTl = endPositionInTl
     this.isLastOfTl = isLastOfTl
     this.play = play
     this.position = position
