@@ -124,20 +124,22 @@ export class Interpol {
     console.log("Interpol >", { delta, time, elapsed })
 
     this.time = Math.min(this.duration, this.time + delta)
-    this.advancement = roundedValue(this.time / this.duration)
+    this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
     this.value = roundedValue(
       this.from + (this.to - this.from) * this.ease(this.advancement)
     )
 
-    // exe onUpdate local method with params
-    this.onUpdate?.({
-      value: this.value,
-      time: this.time,
-      advancement: this.advancement,
-    })
+
+      // exe onUpdate local method with params
+      this.onUpdate?.({
+        value: this.value,
+        time: this.time,
+        advancement: this.advancement,
+      })
+
 
     // end, exe onComplete
-    if (this.advancement >= 1) {
+    if (this.advancement === 1) {
       // re-init advancement just in case
       if (this.value !== this.to) this.value = this.to
 

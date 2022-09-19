@@ -34,6 +34,8 @@ export default class Ticker {
   protected fps: number
   protected interval: number
 
+  protected isRunning = false
+
   public onUpdate = Beeper<{
     interval: number
     delta: number
@@ -47,6 +49,7 @@ export default class Ticker {
   }
 
   public start(): void {
+    this.isRunning = true
     this.debut = Date.now()
     this.time = this.debut
     this.elapsed = 0
@@ -54,10 +57,12 @@ export default class Ticker {
     this.raf = RAF(this.tick.bind(this))
   }
   public pause(): void {
+    this.isRunning = false
     CANCEL_RAF(this.raf)
   }
 
   public stop(): void {
+    this.isRunning = false
     this.elapsed = 0
     CANCEL_RAF(this.raf)
   }
@@ -68,15 +73,15 @@ export default class Ticker {
     this.time = now
     this.elapsed = this.time - this.debut
 
-    //if (this.delta > this.interval) {
+    //    if (this.delta > this.interval) {
+    if (this.isRunning) {
       this.onUpdate.dispatch({
         interval: this.interval,
         delta: this.delta,
         time: this.time,
         elapsed: this.elapsed,
       })
-    //}
-
-    this.raf = RAF(this.tick.bind(this))
+      this.raf = RAF(this.tick.bind(this))
+    }
   }
 }

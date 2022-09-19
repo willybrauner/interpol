@@ -1,7 +1,6 @@
 import { IInterpolConstruct, Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./helpers/Ticker"
-import { roundedValue } from "./helpers/roundValue"
 
 export class Timeline {
   protected _isPaused = false
@@ -97,11 +96,10 @@ export class Timeline {
     return this.onCompleteDeferred.promise
   }
 
-  time = 0
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
-    console.log("=== TL", { elapsed, delta, time })
+   // console.log("=== TL", { elapsed, delta, time })
 
     const filtered = this.adds.filter(
       (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
@@ -109,14 +107,17 @@ export class Timeline {
 
     // stop at the end
     if (!filtered.length) {
+      this._isPlaying = false
       console.log("Timeline > stop!")
+      this.ticker.onUpdate.off(this.handleTickerUpdate)
+      this.ticker.stop()
       this.onComplete()
       this.onCompleteDeferred.resolve()
-      this.stop()
+      return
     }
 
     for (let i = 0; i < filtered.length; i++) {
-      const { interpol, isLastOfTl } = filtered[i]
+      const { interpol } = filtered[i]
       interpol.play()
     }
   }
