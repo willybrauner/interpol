@@ -28,19 +28,25 @@ export default class Ticker {
   //  there is between two frames at 60fps.
   public delta: number
 
+  // store the raf
+  protected raf
+
+  protected fps: number
+  protected interval: number
+
   public onUpdate = Beeper<{
+    interval: number
     delta: number
     time: number
     elapsed: number
   }>()
 
-  // store the raf
-  protected raf
-
-  protected isRunning = false
+  constructor({ fps = 60 } = {}) {
+    this.fps = fps
+    this.interval = 1000 / this.fps
+  }
 
   public start(): void {
-    this.isRunning = true
     this.debut = Date.now()
     this.time = this.debut
     this.elapsed = 0
@@ -48,29 +54,30 @@ export default class Ticker {
     this.raf = RAF(this.tick.bind(this))
   }
   public pause(): void {
-    this.isRunning = false
     CANCEL_RAF(this.raf)
   }
 
   public stop(): void {
-    this.isRunning = false
     this.elapsed = 0
     CANCEL_RAF(this.raf)
   }
 
   protected tick(): void {
-    const time = Date.now()
-    this.delta = time - this.time
-    this.time = time
+    const now = Date.now()
+    this.delta = now - this.time
+
     this.elapsed = this.time - this.debut
 
-    this.raf = RAF(this.tick.bind(this))
-    if (this.isRunning) {
+    if (this.delta > this.interval) {
+      this.time = now
       this.onUpdate.dispatch({
+        interval: this.interval,
         delta: this.delta,
         time: this.time,
         elapsed: this.elapsed,
       })
     }
+
+    this.raf = RAF(this.tick.bind(this))
   }
 }

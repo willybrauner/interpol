@@ -1,6 +1,7 @@
-import { Interpol } from "./Interpol"
+import { IInterpolConstruct, Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./helpers/Ticker"
+import { roundedValue } from "./helpers/roundValue"
 
 export class Timeline {
   protected _isPaused = false
@@ -36,24 +37,29 @@ export class Timeline {
    *
    *
    */
-  public add(interpol: Interpol, offsetPosition: number = 0): Timeline {
+  public add(
+    interpol: Interpol | IInterpolConstruct,
+    offsetPosition: number = 0
+  ): Timeline {
+    const i = interpol instanceof Interpol ? interpol : new Interpol(interpol)
+
     // bind Timeline ticker to each interpol instance
-    interpol.ticker = this.ticker
-    interpol.inTl = true
+    i.ticker = this.ticker
+    i.inTl = true
 
     // register full TL duration
-    this.tlDuration += interpol.duration + offsetPosition
+    this.tlDuration += i.duration + offsetPosition
 
     // get last add
     const lastAdd = this.adds[this.adds.length - 1]
 
     // if lastAdd exist, calc start position of this new Add, else, this is the first one
     const startPositionInTl = lastAdd
-      ? lastAdd.startPositionInTl + interpol.duration + offsetPosition
+      ? lastAdd.startPositionInTl + i.duration + offsetPosition
       : 0
 
     // calc end position in TL (start pos + duration of interpolation)
-    const endPositionInTl = startPositionInTl + interpol.duration
+    const endPositionInTl = startPositionInTl + i.duration
 
     // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) {
@@ -63,7 +69,7 @@ export class Timeline {
     // push new Add instance in local
     this.adds.push(
       new Add({
-        interpol,
+        interpol: i,
         offsetPosition,
         startPositionInTl,
         endPositionInTl,
@@ -91,26 +97,43 @@ export class Timeline {
     return this.onCompleteDeferred.promise
   }
 
-  protected handleTickerUpdate = ({ delta, time, elapsed }) => {
+  time = 0
+  protected handleTickerUpdate = ({ delta, time, elapsed, interval }) => {
+    // normalize delta value
+    delta = delta - (delta % interval)
+
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
     console.log("=== TL", { elapsed, delta, time })
 
-    // witch one is playing
+    for (let i = 0; i < this.adds.length; i++) {
+      const { interpol, startPositionInTl, endPositionInTl, isLastOfTl } =
+        this.adds[i]
 
-    // pas possible de garder comme ça car on aura peut-être deux anim a exe en meme temps
-    this.adds.forEach((e) => {
-      if (elapsed > e.startPositionInTl && elapsed <= e.endPositionInTl) {
-        e.interpol.play()
+      // this.time = Math.min(interpol.duration, this.time + delta)
+      // const advancement = roundedValue(this.time / interpol.duration)
+      // console.log("Timeline > advancement", advancement)
+
+      if (
+        elapsed >= startPositionInTl &&
+        elapsed < endPositionInTl
+        //&&
+        //advancement >= 0 &&
+        //        advancement < 1
+      ) {
+        interpol.play()
+      } else {
       }
+
       // stop at the end
-      if (e?.isLastOfTl && elapsed === this.tlDuration) {
+      // if (isLastOfTl && elapsed >= this.tlDuration) {
+      if (isLastOfTl && elapsed >= endPositionInTl) {
         console.log("Timeline > stop!")
         this.onComplete()
         this.onCompleteDeferred.resolve()
         this.stop()
       }
-    })
+    }
   }
 
   replay() {}
@@ -124,8 +147,8 @@ export class Timeline {
 
   stop() {
     this._isPlaying = false
-    this.adds.forEach((e) => e.interpol.stop())
     this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.adds.forEach((e) => e.interpol.stop())
     this.ticker.stop()
   }
 }

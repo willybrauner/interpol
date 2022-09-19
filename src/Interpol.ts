@@ -9,7 +9,7 @@ interface IUpdateParams {
   advancement: number
 }
 
-interface IInterpolConstruct {
+export interface IInterpolConstruct {
   from?: number
   to: number
   duration?: number
@@ -33,9 +33,9 @@ export class Interpol {
   public inTl = false
   public ticker = new Ticker()
   public advancement = 0
+  public time = 0
+  public value = 0
   protected timeout: ReturnType<typeof setTimeout>
-  protected time = 0
-  protected value = 0
   protected onCompleteDeferred = deferredPromise()
 
   protected _isPlaying = false
@@ -106,7 +106,6 @@ export class Interpol {
   stop(): void {
     if (!this._isPlaying) return
     this._isPlaying = false
-    // reset timeout
     clearTimeout(this.timeout)
     this.value = 0
     this.time = 0
@@ -117,15 +116,16 @@ export class Interpol {
   }
 
   protected async render(): Promise<void> {
-    // start ticker
     if (!this.inTl) this.ticker.start()
-
-    // on ticker update
     this.ticker.onUpdate.on(this.handleTickerUpdate)
   }
 
-  protected handleTickerUpdate = ({ delta }) => {
-    // calc
+  protected handleTickerUpdate = ({ delta, time, elapsed, interval }) => {
+    console.log("Interpol >", { delta, time, elapsed })
+
+    // normalize delta value
+    delta = delta - (delta % interval)
+
     this.time = Math.min(this.duration, this.time + delta)
     this.advancement = roundedValue(this.time / this.duration)
     this.value = roundedValue(
@@ -140,8 +140,17 @@ export class Interpol {
     })
 
     // end, exe onComplete
-    if (this.value === this.to) {
-      console.log("this.value === this.to", this.value, this.to)
+    if (this.advancement >= 1) {
+      // re-init advancement just in case
+      if (this.value !== this.to) this.value = this.to
+
+      console.log("Interpol > this.advancement >= 1", {
+        "this.value": this.value,
+        "this.to": this.to,
+        "this.advancement": this.advancement,
+      })
+
+      this.stop()
 
       this.onComplete?.({
         value: this.value,
@@ -149,7 +158,6 @@ export class Interpol {
         advancement: this.advancement,
       })
       this.onCompleteDeferred.resolve()
-      this.stop()
     }
   }
 }

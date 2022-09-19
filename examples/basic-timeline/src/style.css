@@ -19,7 +19,7 @@ body {
 
 }
 
-.el {
+.el, .el2, .el3 {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -27,4 +27,8 @@ body {
   height: 20px;
   background: aqua;
   border-radius: 100%;
+}
+
+.el2 {
+  background: red;
 }
