@@ -77,7 +77,7 @@ export class Interpol {
     }
     this._isPlaying = true
     // Delay is set only on first play.
-    // If this play is retrigger before onComplete, we don't wait again
+    // If this play is trigger before onComplete, we don't wait again
     this.timeout = setTimeout(
       () => {
         // start ticker
@@ -120,11 +120,8 @@ export class Interpol {
     this.ticker.onUpdate.on(this.handleTickerUpdate)
   }
 
-  protected handleTickerUpdate = ({ delta, time, elapsed, interval }) => {
+  protected handleTickerUpdate = ({ delta, time, elapsed }) => {
     console.log("Interpol >", { delta, time, elapsed })
-
-    // normalize delta value
-    delta = delta - (delta % interval)
 
     this.time = Math.min(this.duration, this.time + delta)
     this.advancement = roundedValue(this.time / this.duration)

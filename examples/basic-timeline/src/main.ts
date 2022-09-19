@@ -19,45 +19,46 @@ $stopButton.addEventListener("click", () => tl.stop())
 
 const $el = document.querySelector<HTMLDivElement>(".el")
 const $el2 = document.querySelector<HTMLDivElement>(".el2")
-
 const DURATION = 900
 
+
+/**
+ * Create Interpols
+ */
+const interpol1 = new Interpol({
+  from: 0,
+  to: 50,
+  duration: DURATION,
+  paused: true,
+  onUpdate: ({ value, time, advancement }) => {
+    console.log("Main > GREEN >", { value, time, advancement })
+    $el.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
+  },
+  onComplete: ({ value, time, advancement }) => {
+    console.log("Main > ---------- END GREEN >", { value, time, advancement })
+  },
+})
+const interpol2 = new Interpol({
+  from: 0,
+  to: 50,
+  duration: DURATION,
+  paused: true,
+  onUpdate: ({ value, time, advancement }) => {
+    console.log("Main > GREEN >", { value, time, advancement })
+    $el2.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
+  },
+  onComplete: ({ value, time, advancement }) => {
+    console.log("Main > ---------- END GREEN >", { value, time, advancement })
+  },
+})
+
+/**
+ * Start TL
+ */
 const tl = new Timeline({
   onComplete: () => {
     console.log("Main > Tl onComplete")
   },
 })
-tl.add(
-  {
-    from: 0,
-    to: 50,
-    duration: DURATION,
-    paused: true,
-    ease: Ease.inOutSine,
-    onUpdate: ({ value, time, advancement }) => {
-      console.log("Main > GREEN >", { value, time, advancement })
-      $el.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
-    },
-    onComplete: ({ value, time, advancement }) => {
-      console.log("Main > ---------- END GREEN >", { value, time, advancement })
-    },
-  },
-  0
-)
-tl.add(
-  {
-    from: 0,
-    to: 50,
-    duration: DURATION,
-    paused: true,
-    ease: Ease.inOutSine,
-    onUpdate: ({ value, time, advancement }) => {
-      console.log("Main > RED >", { value, time, advancement })
-      $el2.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
-    },
-    onComplete: ({ value, time, advancement }) => {
-      console.log("Main > ---------- END RED >", { value, time, advancement })
-    },
-  },
-  0
-)
+tl.add(interpol1, 0)
+tl.add(interpol2, -400)

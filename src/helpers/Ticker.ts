@@ -65,18 +65,17 @@ export default class Ticker {
   protected tick(): void {
     const now = Date.now()
     this.delta = now - this.time
-
+    this.time = now
     this.elapsed = this.time - this.debut
 
-    if (this.delta > this.interval) {
-      this.time = now
+    //if (this.delta > this.interval) {
       this.onUpdate.dispatch({
         interval: this.interval,
         delta: this.delta,
         time: this.time,
         elapsed: this.elapsed,
       })
-    }
+    //}
 
     this.raf = RAF(this.tick.bind(this))
   }

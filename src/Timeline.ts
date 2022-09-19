@@ -98,41 +98,26 @@ export class Timeline {
   }
 
   time = 0
-  protected handleTickerUpdate = ({ delta, time, elapsed, interval }) => {
-    // normalize delta value
-    delta = delta - (delta % interval)
-
+  protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
     console.log("=== TL", { elapsed, delta, time })
 
-    for (let i = 0; i < this.adds.length; i++) {
-      const { interpol, startPositionInTl, endPositionInTl, isLastOfTl } =
-        this.adds[i]
+    const filtered = this.adds.filter(
+      (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
+    )
 
-      // this.time = Math.min(interpol.duration, this.time + delta)
-      // const advancement = roundedValue(this.time / interpol.duration)
-      // console.log("Timeline > advancement", advancement)
+    // stop at the end
+    if (!filtered.length) {
+      console.log("Timeline > stop!")
+      this.onComplete()
+      this.onCompleteDeferred.resolve()
+      this.stop()
+    }
 
-      if (
-        elapsed >= startPositionInTl &&
-        elapsed < endPositionInTl
-        //&&
-        //advancement >= 0 &&
-        //        advancement < 1
-      ) {
-        interpol.play()
-      } else {
-      }
-
-      // stop at the end
-      // if (isLastOfTl && elapsed >= this.tlDuration) {
-      if (isLastOfTl && elapsed >= endPositionInTl) {
-        console.log("Timeline > stop!")
-        this.onComplete()
-        this.onCompleteDeferred.resolve()
-        this.stop()
-      }
+    for (let i = 0; i < filtered.length; i++) {
+      const { interpol, isLastOfTl } = filtered[i]
+      interpol.play()
     }
   }
 
