@@ -29,28 +29,26 @@ const interpol1 = new Interpol({
   from: 0,
   to: 50,
   duration: DURATION,
-  paused: true,
   ease: Ease.inOutExpo,
   onUpdate: ({ value, time, advancement }) => {
     console.log("Main > GREEN >", { value, time, advancement })
     $el.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
   },
   onComplete: ({ value, time, advancement }) => {
-    console.log("Main > ---------- END GREEN >", { value, time, advancement })
+    console.log("Main -> END GREEN >", { value, time, advancement })
   },
 })
 const interpol2 = new Interpol({
   from: 0,
   to: 50,
   duration: DURATION,
-  paused: true,
   ease: Ease.inOutExpo,
   onUpdate: ({ value, time, advancement }) => {
     console.log("Main > RED >", { value, time, advancement })
-    $el2.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
+    $el2.style.transform = `translateX(${value}vw) translateY(${-value*1.6}vh) translateZ(0)`
   },
   onComplete: ({ value, time, advancement }) => {
-    console.log("Main > ---------- END RED >", { value, time, advancement })
+    console.log("Main -> END RED >", { value, time, advancement })
   },
 })
 

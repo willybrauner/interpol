@@ -42,6 +42,9 @@ export class Timeline {
   ): Timeline {
     const i = interpol instanceof Interpol ? interpol : new Interpol(interpol)
 
+    // stop first to avoid, if "paused: false" is set, to run play() method
+    i.stop()
+
     // bind Timeline ticker to each interpol instance
     i.ticker = this.ticker
     i.inTl = true
@@ -99,7 +102,7 @@ export class Timeline {
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
-   // console.log("=== TL", { elapsed, delta, time })
+    // console.log("=== TL", { elapsed, delta, time })
 
     const filtered = this.adds.filter(
       (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
