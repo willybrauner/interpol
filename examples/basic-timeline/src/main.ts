@@ -19,10 +19,8 @@ $stopButton.addEventListener("click", () => tl.stop())
 
 const $el = document.querySelector<HTMLDivElement>(".el")
 const $el2 = document.querySelector<HTMLDivElement>(".el2")
-// const $el3 = document.querySelector<HTMLDivElement>(".el3")
 
 const DURATION = 900
-//const green = new Interpol()
 
 const tl = new Timeline({
   onComplete: () => {
@@ -38,12 +36,10 @@ tl.add(
     ease: Ease.inOutSine,
     onUpdate: ({ value, time, advancement }) => {
       console.log("Main > GREEN >", { value, time, advancement })
-      const x = value
-      const y = -value
-      $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
+      $el.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
     },
     onComplete: ({ value, time, advancement }) => {
-      console.log("Main > ----------END GREEN >", { value, time, advancement })
+      console.log("Main > ---------- END GREEN >", { value, time, advancement })
     },
   },
   0
@@ -57,16 +53,11 @@ tl.add(
     ease: Ease.inOutSine,
     onUpdate: ({ value, time, advancement }) => {
       console.log("Main > RED >", { value, time, advancement })
-      const x = value
-      const y = -value
-      $el2.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
+      $el2.style.transform = `translateX(${value}vw) translateY(${-value}vh) translateZ(0)`
     },
     onComplete: ({ value, time, advancement }) => {
-      console.log("Main > ----------END RED >", { value, time, advancement })
+      console.log("Main > ---------- END RED >", { value, time, advancement })
     },
   },
   0
 )
-// tl.add(go, 500)
-
-//await tl.play()
