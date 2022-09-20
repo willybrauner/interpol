@@ -20,17 +20,21 @@
     "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
     "dev:basic": "pnpm --filter ./examples/basic run dev",
     "dev:basic-timeline": "pnpm --filter ./examples/basic-timeline run dev",
-    "test:watch": "vitest",
+    "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
   },
   "devDependencies": {
-    "microbundle": "^0.15.0",
+    "microbundle": "^0.15.1",
     "prettier": "^2.7.1",
-    "vitest": "^0.23.2",
-    "typescript": "^4.6.4"
+    "typescript": "^4.8.3",
+    "vitest": "^0.23.4"
   },
   "prettier": {
     "semi": false
+  },
+  "dependencies": {
+    "@wbe/debug": "^1.0.0",
+    "vite": "^3.1.3"
   }
 }

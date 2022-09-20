@@ -1,6 +1,8 @@
 import { deferredPromise } from "./helpers/deferredPromise"
 import { roundedValue } from "./helpers/roundValue"
-import Ticker from "./helpers/Ticker"
+import Ticker from "./Ticker"
+import debug from "@wbe/debug"
+const log = debug("interpol:Interpol")
 
 interface IUpdateParams {
   value: number
@@ -17,6 +19,7 @@ export interface IInterpolConstruct {
   delay?: number
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  debug?: boolean
 }
 
 let ID = 0
@@ -32,13 +35,15 @@ export class Interpol {
   public onComplete: (e: IUpdateParams) => void
 
   public inTl = false
-  public ticker = new Ticker()
+  public ticker: Ticker = new Ticker()
   public advancement = 0
   public time = 0
   public value = 0
+  public debugEnable: boolean
+  public readonly id = ++ID
+
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
-  protected id = ++ID
 
   protected _isPlaying = false
   public get isPlaying() {
@@ -55,6 +60,7 @@ export class Interpol {
     delay = 0,
     onUpdate,
     onComplete,
+    debug = false,
   }: IInterpolConstruct) {
     this.from = from
     this.to = to
@@ -64,6 +70,8 @@ export class Interpol {
     this.delay = delay
     this.onUpdate = onUpdate
     this.onComplete = onComplete
+    this.debugEnable = debug
+    this.ticker.debugEnable = debug
 
     // start
     if (!this.paused) this.play()
@@ -102,7 +110,7 @@ export class Interpol {
 
   pause(): void {
     this._isPlaying = false
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
   }
 
@@ -112,17 +120,23 @@ export class Interpol {
     this.value = 0
     this.time = 0
     this.advancement = 0
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
   }
 
   protected async render(): Promise<void> {
     if (!this.inTl) this.ticker.play()
-    this.ticker.onUpdate.on(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
   }
 
   protected handleTickerUpdate = ({ delta, time, elapsed }) => {
-    console.log("Interpol >", { delta, time, elapsed })
+    // specific case if duration is 0
+    if (this.duration <= 0) {
+      const obj = { value: this.to, time: this.duration, advancement: 1 }
+      this.onUpdate?.(obj)
+      this.onComplete?.(obj)
+      return
+    }
 
     this.time = Math.min(this.duration, this.time + delta)
     this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
@@ -130,32 +144,40 @@ export class Interpol {
       this.from + (this.to - this.from) * this.ease(this.advancement)
     )
 
-    // exe onUpdate local method with params
-    this.onUpdate?.({
+    const onUpdateObj = {
       value: this.value,
       time: this.time,
       advancement: this.advancement,
-    })
+    }
+    // exe onUpdate local method with params
+    this.onUpdate?.(onUpdateObj)
+    this.log("onUpdate", onUpdateObj)
 
     // end, exe onComplete
     if (this.advancement === 1) {
-      // re-init advancement just in case
+      this.log("this.advancement === 1")
+
+      // uniform vars
       if (this.value !== this.to) this.value = this.to
-
-      console.log("Interpol > this.advancement === 1", {
-        "this.value": this.value,
-        "this.to": this.to,
-        "this.advancement": this.advancement,
-      })
-
-      this.stop()
+      if (this.time !== this.duration) this.time = this.duration
 
       this.onComplete?.({
         value: this.value,
         time: this.time,
         advancement: this.advancement,
       })
+
       this.onCompleteDeferred.resolve()
+
+      // reset after onComplete
+      this.stop()
     }
+  }
+
+  /**
+   * Log util
+   */
+  protected log(...rest): void {
+    if (this.debugEnable) log(this.id, ...rest)
   }
 }

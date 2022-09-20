@@ -28,9 +28,10 @@ const inter = new Interpol({
   paused: true,
   ease: Ease.outExpo,
   onUpdate: ({ value, time, advancement }) => {
-    console.log({ value, time, advancement })
+    // console.log({ value, time, advancement })
     const x = advancement * 100
     const y = -((value / inter.to) * 100)
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
+  debug: true,
 })

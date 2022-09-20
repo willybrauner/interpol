@@ -1,13 +1,28 @@
 import { IInterpolConstruct, Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
-import Ticker from "./helpers/Ticker"
+import Ticker from "./Ticker"
+import debug from "@wbe/debug"
+const log = debug("interpol:Timeline")
+
+interface IAdd {
+  interpol: Interpol
+  offsetPosition: number
+  startPositionInTl: number
+  endPositionInTl: number
+  isLastOfTl: boolean
+  play?: boolean
+  position?: number
+}
+
+let TL_ID = 0
 
 export class Timeline {
-  protected _isPaused = false
+  public readonly tlId: number
   protected onComplete: () => void
 
+  protected paused = false
   public get isPaused() {
-    return this._isPaused
+    return this.paused
   }
 
   protected _isPlaying = false
@@ -15,53 +30,64 @@ export class Timeline {
     return this._isPlaying
   }
 
-  protected adds: Add[] = []
+  protected adds: IAdd[] = []
   protected onCompleteDeferred = deferredPromise()
   protected ticker = new Ticker()
   protected tlDuration: number = 0
+  protected debugEnable: boolean
 
   constructor({
     paused = true,
     onComplete = () => {},
+    debug = false,
   }: {
     paused?: boolean
     onComplete?: () => void
+    debug?: boolean
   } = {}) {
-    this._isPaused = paused
+    this.paused = paused
     this.onComplete = onComplete
+    this.debugEnable = debug
+    this.ticker.debugEnable = debug
+    this.tlId = ++TL_ID
+
+    //  if (!this.paused) this.play()
   }
 
   /**
-   * API
-   *
-   *
+   * Add a new interpol obj or instance in Timeline
    */
   public add(
     interpol: Interpol | IInterpolConstruct,
     offsetPosition: number = 0
   ): Timeline {
-    const i = interpol instanceof Interpol ? interpol : new Interpol(interpol)
+    const itp = interpol instanceof Interpol ? interpol : new Interpol(interpol)
 
-    // stop first to avoid, if "paused: false" is set, to run play() method
-    i.stop()
+    // Stop first to avoid, if "paused: false" is set, to run play() method
+    itp.stop()
 
-    // bind Timeline ticker to each interpol instance
-    i.ticker = this.ticker
-    i.inTl = true
+    // Bind Timeline ticker to each interpol instance
+    itp.ticker = this.ticker
+
+    // Specify that we use the itp in Timeline context
+    itp.inTl = true
+
+    // only active debug on each itp, if is enabled on the timeline
+    if (this.debugEnable) itp.debugEnable = this.debugEnable
 
     // register full TL duration
-    this.tlDuration += i.duration + offsetPosition
+    this.tlDuration += itp.duration + offsetPosition
 
-    // get last add
+    // get last add of the list
     const lastAdd = this.adds[this.adds.length - 1]
 
     // if lastAdd exist, calc start position of this new Add, else, this is the first one
     const startPositionInTl = lastAdd
-      ? lastAdd.startPositionInTl + i.duration + offsetPosition
+      ? lastAdd.startPositionInTl + itp.duration + offsetPosition
       : 0
 
     // calc end position in TL (start pos + duration of interpolation)
-    const endPositionInTl = startPositionInTl + i.duration
+    const endPositionInTl = startPositionInTl + itp.duration
 
     // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) {
@@ -69,15 +95,13 @@ export class Timeline {
     }
 
     // push new Add instance in local
-    this.adds.push(
-      new Add({
-        interpol: i,
-        offsetPosition,
-        startPositionInTl,
-        endPositionInTl,
-        isLastOfTl: true,
-      })
-    )
+    this.adds.push({
+      interpol: itp,
+      offsetPosition,
+      startPositionInTl,
+      endPositionInTl,
+      isLastOfTl: true,
+    })
 
     // return all the instance allow chaining methods calls
     return this
@@ -94,9 +118,10 @@ export class Timeline {
       return this.onCompleteDeferred.promise
     }
 
+    this.log("play")
     this._isPlaying = true
     this.ticker.play()
-    this.ticker.onUpdate.on(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
@@ -104,8 +129,9 @@ export class Timeline {
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
-    // console.log("=== TL", { elapsed, delta, time })
 
+    // Filter only adds who are matching with elapsed time
+    // It allows playing superposed itp in case of
     const filtered = this.adds.filter(
       (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
     )
@@ -113,8 +139,8 @@ export class Timeline {
     // stop at the end
     if (!filtered.length) {
       this._isPlaying = false
-      console.log("Timeline > stop!")
-      this.ticker.onUpdate.off(this.handleTickerUpdate)
+      this.log("This is the TL end, stop")
+      this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
       this.ticker.stop()
       this.onComplete()
       this.onCompleteDeferred.resolve()
@@ -128,77 +154,32 @@ export class Timeline {
   }
 
   public async replay(): Promise<any> {
+    this.log("replay")
     this._isPlaying = true
     this.stop()
     await this.play()
   }
 
   public pause(): void {
+    this.log("pause")
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.pause())
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
 
   public stop(): void {
+    this.log("stop")
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.stop())
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.stop()
   }
-}
 
-/**
- *
- * Add
- * a single Tl entry
- *
- *
- *
- *
- *
- *
- *
- */
-
-class Add {
-  // interpol instance added to the timeline
-  public interpol: Interpol
-  // offset of position
-  public offsetPosition: number = 0
-  // Start/end position of this add inside the full timeline
-  public startPositionInTl: number = 0
-  public endPositionInTl: number = 0
-  // is last "Add" instance of the parent TL
-  public isLastOfTl: boolean = true
-  // play state of this add
-  public play: boolean = false
-  // position progress (where we are) inside this current add
-  public position: number
-
-  constructor({
-    interpol,
-    offsetPosition,
-    startPositionInTl,
-    endPositionInTl,
-    isLastOfTl,
-    play,
-    position,
-  }: {
-    interpol: Interpol
-    offsetPosition: number
-    startPositionInTl: number
-    endPositionInTl: number
-    isLastOfTl: boolean
-    play?: boolean
-    position?: number
-  }) {
-    this.interpol = interpol
-    this.offsetPosition = offsetPosition
-    this.startPositionInTl = startPositionInTl
-    this.endPositionInTl = endPositionInTl
-    this.isLastOfTl = isLastOfTl
-    this.play = play
-    this.position = position
+  /**
+   * Log util
+   */
+  protected log(...rest): void {
+    if (this.debugEnable) log(this.tlId, ...rest)
   }
 }
