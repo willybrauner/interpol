@@ -1,4 +1,3 @@
-import { Ease } from "./Ease"
 import { deferredPromise } from "./helpers/deferredPromise"
 import { roundedValue } from "./helpers/roundValue"
 import Ticker from "./helpers/Ticker"
@@ -39,7 +38,7 @@ export class Interpol {
   public value = 0
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
-  protected
+  protected id = ++ID
 
   protected _isPlaying = false
   public get isPlaying() {
@@ -50,7 +49,8 @@ export class Interpol {
     from = 0,
     to = 1000,
     duration = 1000,
-    ease = Ease.linear,
+    // linear easing by default, without Ease object import
+    ease = (t) => t,
     paused = false,
     delay = 0,
     onUpdate,
