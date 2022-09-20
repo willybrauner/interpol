@@ -1,6 +1,8 @@
 import { IInterpolConstruct, Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./Ticker"
+import debug from "@wbe/debug"
+const log = debug("interpol:Timeline")
 
 interface IAdd {
   interpol: Interpol
@@ -12,10 +14,13 @@ interface IAdd {
   position?: number
 }
 
+let TL_ID = 0
+
 export class Timeline {
-  protected _isPaused = false
+  public readonly tlId: number
   protected onComplete: () => void
 
+  protected _isPaused = false
   public get isPaused() {
     return this._isPaused
   }
@@ -29,16 +34,22 @@ export class Timeline {
   protected onCompleteDeferred = deferredPromise()
   protected ticker = new Ticker()
   protected tlDuration: number = 0
+  protected debugEnable: boolean
 
   constructor({
     paused = true,
     onComplete = () => {},
+    debug = false,
   }: {
     paused?: boolean
     onComplete?: () => void
+    debug?: boolean
   } = {}) {
     this._isPaused = paused
     this.onComplete = onComplete
+    this.debugEnable = debug
+    this.ticker.debugEnable = debug
+    this.tlId = ++TL_ID
   }
 
   /**
@@ -58,6 +69,9 @@ export class Timeline {
 
     // Specify that we use the itp in Timeline context
     itp.inTl = true
+
+    // only active debug on each itp, if is enabled on the timeline
+    if (this.debugEnable) itp.debugEnable = this.debugEnable
 
     // register full TL duration
     this.tlDuration += itp.duration + offsetPosition
@@ -102,9 +116,10 @@ export class Timeline {
       return this.onCompleteDeferred.promise
     }
 
+    this.log("play")
     this._isPlaying = true
     this.ticker.play()
-    this.ticker.onUpdate.on(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
@@ -112,7 +127,6 @@ export class Timeline {
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
-    // console.log("=== TL", { elapsed, delta, time })
 
     // Filter only adds who are matching with elapsed time
     // It allows playing superposed itp in case of
@@ -123,8 +137,8 @@ export class Timeline {
     // stop at the end
     if (!filtered.length) {
       this._isPlaying = false
-      console.log("Timeline > stop!")
-      this.ticker.onUpdate.off(this.handleTickerUpdate)
+      this.log("This is the TL end, stop")
+      this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
       this.ticker.stop()
       this.onComplete()
       this.onCompleteDeferred.resolve()
@@ -138,22 +152,32 @@ export class Timeline {
   }
 
   public async replay(): Promise<any> {
+    this.log("replay")
     this._isPlaying = true
     this.stop()
     await this.play()
   }
 
   public pause(): void {
+    this.log("pause")
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.pause())
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
 
   public stop(): void {
+    this.log("stop")
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.stop())
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.stop()
+  }
+
+  /**
+   * Log util
+   */
+  protected log(...rest): void {
+    if (this.debugEnable) log(this.tlId, ...rest)
   }
 }

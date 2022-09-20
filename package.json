@@ -27,10 +27,13 @@
   "devDependencies": {
     "microbundle": "^0.15.0",
     "prettier": "^2.7.1",
-    "vitest": "^0.23.2",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "vitest": "^0.23.2"
   },
   "prettier": {
     "semi": false
+  },
+  "dependencies": {
+    "@wbe/debug": "^1.0.0"
   }
 }

@@ -1,4 +1,6 @@
 import { Beeper } from "./Beeper"
+import debug from "@wbe/debug"
+const log = debug("interpol:Ticker")
 
 // Useful trick from https://github.com/SolalDR/animate/blob/master/src/Timeline.ts
 export const RAF =
@@ -24,25 +26,25 @@ export default class Ticker {
   // Will contain how much time was spent since the previous frame
   public delta: number
   // store the raf
+  public debugEnable: boolean
   protected raf
-
   protected fps: number
   protected interval: number
-
   protected isRunning = false
-
-  public onUpdate = Beeper<{
+  public onUpdateEmitter = Beeper<{
     interval: number
     delta: number
     time: number
     elapsed: number
   }>()
 
-  constructor({ fps = 60 } = {}) {
+
+  constructor({ fps = 60, debug = false } = {}) {
     this.fps = fps
     this.interval = 1000 / this.fps
     // set outside "play()" because play is resume too
     this.keepElapsed = 0
+    this.debugEnable = debug
   }
 
   public play(): void {
@@ -73,13 +75,22 @@ export default class Ticker {
     this.time = now
     this.elapsed = this.keepElapsed + (this.time - this.start)
 
-    this.onUpdate.dispatch({
+    const onUpdateObj = {
       interval: this.interval,
       delta: this.delta,
       time: this.time,
       elapsed: this.elapsed,
-    })
+    }
+    this.onUpdateEmitter.dispatch(onUpdateObj)
+    this.log("tick", onUpdateObj)
 
     this.raf = RAF(this.tick.bind(this))
+  }
+
+  /**
+   * Log util
+   */
+  protected log(...rest): void {
+    if (this.debugEnable) log(...rest)
   }
 }
