@@ -1,6 +1,6 @@
 import { deferredPromise } from "./helpers/deferredPromise"
 import { roundedValue } from "./helpers/roundValue"
-import Ticker from "./helpers/Ticker"
+import Ticker from "./Ticker"
 
 interface IUpdateParams {
   value: number

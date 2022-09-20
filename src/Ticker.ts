@@ -1,5 +1,6 @@
 import { Beeper } from "./Beeper"
 
+// Useful trick from https://github.com/SolalDR/animate/blob/master/src/Timeline.ts
 export const RAF =
   typeof window === "undefined"
     ? (cb) => setTimeout(cb, 16)
