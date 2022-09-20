@@ -20,6 +20,8 @@ export interface IInterpolConstruct {
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 
+let ID = 0
+
 export class Interpol {
   public from: number
   public to: number
@@ -37,6 +39,7 @@ export class Interpol {
   public value = 0
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
+  protected
 
   protected _isPlaying = false
   public get isPlaying() {
@@ -92,31 +95,29 @@ export class Interpol {
   }
 
   async replay(): Promise<any> {
+    this._isPlaying = true
     this.stop()
     await this.play()
   }
 
   pause(): void {
-    if (!this._isPlaying) return
     this._isPlaying = false
     this.ticker.onUpdate.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
   }
 
   stop(): void {
-    if (!this._isPlaying) return
     this._isPlaying = false
     clearTimeout(this.timeout)
     this.value = 0
     this.time = 0
     this.advancement = 0
     this.ticker.onUpdate.off(this.handleTickerUpdate)
-
     if (!this.inTl) this.ticker.stop()
   }
 
   protected async render(): Promise<void> {
-    if (!this.inTl) this.ticker.start()
+    if (!this.inTl) this.ticker.play()
     this.ticker.onUpdate.on(this.handleTickerUpdate)
   }
 
@@ -129,21 +130,19 @@ export class Interpol {
       this.from + (this.to - this.from) * this.ease(this.advancement)
     )
 
-
-      // exe onUpdate local method with params
-      this.onUpdate?.({
-        value: this.value,
-        time: this.time,
-        advancement: this.advancement,
-      })
-
+    // exe onUpdate local method with params
+    this.onUpdate?.({
+      value: this.value,
+      time: this.time,
+      advancement: this.advancement,
+    })
 
     // end, exe onComplete
     if (this.advancement === 1) {
       // re-init advancement just in case
       if (this.value !== this.to) this.value = this.to
 
-      console.log("Interpol > this.advancement >= 1", {
+      console.log("Interpol > this.advancement === 1", {
         "this.value": this.value,
         "this.to": this.to,
         "this.advancement": this.advancement,

@@ -84,16 +84,18 @@ export class Timeline {
   }
 
   public async play(): Promise<any> {
-    if (this.adds.length === 0) {
+    if (!this.adds.length) {
       console.warn("No Interpol instance added to this TimeLine, return")
       return
     }
+
     if (this.isPlaying) {
       this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
+
     this._isPlaying = true
-    this.ticker.start()
+    this.ticker.play()
     this.ticker.onUpdate.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
@@ -125,22 +127,23 @@ export class Timeline {
     }
   }
 
-  public async replay () {
+  public async replay(): Promise<any> {
+    this._isPlaying = true
     this.stop()
     await this.play()
   }
 
-  public pause() {
+  public pause(): void {
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.pause())
     this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
 
-  public stop() {
+  public stop(): void {
     this._isPlaying = false
-    this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.adds.forEach((e) => e.interpol.stop())
+    this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.ticker.stop()
   }
 }

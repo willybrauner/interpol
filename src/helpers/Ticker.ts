@@ -10,24 +10,18 @@ export const CANCEL_RAF =
 
 /**
  * Ticker
- *
- *
  */
 export default class Ticker {
   // Contain timestamp when the experience starts and will stay the same
-  public debut: number
-
-  // contain the current timestamp and will change on each frame
+  public start: number
+  // Contain the current timestamp and will change on each frame
   public time: number
-
   // How much time was spent since the start of the experience
   public elapsed: number
-
-  // will contain how much time was spent since the previous frame.
-  // We set it as 16 by default which is close to how many milliseconds
-  //  there is between two frames at 60fps.
+  // Keep elapsed time if ticker is paused
+  public keepElapsed: number
+  // Will contain how much time was spent since the previous frame
   public delta: number
-
   // store the raf
   protected raf
 
@@ -46,42 +40,45 @@ export default class Ticker {
   constructor({ fps = 60 } = {}) {
     this.fps = fps
     this.interval = 1000 / this.fps
+    // set outside "play()" because play is resume too
+    this.keepElapsed = 0
   }
 
-  public start(): void {
+  public play(): void {
     this.isRunning = true
-    this.debut = Date.now()
-    this.time = this.debut
-    this.elapsed = 0
+    this.start = Date.now()
+    this.time = this.start
+    this.elapsed = this.keepElapsed + (this.time - this.start)
     this.delta = 16
     this.raf = RAF(this.tick.bind(this))
   }
   public pause(): void {
     this.isRunning = false
-    CANCEL_RAF(this.raf)
+    this.keepElapsed = this.elapsed
   }
 
   public stop(): void {
     this.isRunning = false
+    this.keepElapsed = 0
     this.elapsed = 0
     CANCEL_RAF(this.raf)
   }
 
   protected tick(): void {
+    if (!this.isRunning) return
+
     const now = Date.now()
     this.delta = now - this.time
     this.time = now
-    this.elapsed = this.time - this.debut
+    this.elapsed = this.keepElapsed + (this.time - this.start)
 
-    //    if (this.delta > this.interval) {
-    if (this.isRunning) {
-      this.onUpdate.dispatch({
-        interval: this.interval,
-        delta: this.delta,
-        time: this.time,
-        elapsed: this.elapsed,
-      })
-      this.raf = RAF(this.tick.bind(this))
-    }
+    this.onUpdate.dispatch({
+      interval: this.interval,
+      delta: this.delta,
+      time: this.time,
+      elapsed: this.elapsed,
+    })
+
+    this.raf = RAF(this.tick.bind(this))
   }
 }
