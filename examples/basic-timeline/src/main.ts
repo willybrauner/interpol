@@ -1,5 +1,5 @@
 import "./style.css"
-import { Timeline, Interpol, Ease } from "interpol"
+import { Timeline, Interpol, Ease } from "../../../src"
 
 const $playButton = document.querySelector<HTMLDivElement>(".play")
 const $pauseButton = document.querySelector<HTMLDivElement>(".pause")

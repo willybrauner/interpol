@@ -125,16 +125,19 @@ export class Timeline {
     }
   }
 
-  replay() {}
+  public async replay () {
+    this.stop()
+    await this.play()
+  }
 
-  pause() {
+  public pause() {
     this._isPlaying = false
     this.adds.forEach((e) => e.interpol.pause())
     this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
 
-  stop() {
+  public stop() {
     this._isPlaying = false
     this.ticker.onUpdate.off(this.handleTickerUpdate)
     this.adds.forEach((e) => e.interpol.stop())
