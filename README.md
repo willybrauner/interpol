@@ -62,43 +62,49 @@ interface IInterpolConstruct {
 }
 ```
 
-#### constructor:
-
-##### from
+#### from
 
 `number` - default: `0`  
  Start interpolation value (millisecond)
 
-##### to
+#### to
 
 `number` - default: `1000`  
  End interpolation value (millisecond)
 
-##### duration
+#### duration
 
 `number` - default: `1000`  
  Interpolation duration between `from` and `to` values (millisecond)
 ex: `1000` is 1 second
 
-##### ease
+#### ease
 
-`(t:number) => number` default: `t => t` (lineal easing)  
+`(t:number) => number` - default: `t => t` (lineal easing)  
  ease function
 
-##### paused
+#### paused
 
 `boolean` - default: `false`
 
-##### delay
+#### delay
 
-##### onUpdate
+#### onUpdate
 
-##### onComplete
+#### onComplete
 
-##### debug
+#### debug
 
+Methods
 
+#### play(): Promise<any>
 
-#### Methods
+Play the current interpol 
+
+#### pause(): void
+
+#### stop(): void
+
+#### replay(): void
 
 ### Timeline
