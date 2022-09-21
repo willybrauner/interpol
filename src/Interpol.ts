@@ -130,6 +130,14 @@ export class Interpol {
   }
 
   protected handleTickerUpdate = ({ delta, time, elapsed }) => {
+    // specific case if duration is 0
+    if (this.duration === 0) {
+      const obj = { value: this.to, time: this.duration, advancement: 1 }
+      this.onUpdate?.(obj)
+      this.onComplete?.(obj)
+      return
+    }
+
     this.time = Math.min(this.duration, this.time + delta)
     this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
     this.value = roundedValue(
