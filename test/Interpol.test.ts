@@ -7,13 +7,13 @@ it("should interpol value between two points", async () => {
     const generateRandomInterpolValues = () => {
       const from = randomRange(-10000, 10000)
       // "to" is always greater than "from"
-      const to = from * randomRange(-10000, 10000)
+      const to = from + (randomRange(-10000, 10000) || 0)
       const duration = randomRange(0, 2000)
       return { from, to, duration }
     }
 
     // create random values
-    let inputs = new Array(50)
+    let inputs = new Array(1000)
       .fill(null)
       .map((_) => generateRandomInterpolValues())
 
@@ -52,6 +52,7 @@ it("should interpol value between two points", async () => {
   })
 })
 
+
 it.skip("should return always the same value if duration is 0", () => {
   const inputs = [{ from: 10, to: 100, duration: 0 }]
   return new Promise((resolve: any) => {
@@ -61,7 +62,7 @@ it.skip("should return always the same value if duration is 0", () => {
         to: e.to,
         duration: e.duration,
         onUpdate: ({ value, time, advancement }) => {
-          console.log({value, time, advancement})
+          console.log({ value, time, advancement })
           if (inter.from < inter.to) {
             expect(value).toBeGreaterThanOrEqual(inter.from)
           } else if (inter.from > inter.to) {
