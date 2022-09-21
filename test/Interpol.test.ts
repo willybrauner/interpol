@@ -5,15 +5,16 @@ import { randomRange } from "./utils/randomRange"
 it("should interpol value between two points", async () => {
   return new Promise((resolve: any) => {
     const generateRandomInterpolValues = () => {
-      const from = randomRange(-10000, 10000)
+      const from = randomRange(-10000, 10000, 2)
       // "to" is always greater than "from"
-      const to = from + (randomRange(-10000, 10000) || 0)
-      const duration = randomRange(0, 2000)
+      const to = randomRange(-10000, 10000, 2)
+      // TODO ne fonctionne pas si la durée est très longue
+      const duration = randomRange(0, 5000, 2)
       return { from, to, duration }
     }
 
     // create random values
-    let inputs = new Array(1000)
+    let inputs = new Array(500)
       .fill(null)
       .map((_) => generateRandomInterpolValues())
 
@@ -22,7 +23,7 @@ it("should interpol value between two points", async () => {
 
     // sort by duration for execute the promise resolve() on the last
     inputs.sort((a, b) => a.duration - b.duration)
-    // console.log('inputs', inputs)
+    console.log("inputs", inputs)
 
     inputs.forEach(async (e, i) => {
       const inter = new Interpol({
@@ -52,7 +53,9 @@ it("should interpol value between two points", async () => {
   })
 })
 
-
+/**
+ * TODO remove skip
+ */
 it.skip("should return always the same value if duration is 0", () => {
   const inputs = [{ from: 10, to: 100, duration: 0 }]
   return new Promise((resolve: any) => {

@@ -151,6 +151,7 @@ export class Interpol {
 
       // re-init advancement just in case
       if (this.value !== this.to) this.value = this.to
+      if (this.time !== this.duration) this.time = this.duration
 
       this.onComplete?.({
         value: this.value,
