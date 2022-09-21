@@ -36,6 +36,6 @@ it("should works", () => {
 
     // await tl.play()
 
-     resolve()
+    resolve()
   })
 })

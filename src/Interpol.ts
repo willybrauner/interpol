@@ -131,7 +131,7 @@ export class Interpol {
 
   protected handleTickerUpdate = ({ delta, time, elapsed }) => {
     // specific case if duration is 0
-    if (this.duration === 0) {
+    if (this.duration <= 0) {
       const obj = { value: this.to, time: this.duration, advancement: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
@@ -157,7 +157,7 @@ export class Interpol {
     if (this.advancement === 1) {
       this.log("this.advancement === 1")
 
-      // re-init advancement just in case
+      // uniform vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
 
@@ -166,6 +166,7 @@ export class Interpol {
         time: this.time,
         advancement: this.advancement,
       })
+
       this.onCompleteDeferred.resolve()
 
       // reset after onComplete
