@@ -34,6 +34,7 @@
     "semi": false
   },
   "dependencies": {
-    "@wbe/debug": "^1.0.0"
+    "@wbe/debug": "^1.0.0",
+    "vite": "^3.1.3"
   }
 }
