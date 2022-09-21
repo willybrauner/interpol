@@ -130,7 +130,6 @@ export class Interpol {
   }
 
   protected handleTickerUpdate = ({ delta, time, elapsed }) => {
-
     this.time = Math.min(this.duration, this.time + delta)
     this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
     this.value = roundedValue(
@@ -153,14 +152,15 @@ export class Interpol {
       // re-init advancement just in case
       if (this.value !== this.to) this.value = this.to
 
-      this.stop()
-
       this.onComplete?.({
         value: this.value,
         time: this.time,
         advancement: this.advancement,
       })
       this.onCompleteDeferred.resolve()
+
+      // reset after onComplete
+      this.stop()
     }
   }
 
