@@ -43,6 +43,14 @@ const interpolValuesGenerator = ({
   duration: fixedDuration ?? randomRange(0, 5000, 2),
 })
 
+/**
+ * Stress test
+ *
+ * w/ from to and duration
+ *
+ *
+ *
+ */
 it("should interpol value between two points", async () => {
   // create random values
   let inputs = new Array(500).fill(null).map((_) => interpolValuesGenerator())
@@ -76,6 +84,13 @@ it("should return always the same value if duration is 0", () => {
 
 it("should work even if the developer does anything :)", () =>
   new Promise((resolve: any) => interpolTest(0, 0, 0, resolve, true)))
+
+/**
+ *
+ *
+ *
+ *
+ */
 
 // it("should not auto play if paused is set", async () => {
 //   let inter
