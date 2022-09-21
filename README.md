@@ -64,37 +64,41 @@ interface IInterpolConstruct {
 
 #### constructor:
 
-#####`from`
-_number_ - default: `0`  
+##### from
+
+`number` - default: `0`  
  Start interpolation value (millisecond)
 
-##### `to`
+##### to
 
-_number_ - default: `1000`  
+`number` - default: `1000`  
  End interpolation value (millisecond)
 
-##### `duration`
-_number_ - default: `1000`  
+##### duration
+
+`number` - default: `1000`  
  Interpolation duration between `from` and `to` values (millisecond)
 ex: `1000` is 1 second
 
-##### `ease`
-_(t:number) => number_ default: `t => t` (lineal easing)  
+##### ease
+
+`(t:number) => number` default: `t => t` (lineal easing)  
  ease function
 
-##### `paused`
-_boolean_
+##### paused
 
-#####`delay`
+`boolean` - default: `false`
 
-##### `onUpdate`
+##### delay
 
-##### `onComplete`
+##### onUpdate
 
-##### `debug`
+##### onComplete
+
+##### debug
+
+
 
 #### Methods
-
-
 
 ### Timeline
