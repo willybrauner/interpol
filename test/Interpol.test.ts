@@ -239,3 +239,8 @@ it("play should return a resolved promise when complete", async () => {
 it("should execute onComplete once", () => {
   // ...
 })
+
+
+// TODO delay
+// TODO ease not affect duration
+
