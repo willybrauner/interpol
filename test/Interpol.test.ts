@@ -162,9 +162,8 @@ it("should play, pause and play again (resume)", async () => {
   })
 })
 
-it.only("play, stop and play should restart the interpolation", async () => {
+it("play, stop and play should restart the interpolation", async () => {
   const mock = vi.fn()
-  let savedTime
   return new Promise(async (resolve: any) => {
     const itp = new Interpol({
       to: 1000,
@@ -197,7 +196,35 @@ it.only("play, stop and play should restart the interpolation", async () => {
   })
 })
 
-it("play() should return a resolved promise when complete", async () => {
+it("replay should stop and start", async () => {
+  const mock = vi.fn()
+  let saveTime
+  return new Promise(async (resolve: any) => {
+    const itp = new Interpol({
+      to: 1000,
+      duration: 1000,
+      onComplete: () => mock(),
+    })
+
+    // play
+    await new Promise((r) => setTimeout(r, 500))
+    expect(itp.isPlaying).toBe(true)
+    expect(itp.time).toBeGreaterThan(0)
+    saveTime = itp.time
+
+    // replay (stop + start)
+    itp.replay()
+    expect(itp.time - saveTime).toBeLessThan(500)
+    expect(itp.isPlaying).toBe(true)
+
+    await new Promise((r) => setTimeout(r, itp.duration + 50))
+    expect(mock).toHaveBeenCalledTimes(1)
+
+    resolve()
+  })
+})
+
+it("play should return a resolved promise when complete", async () => {
   const mock = vi.fn()
   const inter = new Interpol({
     to: 100,
