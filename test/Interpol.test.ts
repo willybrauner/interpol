@@ -48,7 +48,6 @@ const interpolValuesGenerator = ({
  * w/ from to and duration
  *
  *
- *
  */
 it("should interpol value between two points", async () => {
   let inputs = new Array(500)
