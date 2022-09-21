@@ -39,7 +39,7 @@ const interpol1 = new Interpol({
 const interpol2 = new Interpol({
   from: 0,
   to: 50,
-  paused: true,
+  // paused: true,
   duration: DURATION,
   ease: Ease.outCubic,
   onUpdate: ({ value, time, advancement }) => {
@@ -55,6 +55,6 @@ const interpol2 = new Interpol({
 /**
  * Start TL
  */
-const tl = new Timeline({ debug: true })
+const tl = new Timeline({ debug: true, paused:false })
 tl.add(interpol1, 0)
 tl.add(interpol2, -700)

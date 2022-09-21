@@ -46,7 +46,7 @@ tl.add(itp2)
 
 ### interpol
 
-constructor: 
+constructor:
 
 ```ts
 interface IInterpolConstruct {
@@ -61,23 +61,40 @@ interface IInterpolConstruct {
   debug?: boolean
 }
 ```
- 
-#### from
-`number` - default: `0`  
-Start interpolation value (millisecond)
 
-#### to
-`number` - default: `1000`  
-End interpolation value (millisecond)
+#### constructor:
 
-#### duration
-`number` - default: `1000`  
-Interpolation duration between `from` and `to` values (millisecond) 
+#####`from`
+_number_ - default: `0`  
+ Start interpolation value (millisecond)
 
+##### `to`
+
+_number_ - default: `1000`  
+ End interpolation value (millisecond)
+
+##### `duration`
+_number_ - default: `1000`  
+ Interpolation duration between `from` and `to` values (millisecond)
 ex: `1000` is 1 second
 
-#### ease 
-`(t:number) => number` default: `t => t` (lineal easing)   
-ease function 
+##### `ease`
+_(t:number) => number_ default: `t => t` (lineal easing)  
+ ease function
 
-// ...
+##### `paused`
+_boolean_
+
+#####`delay`
+
+##### `onUpdate`
+
+##### `onComplete`
+
+##### `debug`
+
+#### Methods
+
+
+
+### Timeline

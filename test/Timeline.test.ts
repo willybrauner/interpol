@@ -1,18 +1,18 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline, Interpol, Ease } from "../src"
 
-const createInterpol = ({ duration = 1000, updateMock, completeMock }) => {
-  return new Interpol({
-    from: 0,
-    to: 100,
-    duration,
-    onUpdate: () => updateMock(),
-    onComplete: () => completeMock(),
-  })
-}
+// const createInterpol = ({ duration = 1000, updateMock, completeMock }) => {
+//   return new Interpol({
+//     from: 0,
+//     to: 100,
+//     duration,
+//     onUpdate: () => updateMock(),
+//     onComplete: () => completeMock(),
+//   })
+// }
 
 describe("Timeline", () => {
-  it("Timeline should play properly", () => {
+  it("Timeline should add Interpol's and play properly", () => {
     const goUpdateMock = vi.fn()
     const goCompleteMock = vi.fn()
     const backUpdateMock = vi.fn()
@@ -43,4 +43,7 @@ describe("Timeline", () => {
       resolve()
     })
   })
+
+  it("Timeline should play properly", () => {})
+
 })
