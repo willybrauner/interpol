@@ -226,21 +226,35 @@ it("replay should stop and start", async () => {
 
 it("play should return a resolved promise when complete", async () => {
   const mock = vi.fn()
-  const inter = new Interpol({
+  const itp = new Interpol({
     to: 100,
     paused: true,
     onComplete: () => mock(),
   })
-  await inter.play()
-  expect(inter.isPlaying).toBe(false)
+  await itp.play()
+  expect(itp.isPlaying).toBe(false)
   expect(mock).toBeCalledTimes(1)
 })
 
-it("should execute onComplete once", () => {
-  // ...
+it("play process a delay", async () => {
+  const delay = 200
+  const mock = vi.fn()
+  const itp = new Interpol({
+    to: 100,
+    delay,
+    onComplete: () => mock(),
+  })
+
+  // during the delay
+  await new Promise((r) => setTimeout(r, delay * 0.5))
+  expect(itp.isPlaying).toBe(true)
+  expect(itp.time).toBe(0)
+  expect(itp.advancement).toBe(0)
+  expect(itp.value).toBe(0)
+  await new Promise((r) => setTimeout(r, delay))
+
+  // after the delay
+  expect(itp.time).toBeGreaterThan(0)
+  expect(itp.advancement).toBeGreaterThan(0)
+  expect(itp.value).toBeGreaterThan(0)
 })
-
-
-// TODO delay
-// TODO ease not affect duration
-
