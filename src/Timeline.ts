@@ -20,9 +20,9 @@ export class Timeline {
   public readonly tlId: number
   protected onComplete: () => void
 
-  protected _isPaused = false
+  protected paused = false
   public get isPaused() {
-    return this._isPaused
+    return this.paused
   }
 
   protected _isPlaying = false
@@ -45,11 +45,13 @@ export class Timeline {
     onComplete?: () => void
     debug?: boolean
   } = {}) {
-    this._isPaused = paused
+    this.paused = paused
     this.onComplete = onComplete
     this.debugEnable = debug
     this.ticker.debugEnable = debug
     this.tlId = ++TL_ID
+
+    //  if (!this.paused) this.play()
   }
 
   /**

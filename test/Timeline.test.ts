@@ -1,41 +1,46 @@
-import { it, expect, vi } from "vitest"
+import { it, expect, vi, describe } from "vitest"
 import { Timeline, Interpol, Ease } from "../src"
 
-it("should works", () => {
-  return new Promise(async (resolve: any) => {
-    const go = new Interpol({
-      from: 0,
-      to: 100,
-      duration: 100,
-      paused: true,
-      onUpdate: ({ value, time, advancement }) => {
-        console.log("go >", { value, time, advancement })
-      },
+const createInterpol = ({ duration = 1000, updateMock, completeMock }) => {
+  return new Interpol({
+    from: 0,
+    to: 100,
+    duration,
+    onUpdate: () => updateMock(),
+    onComplete: () => completeMock(),
+  })
+}
 
-      // onComplete: ({ value, time, advancement }) => {
-      //   console.log("go >", { value, time, advancement })
-      // },
+describe("Timeline", () => {
+  it("Timeline should play properly", () => {
+    const goUpdateMock = vi.fn()
+    const goCompleteMock = vi.fn()
+    const backUpdateMock = vi.fn()
+    const backCompleteMock = vi.fn()
+    const tlCompleteMock = vi.fn()
+    const tl = new Timeline({ onComplete: tlCompleteMock })
+    tl.add(
+      new Interpol({
+        to: 100,
+        onUpdate: goUpdateMock,
+        onComplete: goCompleteMock,
+      })
+    )
+    tl.add(
+      new Interpol({
+        to: 100,
+        onUpdate: backUpdateMock,
+        onComplete: backCompleteMock,
+      })
+    )
+    return new Promise(async (resolve: any) => {
+      await tl.play()
+      expect(tlCompleteMock).toBeCalledTimes(1)
+      expect(goUpdateMock).toBeCalled()
+      expect(goCompleteMock).toBeCalledTimes(1)
+      expect(backUpdateMock).toBeCalled()
+      expect(backCompleteMock).toBeCalledTimes(1)
+      resolve()
     })
-
-    const back = new Interpol({
-      from: 100,
-      to: 0,
-      duration: 100,
-      paused: true,
-      onUpdate: ({ value, time, advancement }) => {
-        console.log("back >", { value, time, advancement })
-      },
-      // onComplete: ({ value, time, advancement }) => {
-      //   console.log("back >", { value, time, advancement })
-      // },
-    })
-
-    // const tl = new Timeline()
-    // tl.add(go, 0)
-    // tl.add(back, -10)
-
-    // await tl.play()
-
-    resolve()
   })
 })
