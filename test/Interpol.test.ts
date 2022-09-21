@@ -40,14 +40,12 @@ const interpolValuesGenerator = ({
 } = {}) => ({
   from: from ?? randomRange(-10000, 10000, 2),
   to: to ?? randomRange(-10000, 10000, 2),
-  duration: duration ?? randomRange(0, 4000, 2),
+  duration: duration ?? randomRange(0, 2000, 2),
 })
 
 /**
  * Stress test
  * w/ from to and duration
- *
- *
  */
 it("should interpol value between two points", async () => {
   let inputs = new Array(500)
@@ -76,7 +74,7 @@ it("should work if 'from' and 'to' are equals", () => {
   })
 })
 
-it("should be onComplete immediately if duration is <= 0 ", () => {
+it("should be onComplete immediately if duration is <= 0", () => {
   let inputs = new Array(500)
     .fill(null)
     .map((_) => interpolValuesGenerator({ duration: randomRange(-2000, 0, 2) }))
@@ -91,44 +89,126 @@ it("should work even if the developer does anything :)", () =>
   new Promise((resolve: any) => interpolTest(0, 0, 0, resolve, true)))
 
 /**
- *
- *
- *
+ * API
+ * play, pause, stop, replay
  *
  */
+it("should auto play by default", async () => {
+  const mock = vi.fn()
+  return new Promise((resolve: any) => {
+    const itp = new Interpol({
+      from: 5,
+      to: 100,
+      duration: 100,
+      onUpdate: () => expect(itp.isPlaying).toBe(true),
+      onComplete: () => mock(),
+    })
+    setTimeout(() => {
+      expect(mock).toHaveBeenCalledTimes(1)
+      expect(itp.isPlaying).toBe(false)
+      resolve()
+    }, itp.duration + 100)
+  })
+})
 
-// it("should not auto play if paused is set", async () => {
-//   let inter
-//   inter = new Interpol({ to: 100, paused: true })
-//   expect(inter.isPlaying).toBe(false)
-//
-//   inter = new Interpol({ to: 100, paused: false })
-//   expect(inter.isPlaying).toBe(true)
-// })
-//
-// it("should play, pause and play again", async () => {
-//   let inter
-//   inter = new Interpol({ to: 100, paused: true })
-//   inter.play()
-//   expect(inter.isPlaying).toBe(true)
-//   inter.pause()
-//   expect(inter.isPlaying).toBe(false)
-//   inter.play()
-//   expect(inter.isPlaying).toBe(true)
-// })
-//
-// it("play() should return a resolved promise when complete", async () => {
-//   const mock = vi.fn()
-//   const inter = new Interpol({
-//     to: 100,
-//     paused: true,
-//     onComplete: () => {
-//       mock()
-//     },
-//   })
-//   await inter.play()
-//   expect(inter.isPlaying).toBe(false)
-//   expect(mock).toBeCalledTimes(1)
-// })
-//
-// it("should execute onComplete once", () => {})
+it("should not auto play if paused is set", async () => {
+  const mock = vi.fn()
+  return new Promise((resolve: any) => {
+    const itp = new Interpol({
+      from: 5,
+      to: 100,
+      duration: 100,
+      paused: true,
+      onUpdate: () => mock(),
+      onComplete: () => mock(),
+    })
+    expect(itp.isPlaying).toBe(false)
+    setTimeout(() => {
+      expect(itp.advancement).toBe(0)
+      expect(mock).toHaveBeenCalledTimes(0)
+      resolve()
+    }, itp.duration)
+  })
+})
+
+it("should play, pause and play again (resume)", async () => {
+  const mock = vi.fn()
+  let savedTime
+  return new Promise(async (resolve: any) => {
+    const itp = new Interpol({
+      to: 1000,
+      duration: 1000,
+      paused: true,
+      onUpdate: () => mock(),
+    })
+    expect(mock).toHaveBeenCalledTimes(0)
+    itp.play()
+    expect(itp.isPlaying).toBe(true)
+    await new Promise((r) => setTimeout(r, 500))
+    itp.pause()
+    expect(mock).toHaveBeenCalled()
+    expect(itp.isPlaying).toBe(false)
+    // save time before restart (should be around 500)
+    savedTime = itp.time
+
+    // and play again (resume)
+    itp.play()
+
+    // We are sure that time is not reset on play() after pause()
+    await new Promise((r) => setTimeout(r, 100))
+    expect(itp.advancement - savedTime).toBeLessThan(150)
+    expect(itp.isPlaying).toBe(true)
+    resolve()
+  })
+})
+
+it.only("play, stop and play should restart the interpolation", async () => {
+  const mock = vi.fn()
+  let savedTime
+  return new Promise(async (resolve: any) => {
+    const itp = new Interpol({
+      to: 1000,
+      duration: 1000,
+      onComplete: () => mock(),
+    })
+
+    // play, value are changed
+    await new Promise((r) => setTimeout(r, 500))
+    expect(itp.isPlaying).toBe(true)
+    expect(itp.time).toBeGreaterThan(0)
+    expect(itp.advancement).toBeGreaterThan(0)
+    expect(itp.value).toBeGreaterThan(0)
+
+    // stop, value are reset
+    itp.stop()
+    expect(itp.isPlaying).toBe(false)
+    expect(mock).toHaveBeenCalledTimes(0)
+    expect(itp.time).toBe(0)
+    expect(itp.advancement).toBe(0)
+    expect(itp.value).toBe(0)
+
+    // and play again (resume)
+    itp.play()
+    expect(mock).toHaveBeenCalledTimes(0)
+    await new Promise((r) => setTimeout(r, itp.duration + 50))
+    expect(mock).toHaveBeenCalledTimes(1)
+
+    resolve()
+  })
+})
+
+it("play() should return a resolved promise when complete", async () => {
+  const mock = vi.fn()
+  const inter = new Interpol({
+    to: 100,
+    paused: true,
+    onComplete: () => mock(),
+  })
+  await inter.play()
+  expect(inter.isPlaying).toBe(false)
+  expect(mock).toBeCalledTimes(1)
+})
+
+it("should execute onComplete once", () => {
+  // ...
+})
