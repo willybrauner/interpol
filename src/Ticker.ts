@@ -89,6 +89,7 @@ export default class Ticker {
 
   /**
    * Log util
+   * Active @wbe/debug only if debugEnable is true
    */
   protected log(...rest): void {
     if (this.debugEnable) log(...rest)

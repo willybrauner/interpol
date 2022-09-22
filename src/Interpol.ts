@@ -1,7 +1,8 @@
 import { deferredPromise } from "./helpers/deferredPromise"
-import { roundedValue } from "./helpers/roundValue"
+import { round } from "./helpers/round"
 import Ticker from "./Ticker"
 import debug from "@wbe/debug"
+import { clamp } from "./helpers/clamp"
 const log = debug("interpol:Interpol")
 
 interface IUpdateParams {
@@ -78,11 +79,11 @@ export class Interpol {
     this.debugEnable = debug
     this.ticker.debugEnable = debug
 
-    // start
+    // start!
     if (!this.paused) this.play()
   }
 
-  async play(): Promise<any> {
+  public async play(): Promise<any> {
     if (this._isPlaying) {
       // recreate deferred promise to avoid multi callback:
       // ex: await play()
@@ -149,20 +150,16 @@ export class Interpol {
       return
     }
 
+    // delta sign depend of reverse state
+    delta = this._isReversed ? -delta : delta
+
     // calc time (time spend from the start)
     // calc advancement (between 0 and 1)
-    if (this._isReversed) {
-      this.time = Math.min(this.duration, this.time - delta)
-      this.advancement = Math.max(roundedValue(this.time / this.duration), 0)
-    } else {
-      this.time = Math.min(this.duration, this.time + delta)
-      this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
-    }
-
     // calc value (between "from" and "to")
-    this.value = roundedValue(
-      this.from + (this.to - this.from) * this.ease(this.advancement)
-    )
+    this.time = clamp(0, this.duration, this.time + delta)
+    this.advancement = clamp(0, round(this.time / this.duration), 1)
+    this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
+    this.value = round(this.value, 1000)
 
     // Pass value, time and advancement
     this.onUpdate?.({
@@ -177,46 +174,25 @@ export class Interpol {
       advancement: this.advancement,
     })
 
-    if (this.yoyo) {
-      if (!this._isReversed && this.advancement === 1) {
-        this._isReversed = !this._isReversed
-        this.log("yoyo!")
-        this.log("update reverse state to", this._isReversed)
+    const isNormalDirectionEnd = !this._isReversed && this.advancement === 1
+    const isReverseDirectionEnd = this._isReversed && this.advancement === 0
 
-        this.play()
-        return
-      }
-      if (this._isReversed && this.advancement === 0) {
+    // yoyo case, reverse and play again
+    if (this.yoyo) {
+      if (isNormalDirectionEnd || isReverseDirectionEnd) {
         this._isReversed = !this._isReversed
-        this.log("yoyo!")
-        this.log("update reverse state to", this._isReversed)
+        this.log("yoyo! update reverse state to", this._isReversed)
         this.play()
         return
       }
     }
 
     // end, exe onComplete
-    if (!this._isReversed && this.advancement === 1) {
-      this.log("this.advancement === 1")
+    if (isNormalDirectionEnd || isReverseDirectionEnd) {
+      this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}`)
       // uniformize vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
-      this.onComplete?.({
-        value: this.value,
-        time: this.time,
-        advancement: this.advancement,
-      })
-      this.onCompleteDeferred.resolve()
-      // reset after onComplete
-      this.stop()
-    }
-    if (this._isReversed && this.advancement === 0) {
-      this.log("this.advancement === 0")
-      // uniformize vars
-      if (this.value !== this.to) this.value = this.to
-      if (this.time !== this.duration) this.time = this.duration
-
-      // TODO devrait être un onReverseComplete
       this.onComplete?.({
         value: this.value,
         time: this.time,
@@ -230,6 +206,7 @@ export class Interpol {
 
   /**
    * Log util
+   * Active @wbe/debug only if debugEnable is true
    */
   protected log(...rest): void {
     if (this.debugEnable) log(this.id, ...rest)
