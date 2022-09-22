@@ -35,7 +35,6 @@ export class Interpol {
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
   public yoyo: boolean
-
   public inTl = false
   public ticker: Ticker = new Ticker()
   public advancement = 0
@@ -44,10 +43,8 @@ export class Interpol {
   public debugEnable: boolean
   public readonly id = ++ID
   public reverse = false
-
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
-
   protected _isPlaying = false
   public get isPlaying() {
     return this._isPlaying
@@ -193,7 +190,7 @@ export class Interpol {
     if (this.advancement === 1) {
       this.log("this.advancement === 1")
 
-      // uniform vars
+      // uniformize vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
 
