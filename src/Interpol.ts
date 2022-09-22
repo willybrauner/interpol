@@ -19,6 +19,7 @@ export interface IInterpolConstruct {
   delay?: number
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  yoyo?: boolean
   debug?: boolean
 }
 
@@ -33,6 +34,7 @@ export class Interpol {
   public delay: number
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
+  public yoyo: boolean
 
   public inTl = false
   public ticker: Ticker = new Ticker()
@@ -61,6 +63,7 @@ export class Interpol {
     onUpdate,
     onComplete,
     debug = false,
+    yoyo = false,
   }: IInterpolConstruct) {
     this.from = from
     this.to = to
@@ -70,6 +73,7 @@ export class Interpol {
     this.delay = delay
     this.onUpdate = onUpdate
     this.onComplete = onComplete
+    this.yoyo = yoyo
     this.debugEnable = debug
     this.ticker.debugEnable = debug
 
@@ -102,19 +106,19 @@ export class Interpol {
     return this.onCompleteDeferred.promise
   }
 
-  async replay(): Promise<any> {
+  public async replay(): Promise<any> {
     this._isPlaying = true
     this.stop()
     await this.play()
   }
 
-  pause(): void {
+  public pause(): void {
     this._isPlaying = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
   }
 
-  stop(): void {
+  public stop(): void {
     this._isPlaying = false
     clearTimeout(this.timeout)
     this.value = 0
@@ -123,6 +127,9 @@ export class Interpol {
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
   }
+
+  protected reverse = false
+
 
   protected async render(): Promise<void> {
     if (!this.inTl) this.ticker.play()
@@ -138,11 +145,18 @@ export class Interpol {
       return
     }
 
-    this.time = Math.min(this.duration, this.time + delta)
-    this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
-    this.value = roundedValue(
-      this.from + (this.to - this.from) * this.ease(this.advancement)
-    )
+    if (!this.reverse) {
+      this.time = Math.min(this.duration, this.time + delta)
+      this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
+      this.value = roundedValue(this.from + (this.to - this.from) * this.ease(this.advancement))
+    } else {
+this.log('>>>>>>>>>>>>>>>>')
+      this.time = Math.min(this.duration, this.time - delta)
+      this.advancement = Math.max(roundedValue(this.time / this.duration), 0)
+      this.value = roundedValue(
+        this.value = roundedValue(this.from + (this.to - this.from) * this.ease(this.advancement))
+      )
+    }
 
     const onUpdateObj = {
       value: this.value,
@@ -154,12 +168,29 @@ export class Interpol {
     this.log("onUpdate", onUpdateObj)
 
     // end, exe onComplete
-    if (this.advancement === 1) {
+    if (!this.reverse && this.advancement === 1) {
       this.log("this.advancement === 1")
 
       // uniform vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
+
+      if (this.yoyo) {
+        this.log('yoyo!')
+        this.reverse = !this.reverse
+        this.play()
+        return
+      }
+      //   const to = this.to
+      //   this.to = this.from
+      //   this.from = to
+      //
+      //   this.log("yoyo!")
+      //   this.log("yoyo! this.from", this.from)
+      //   this.log("yoyo! this.to", this.to)
+      //   this.replay()
+      //   return
+      // }
 
       this.onComplete?.({
         value: this.value,
@@ -171,6 +202,18 @@ export class Interpol {
 
       // reset after onComplete
       this.stop()
+    }
+
+
+    this.log('this.advancement',this.advancement)
+    if (this.reverse && this.advancement === 0)
+    {
+      if (this.yoyo) {
+        this.log('yoyo! back end')
+        this.reverse = !this.reverse
+        this.play()
+        return
+      }
     }
   }
 

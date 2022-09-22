@@ -13,6 +13,4 @@ describe.concurrent("Timeline", () => {
       resolve()
     })
   })
-
-  it("Timeline should play properly", () => {})
 })

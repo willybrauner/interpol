@@ -22,16 +22,17 @@ const $el = document.querySelector<HTMLDivElement>(".el")
 
 const inter = new Interpol({
   from: 0,
-  to: 1400,
+  to: 1000,
   duration: 1300,
   delay: 0,
   paused: true,
   ease: Ease.outExpo,
+  yoyo: true,
+  debug: true,
   onUpdate: ({ value, time, advancement }) => {
     // console.log({ value, time, advancement })
     const x = advancement * 100
-    const y = -((value / inter.to) * 100)
+    const y = -value/10
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
-  debug: true,
 })
