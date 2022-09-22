@@ -42,9 +42,12 @@ export class Interpol {
   public value = 0
   public debugEnable: boolean
   public readonly id = ++ID
-  public reverse = false
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
+  protected _isReversed = false
+  public get isReversed() {
+    return this._isReversed
+  }
   protected _isPlaying = false
   public get isPlaying() {
     return this._isPlaying
@@ -121,8 +124,14 @@ export class Interpol {
     this.value = 0
     this.time = 0
     this.advancement = 0
+    this._isReversed = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
+  }
+
+  public reverse() {
+    this._isReversed = !this._isReversed
+    return this
   }
 
   protected async render(): Promise<void> {
@@ -142,7 +151,7 @@ export class Interpol {
 
     // calc time (time spend from the start)
     // calc advancement (between 0 and 1)
-    if (this.reverse) {
+    if (this._isReversed) {
       this.time = Math.min(this.duration, this.time - delta)
       this.advancement = Math.max(roundedValue(this.time / this.duration), 0)
     } else {
@@ -169,39 +178,51 @@ export class Interpol {
     })
 
     if (this.yoyo) {
-      if (!this.reverse && this.advancement === 1) {
-        this.reverse = !this.reverse
+      if (!this._isReversed && this.advancement === 1) {
+        this._isReversed = !this._isReversed
         this.log("yoyo!")
-        this.log("update reverse state to", this.reverse)
+        this.log("update reverse state to", this._isReversed)
 
         this.play()
         return
       }
-      if (this.reverse && this.advancement === 0) {
-        this.reverse = !this.reverse
+      if (this._isReversed && this.advancement === 0) {
+        this._isReversed = !this._isReversed
         this.log("yoyo!")
-        this.log("update reverse state to", this.reverse)
+        this.log("update reverse state to", this._isReversed)
         this.play()
         return
       }
     }
 
     // end, exe onComplete
-    if (this.advancement === 1) {
+    if (!this._isReversed && this.advancement === 1) {
       this.log("this.advancement === 1")
-
       // uniformize vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
-
       this.onComplete?.({
         value: this.value,
         time: this.time,
         advancement: this.advancement,
       })
-
       this.onCompleteDeferred.resolve()
+      // reset after onComplete
+      this.stop()
+    }
+    if (this._isReversed && this.advancement === 0) {
+      this.log("this.advancement === 0")
+      // uniformize vars
+      if (this.value !== this.to) this.value = this.to
+      if (this.time !== this.duration) this.time = this.duration
 
+      // TODO devrait être un onReverseComplete
+      this.onComplete?.({
+        value: this.value,
+        time: this.time,
+        advancement: this.advancement,
+      })
+      this.onCompleteDeferred.resolve()
       // reset after onComplete
       this.stop()
     }

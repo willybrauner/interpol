@@ -5,6 +5,7 @@ const $playButton = document.querySelector<HTMLDivElement>(".play")
 const $pauseButton = document.querySelector<HTMLDivElement>(".pause")
 const $replayButton = document.querySelector<HTMLDivElement>(".replay")
 const $stopButton = document.querySelector<HTMLDivElement>(".stop")
+const $reverseButton = document.querySelector<HTMLDivElement>(".reverse")
 
 $playButton.addEventListener("click", async () => {
   await inter.play()
@@ -14,9 +15,9 @@ $replayButton.addEventListener("click", async () => {
   await inter.replay()
   console.log("replay is complete!")
 })
-
 $pauseButton.addEventListener("click", () => inter.pause())
 $stopButton.addEventListener("click", () => inter.stop())
+$reverseButton.addEventListener("click", () => inter.reverse())
 
 const $el = document.querySelector<HTMLDivElement>(".el")
 
@@ -27,12 +28,11 @@ const inter = new Interpol({
   delay: 0,
   paused: true,
   ease: Ease.outExpo,
-  yoyo: true,
+//  yoyo: true,
   debug: true,
   onUpdate: ({ value, time, advancement }) => {
-    // console.log({ value, time, advancement })
     const x = advancement * 100
-    const y = -value/10
+    const y = -value / 10
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
 })

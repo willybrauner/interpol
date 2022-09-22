@@ -2,20 +2,20 @@ import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { wait } from "../src/helpers/wait"
 
-describe.concurrent.only("Interpol yoyo", () => {
+describe.concurrent("Interpol yoyo", () => {
   it("should reverse a the interpolation end infinitely", async () => {
     const mock = vi.fn()
     return new Promise(async (resolve: any) => {
       const itp = new Interpol({
         to: 10,
-        duration: 200,
+        duration: 400,
         yoyo: true,
         onComplete: () => mock(),
       })
 
       const goAndBack = async () => {
         setTimeout(() => {
-          expect(itp.reverse).toBe(false)
+          expect(itp.isReversed).toBe(false)
           expect(itp.isPlaying).toBe(true)
           expect(itp.time).toBeGreaterThan(0)
           expect(itp.value).toBeGreaterThan(0)
@@ -25,7 +25,7 @@ describe.concurrent.only("Interpol yoyo", () => {
         await wait(itp.duration)
 
         setTimeout(() => {
-          expect(itp.reverse).toBe(true)
+          expect(itp.isReversed).toBe(true)
           expect(itp.isPlaying).toBe(true)
           expect(itp.time).toBeLessThan(itp.duration)
           expect(itp.value).toBeLessThan(itp.to)
