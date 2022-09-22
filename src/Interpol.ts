@@ -130,7 +130,6 @@ export class Interpol {
 
   protected reverse = false
 
-
   protected async render(): Promise<void> {
     if (!this.inTl) this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
@@ -148,13 +147,18 @@ export class Interpol {
     if (!this.reverse) {
       this.time = Math.min(this.duration, this.time + delta)
       this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
-      this.value = roundedValue(this.from + (this.to - this.from) * this.ease(this.advancement))
+      this.value = roundedValue(
+        this.from + (this.to - this.from) * this.ease(this.advancement)
+      )
     } else {
-this.log('>>>>>>>>>>>>>>>>')
+    // TODO externaliser le reverse dans un autre handler ?
+      this.log(">>>>>>>>>>>>>>>>")
       this.time = Math.min(this.duration, this.time - delta)
       this.advancement = Math.max(roundedValue(this.time / this.duration), 0)
       this.value = roundedValue(
-        this.value = roundedValue(this.from + (this.to - this.from) * this.ease(this.advancement))
+        (this.value = roundedValue(
+          this.from + (this.to - this.from) * this.ease(this.advancement)
+        ))
       )
     }
 
@@ -176,21 +180,11 @@ this.log('>>>>>>>>>>>>>>>>')
       if (this.time !== this.duration) this.time = this.duration
 
       if (this.yoyo) {
-        this.log('yoyo!')
+        this.log("yoyo!")
         this.reverse = !this.reverse
         this.play()
         return
       }
-      //   const to = this.to
-      //   this.to = this.from
-      //   this.from = to
-      //
-      //   this.log("yoyo!")
-      //   this.log("yoyo! this.from", this.from)
-      //   this.log("yoyo! this.to", this.to)
-      //   this.replay()
-      //   return
-      // }
 
       this.onComplete?.({
         value: this.value,
@@ -204,12 +198,10 @@ this.log('>>>>>>>>>>>>>>>>')
       this.stop()
     }
 
-
-    this.log('this.advancement',this.advancement)
-    if (this.reverse && this.advancement === 0)
-    {
+    // TODO externaliser le reverse dans un autre handler ?
+    if (this.reverse && this.advancement === 0) {
       if (this.yoyo) {
-        this.log('yoyo! back end')
+        this.log("yoyo! back end")
         this.reverse = !this.reverse
         this.play()
         return
