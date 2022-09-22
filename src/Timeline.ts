@@ -178,6 +178,7 @@ export class Timeline {
 
   /**
    * Log util
+   * Active @wbe/debug only if debugEnable is true
    */
   protected log(...rest): void {
     if (this.debugEnable) log(this.tlId, ...rest)

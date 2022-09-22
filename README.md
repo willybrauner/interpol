@@ -56,6 +56,7 @@ interface IInterpolConstruct {
   ease?: (t: number) => number
   paused?: boolean
   delay?: number
+  yoyo?: boolean
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
   debug?: boolean
@@ -64,24 +65,27 @@ interface IInterpolConstruct {
 
 #### from
 
-`number` - default: `0`  
- Start interpolation value (millisecond)
+`number` - default: `0`
+
+Start interpolation value (millisecond)
 
 #### to
 
-`number` - default: `1000`  
- End interpolation value (millisecond)
+`number` - default: `1000`
+
+End interpolation value (millisecond)
 
 #### duration
 
-`number` - default: `1000`  
- Interpolation duration between `from` and `to` values (millisecond)
-ex: `1000` is 1 second
+`number` - default: `1000`
+
+Interpolation duration between `from` and `to` values (millisecond). ex: `1000` is 1 second
 
 #### ease
 
-`(t:number) => number` - default: `t => t` (lineal easing)  
- ease function
+`(t:number) => number` - default: `t => t` (lineal easing)
+
+ease function
 
 #### paused
 
@@ -89,22 +93,48 @@ ex: `1000` is 1 second
 
 #### delay
 
+`number` - default: `0`
+
 #### onUpdate
+
+`({ time, delta, advancement }) => void`
 
 #### onComplete
 
+`({ time, delta, advancement }) => void`
+
+#### yoyo
+
+`boolean` - default: `false`
+
+Start and reverse indefinitely
+
 #### debug
+
+`boolean` - default: `false`
 
 Methods
 
 #### play(): Promise<any>
 
-Play the current interpol 
+Play the current interpol
 
 #### pause(): void
 
+Pause the current interpol
+
 #### stop(): void
 
+Stop the current interpol, will reset time, delta and advancement.
+
 #### replay(): void
+
+Replay from start the current interpol.
+
+#### reverse(): void
+
+Reverse the current interpol
+
+---
 
 ### Timeline
