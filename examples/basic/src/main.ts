@@ -23,7 +23,7 @@ const $el = document.querySelector<HTMLDivElement>(".el")
 const inter = new Interpol({
   from: 0,
   to: 1000,
-  duration: 1300,
+  duration: 900,
   delay: 0,
   paused: true,
   ease: Ease.outExpo,

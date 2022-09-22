@@ -43,6 +43,7 @@ export class Interpol {
   public value = 0
   public debugEnable: boolean
   public readonly id = ++ID
+  public reverse = false
 
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
@@ -84,8 +85,7 @@ export class Interpol {
   async play(): Promise<any> {
     if (this._isPlaying) {
       // recreate deferred promise to avoid multi callback:
-      // ex:
-      //  await play()
+      // ex: await play()
       //  some code... -> need to be called once even if play() is called multi times
       this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
@@ -128,8 +128,6 @@ export class Interpol {
     if (!this.inTl) this.ticker.stop()
   }
 
-  protected reverse = false
-
   protected async render(): Promise<void> {
     if (!this.inTl) this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
@@ -137,6 +135,7 @@ export class Interpol {
 
   protected handleTickerUpdate = ({ delta, time, elapsed }) => {
     // specific case if duration is 0
+    // execute onComplete and return
     if (this.duration <= 0) {
       const obj = { value: this.to, time: this.duration, advancement: 1 }
       this.onUpdate?.(obj)
@@ -144,47 +143,59 @@ export class Interpol {
       return
     }
 
-    if (!this.reverse) {
-      this.time = Math.min(this.duration, this.time + delta)
-      this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
-      this.value = roundedValue(
-        this.from + (this.to - this.from) * this.ease(this.advancement)
-      )
-    } else {
-    // TODO externaliser le reverse dans un autre handler ?
-      this.log(">>>>>>>>>>>>>>>>")
+    // calc time (time spend from the start)
+    // calc advancement (between 0 and 1)
+    if (this.reverse) {
       this.time = Math.min(this.duration, this.time - delta)
       this.advancement = Math.max(roundedValue(this.time / this.duration), 0)
-      this.value = roundedValue(
-        (this.value = roundedValue(
-          this.from + (this.to - this.from) * this.ease(this.advancement)
-        ))
-      )
+    } else {
+      this.time = Math.min(this.duration, this.time + delta)
+      this.advancement = Math.min(roundedValue(this.time / this.duration), 1)
     }
 
-    const onUpdateObj = {
+    // calc value (between "from" and "to")
+    this.value = roundedValue(
+      this.from + (this.to - this.from) * this.ease(this.advancement)
+    )
+
+    // Pass value, time and advancement
+    this.onUpdate?.({
       value: this.value,
       time: this.time,
       advancement: this.advancement,
+    })
+
+    this.log("onUpdate", {
+      value: this.value,
+      time: this.time,
+      advancement: this.advancement,
+    })
+
+    if (this.yoyo) {
+      if (!this.reverse && this.advancement === 1) {
+        this.reverse = !this.reverse
+        this.log("yoyo!")
+        this.log("update reverse state to", this.reverse)
+
+        this.play()
+        return
+      }
+      if (this.reverse && this.advancement === 0) {
+        this.reverse = !this.reverse
+        this.log("yoyo!")
+        this.log("update reverse state to", this.reverse)
+        this.play()
+        return
+      }
     }
-    // exe onUpdate local method with params
-    this.onUpdate?.(onUpdateObj)
-    this.log("onUpdate", onUpdateObj)
 
     // end, exe onComplete
-    if (!this.reverse && this.advancement === 1) {
+    if (this.advancement === 1) {
       this.log("this.advancement === 1")
 
       // uniform vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
-
-      if (this.yoyo) {
-        this.log("yoyo!")
-        this.reverse = !this.reverse
-        this.play()
-        return
-      }
 
       this.onComplete?.({
         value: this.value,
@@ -196,16 +207,6 @@ export class Interpol {
 
       // reset after onComplete
       this.stop()
-    }
-
-    // TODO externaliser le reverse dans un autre handler ?
-    if (this.reverse && this.advancement === 0) {
-      if (this.yoyo) {
-        this.log("yoyo! back end")
-        this.reverse = !this.reverse
-        this.play()
-        return
-      }
     }
   }
 
