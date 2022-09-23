@@ -1,5 +1,5 @@
 import "./style.css"
-import { Interpol, Ease } from "interpol"
+import { Interpol, Ease } from "../../../src"
 
 const $playButton = document.querySelector<HTMLDivElement>(".play")
 const $pauseButton = document.querySelector<HTMLDivElement>(".pause")
@@ -9,7 +9,7 @@ const $reverseButton = document.querySelector<HTMLDivElement>(".reverse")
 
 $playButton.addEventListener("click", async () => {
   await inter.play()
-  console.log("play is complete!")
+  console.log(" after await play is complete!")
 })
 $replayButton.addEventListener("click", async () => {
   await inter.replay()
@@ -28,11 +28,15 @@ const inter = new Interpol({
   delay: 0,
   paused: true,
   ease: Ease.outExpo,
-//  yoyo: true,
+  //  yoyo: true,
+  repeat: 3,
   debug: true,
   onUpdate: ({ value, time, advancement }) => {
     const x = advancement * 100
     const y = -value / 10
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
+  onComplete:()=> {
+    console.log('icicicicici complete')
+  }
 })

@@ -20,7 +20,9 @@ export interface IInterpolConstruct {
   delay?: number
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
   yoyo?: boolean
+  repeat?: number
   debug?: boolean
 }
 
@@ -35,7 +37,9 @@ export class Interpol {
   public delay: number
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
+  public onRepeatComplete: (e: IUpdateParams) => void
   public yoyo: boolean
+  public repeat: number
   public inTl = false
   public ticker: Ticker = new Ticker()
   public advancement = 0
@@ -54,6 +58,8 @@ export class Interpol {
     return this._isPlaying
   }
 
+  protected repeatCounter = 0
+
   constructor({
     from = 0,
     to = 1000,
@@ -64,8 +70,10 @@ export class Interpol {
     delay = 0,
     onUpdate,
     onComplete,
+    onRepeatComplete,
     debug = false,
     yoyo = false,
+    repeat = 0,
   }: IInterpolConstruct) {
     this.from = from
     this.to = to
@@ -75,7 +83,9 @@ export class Interpol {
     this.delay = delay
     this.onUpdate = onUpdate
     this.onComplete = onComplete
+    this.onRepeatComplete = onRepeatComplete
     this.yoyo = yoyo
+    this.repeat = repeat
     this.debugEnable = debug
     this.ticker.debugEnable = debug
 
@@ -94,13 +104,11 @@ export class Interpol {
     this._isPlaying = true
     // Delay is set only on first play.
     // If this play is trigger before onComplete, we don't wait again
-    this.timeout = setTimeout(
-      () => {
-        // start ticker
-        this.render()
-      },
-      this.time > 0 ? 0 : this.delay
-    )
+    const d = this.time > 0 ? 0 : this.delay
+    this.timeout = setTimeout(() => {
+      // start ticker
+      this.render()
+    }, d)
 
     // create new onComplete deferred Promise and return it
     this.onCompleteDeferred = deferredPromise()
@@ -120,6 +128,9 @@ export class Interpol {
   }
 
   public stop(): void {
+    this._stop()
+  }
+  protected _stop(resetRepeatCounter = true): void {
     this._isPlaying = false
     clearTimeout(this.timeout)
     this.value = 0
@@ -127,6 +138,7 @@ export class Interpol {
     this.advancement = 0
     this._isReversed = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
+    if (resetRepeatCounter) this.repeatCounter = 0
     if (!this.inTl) this.ticker.stop()
   }
 
@@ -140,8 +152,8 @@ export class Interpol {
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
   }
 
-  protected handleTickerUpdate = ({ delta, time, elapsed }) => {
-    // specific case if duration is 0
+  protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
+    // Specific case if duration is 0
     // execute onComplete and return
     if (this.duration <= 0) {
       const obj = { value: this.to, time: this.duration, advancement: 1 }
@@ -149,10 +161,8 @@ export class Interpol {
       this.onComplete?.(obj)
       return
     }
-
     // delta sign depend of reverse state
     delta = this._isReversed ? -delta : delta
-
     // calc time (time spend from the start)
     // calc advancement (between 0 and 1)
     // calc value (between "from" and "to")
@@ -160,23 +170,19 @@ export class Interpol {
     this.advancement = clamp(0, round(this.time / this.duration), 1)
     this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
     this.value = round(this.value, 1000)
-
     // Pass value, time and advancement
     this.onUpdate?.({
       value: this.value,
       time: this.time,
       advancement: this.advancement,
     })
-
     this.log("onUpdate", {
       value: this.value,
       time: this.time,
       advancement: this.advancement,
     })
-
     const isNormalDirectionEnd = !this._isReversed && this.advancement === 1
     const isReverseDirectionEnd = this._isReversed && this.advancement === 0
-
     // yoyo case, reverse and play again
     if (this.yoyo) {
       if (isNormalDirectionEnd || isReverseDirectionEnd) {
@@ -186,20 +192,45 @@ export class Interpol {
         return
       }
     }
-
     // end, exe onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
       this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}`)
       // uniformize vars
       if (this.value !== this.to) this.value = this.to
       if (this.time !== this.duration) this.time = this.duration
+      // Call current interpol onComplete method
       this.onComplete?.({
         value: this.value,
         time: this.time,
         advancement: this.advancement,
       })
-      this.onCompleteDeferred.resolve()
-      // reset after onComplete
+      // repeat logic, if is -1, replay indefinitely
+      const repeatInfinitely = this.repeat < 0
+      const needToRepeat = this.repeat > 0 && this.repeatCounter + 1 < this.repeat
+      if (repeatInfinitely) {
+        this.replay()
+        return
+      }
+      if (needToRepeat) {
+        this.repeatCounter++
+        this.log("Have been repeated", this.repeatCounter)
+        this._stop(false)
+        this.play()
+        return
+      } else {
+        this.repeatCounter++
+        this.log("End repeats!", this.repeatCounter)
+        this.onRepeatComplete?.({
+          value: this.value,
+          time: this.time,
+          advancement: this.advancement,
+        })
+      }
+      //if (!repeatInfinitely && !needToRepeat) {
+        this.onCompleteDeferred.resolve()
+//      }
+      // stop and reset after onComplete
+      // ! need to stop after repeat logic because stop() will reset repeatCounter
       this.stop()
     }
   }
