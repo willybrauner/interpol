@@ -18,6 +18,7 @@ export interface IInterpolConstruct {
   ease?: (t: number) => number
   paused?: boolean
   delay?: number
+  beforeStart?: () => void
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
   onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
@@ -35,6 +36,7 @@ export class Interpol {
   public ease: (t: number) => number
   public paused: boolean
   public delay: number
+  public beforeStart: () => void
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
   public onRepeatComplete: (e: IUpdateParams) => void
@@ -67,6 +69,7 @@ export class Interpol {
     ease = (t) => t,
     paused = false,
     delay = 0,
+    beforeStart,
     onUpdate,
     onComplete,
     onRepeatComplete,
@@ -80,6 +83,7 @@ export class Interpol {
     this.paused = paused
     this.ease = ease
     this.delay = delay
+    this.beforeStart = beforeStart
     this.onUpdate = onUpdate
     this.onComplete = onComplete
     this.onRepeatComplete = onRepeatComplete
@@ -87,6 +91,9 @@ export class Interpol {
     this.repeat = repeat
     this.debugEnable = debug
     this.ticker.debugEnable = debug
+
+    // start before
+    this.beforeStart?.()
 
     // start!
     if (!this.paused) this.play()
