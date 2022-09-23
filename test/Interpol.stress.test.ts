@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { randomRange } from "./utils/randomRange"
+import {interpolParamsGenerator} from "./utils/interpolParamsGenerator"
 
 /**
  * Create generic interpol tester
@@ -30,18 +31,7 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
   })
 }
 
-/**
- * Interpol values generator
- */
-const interpolValuesGenerator = ({
-  from = undefined,
-  to = undefined,
-  duration = undefined,
-} = {}) => ({
-  from: from ?? randomRange(-10000, 10000, 2),
-  to: to ?? randomRange(-10000, 10000, 2),
-  duration: duration ?? randomRange(0, 2000, 2),
-})
+
 
 /**
  * Stress test
@@ -51,7 +41,7 @@ describe.concurrent("Interpol stress test", () => {
   it("should interpol value between two points", async () => {
     let inputs = new Array(500)
       .fill(null)
-      .map((_) => interpolValuesGenerator())
+      .map((_) => interpolParamsGenerator())
       .sort((a, b) => a.duration - b.duration)
     return new Promise((resolve: any) => {
       inputs.forEach(async ({ from, to, duration }, i) => {
@@ -65,7 +55,7 @@ describe.concurrent("Interpol stress test", () => {
       .fill(null)
       .map((_) => {
         const fromTo = randomRange(-10000, 10000, 2)
-        return interpolValuesGenerator({ to: fromTo, from: fromTo })
+        return interpolParamsGenerator({ to: fromTo, from: fromTo })
       })
       .sort((a, b) => a.duration - b.duration)
     return new Promise((resolve: any) => {
@@ -79,7 +69,7 @@ describe.concurrent("Interpol stress test", () => {
     let inputs = new Array(500)
       .fill(null)
       .map((_) =>
-        interpolValuesGenerator({ duration: randomRange(-2000, 0, 2) })
+        interpolParamsGenerator({ duration: randomRange(-2000, 0, 2) })
       )
     return new Promise((resolve: any) => {
       inputs.forEach(async ({ from, to, duration }, i) => {

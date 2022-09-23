@@ -213,9 +213,11 @@ export class Interpol {
         time: this.time,
         advancement: this.advancement,
       })
-      // repeat logic, if is -1, replay indefinitely
+
+      // repeat logic
       const repeatInfinitely = this.repeat < 0
       const needToRepeat = this.repeat > 0 && this.repeatCounter + 1 < this.repeat
+
       if (repeatInfinitely) {
         this.replay()
         return
@@ -226,7 +228,8 @@ export class Interpol {
         this._stop(false)
         this._play(false)
         return
-      } else {
+      }
+      if (!needToRepeat && this.repeat !== 0) {
         this.repeatCounter++
         this.log("End repeats!", this.repeatCounter)
         this.onRepeatComplete?.({
@@ -234,9 +237,11 @@ export class Interpol {
           time: this.time,
           advancement: this.advancement,
         })
+        // and continue...
       }
+
       // If repeat is active, we want to resolve onComplete promise only
-      // when all repeat are complete
+      // when all repeats are complete
       if (!repeatInfinitely && !needToRepeat) {
         this.onFullCompleteDeferred.resolve()
       }
