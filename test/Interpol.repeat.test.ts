@@ -11,11 +11,7 @@ describe.concurrent.only("Interpol repeat", () => {
         duration: 1000,
         repeat: 3,
         onComplete: mock,
-        onUpdate:(e)=>
-        {
-//        console.log(e)
-        }
-
+        onUpdate: (e) => {},
       })
 
       await wait(itp.duration * 3 + 100)

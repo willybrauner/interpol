@@ -94,11 +94,14 @@ export class Interpol {
   }
 
   public async play(): Promise<any> {
+    await this._play()
+  }
+  protected _play(createNewOnCompletePromise = true) {
     if (this._isPlaying) {
       // recreate deferred promise to avoid multi callback:
       // ex: await play()
       //  some code... -> need to be called once even if play() is called multi times
-      this.onCompleteDeferred = deferredPromise()
+      if (createNewOnCompletePromise) this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
     this._isPlaying = true
@@ -111,7 +114,7 @@ export class Interpol {
     }, d)
 
     // create new onComplete deferred Promise and return it
-    this.onCompleteDeferred = deferredPromise()
+    if (createNewOnCompletePromise) this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
 
@@ -161,8 +164,10 @@ export class Interpol {
       this.onComplete?.(obj)
       return
     }
+
     // delta sign depend of reverse state
     delta = this._isReversed ? -delta : delta
+
     // calc time (time spend from the start)
     // calc advancement (between 0 and 1)
     // calc value (between "from" and "to")
@@ -170,6 +175,7 @@ export class Interpol {
     this.advancement = clamp(0, round(this.time / this.duration), 1)
     this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
     this.value = round(this.value, 1000)
+
     // Pass value, time and advancement
     this.onUpdate?.({
       value: this.value,
@@ -181,8 +187,11 @@ export class Interpol {
       time: this.time,
       advancement: this.advancement,
     })
+
+    // check direction end
     const isNormalDirectionEnd = !this._isReversed && this.advancement === 1
     const isReverseDirectionEnd = this._isReversed && this.advancement === 0
+
     // yoyo case, reverse and play again
     if (this.yoyo) {
       if (isNormalDirectionEnd || isReverseDirectionEnd) {
@@ -192,6 +201,7 @@ export class Interpol {
         return
       }
     }
+
     // end, exe onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
       this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}`)
@@ -215,7 +225,7 @@ export class Interpol {
         this.repeatCounter++
         this.log("Have been repeated", this.repeatCounter)
         this._stop(false)
-        this.play()
+        this._play(false)
         return
       } else {
         this.repeatCounter++
@@ -226,9 +236,11 @@ export class Interpol {
           advancement: this.advancement,
         })
       }
-      //if (!repeatInfinitely && !needToRepeat) {
+      // If repeat is active, we want to resolve onComplete promise only
+      // when all repeat are complete
+      if (!repeatInfinitely && !needToRepeat) {
         this.onCompleteDeferred.resolve()
-//      }
+      }
       // stop and reset after onComplete
       // ! need to stop after repeat logic because stop() will reset repeatCounter
       this.stop()
