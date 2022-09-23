@@ -1,8 +1,9 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Interpol delay", () => {
-  it("play process a delay", async () => {
+  it("play with delay", async () => {
     const delay = 200
     const mock = vi.fn()
     const itp = new Interpol({
@@ -12,12 +13,12 @@ describe.concurrent("Interpol delay", () => {
     })
 
     // during the delay
-    await new Promise((r) => setTimeout(r, delay * 0.5))
+    await wait(delay * 0.5)
     expect(itp.isPlaying).toBe(true)
     expect(itp.time).toBe(0)
     expect(itp.advancement).toBe(0)
     expect(itp.value).toBe(0)
-    await new Promise((r) => setTimeout(r, delay))
+    await wait(delay)
 
     // after the delay
     expect(itp.time).toBeGreaterThan(0)

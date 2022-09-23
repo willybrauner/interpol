@@ -131,8 +131,10 @@ Stop the current interpol, will reset time, delta and advancement.
 
 Replay from start the current interpol.
 
+#### reverse(): void
+
+Reverse the current interpol
 
 ---
 
 ### Timeline
-

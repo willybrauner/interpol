@@ -1,5 +1,6 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Interpol pause", () => {
   it("should play, pause and play again (resume)", async () => {
@@ -10,12 +11,12 @@ describe.concurrent("Interpol pause", () => {
         to: 1000,
         duration: 1000,
         paused: true,
-        onUpdate: () => mock(),
+        onUpdate: mock,
       })
       expect(mock).toHaveBeenCalledTimes(0)
       itp.play()
       expect(itp.isPlaying).toBe(true)
-      await new Promise((r) => setTimeout(r, 500))
+      await wait(500)
       itp.pause()
       expect(mock).toHaveBeenCalled()
       expect(itp.isPlaying).toBe(false)
@@ -26,7 +27,7 @@ describe.concurrent("Interpol pause", () => {
       itp.play()
 
       // We are sure that time is not reset on play() after pause()
-      await new Promise((r) => setTimeout(r, 100))
+      await wait(100)
       expect(itp.advancement - savedTime).toBeLessThan(150)
       expect(itp.isPlaying).toBe(true)
       resolve()

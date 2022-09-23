@@ -1,5 +1,6 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
+import {wait} from "./utils/wait"
 
 describe.concurrent("Interpol replay", () => {
   it("replay should stop and start", async () => {
@@ -13,7 +14,7 @@ describe.concurrent("Interpol replay", () => {
       })
 
       // play
-      await new Promise((r) => setTimeout(r, 500))
+      await wait(500)
       expect(itp.isPlaying).toBe(true)
       expect(itp.time).toBeGreaterThan(0)
       saveTime = itp.time
@@ -23,7 +24,7 @@ describe.concurrent("Interpol replay", () => {
       expect(itp.time - saveTime).toBeLessThan(500)
       expect(itp.isPlaying).toBe(true)
 
-      await new Promise((r) => setTimeout(r, itp.duration + 50))
+      await wait(itp.duration + 50)
       expect(mock).toHaveBeenCalledTimes(1)
 
       resolve()

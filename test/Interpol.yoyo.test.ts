@@ -1,6 +1,6 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
-import { wait } from "../src/helpers/wait"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Interpol yoyo", () => {
   it("should reverse a the interpolation end infinitely", async () => {
