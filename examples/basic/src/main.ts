@@ -1,5 +1,6 @@
 import "./style.css"
 import { Interpol, Ease } from "../../../src"
+import { randomRange } from "../../../test/utils/randomRange"
 
 const $playButton = document.querySelector<HTMLDivElement>(".play")
 const $pauseButton = document.querySelector<HTMLDivElement>(".pause")
@@ -22,18 +23,15 @@ $reverseButton.addEventListener("click", () => inter.reverse())
 const $el = document.querySelector<HTMLDivElement>(".el")
 
 const inter = new Interpol({
-  from: 0,
-  to: innerHeight / 2,
-  duration: 900,
+  from: () => randomRange(0, 1000),
+  to: () => randomRange(0, 1000),
+  duration: () => randomRange(0, 2000),
   paused: true,
   ease: Ease.inExpo,
-  //  yoyo: true,
-  // repeat: 2,
+  yoyo: true,
+  // repeat: -1,
+  repeatRefresh: true,
   debug: true,
-  beforeStart: () => {
-    $el.style.opacity = "0.2"
-    $el.style.transform = `translateX(${11}vw) translateY(${-11}vh) translateZ(0)`
-  },
   onUpdate: ({ value, time, advancement }) => {
     const x = advancement * 90
     const y = -value / 20
@@ -44,3 +42,5 @@ const inter = new Interpol({
     console.log("Main > complete()=> {} ")
   },
 })
+
+console.log(inter._from)

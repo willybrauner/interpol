@@ -12,9 +12,9 @@ interface IUpdateParams {
 }
 
 export interface IInterpolConstruct {
-  from?: number
-  to: number
-  duration?: number
+  from?: number | (() => number)
+  to?: number | (() => number)
+  duration?: number | (() => number)
   ease?: (t: number) => number
   paused?: boolean
   delay?: number
@@ -24,16 +24,20 @@ export interface IInterpolConstruct {
   onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
   yoyo?: boolean
   repeat?: number
+  repeatRefresh?: boolean
   debug?: boolean
 }
 
 let ID = 0
 
 export class Interpol {
-  public from: number
-  public to: number
-  public duration: number
-  public ease: (t: number) => number
+  public from: number | (() => number)
+  public _from: number
+  public to: number | (() => number)
+  public _to: number
+  public duration: number | (() => number)
+  public _duration: number
+  public readonly ease: (t: number) => number
   public paused: boolean
   public delay: number
   public beforeStart: () => void
@@ -42,12 +46,13 @@ export class Interpol {
   public onRepeatComplete: (e: IUpdateParams) => void
   public yoyo: boolean
   public repeat: number
-  public inTl = false
+  public repeatRefresh: boolean
   public ticker: Ticker = new Ticker()
   public advancement = 0
   public time = 0
   public value = 0
   public debugEnable: boolean
+  // internal
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>
   protected onFullCompleteDeferred = deferredPromise()
@@ -59,6 +64,7 @@ export class Interpol {
   public get isPlaying() {
     return this._isPlaying
   }
+  public inTl = false
   protected repeatCounter = 0
 
   constructor({
@@ -76,6 +82,7 @@ export class Interpol {
     debug = false,
     yoyo = false,
     repeat = 0,
+    repeatRefresh = false,
   }: IInterpolConstruct) {
     this.from = from
     this.to = to
@@ -89,14 +96,22 @@ export class Interpol {
     this.onRepeatComplete = onRepeatComplete
     this.yoyo = yoyo
     this.repeat = repeat
+    this.repeatRefresh = repeatRefresh
     this.debugEnable = debug
     this.ticker.debugEnable = debug
 
-    // start before
-    this.beforeStart?.()
-
     // start!
+    this.beforeStart?.()
     if (!this.paused) this.play()
+  }
+
+  // Compute if is a function
+  public refresh(): void {
+    const compute = (p) => (typeof p === "function" ? p() : p)
+    this._to = compute(this.to)
+    this._from = compute(this.from)
+    this._duration = compute(this.duration)
+    this.log({ _from: this._from, _to: this._to, _duration: this._duration })
   }
 
   public async play(): Promise<any> {
@@ -104,6 +119,9 @@ export class Interpol {
   }
   protected _play(createNewFullCompletePromise = true) {
     if (this._isPlaying) {
+      // refresh value during the play if repeatRefresh is true
+      if (this.repeatRefresh) this.refresh()
+
       // recreate deferred promise to avoid multi callback:
       // ex: await play()
       //  some code... -> need to be called once even if play() is called multi times
@@ -111,6 +129,10 @@ export class Interpol {
       return this.onFullCompleteDeferred.promise
     }
     this._isPlaying = true
+
+    // Refresh values before play
+    this.refresh()
+
     // Delay is set only on first play.
     // If this play is trigger before onComplete, we don't wait again
     const d = this.time > 0 ? 0 : this.delay
@@ -164,8 +186,8 @@ export class Interpol {
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
     // Specific case if duration is 0
     // execute onComplete and return
-    if (this.duration <= 0) {
-      const obj = { value: this.to, time: this.duration, advancement: 1 }
+    if (this._duration <= 0) {
+      const obj = { value: this._to, time: this._duration, advancement: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
       return
@@ -177,9 +199,9 @@ export class Interpol {
     // calc time (time spend from the start)
     // calc advancement (between 0 and 1)
     // calc value (between "from" and "to")
-    this.time = clamp(0, this.duration, this.time + delta)
-    this.advancement = clamp(0, round(this.time / this.duration), 1)
-    this.value = this.from + (this.to - this.from) * this.ease(this.advancement)
+    this.time = clamp(0, this._duration, this.time + delta)
+    this.advancement = clamp(0, round(this.time / this._duration), 1)
+    this.value = this._from + (this._to - this._from) * this.ease(this.advancement)
     this.value = round(this.value, 1000)
 
     // Pass value, time and advancement
@@ -212,8 +234,8 @@ export class Interpol {
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
       this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}`)
       // uniformize vars
-      if (this.value !== this.to) this.value = this.to
-      if (this.time !== this.duration) this.time = this.duration
+      if (this.value !== this._to) this.value = this._to
+      if (this.time !== this._duration) this.time = this._duration
       // Call current interpol onComplete method
       this.onComplete?.({
         value: this.value,
