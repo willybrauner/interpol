@@ -23,17 +23,21 @@ const $el = document.querySelector<HTMLDivElement>(".el")
 
 const inter = new Interpol({
   from: 0,
-  to: 1000,
+  to: innerHeight / 2,
   duration: 900,
-  delay: 0,
   paused: true,
-  ease: Ease.outExpo,
+  ease: Ease.inExpo,
   //  yoyo: true,
-  repeat: 2,
+  // repeat: 2,
   debug: true,
+  beforeStart: () => {
+    $el.style.opacity = "0.2"
+    $el.style.transform = `translateX(${11}vw) translateY(${-11}vh) translateZ(0)`
+  },
   onUpdate: ({ value, time, advancement }) => {
-    const x = advancement * 100
-    const y = -value / 10
+    const x = advancement * 90
+    const y = -value / 20
+    $el.style.opacity = `${advancement}`
     $el.style.transform = `translateX(${x}vw) translateY(${y}vh) translateZ(0)`
   },
   onComplete: () => {

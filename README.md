@@ -57,6 +57,8 @@ interface IInterpolConstruct {
   paused?: boolean
   delay?: number
   yoyo?: boolean
+  repeat?: number
+  beforeStart?: () => void
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
   debug?: boolean
@@ -107,7 +109,13 @@ ease function
 
 `boolean` - default: `false`
 
-Start and reverse indefinitely
+#### repeat
+
+`number` - default: `0`
+
+#### beforeStart
+
+`()=> void`
 
 #### debug
 
