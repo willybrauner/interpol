@@ -48,7 +48,7 @@ export class Interpol {
   public debugEnable: boolean
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>
-  protected onCompleteDeferred = deferredPromise()
+  protected onFullCompleteDeferred = deferredPromise()
   protected _isReversed = false
   public get isReversed() {
     return this._isReversed
@@ -96,13 +96,13 @@ export class Interpol {
   public async play(): Promise<any> {
     await this._play()
   }
-  protected _play(createNewOnCompletePromise = true) {
+  protected _play(createNewFullCompletePromise = true) {
     if (this._isPlaying) {
       // recreate deferred promise to avoid multi callback:
       // ex: await play()
       //  some code... -> need to be called once even if play() is called multi times
-      if (createNewOnCompletePromise) this.onCompleteDeferred = deferredPromise()
-      return this.onCompleteDeferred.promise
+      if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
+      return this.onFullCompleteDeferred.promise
     }
     this._isPlaying = true
     // Delay is set only on first play.
@@ -114,8 +114,8 @@ export class Interpol {
     }, d)
 
     // create new onComplete deferred Promise and return it
-    if (createNewOnCompletePromise) this.onCompleteDeferred = deferredPromise()
-    return this.onCompleteDeferred.promise
+    if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
+    return this.onFullCompleteDeferred.promise
   }
 
   public async replay(): Promise<any> {
@@ -239,7 +239,7 @@ export class Interpol {
       // If repeat is active, we want to resolve onComplete promise only
       // when all repeat are complete
       if (!repeatInfinitely && !needToRepeat) {
-        this.onCompleteDeferred.resolve()
+        this.onFullCompleteDeferred.resolve()
       }
       // stop and reset after onComplete
       // ! need to stop after repeat logic because stop() will reset repeatCounter
