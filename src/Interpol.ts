@@ -57,7 +57,6 @@ export class Interpol {
   public get isPlaying() {
     return this._isPlaying
   }
-
   protected repeatCounter = 0
 
   constructor({
