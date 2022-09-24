@@ -19,6 +19,7 @@ export interface IInterpolConstruct {
   paused?: boolean
   delay?: number
   beforeStart?: () => void
+  onStart?: () => void
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
   onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
@@ -41,6 +42,7 @@ export class Interpol {
   public paused: boolean
   public delay: number
   public beforeStart: () => void
+  public onStart: () => void
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
   public onRepeatComplete: (e: IUpdateParams) => void
@@ -76,6 +78,7 @@ export class Interpol {
     paused = false,
     delay = 0,
     beforeStart,
+    onStart,
     onUpdate,
     onComplete,
     onRepeatComplete,
@@ -91,6 +94,7 @@ export class Interpol {
     this.ease = ease
     this.delay = delay
     this.beforeStart = beforeStart
+    this.onStart = onStart
     this.onUpdate = onUpdate
     this.onComplete = onComplete
     this.onRepeatComplete = onRepeatComplete
@@ -137,6 +141,9 @@ export class Interpol {
     // If this play is trigger before onComplete, we don't wait again
     const d = this.time > 0 ? 0 : this.delay
     this.timeout = setTimeout(() => {
+      // execute onStart event on each play
+      this.onStart?.()
+
       // start ticker
       this.render()
     }, d)
