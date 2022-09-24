@@ -1,4 +1,4 @@
-import { it, expect, describe, vi, afterEach } from "vitest"
+import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { wait } from "./utils/wait"
 import { randomRange } from "./utils/randomRange"
@@ -27,7 +27,7 @@ const interpolTest = (params: { from; to; duration; repeat }, resolve, isLast) =
 }
 
 describe.concurrent("Interpol repeat", () => {
-  it("should repeat a the interpolation X time and call X time onComplete", async () => {
+  it("should repeat the interpolation X time and call X time onComplete", async () => {
     return new Promise(async (resolve: any) => {
       const paramList = getParamList()
       for (let i = 0; i < paramList.length; i++) {
@@ -53,7 +53,7 @@ describe.concurrent("Interpol repeat", () => {
       })
       // play est stop before end
       itp.play()
-      await wait(itp.duration * 0.5)
+      await wait(itp._duration * 0.5)
       itp.stop()
       // clear mock and restart
       onCompleteMock.mockClear()
@@ -98,7 +98,7 @@ describe.concurrent("Interpol repeat", () => {
         })
 
         const repeatNum = 4
-        await wait(itp.duration * repeatNum + itp.duration)
+        await wait(itp._duration * repeatNum + itp._duration)
         expect(count).toBe(repeatNum)
         expect(onRepeatCompleteMock).toHaveBeenCalledTimes(0)
         resolve()

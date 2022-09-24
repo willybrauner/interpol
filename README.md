@@ -50,36 +50,38 @@ constructor:
 
 ```ts
 interface IInterpolConstruct {
-  from?: number
-  to: number
-  duration?: number
+  from?: number | (() => number)
+  to?: number | (() => number)
+  duration?: number | (() => number)
   ease?: (t: number) => number
   paused?: boolean
   delay?: number
-  yoyo?: boolean
-  repeat?: number
   beforeStart?: () => void
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  yoyo?: boolean
+  repeat?: number
+  repeatRefresh?: boolean
   debug?: boolean
 }
 ```
 
 #### from
 
-`number` - default: `0`
+`number | (() => number)` - default: `0`
 
 Start interpolation value (millisecond)
 
 #### to
 
-`number` - default: `1000`
+`number | (() => number)` - default: `1000`
 
 End interpolation value (millisecond)
 
 #### duration
 
-`number` - default: `1000`
+`number | (() => number)` - default: `1000`
 
 Interpolation duration between `from` and `to` values (millisecond). ex: `1000` is 1 second
 
@@ -97,11 +99,19 @@ ease function
 
 `number` - default: `0`
 
+#### beforeStart
+
+`()=> void`
+
 #### onUpdate
 
 `({ time, delta, advancement }) => void`
 
 #### onComplete
+
+`({ time, delta, advancement }) => void`
+
+#### onRepeatComplete
 
 `({ time, delta, advancement }) => void`
 
@@ -113,9 +123,9 @@ ease function
 
 `number` - default: `0`
 
-#### beforeStart
+#### repeatRefresh
 
-`()=> void`
+`boolean` - default: `false`
 
 #### debug
 
@@ -142,6 +152,10 @@ Replay from start the current interpol.
 #### reverse(): void
 
 Reverse the current interpol
+
+#### refresh(): void
+
+Compute from to and duration values if there are functions
 
 ---
 
