@@ -57,14 +57,14 @@ export class Timeline {
   /**
    * Add a new interpol obj or instance in Timeline
    */
-  public add(
-    interpol: Interpol | IInterpolConstruct,
-    offsetPosition: number = 0
-  ): Timeline {
+  public add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline {
     const itp = interpol instanceof Interpol ? interpol : new Interpol(interpol)
 
     // Stop first to avoid, if "paused: false" is set, to run play() method
     itp.stop()
+
+    // compute from to and duration
+    itp.refresh()
 
     // Bind Timeline ticker to each interpol instance
     itp.ticker = this.ticker
@@ -102,6 +102,8 @@ export class Timeline {
       endPositionInTl,
       isLastOfTl: true,
     })
+
+    this.log("adds", this.adds)
 
     // return all the instance allow chaining methods calls
     return this
