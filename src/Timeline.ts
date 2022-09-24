@@ -76,18 +76,18 @@ export class Timeline {
     if (this.debugEnable) itp.debugEnable = this.debugEnable
 
     // register full TL duration
-    this.tlDuration += itp.duration + offsetPosition
+    this.tlDuration += itp._duration + offsetPosition
 
     // get last add of the list
     const lastAdd = this.adds[this.adds.length - 1]
 
     // if lastAdd exist, calc start position of this new Add, else, this is the first one
     const startPositionInTl = lastAdd
-      ? lastAdd.startPositionInTl + itp.duration + offsetPosition
+      ? lastAdd.startPositionInTl + itp._duration + offsetPosition
       : 0
 
     // calc end position in TL (start pos + duration of interpolation)
-    const endPositionInTl = startPositionInTl + itp.duration
+    const endPositionInTl = startPositionInTl + itp._duration
 
     // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) {

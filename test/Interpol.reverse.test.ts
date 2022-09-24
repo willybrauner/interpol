@@ -9,17 +9,13 @@ describe.concurrent("Interpol reverse", () => {
       const itp = new Interpol({
         to: 10,
         duration: 1000,
-        onComplete: () => {
-          mock()
-        },
+        onComplete: mock,
       })
-
       expect(itp.isReversed).toBe(false)
       await wait(100)
       itp.pause()
       itp.reverse()
       await itp.play()
-
       expect(mock).toHaveBeenCalledTimes(1)
       expect(itp.advancement).toBe(0)
       expect(itp.time).toBe(0)
