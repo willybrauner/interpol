@@ -25,7 +25,7 @@ const $el = document.querySelector<HTMLDivElement>(".el")
 const inter = new Interpol({
   from: () => randomRange(0, 1000),
   to: () => randomRange(0, 1000),
-  duration: () => randomRange(0, 2000),
+  duration: ()=> randomRange(0, 2000),
   paused: true,
   ease: Ease.inExpo,
   yoyo: true,
