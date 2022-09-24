@@ -1,5 +1,10 @@
 {
-  "packages": ["packages/*"],
-  "sandboxes": ["/examples/interpol-repeat-refresh", "/interpol-reverse-ease"],
-  "node": "16"
+  "installCommand": "install",
+  "buildCommand": "build",
+  "packages": ["src/*"],
+  "sandboxes": [
+    "examples/basic",
+    "examples/interpol-repeat-refresh",
+    "examples/interpol-reverse-ease"
+  ]
 }
