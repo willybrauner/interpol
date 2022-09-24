@@ -1,0 +1,5 @@
+{
+  "packages": ["packages/*"],
+  "sandboxes": ["/examples/interpol-repeat-refresh", "/interpol-reverse-ease"],
+  "node": "16"
+}
