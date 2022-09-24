@@ -1,7 +1,6 @@
 {
   "installCommand": "install",
   "buildCommand": "build",
-  "packages": ["src/*"],
   "sandboxes": [
     "examples/basic",
     "examples/interpol-repeat-refresh",
