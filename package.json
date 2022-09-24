@@ -21,6 +21,7 @@
     "dev:basic": "pnpm --filter ./examples/basic run dev",
     "dev:basic-timeline": "pnpm --filter ./examples/basic-timeline run dev",
     "dev:interport-repeat-refresh": "pnpm --filter ./examples/interpol-repeat-refresh run dev",
+    "dev:interport-reverse-ease": "pnpm --filter ./examples/interpol-reverse-ease run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
