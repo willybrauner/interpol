@@ -16,6 +16,7 @@ export interface IInterpolConstruct {
   to?: number | (() => number)
   duration?: number | (() => number)
   ease?: (t: number) => number
+  reverseEase?: (t: number) => number
   paused?: boolean
   delay?: number
   beforeStart?: () => void
@@ -38,7 +39,8 @@ export class Interpol {
   public _to: number
   public duration: number | (() => number)
   public _duration: number
-  public readonly ease: (t: number) => number
+  public ease: (t: number) => number
+  public reverseEase: (t: number) => number
   public paused: boolean
   public delay: number
   public beforeStart: () => void
@@ -75,6 +77,7 @@ export class Interpol {
     duration = 1000,
     // linear easing by default, without Ease object import
     ease = (t) => t,
+    reverseEase,
     paused = false,
     delay = 0,
     beforeStart,
@@ -92,6 +95,7 @@ export class Interpol {
     this.duration = duration
     this.paused = paused
     this.ease = ease
+    this.reverseEase = reverseEase
     this.delay = delay
     this.beforeStart = beforeStart
     this.onStart = onStart
@@ -203,12 +207,15 @@ export class Interpol {
     // delta sign depend of reverse state
     delta = this._isReversed ? -delta : delta
 
+    // select easing function
+    const easeFn = this._isReversed && this.reverseEase ? this.reverseEase : this.ease
+
     // calc time (time spend from the start)
     // calc advancement (between 0 and 1)
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + delta)
     this.advancement = clamp(0, round(this.time / this._duration), 1)
-    this.value = this._from + (this._to - this._from) * this.ease(this.advancement)
+    this.value = this._from + (this._to - this._from) * easeFn(this.advancement)
     this.value = round(this.value, 1000)
 
     // Pass value, time and advancement
