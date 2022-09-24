@@ -55,6 +55,6 @@ const interpol2 = new Interpol({
 /**
  * Start TL
  */
-const tl = new Timeline({ debug: true })
+const tl = new Timeline({ debug: true, paused: false })
 tl.add(interpol1, 0)
 tl.add(interpol2, -700)
