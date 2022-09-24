@@ -1,22 +1,49 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { randomRange } from "./utils/randomRange"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Interpol refresh", () => {
-  it("should compute again 'from' 'to' and 'duration' if there are functions", async () => {
-    const pms = () =>
-      new Promise(async (resolve: any) => {
-        // TODO
-        // let to, from, duration
-        // const mock = vi.fn()
-        // const itp = new Interpol({
-        //   from: () => randomRange(-100, 100),
-        //   to: () => randomRange(-100, 100),
-        //   duration: () => randomRange(-200, 200),
-        // })
-        // await itp.play()
-        resolve()
+  it("should compute 'from' 'to' and 'duration' if there are functions", async () => {
+    return new Promise(async (resolve: any) => {
+      const itp = new Interpol({
+        from: () => randomRange(-100, 100),
+        to: () => randomRange(-100, 100),
+        duration: () => randomRange(-200, 200),
       })
-    return Promise.all([pms()])
+      expect(typeof itp._to).toBe("number")
+      expect(typeof itp._from).toBe("number")
+      expect(typeof itp._duration).toBe("number")
+      resolve()
+    })
   })
-})
+
+  it("should re compute if repeatRefresh is true", async () => {
+    return new Promise(async (resolve: any) => {
+      const mockTo = vi.fn()
+      const mockFrom = vi.fn()
+      const itp = new Interpol({
+        from: () => {
+          mockFrom()
+          return randomRange(-100, 100)
+        },
+        to: () => {
+          mockTo()
+          return randomRange(-100, 100)
+        },
+        duration: () => 1000,
+        repeat: 2,
+        repeatRefresh: true,
+      })
+
+      expect(mockFrom).toHaveBeenCalledTimes(1)
+      expect(mockTo).toHaveBeenCalledTimes(1)
+      expect(itp._duration).toBe(1000)
+      await wait(1300)
+      expect(mockFrom).toHaveBeenCalledTimes(2)
+      expect(mockTo).toHaveBeenCalledTimes(2)
+      expect(itp._duration).toBe(1000)
+      resolve()
+    })
+  })
+  })
