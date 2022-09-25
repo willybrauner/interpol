@@ -5,7 +5,7 @@ import debug from "@wbe/debug"
 import { clamp } from "./helpers/clamp"
 const log = debug("interpol:Interpol")
 
-interface IUpdateParams {
+export interface IUpdateParams {
   value: number
   time: number
   advancement: number
@@ -226,6 +226,7 @@ export class Interpol {
       time: this.time,
       advancement: this.advancement,
     })
+
     this.log("onUpdate", {
       value: this.value,
       time: this.time,

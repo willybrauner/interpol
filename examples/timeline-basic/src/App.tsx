@@ -13,8 +13,8 @@ export function App() {
     const tl = new Timeline({
       debug: true,
       repeat: 2,
-      onComplete: ()=> console.log('Timeline One repeat complete'),
-      onRepeatComplete: ()=> console.log('Timeline ALL repeats complete')
+      onComplete: () => console.log("Timeline One repeat complete"),
+      onRepeatComplete: () => console.log("Timeline ALL repeats complete"),
     })
 
     tl.add({

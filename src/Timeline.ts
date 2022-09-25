@@ -1,7 +1,9 @@
-import { IInterpolConstruct, Interpol } from "./Interpol"
+import { IInterpolConstruct, Interpol, IUpdateParams } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./Ticker"
 import debug from "@wbe/debug"
+import { clamp } from "./helpers/clamp"
+import { round } from "./helpers/round"
 const log = debug("interpol:Timeline")
 
 interface IAdd {
@@ -17,6 +19,8 @@ interface IAdd {
 let TL_ID = 0
 
 export class Timeline {
+  public advancement = 0
+  public time = 0
   protected adds: IAdd[] = []
   protected onFullCompleteDeferred = deferredPromise()
   protected ticker = new Ticker()
@@ -25,7 +29,8 @@ export class Timeline {
   public readonly tlId: number
   protected repeat: number
   protected repeatCounter: number = 0
-  protected onComplete: () => void
+  protected onUpdate: ({ time, advancement }) => void
+  protected onComplete: ({ time, advancement }) => void
   protected onRepeatComplete: () => void
   protected paused = false
   public get isPaused() {
@@ -39,24 +44,29 @@ export class Timeline {
   constructor({
     paused = true,
     repeat = 0,
+    onUpdate = () => {},
     onComplete = () => {},
     onRepeatComplete = () => {},
     debug = false,
   }: {
     paused?: boolean
     repeat?: number
-    onComplete?: () => void
+    onUpdate?: ({ time, advancement }) => void
+    onComplete?: ({ time, advancement }) => void
     onRepeatComplete?: () => void
     debug?: boolean
   } = {}) {
     this.paused = paused
     this.repeat = repeat
+    this.onUpdate = onUpdate
     this.onComplete = onComplete
     this.onRepeatComplete = onRepeatComplete
     this.debugEnable = debug
     this.ticker.debugEnable = debug
     this.tlId = ++TL_ID
 
+    // FIXME no need paused because we are waiting for add()
+    // So autoplay is not possible ??
     //  if (!this.paused) this.play()
   }
 
@@ -143,6 +153,12 @@ export class Timeline {
 
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
+    this.time = clamp(0, this.tlDuration, this.time + delta)
+    this.advancement = clamp(0, round(this.time / this.tlDuration), 1)
+
+    // exe on update with TL properties
+    this.onUpdate?.({ advancement: this.advancement, time: this.time })
+    this.log("onUpdate", { advancement: this.advancement, time: this.time })
 
     // Filter only adds who are matching with elapsed time
     // It allows playing superposed itp in case of
@@ -150,13 +166,14 @@ export class Timeline {
       (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
     )
 
+    // play filtered interpol(s)
     for (let i = 0; i < filtered.length; i++) {
       filtered[i].interpol.play()
     }
 
     // stop at the end
     if (!filtered.length) {
-      this.onComplete?.()
+      this.onComplete?.({ time: this.time, advancement: this.advancement })
 
       // repeat logic
       const repeatInfinitely = this.repeat < 0
@@ -215,6 +232,8 @@ export class Timeline {
   protected _stop(resetRepeatCounter = true): void {
     this.log("stop")
     this.playing = false
+    this.advancement = 0
+    this.time = 0
     for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.stop()
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (resetRepeatCounter) this.repeatCounter = 0
