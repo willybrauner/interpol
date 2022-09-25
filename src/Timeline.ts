@@ -70,7 +70,7 @@ export class Timeline {
     itp.stop()
 
     // compute from to and duration
-    itp.refresh()
+    itp.refreshComputedValues()
 
     // Bind Timeline ticker to each interpol instance
     itp.ticker = this.ticker
@@ -148,6 +148,10 @@ export class Timeline {
       (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
     )
 
+    for (let i = 0; i < filtered.length; i++) {
+      filtered[i].interpol.play()
+    }
+
     // stop at the end
     if (!filtered.length) {
       this.onComplete?.()
@@ -182,14 +186,8 @@ export class Timeline {
 
       // stop and reset after onComplete
       // ! need to stop after repeat logic because stop() will reset repeatCounter
-      this.log("This is the TL end, stop")
+      this.log("This is the Timeline end, stop")
       this.stop()
-      return
-    }
-
-    for (let i = 0; i < filtered.length; i++) {
-      const { interpol } = filtered[i]
-      interpol.play()
     }
   }
 
@@ -203,7 +201,7 @@ export class Timeline {
   public pause(): void {
     this.log("pause")
     this.playing = false
-    this.adds.forEach((e) => e.interpol.pause())
+    for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.pause()
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
@@ -215,7 +213,7 @@ export class Timeline {
   protected _stop(resetRepeatCounter = true): void {
     this.log("stop")
     this.playing = false
-    this.adds.forEach((e) => e.interpol.stop())
+    for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.stop()
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (resetRepeatCounter) this.repeatCounter = 0
     this.ticker.stop()

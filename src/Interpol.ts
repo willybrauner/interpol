@@ -114,7 +114,7 @@ export class Interpol {
   }
 
   // Compute if is a function
-  public refresh(): void {
+  public refreshComputedValues(): void {
     const compute = (p) => (typeof p === "function" ? p() : p)
     this._to = compute(this.to)
     this._from = compute(this.from)
@@ -127,8 +127,8 @@ export class Interpol {
   }
   protected _play(createNewFullCompletePromise = true) {
     if (this._isPlaying) {
-      // refresh value during the play if repeatRefresh is true
-      if (this.repeatRefresh) this.refresh()
+      // refreshComputedValues value during the play if repeatRefresh is true
+      if (this.repeatRefresh) this.refreshComputedValues()
 
       // recreate deferred promise to avoid multi callback:
       // ex: await play()
@@ -139,7 +139,7 @@ export class Interpol {
     this._isPlaying = true
 
     // Refresh values before play
-    this.refresh()
+    this.refreshComputedValues()
 
     // Delay is set only on first play.
     // If this play is trigger before onComplete, we don't wait again
@@ -195,6 +195,8 @@ export class Interpol {
   }
 
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
+    if (!this.ticker.isRunning) return
+
     // Specific case if duration is 0
     // execute onComplete and return
     if (this._duration <= 0) {

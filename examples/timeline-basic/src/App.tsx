@@ -1,18 +1,18 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
-import { Interpol, Ease, Timeline } from "interpol"
+import { Interpol, Ease, Timeline } from "../../../src"
 import { Controls } from "./Controls"
 
 export function App() {
   const $ball = useRef<HTMLDivElement>()
   const $ball2 = useRef<HTMLDivElement>()
   const itp = useRef<Interpol>()
-  const [instance, setInstance] = useState()
+  const [instance, setInstance] = useState(null)
 
   useEffect(() => {
     const tl = new Timeline({
       debug: true,
-      repeat: 3,
+      repeat: 0,
       onComplete: ()=> console.log('Timeline One repeat complete'),
       onRepeatComplete: ()=> console.log('Timeline ALL repeats complete')
     })

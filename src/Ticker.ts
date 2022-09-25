@@ -4,12 +4,9 @@ const log = debug("interpol:Ticker")
 
 // Useful trick from https://github.com/SolalDR/animate/blob/master/src/Timeline.ts
 export const RAF =
-  typeof window === "undefined"
-    ? (cb) => setTimeout(cb, 16)
-    : requestAnimationFrame
+  typeof window === "undefined" ? (cb) => setTimeout(cb, 16) : requestAnimationFrame
 
-export const CANCEL_RAF =
-  typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
+export const CANCEL_RAF = typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
 
 /**
  * Ticker
@@ -27,17 +24,16 @@ export default class Ticker {
   public delta: number
   // store the raf
   public debugEnable: boolean
+  public isRunning = false
   protected raf
   protected fps: number
   protected interval: number
-  protected isRunning = false
   public onUpdateEmitter = Beeper<{
     interval: number
     delta: number
     time: number
     elapsed: number
   }>()
-
 
   constructor({ fps = 60, debug = false } = {}) {
     this.fps = fps
@@ -81,9 +77,9 @@ export default class Ticker {
       time: this.time,
       elapsed: this.elapsed,
     }
+
     this.onUpdateEmitter.dispatch(onUpdateObj)
     this.log("tick", onUpdateObj)
-
     this.raf = RAF(this.tick.bind(this))
   }
 
