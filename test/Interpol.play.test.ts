@@ -36,7 +36,7 @@ describe.concurrent("Interpol play", () => {
         expect(itp.advancement).toBe(0)
         expect(mock).toHaveBeenCalledTimes(0)
         resolve()
-      }, itp.duration)
+      }, itp._duration)
     })
   })
 

@@ -139,6 +139,8 @@ export class Timeline {
   }
 
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
+    if (!this.ticker.isRunning) return
+
     // clamp elapse time with full duration
     elapsed = Math.min(elapsed, this.tlDuration)
 
