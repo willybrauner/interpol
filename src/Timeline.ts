@@ -17,36 +17,42 @@ interface IAdd {
 let TL_ID = 0
 
 export class Timeline {
-  public readonly tlId: number
-  protected onComplete: () => void
-
-  protected paused = false
-  public get isPaused() {
-    return this.paused
-  }
-
-  protected playing = false
-  public get isPlaying() {
-    return this.playing
-  }
-
   protected adds: IAdd[] = []
   protected onCompleteDeferred = deferredPromise()
   protected ticker = new Ticker()
   protected tlDuration: number = 0
   protected debugEnable: boolean
+  public readonly tlId: number
+  protected repeat: number
+  protected repeatCounter: number = 0
+  protected onComplete: () => void
+  protected onRepeatComplete: () => void
+  protected paused = false
+  public get isPaused() {
+    return this.paused
+  }
+  protected playing = false
+  public get isPlaying() {
+    return this.playing
+  }
 
   constructor({
     paused = true,
+    repeat = 0,
     onComplete = () => {},
+    onRepeatComplete = () => {},
     debug = false,
   }: {
     paused?: boolean
+    repeat?: number
     onComplete?: () => void
+    onRepeatComplete?: () => void
     debug?: boolean
   } = {}) {
     this.paused = paused
+    this.repeat = repeat
     this.onComplete = onComplete
+    this.onRepeatComplete = onRepeatComplete
     this.debugEnable = debug
     this.ticker.debugEnable = debug
     this.tlId = ++TL_ID
@@ -110,13 +116,17 @@ export class Timeline {
   }
 
   public async play(): Promise<any> {
+    await this._play()
+  }
+
+  protected async _play(createNewFullCompletePromise = true): Promise<any> {
     if (!this.adds.length) {
       console.warn("No Interpol instance added to this TimeLine, return")
       return
     }
 
     if (this.isPlaying) {
-      this.onCompleteDeferred = deferredPromise()
+      if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
       return this.onCompleteDeferred.promise
     }
 
@@ -140,12 +150,40 @@ export class Timeline {
 
     // stop at the end
     if (!filtered.length) {
-      this.playing = false
+      this.onComplete?.()
+
+      // repeat logic
+      const repeatInfinitely = this.repeat < 0
+      const needToRepeat = this.repeat > 0 && this.repeatCounter + 1 < this.repeat
+      if (repeatInfinitely) {
+        this.replay()
+        return
+      }
+      if (needToRepeat) {
+        this.repeatCounter++
+        this.log("Have been repeated", this.repeatCounter)
+        this._stop(false)
+        this._play(false)
+        return
+      }
+      if (!needToRepeat && this.repeat !== 0) {
+        this.repeatCounter++
+        this.log("End repeats!", this.repeatCounter)
+        this.onRepeatComplete?.()
+        // and continue...
+      }
+
+      // If repeat is active, we want to resolve onComplete promise only
+      // when all repeats are complete
+      if (!repeatInfinitely && !needToRepeat) {
+        this.onCompleteDeferred.resolve()
+        this.log("this.onCompleteDeferred.resolve")
+      }
+
+      // stop and reset after onComplete
+      // ! need to stop after repeat logic because stop() will reset repeatCounter
       this.log("This is the TL end, stop")
-      this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
-      this.ticker.stop()
-      this.onComplete()
-      this.onCompleteDeferred.resolve()
+      this.stop()
       return
     }
 
@@ -171,10 +209,15 @@ export class Timeline {
   }
 
   public stop(): void {
+    this._stop()
+  }
+
+  protected _stop(resetRepeatCounter = true): void {
     this.log("stop")
     this.playing = false
     this.adds.forEach((e) => e.interpol.stop())
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
+    if (resetRepeatCounter) this.repeatCounter = 0
     this.ticker.stop()
   }
 
