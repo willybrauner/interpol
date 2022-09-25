@@ -18,7 +18,7 @@ let TL_ID = 0
 
 export class Timeline {
   protected adds: IAdd[] = []
-  protected onCompleteDeferred = deferredPromise()
+  protected onFullCompleteDeferred = deferredPromise()
   protected ticker = new Ticker()
   protected tlDuration: number = 0
   protected debugEnable: boolean
@@ -126,16 +126,16 @@ export class Timeline {
     }
 
     if (this.isPlaying) {
-      if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
-      return this.onCompleteDeferred.promise
+      if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
+      return this.onFullCompleteDeferred.promise
     }
 
     this.log("play")
     this.playing = true
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
-    this.onCompleteDeferred = deferredPromise()
-    return this.onCompleteDeferred.promise
+    if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
+    return this.onFullCompleteDeferred.promise
   }
 
   protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
@@ -180,8 +180,8 @@ export class Timeline {
       // If repeat is active, we want to resolve onComplete promise only
       // when all repeats are complete
       if (!repeatInfinitely && !needToRepeat) {
-        this.onCompleteDeferred.resolve()
-        this.log("this.onCompleteDeferred.resolve")
+        this.onFullCompleteDeferred.resolve()
+        this.log("this.onFullCompleteDeferred.resolve")
       }
 
       // stop and reset after onComplete
