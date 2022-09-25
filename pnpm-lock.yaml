@@ -84,14 +84,22 @@ importers:
 
   examples/timeline-basic:
     specifiers:
+      '@types/react': ^18.0.17
+      '@types/react-dom': ^18.0.6
+      '@vitejs/plugin-react': ^2.1.0
       interpol: ^0.0.0
-      prettier: ^2.7.1
+      react: ^18.2.0
+      react-dom: ^18.2.0
       typescript: ^4.6.4
       vite: ^3.1.0
     dependencies:
       interpol: link:../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     devDependencies:
-      prettier: 2.7.1
+      '@types/react': 18.0.21
+      '@types/react-dom': 18.0.6
+      '@vitejs/plugin-react': 2.1.0_vite@3.1.3
       typescript: 4.8.3
       vite: 3.1.3
 
@@ -1569,8 +1577,8 @@ packages:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: true
 
-  /@types/node/18.7.19:
-    resolution: {integrity: sha512-Sq1itGUKUX1ap7GgZlrzdBydjbsJL/NSQt/4wkAxUJ7/OS5c2WkoN6WSpWc2Yc5wtKMZOUA0VCs/j2XJadN3HA==}
+  /@types/node/18.7.21:
+    resolution: {integrity: sha512-rLFzK5bhM0YPyCoTC8bolBjMk7bwnZ8qeZUBslBfjZQou2ssJdWslx9CZ8DGM+Dx7QXQiiTVZ/6QO6kwtHkZCA==}
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -1598,7 +1606,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 18.7.19
+      '@types/node': 18.7.21
     dev: true
 
   /@types/scheduler/0.16.2:
@@ -1682,7 +1690,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.21.4
-      caniuse-lite: 1.0.30001410
+      caniuse-lite: 1.0.30001412
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -1787,7 +1795,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001410
+      caniuse-lite: 1.0.30001412
       electron-to-chromium: 1.4.261
       node-releases: 2.0.6
       update-browserslist-db: 1.0.9_browserslist@4.21.4
@@ -1823,13 +1831,13 @@ packages:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
       browserslist: 4.21.4
-      caniuse-lite: 1.0.30001410
+      caniuse-lite: 1.0.30001412
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
     dev: true
 
-  /caniuse-lite/1.0.30001410:
-    resolution: {integrity: sha512-QoblBnuE+rG0lc3Ur9ltP5q47lbguipa/ncNMyyGuqPk44FxbScWAeEO+k5fSQ8WekdAK4mWqNs1rADDAiN5xQ==}
+  /caniuse-lite/1.0.30001412:
+    resolution: {integrity: sha512-+TeEIee1gS5bYOiuf+PS/kp2mrXic37Hl66VY6EAfxasIk5fELTktK2oOezYed12H8w7jt3s512PpulQidPjwA==}
     dev: true
 
   /chai/4.3.6:
@@ -2805,7 +2813,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 18.7.19
+      '@types/node': 18.7.21
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: true
@@ -2984,7 +2992,7 @@ packages:
       rollup-plugin-postcss: 4.0.2_postcss@8.4.16
       rollup-plugin-terser: 7.0.2_rollup@2.79.1
       rollup-plugin-typescript2: 0.32.1_5q64ijqsuisqe52alrh6v6njki
-      rollup-plugin-visualizer: 5.8.1_rollup@2.79.1
+      rollup-plugin-visualizer: 5.8.2_rollup@2.79.1
       sade: 1.8.1
       terser: 5.15.0
       tiny-glob: 0.2.9
@@ -3746,8 +3754,8 @@ packages:
       typescript: 4.8.3
     dev: true
 
-  /rollup-plugin-visualizer/5.8.1_rollup@2.79.1:
-    resolution: {integrity: sha512-NBT/xN/LWCwDM2/j5vYmjzpEAKHyclo/8Cv8AfTCwgADAG+tLJDy1vzxMw6NO0dSDjmTeRELD9UU3FwknLv0GQ==}
+  /rollup-plugin-visualizer/5.8.2_rollup@2.79.1:
+    resolution: {integrity: sha512-Fh7KoAa7FVVOojmyyX9ro7fBSR7mPG2cgfDbA877HM4IeJJtSZO+I/R3h/u6TB8wVP5J4pXPpTaRMSREyqCS3g==}
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
@@ -3756,7 +3764,6 @@ packages:
       rollup:
         optional: true
     dependencies:
-      nanoid: 3.3.4
       open: 8.4.0
       rollup: 2.79.1
       source-map: 0.7.4
@@ -4139,7 +4146,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.3
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.7.19
+      '@types/node': 18.7.21
       chai: 4.3.6
       debug: 4.3.4
       local-pkg: 0.4.2
