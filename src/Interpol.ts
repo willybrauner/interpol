@@ -19,15 +19,15 @@ export interface IInterpolConstruct {
   reverseEase?: (t: number) => number
   paused?: boolean
   delay?: number
-  beforeStart?: () => void
-  onStart?: () => void
-  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
-  onComplete?: ({ value, time, advancement }: IUpdateParams) => void
-  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
   yoyo?: boolean
   repeat?: number
   repeatRefresh?: boolean
   debug?: boolean
+  onStart?: () => void
+  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
+  beforeStart?: () => void
+  onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 
 let ID = 0

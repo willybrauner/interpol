@@ -1,31 +1,37 @@
 # Interpol 👮🏽‍
 
-@wbe/interpol library interpol value between two points.
+interpol library interpolate value between two points.
 This is the lowest level of animate machine.
-Interpol comes without DOM API, it provides a real time advancement of the interpolation that can be use or bind
+Interpol is not a DOM API, it provides a real time advancement of the interpolation that can be use or bind
 on... anything!
 
 ## Why
 
-I use GSAP for a long time, but I often no need all features provided. Interpol is low level,
-it can be used as in most of the cases for only ~= 3k gzip.
+I've been using gsap for a long time, but often don't need all the features provided.
+Interpol is low level, it can be used as in most cases for only ~= 3k gzip.
+However, the API voluntarily takes over (in part) the gsap API for easier adoption for gsap users like me.
 
-### Interpol
+## Show me some code
+
+Single Interpol:
 
 ```js
+import { Interpol } from "@wbe/interpol"
+
 const itp = new Interpol({
   from: 0,
   to: 100,
   duration: 1000,
-  paused: true,
-  onUpdate: () => {},
+  onUpdate: ({ time, value, advancement }) => {},
   onComplete: () => {},
 })
 ```
 
-### Timeline
+Chain interpols with Timeline:
 
 ```js
+import { Interpol, Timeline } from "@wbe/interpol"
+
 const itp1 = new Interpol({
   from: 0,
   to: 100,
@@ -44,94 +50,64 @@ tl.add(itp2)
 
 ## API
 
-### interpol
-
-constructor:
+### interpol constructor
 
 ```ts
 interface IInterpolConstruct {
+  // Start interpolation value (millisecond)
+  // default: `0`
   from?: number | (() => number)
+  // End interpolation value (millisecond)
+  // default: /
   to?: number | (() => number)
+  // Interpolation duration between `from` and `to` values (millisecond).
+  // ex: 1000 is 1 second
+  // default: `1000`
   duration?: number | (() => number)
+  // Interpol easing function
+  // default: `t => t` (lineal easing)
   ease?: (t: number) => number
+  // Overwrite easing function on reverse
+  // default: `t => t` (lineal easing)
+  reverseEase?: (t: number) => number
+  // Make interpol paused at start (not autoplay)
+  // default: `false`
   paused?: boolean
+  // Add delay before first start
+  // default: `false`
   delay?: number
-  beforeStart?: () => void
-  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
-  onComplete?: ({ value, time, advancement }: IUpdateParams) => void
-  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  // Reverse and replay indefinitely at interpol end
+  // default: `false`
   yoyo?: boolean
+  // Repeat N times. If value is negative, it repeats indefinitly
+  // default: `0`
   repeat?: number
+  // Refresh computed values before each repeats
+  // default: `false`
   repeatRefresh?: boolean
+  // Enable @wbe/debug to get interpol instance logs
+  // exe in your console `localStorage.debug = "interpol:*"`
+  // default: `false`
   debug?: boolean
+  // Execute code before start
+  // default: /
+  beforeStart?: () => void
+  // Execute code on each play start
+  // default: /
+  onStart?: () => void
+  // Execute code on frame update
+  // default: /
+  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
+  // Execute code when interpol is complete
+  // default: /
+  onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  // Execute code when each interpol repeats are complete
+  // default: /
+  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 ```
 
-#### from
-
-`number | (() => number)` - default: `0`
-
-Start interpolation value (millisecond)
-
-#### to
-
-`number | (() => number)` - default: `1000`
-
-End interpolation value (millisecond)
-
-#### duration
-
-`number | (() => number)` - default: `1000`
-
-Interpolation duration between `from` and `to` values (millisecond). ex: `1000` is 1 second
-
-#### ease
-
-`(t:number) => number` - default: `t => t` (lineal easing)
-
-ease function
-
-#### paused
-
-`boolean` - default: `false`
-
-#### delay
-
-`number` - default: `0`
-
-#### beforeStart
-
-`()=> void`
-
-#### onUpdate
-
-`({ time, delta, advancement }) => void`
-
-#### onComplete
-
-`({ time, delta, advancement }) => void`
-
-#### onRepeatComplete
-
-`({ time, delta, advancement }) => void`
-
-#### yoyo
-
-`boolean` - default: `false`
-
-#### repeat
-
-`number` - default: `0`
-
-#### repeatRefresh
-
-`boolean` - default: `false`
-
-#### debug
-
-`boolean` - default: `false`
-
-Methods
+### Interpol methods
 
 #### play(): Promise<any>
 
@@ -156,7 +132,3 @@ Reverse the current interpol
 #### refresh(): void
 
 Compute from to and duration values if there are functions
-
----
-
-### Timeline
