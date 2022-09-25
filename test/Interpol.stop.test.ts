@@ -30,7 +30,7 @@ describe.concurrent("Interpol stop", () => {
       // and play again (resume)
       itp.play()
       expect(mock).toHaveBeenCalledTimes(0)
-      await wait(itp.duration + 50)
+      await wait(itp._duration + 50)
       expect(mock).toHaveBeenCalledTimes(1)
 
       resolve()

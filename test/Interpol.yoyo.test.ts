@@ -20,17 +20,17 @@ describe.concurrent("Interpol yoyo", () => {
           expect(itp.time).toBeGreaterThan(0)
           expect(itp.value).toBeGreaterThan(0)
           expect(itp.advancement).toBeGreaterThan(0)
-        }, itp.duration * 0.5)
+        }, itp._duration * 0.5)
 
         await wait(itp.duration)
 
         setTimeout(() => {
           expect(itp.isReversed).toBe(true)
           expect(itp.isPlaying).toBe(true)
-          expect(itp.time).toBeLessThan(itp.duration)
-          expect(itp.value).toBeLessThan(itp.to)
+          expect(itp.time).toBeLessThan(itp._duration)
+          expect(itp.value).toBeLessThan(itp._to)
           expect(itp.advancement).toBeLessThan(1)
-        }, itp.duration * 0.5)
+        }, itp._duration * 0.5)
 
         await wait(itp.duration)
       }

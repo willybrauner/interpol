@@ -19,9 +19,9 @@
     "build": "npm run clean && microbundle --jsx React.createElement",
     "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
     "dev:interpol-basic": "pnpm --filter ./examples/interpol-basic run dev",
-    "dev:timeline-basic": "pnpm --filter ./examples/timeline-basic run dev",
     "dev:interport-repeat-refresh": "pnpm --filter ./examples/interpol-repeat-refresh run dev",
     "dev:interport-reverse-ease": "pnpm --filter ./examples/interpol-reverse-ease run dev",
+    "dev:timeline-basic": "pnpm --filter ./examples/timeline-basic run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"

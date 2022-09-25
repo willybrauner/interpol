@@ -1,7 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { randomRange } from "./utils/randomRange"
-import {interpolParamsGenerator} from "./utils/interpolParamsGenerator"
+import { interpolParamsGenerator } from "./utils/interpolParamsGenerator"
 
 /**
  * Create generic interpol tester
@@ -13,9 +13,9 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
     duration,
     onUpdate: ({ value, time, advancement }) => {
       if (inter.from < inter.to) {
-        expect(value).toBeGreaterThanOrEqual(inter.from)
+        expect(value).toBeGreaterThanOrEqual(inter.from as number)
       } else if (inter.from > inter.to) {
-        expect(value).toBeLessThanOrEqual(inter.from)
+        expect(value).toBeLessThanOrEqual(inter.from as number)
       } else if (inter.from === inter.to) {
         expect(value).toBe(inter.to)
         expect(value).toBe(inter.from)
@@ -30,8 +30,6 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
     },
   })
 }
-
-
 
 /**
  * Stress test
@@ -68,9 +66,7 @@ describe.concurrent("Interpol stress test", () => {
   it("should be onComplete immediately if duration is <= 0", () => {
     let inputs = new Array(500)
       .fill(null)
-      .map((_) =>
-        interpolParamsGenerator({ duration: randomRange(-2000, 0, 2) })
-      )
+      .map((_) => interpolParamsGenerator({ duration: randomRange(-2000, 0, 2) }))
     return new Promise((resolve: any) => {
       inputs.forEach(async ({ from, to, duration }, i) => {
         interpolTest(from, to, duration, resolve, i === inputs.length - 1)

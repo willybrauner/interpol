@@ -24,7 +24,7 @@ describe.concurrent("Interpol replay", () => {
       expect(itp.time - saveTime).toBeLessThan(500)
       expect(itp.isPlaying).toBe(true)
 
-      await wait(itp.duration + 50)
+      await wait(itp._duration + 50)
       expect(mock).toHaveBeenCalledTimes(1)
 
       resolve()
