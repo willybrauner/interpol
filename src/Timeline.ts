@@ -25,9 +25,9 @@ export class Timeline {
     return this.paused
   }
 
-  protected _isPlaying = false
+  protected playing = false
   public get isPlaying() {
-    return this._isPlaying
+    return this.playing
   }
 
   protected adds: IAdd[] = []
@@ -121,7 +121,7 @@ export class Timeline {
     }
 
     this.log("play")
-    this._isPlaying = true
+    this.playing = true
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
@@ -140,7 +140,7 @@ export class Timeline {
 
     // stop at the end
     if (!filtered.length) {
-      this._isPlaying = false
+      this.playing = false
       this.log("This is the TL end, stop")
       this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
       this.ticker.stop()
@@ -157,14 +157,14 @@ export class Timeline {
 
   public async replay(): Promise<any> {
     this.log("replay")
-    this._isPlaying = true
+    this.playing = true
     this.stop()
     await this.play()
   }
 
   public pause(): void {
     this.log("pause")
-    this._isPlaying = false
+    this.playing = false
     this.adds.forEach((e) => e.interpol.pause())
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.pause()
@@ -172,7 +172,7 @@ export class Timeline {
 
   public stop(): void {
     this.log("stop")
-    this._isPlaying = false
+    this.playing = false
     this.adds.forEach((e) => e.interpol.stop())
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.stop()
