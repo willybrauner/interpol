@@ -1,29 +1,55 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline, Interpol, Ease } from "../src"
+import { randomRange } from "./utils/randomRange"
 import { wait } from "./utils/wait"
 
-describe.concurrent("Timeline stop", () => {
-  it("Timeline should stop and play properly", () => {
-    const timeMock = vi.fn()
+describe.concurrent("Timeline stress test", () => {
+  it("Timeline should play mutilples timelines properly", () => {
+    const oneTl = ({ itpNumber = 3, itpDuration = 200 }) =>
+      new Promise(async (resolve: any) => {
+        let t, a
+        const timelineDuration = itpNumber * itpDuration
 
-    return new Promise(async (resolve: any) => {
-      const tl = new Timeline({
-        onUpdate: ({ time, advancement }) => {
+        const tl = new Timeline({
+          onUpdate: ({ time, advancement }) => {
+            t = time
+            a = advancement
+            expect(t).toBeGreaterThan(0)
+            expect(a).toBeGreaterThan(0)
+          },
+          onComplete: ({ time, advancement }) => {
+            expect(time).toBe(timelineDuration)
+            expect(advancement).toBe(1)
+          },
+        })
 
-          // FIXME
-          timeMock(() => time)
-        },
-        onComplete: ({ time, advancement }) => {},
+        for (let i = 0; i < itpNumber; i++) {
+          tl.add(
+            new Interpol({
+              from: randomRange(-10000, 10000),
+              to: randomRange(-10000, 10000),
+              duration: itpDuration,
+            })
+          )
+        }
+
+        tl.play().then(() => {
+          expect(t).toBe(timelineDuration)
+          expect(a).toBe(1)
+          resolve()
+        })
+        // wait 50% of the timeline
+        await wait(timelineDuration * 0.5)
       })
-      for (let i = 0; i < 3; i++) {
-        tl.add(new Interpol({ to: 100, duration: 200 }))
-      }
-      // FIXME better test with tl.onUpdate
-      tl.play()
-      await wait(200)
-      // expect(timeMock).toBeGreaterThan(200)
 
-      resolve()
+    const TESTS_NUMBER = 500
+
+    const tls = new Array(TESTS_NUMBER).fill(null).map((_) => {
+      const itpNumber = randomRange(1, 10)
+      const itpDuration = randomRange(1, 500)
+      return oneTl({ itpNumber, itpDuration })
     })
+
+    return Promise.all(tls)
   })
 })
