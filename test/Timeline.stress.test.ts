@@ -38,8 +38,6 @@ describe.concurrent("Timeline stress test", () => {
           expect(a).toBe(1)
           resolve()
         })
-        // wait 50% of the timeline
-        await wait(timelineDuration * 0.5)
       })
 
     const TESTS_NUMBER = 500
