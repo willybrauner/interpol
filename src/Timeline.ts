@@ -40,6 +40,10 @@ export class Timeline {
   public get isPlaying() {
     return this.playing
   }
+  protected _isReversed = false
+  public get isReversed() {
+    return this._isReversed
+  }
 
   constructor({
     paused = true,
@@ -148,11 +152,14 @@ export class Timeline {
     return this.onFullCompleteDeferred.promise
   }
 
-  protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
+  lastElapsed = 0
+  protected handleTickerUpdate = async ({ delta }) => {
     if (!this.ticker.isRunning) return
 
+    // delta sign depend of reverse state
+    delta = this._isReversed ? -delta : delta
+
     // clamp elapse time with full duration
-    elapsed = Math.min(elapsed, this.tlDuration)
     this.time = clamp(0, this.tlDuration, this.time + delta)
     this.advancement = clamp(0, round(this.time / this.tlDuration), 1)
 
@@ -161,14 +168,20 @@ export class Timeline {
     this.log("onUpdate", { advancement: this.advancement, time: this.time })
 
     // Filter only adds who are matching with elapsed time
-    // It allows playing superposed itp in case of
-    const filtered = this.adds.filter(
-      (e) => elapsed >= e.startPositionInTl && elapsed < e.endPositionInTl
+    // It allows playing superposed itp in case of negative offset
+    const filtered = this.adds.filter((e) =>
+      !this._isReversed
+        ? e.startPositionInTl <= this.time && this.time < e.endPositionInTl
+        : e.startPositionInTl < this.time && this.time <= e.endPositionInTl
     )
+
+    // FIXME reverse break on the interpol who is finished because his values are reset by the onComplete 
 
     // play filtered interpol(s)
     for (let i = 0; i < filtered.length; i++) {
-      filtered[i].interpol.play()
+      const instance = filtered[i].interpol
+      instance.updateReverseTo(this._isReversed)
+      instance.play()
     }
 
     // stop at the end
@@ -234,10 +247,16 @@ export class Timeline {
     this.playing = false
     this.advancement = 0
     this.time = 0
+    this._isReversed = false
     for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.stop()
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (resetRepeatCounter) this.repeatCounter = 0
     this.ticker.stop()
+  }
+
+  public reverse(): Timeline {
+    this._isReversed = !this._isReversed
+    return this
   }
 
   /**

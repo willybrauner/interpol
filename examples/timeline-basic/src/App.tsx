@@ -12,7 +12,7 @@ export function App() {
   useEffect(() => {
     const tl = new Timeline({
       debug: true,
-      repeat: 2,
+      repeat: 0,
       onComplete: () => console.log("Timeline One repeat complete"),
       onRepeatComplete: () => console.log("Timeline ALL repeats complete"),
     })
@@ -20,7 +20,7 @@ export function App() {
     tl.add({
       from: () => 0,
       to: () => innerHeight,
-      duration: 1000,
+      duration: 2000,
       ease: Ease.inOutQuart,
       onUpdate: ({ value, time, advancement }) => {
         const x = advancement * (innerWidth / 2) - 20

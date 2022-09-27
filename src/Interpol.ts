@@ -64,6 +64,9 @@ export class Interpol {
   public get isReversed() {
     return this._isReversed
   }
+  public updateReverseTo(r: boolean) {
+    this._isReversed = r
+  }
   protected _isPlaying = false
   public get isPlaying() {
     return this._isPlaying
@@ -147,7 +150,6 @@ export class Interpol {
     this.timeout = setTimeout(() => {
       // execute onStart event on each play
       this.onStart?.()
-
       // start ticker
       this.render()
     }, d)
@@ -184,7 +186,7 @@ export class Interpol {
     if (!this.inTl) this.ticker.stop()
   }
 
-  public reverse() {
+  public reverse(): Interpol {
     this._isReversed = !this._isReversed
     return this
   }
@@ -194,7 +196,7 @@ export class Interpol {
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
   }
 
-  protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
+  protected handleTickerUpdate = async ({ delta }) => {
     if (!this.ticker.isRunning) return
 
     // Specific case if duration is 0
