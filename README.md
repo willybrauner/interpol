@@ -241,6 +241,25 @@ tl.stop()
 tl.replay()
 ```
 
+## Dev examples
+
+```shell
+# install dependencies
+pnpm i
+
+# build and watch lib changes
+npm run build:watch
+
+# start tests and watch
+npm run test:watch
+
+# start dev server on selected example
+npm run dev:interpol-basic
+npm run dev:interport-repeat-refresh
+npm run dev:interport-reverse-ease
+npm run dev:timeline-basic
+```
+
 ## Credits
 
 - [gsap](https://greensock.com/gsap/)
