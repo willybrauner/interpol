@@ -124,36 +124,126 @@ interface IInterpolConstruct {
 
 ### Interpol methods
 
-#### play(): Promise<any>
+```ts
+import { Interpol } from "./Interpol"
 
-Play the current interpol
+const itp = new Interpol({
+  paused: true, // disable autoplay
+  yoyo: false, // disable yoyo (false by default)
+  repeat: 0,
+  from: 0,
+  to: 100,
+  onUpdate: ({ value, time, advancement }) => {
+    // ...
+  },
+  onComplete: ({ value, time, advancement }) => {
+    // ...
+  },
+  onRepeatComplete: ({ value, time, advancement }) => {
+    // only if repeat is positive value
+    // ...
+  },
+})
 
-#### pause(): void
+// Play the current interpol
+// play(): Promise<any>
+itp.play().then(() => {
+  // itp complete
+})
 
-Pause the current interpol
+// Pause the current interpol
+// pause(): void
+itp.pause()
 
-#### stop(): void
+// Stop the current interpol, will reset time, delta and advancement.
+itp.stop()
 
-Stop the current interpol, will reset time, delta and advancement.
+// Replay from start the current interpol.
+// replay(): void
+itp.replay()
 
-#### replay(): void
+// Reverse the current interpol
+// reverse(): void
+itp.reverse()
 
-Replay from start the current interpol.
-
-#### reverse(): void
-
-Reverse the current interpol
-
-#### refresh(): void
-
-Compute from to and duration values if there are functions
+// Compute 'from' 'to' and 'duration' values if there are functions
+// refresh(): void
+itp.refresh()
+```
 
 ### Timeline constructor
 
+```ts
+interface construct {
+  // repeat The current Timeline
+  // default: `0`
+  repeat?: number
+
+  // Execute on frame update
+  // default: /
+  onUpdate?: ({ time, advancement }) => void
+
+  // Execute on complete
+  // default: /
+  onComplete?: ({ time, advancement }) => void
+
+  // Execute on all repeats complete
+  // default: /
+  onRepeatComplete?: () => void
+
+  // Enable @wbe/debug to get interpol instance logs
+  // exe in your console `localStorage.debug = "interpol:Timeline"`
+  // default: `false`
+  debug?: boolean
+}
+```
+
 ### Timeline methods
+
+```ts
+import { Timeline } from "./Interpol"
+
+const tl = new Timeline({
+  onUpdate: () => {},
+  onComplete: () => {},
+  onRepeatComplete: () => {},
+})
+tl.add({
+  from: 0,
+  to: 100,
+  onUpdate: ({ value, time, advancement }) => {
+    // ...
+  },
+})
+tl.add({
+  from: 10,
+  to: 1000,
+  onUpdate: ({ value, time, advancement }) => {
+    // ...
+  },
+})
+
+// start the timeline
+// Timeline don't have autoplay
+// play(): Promise<any>
+tl.play()
+
+// paused the timeline
+// pause(): void
+tl.pause()
+
+// stop
+// stop(): void
+tl.stop()
+
+// restart the timeline
+// replay(): void
+tl.replay()
+```
 
 ## Credits
 
 - [gsap](https://greensock.com/gsap/)
 - [animate](https://github.com/SolalDR/animate/)
+- [animini](https://github.com/dbismut/animini)
 - [signal](https://github.com/zouloux/signal)
