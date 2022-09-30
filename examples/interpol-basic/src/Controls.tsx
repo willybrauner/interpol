@@ -8,7 +8,7 @@ export const Controls = ({ instance }: { instance: Interpol }) => {
       <button onClick={() => instance.stop()}>Stop</button>
       <button onClick={() => instance.replay()}>Replay</button>
       <button onClick={() => instance.reverse()}>Reverse</button>
-      <button onClick={() => instance.refresh()}>Refresh</button>
+      <button onClick={() => instance.refreshComputedValues()}>Refresh</button>
     </div>
   )
 }

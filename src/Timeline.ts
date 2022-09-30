@@ -97,14 +97,19 @@ export class Timeline {
 
     // register full TL duration
     this.tlDuration += itp._duration + offsetPosition
+    this.log({ tlDuration: this.tlDuration })
 
-    // get last add of the list
-    const lastAdd = this.adds[this.adds.length - 1]
+    // get last prev of the list
+    const prevAdd = this.adds?.[this.adds.length - 1]
 
-    // if lastAdd exist, calc start position of this new Add, else, this is the first one
-    const startPositionInTl = lastAdd
-      ? lastAdd.startPositionInTl + itp._duration + offsetPosition
-      : 0
+    let startPositionInTl: number
+    // if not, prev, this is the 1st, start position is 0
+    // else, origin is the prev end + offset
+    if (!prevAdd) {
+      startPositionInTl = 0
+    } else {
+      startPositionInTl = prevAdd.endPositionInTl + offsetPosition
+    }
 
     // calc end position in TL (start pos + duration of interpolation)
     const endPositionInTl = startPositionInTl + itp._duration
@@ -175,11 +180,14 @@ export class Timeline {
         : e.startPositionInTl < this.time && this.time <= e.endPositionInTl
     )
 
-    // FIXME reverse break on the interpol who is finished because his values are reset by the onComplete 
+    this.log({ filtered, "reverse?": this._isReversed, adds: this.adds })
+
+    // FIXME reverse break on the interpol who is finished because his values are reset by the onComplete
 
     // play filtered interpol(s)
     for (let i = 0; i < filtered.length; i++) {
       const instance = filtered[i].interpol
+      log("this._isReversed", this._isReversed)
       instance.updateReverseTo(this._isReversed)
       instance.play()
     }
@@ -256,6 +264,15 @@ export class Timeline {
 
   public reverse(): Timeline {
     this._isReversed = !this._isReversed
+    if (!this.isPlaying) {
+      this.time = this._isReversed ? this.tlDuration : 0
+      this.advancement = this._isReversed ? 1 : 0
+    }
+    this.log("reverse()", {
+      _isReverse: this._isReversed,
+      time: this.time,
+      advancement: this.advancement,
+    })
     return this
   }
 

@@ -151,7 +151,8 @@ export class Interpol {
       // execute onStart event on each play
       this.onStart?.()
       // start ticker
-      this.render()
+      if (!this.inTl) this.ticker.play()
+      this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     }, d)
 
     // create new onComplete deferred Promise and return it
@@ -177,9 +178,12 @@ export class Interpol {
   protected _stop(resetRepeatCounter = true): void {
     this._isPlaying = false
     clearTimeout(this.timeout)
-    this.value = 0
-    this.time = 0
-    this.advancement = 0
+    this.value = this._isReversed ? this._to : 0
+    this.time = this._isReversed ? this._duration : 0
+    this.advancement = this._isReversed ? 1 : 0
+    // this.value = 0
+    // this.time = 0
+    // this.advancement = 0
     this._isReversed = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (resetRepeatCounter) this.repeatCounter = 0
@@ -188,12 +192,12 @@ export class Interpol {
 
   public reverse(): Interpol {
     this._isReversed = !this._isReversed
+    if (!this.isPlaying) {
+      this.value = this._isReversed ? this._to : 0
+      this.time = this._isReversed ? this._duration : 0
+      this.advancement = this._isReversed ? 1 : 0
+    }
     return this
-  }
-
-  protected async render(): Promise<void> {
-    if (!this.inTl) this.ticker.play()
-    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
   }
 
   protected handleTickerUpdate = async ({ delta }) => {
@@ -205,6 +209,7 @@ export class Interpol {
       const obj = { value: this._to, time: this._duration, advancement: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
+      this.log('this._duration <= 0, return',this._duration <= 0)
       return
     }
 
