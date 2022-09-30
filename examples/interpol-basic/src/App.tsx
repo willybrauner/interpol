@@ -12,7 +12,7 @@ export function App() {
     const i = new Interpol({
       from: () => 0,
       to: () => innerHeight,
-      duration: 1000,
+      duration: 2000,
       ease: Ease.linear,
       paused: true,
       debug:true,
