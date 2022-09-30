@@ -78,47 +78,30 @@ export class Timeline {
    * Add a new interpol obj or instance in Timeline
    */
   public add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline {
+    // Create Interpol instance or not
     const itp = interpol instanceof Interpol ? interpol : new Interpol(interpol)
-
     // Stop first to avoid, if "paused: false" is set, to run play() method
     itp.stop()
-
     // compute from to and duration
     itp.refreshComputedValues()
-
     // Bind Timeline ticker to each interpol instance
     itp.ticker = this.ticker
-
     // Specify that we use the itp in Timeline context
     itp.inTl = true
-
     // only active debug on each itp, if is enabled on the timeline
     if (this.debugEnable) itp.debugEnable = this.debugEnable
-
     // register full TL duration
     this.tlDuration += itp._duration + offsetPosition
-    this.log({ tlDuration: this.tlDuration })
-
     // get last prev of the list
     const prevAdd = this.adds?.[this.adds.length - 1]
-
-    let startPositionInTl: number
-    // if not, prev, this is the 1st, start position is 0
-    // else, origin is the prev end + offset
-    if (!prevAdd) {
-      startPositionInTl = 0
-    } else {
-      startPositionInTl = prevAdd.endPositionInTl + offsetPosition
-    }
-
+    // if not, prev, this is the 1st, start position is 0 else, origin is the prev end + offset
+    let startPositionInTl: number = prevAdd ? prevAdd.endPositionInTl + offsetPosition : 0
     // calc end position in TL (start pos + duration of interpolation)
     const endPositionInTl = startPositionInTl + itp._duration
-
     // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) {
       this.adds[i].isLastOfTl = false
     }
-
     // push new Add instance in local
     this.adds.push({
       interpol: itp,
@@ -127,7 +110,6 @@ export class Timeline {
       endPositionInTl,
       isLastOfTl: true,
     })
-
     this.log("adds", this.adds)
 
     // return all the instance allow chaining methods calls

@@ -116,13 +116,17 @@ export class Interpol {
     if (!this.paused) this.play()
   }
 
-  // Compute if is a function
+  // Compute if values are a functions
   public refreshComputedValues(): void {
     const compute = (p) => (typeof p === "function" ? p() : p)
     this._to = compute(this.to)
     this._from = compute(this.from)
     this._duration = compute(this.duration)
-    this.log({ _from: this._from, _to: this._to, _duration: this._duration })
+    this.log("refreshComputedValues", {
+      _from: this._from,
+      _to: this._to,
+      _duration: this._duration,
+    })
   }
 
   public async play(): Promise<any> {
@@ -209,7 +213,7 @@ export class Interpol {
       const obj = { value: this._to, time: this._duration, advancement: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
-      this.log('this._duration <= 0, return',this._duration <= 0)
+      this.log("this._duration <= 0, return", this._duration <= 0)
       return
     }
 
@@ -256,7 +260,7 @@ export class Interpol {
 
     // end, exe onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
-      this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}`)
+      this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
       if (this.value !== this._to) this.value = this._to
       if (this.time !== this._duration) this.time = this._duration
