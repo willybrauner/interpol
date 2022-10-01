@@ -257,7 +257,7 @@ export class Interpol {
       if (isNormalDirectionEnd || isReverseDirectionEnd) {
         this._isReversed = !this._isReversed
         this.log("yoyo! update reverse state to", this._isReversed)
-        this.play()
+        this.reverse(this._isReversed)
         return
       }
     }

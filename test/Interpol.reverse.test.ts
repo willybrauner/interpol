@@ -2,7 +2,7 @@ import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { wait } from "./utils/wait"
 
-const options = { timeout: 4000 }
+const options = { timeout: 5000 }
 
 describe.concurrent("Interpol reverse", () => {
   it(
@@ -55,11 +55,11 @@ describe.concurrent("Interpol reverse", () => {
         expect(onComplete).toHaveBeenCalledTimes(1)
         expect(updateValues).toEqual({ value: 10, time: 1000, advancement: 1 })
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
           itp.play()
-          await wait(i === 0 ? 100 : 10)
+          await wait(i === 0 ? 200 : 100)
           itp.reverse()
-          await wait(10)
+          await wait(100)
         }
         await wait(1000)
         expect(updateValues).toEqual({ value: 0, time: 0, advancement: 0 })
