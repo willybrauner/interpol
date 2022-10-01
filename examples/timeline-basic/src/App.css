@@ -1,7 +1,6 @@
 .App {
   width: 100vw;
   height: 100vh;
-//  background: red;
 }
 
 .ball {
@@ -9,9 +8,17 @@
   position: absolute;
   bottom: 0;
   left: 0;
-
   width: 20px;
   height: 20px;
-  background: aqua;
   border-radius: 100%;
+}
+
+.ball:nth-child(2) {
+  background: red;
+}
+.ball:nth-child(3) {
+  background: green;
+}
+.ball:nth-child(4) {
+  background: whitesmoke;
 }

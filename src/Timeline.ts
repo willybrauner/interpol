@@ -161,11 +161,10 @@ export class Timeline {
     )
 
     // play filtered interpol(s)
+    // reverse instead of play because, reverse return play() with direction
     for (let i = 0; i < filtered.length; i++) {
       const instance = filtered[i].interpol
-      log("this._isReversed", this._isReversed)
       instance.reverse(this._isReversed)
-      instance.play()
     }
 
     // stop at the end

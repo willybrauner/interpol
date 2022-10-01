@@ -185,13 +185,19 @@ export class Interpol {
     this._stop()
   }
   protected _stop(resetRepeatCounter = true): void {
-    this.value = 0
-    this.time = 0
-    this.advancement = 0
+    // reset values in specials case
+    if (!this.inTl || (this.inTl && this._isReversed)) {
+      this.value = 0
+      this.time = 0
+      this.advancement = 0
+    }
+    // reversed value il special case
+    if (!this.inTl) {
+      this._isReversed = false
+    }
     if (resetRepeatCounter) this.repeatCounter = 0
     this._isPlaying = false
     this._isPause = false
-    this._isReversed = false
     clearTimeout(this.timeout)
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
@@ -209,8 +215,6 @@ export class Interpol {
   }
 
   protected handleTickerUpdate = async ({ delta }) => {
-    if (!this.ticker.isRunning) return
-
     // Specific case if duration is 0
     // execute onComplete and return
     if (this._duration <= 0) {

@@ -77,8 +77,8 @@ export function App() {
     <div className={"App"}>
       <Controls instance={instance} />
       <div className={"ball"} ref={$ball} />
-      <div className={"ball ball-2"} ref={$ball2} />
-      <div className={"ball ball-2"} ref={$ball3} />
+      <div className={"ball"} ref={$ball2} />
+      <div className={"ball"} ref={$ball3} />
     </div>
   )
 }
