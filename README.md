@@ -145,30 +145,30 @@ const itp = new Interpol({
   },
 })
 
-// Play the current interpol
+// Play the interpol
 // play(): Promise<any>
 itp.play().then(() => {
   // itp complete
 })
 
-// Pause the current interpol
+// Pause the interpol
 // pause(): void
 itp.pause()
 
-// Stop the current interpol, will reset time, delta and advancement.
+// Stop the interpol, will reset time, delta and advancement.
 itp.stop()
 
-// Replay from start the current interpol.
+// Replay from start the interpol.
 // replay(): void
 itp.replay()
 
-// Reverse the current interpol
+// Reverse and play the interpol
 // reverse(): void
 itp.reverse()
 
 // Compute 'from' 'to' and 'duration' values if there are functions
-// refresh(): void
-itp.refresh()
+// refreshComputedValues(): void
+itp.refreshComputedValues()
 ```
 
 ### Timeline constructor
@@ -239,6 +239,10 @@ tl.stop()
 // restart the timeline
 // replay(): void
 tl.replay()
+
+// reverse and play the timeline
+// replay(): Promise<any>
+tl.reverse()
 ```
 
 ## Dev examples
