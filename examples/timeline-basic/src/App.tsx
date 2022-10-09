@@ -76,9 +76,11 @@ export function App() {
   return (
     <div className={"App"}>
       <Controls instance={instance} />
-      <div className={"ball"} ref={$ball} />
-      <div className={"ball"} ref={$ball2} />
-      <div className={"ball"} ref={$ball3} />
+      <div className={"balls"}>
+        <div className={"ball"} ref={$ball} />
+        <div className={"ball"} ref={$ball2} />
+        <div className={"ball"} ref={$ball3} />
+      </div>
     </div>
   )
 }

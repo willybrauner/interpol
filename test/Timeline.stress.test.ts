@@ -1,10 +1,9 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline, Interpol, Ease } from "../src"
 import { randomRange } from "./utils/randomRange"
-import { wait } from "./utils/wait"
 
 describe.concurrent("Timeline stress test", () => {
-  it("Timeline should play mutilples timelines properly", () => {
+  it("should play multiple timelines properly", () => {
     const oneTl = ({ itpNumber = 3, itpDuration = 200 }) =>
       new Promise(async (resolve: any) => {
         let t, a

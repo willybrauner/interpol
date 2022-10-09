@@ -3,6 +3,11 @@
   height: 100vh;
 }
 
+.balls {
+  width: 100vw;
+  height: 100vh;
+}
+
 .ball {
   will-change: transform;
   position: absolute;
@@ -13,12 +18,12 @@
   border-radius: 100%;
 }
 
-.ball:nth-child(2) {
+.ball:nth-child(1) {
   background: red;
 }
-.ball:nth-child(3) {
+.ball:nth-child(2) {
   background: green;
 }
-.ball:nth-child(4) {
-  background: whitesmoke;
+.ball:nth-child(3) {
+  background: #535bf2;
 }

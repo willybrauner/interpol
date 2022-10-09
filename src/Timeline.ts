@@ -113,7 +113,6 @@ export class Timeline {
   public async play(): Promise<any> {
     await this._play()
   }
-
   protected async _play(
     createNewFullCompletePromise = true,
     isReversedState = false
@@ -136,6 +135,54 @@ export class Timeline {
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
     return this.onFullCompleteDeferred.promise
+  }
+
+  public async replay(): Promise<any> {
+    this.log("replay")
+    this.playing = true
+    this.stop()
+    await this.play()
+  }
+
+  public pause(): void {
+    this.log("pause")
+    this.playing = false
+    this._isPause = true
+    for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.pause()
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
+    this.ticker.pause()
+  }
+
+  public stop(): void {
+    this._stop()
+  }
+  protected _stop(resetRepeatCounter = true): void {
+    this.log("stop")
+    this.advancement = 0
+    this.time = 0
+    this.playing = false
+    this._isPause = false
+    this._isReversed = false
+    for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.stop()
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
+    if (resetRepeatCounter) this.repeatCounter = 0
+    this.ticker.stop()
+  }
+
+  public reverse(r?: boolean) {
+    this._isReversed = r ?? !this._isReversed
+    // if stop
+    if (!this.isPlaying && !this._isPause) {
+      this.time = this._isReversed ? this.tlDuration : 0
+      this.advancement = this._isReversed ? 1 : 0
+    }
+
+    this.log("reverse()", {
+      _isReverse: this._isReversed,
+      time: this.time,
+      advancement: this.advancement,
+    })
+    return this._play(true, this._isReversed)
   }
 
   protected handleTickerUpdate = async ({ delta }) => {
@@ -205,56 +252,6 @@ export class Timeline {
       this.stop()
     }
   }
-
-  public async replay(): Promise<any> {
-    this.log("replay")
-    this.playing = true
-    this.stop()
-    await this.play()
-  }
-
-  public pause(): void {
-    this.log("pause")
-    this.playing = false
-    this._isPause = true
-    for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.pause()
-    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
-    this.ticker.pause()
-  }
-
-  public stop(): void {
-    this._stop()
-  }
-
-  protected _stop(resetRepeatCounter = true): void {
-    this.log("stop")
-    this.advancement = 0
-    this.time = 0
-    this.playing = false
-    this._isPause = false
-    this._isReversed = false
-    for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.stop()
-    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
-    if (resetRepeatCounter) this.repeatCounter = 0
-    this.ticker.stop()
-  }
-
-  public reverse(r?: boolean) {
-    this._isReversed = r ?? !this._isReversed
-    // if stop
-    if (!this.isPlaying && !this._isPause) {
-      this.time = this._isReversed ? this.tlDuration : 0
-      this.advancement = this._isReversed ? 1 : 0
-    }
-
-    this.log("reverse()", {
-      _isReverse: this._isReversed,
-      time: this.time,
-      advancement: this.advancement,
-    })
-    return this._play(true, this._isReversed)
-  }
-
   /**
    * Log util
    * Active @wbe/debug only if debugEnable is true
