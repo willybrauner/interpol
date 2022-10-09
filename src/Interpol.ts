@@ -116,7 +116,7 @@ export class Interpol {
     if (!this.paused) this.play()
   }
 
-  // Compute if values are a functions
+  // Compute if values are functions
   public refreshComputedValues(): void {
     const compute = (p) => (typeof p === "function" ? p() : p)
     this._to = compute(this.to)
