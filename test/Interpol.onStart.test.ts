@@ -16,7 +16,6 @@ describe.concurrent("Interpol onStart", () => {
         expect(mock).toHaveBeenCalledTimes(i)
         await itp.play()
       }
-
       resolve()
     })
   })

@@ -1,12 +1,12 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
-import { Interpol, Ease } from "interpol"
+import { Interpol, Ease } from "../../../src"
 import { Controls } from "./Controls"
 
 export function App() {
   const $ball = useRef<HTMLDivElement>()
   const itp = useRef<Interpol>()
-  const [instance, setInstance] = useState()
+  const [instance, setInstance] = useState(null)
 
   useEffect(() => {
     const i = new Interpol({
@@ -15,6 +15,7 @@ export function App() {
       duration: 2000,
       ease: Ease.linear,
       paused: true,
+      debug:true,
       onUpdate: ({ value, time, advancement }) => {
         const x = advancement * innerWidth - 20
         const y = -value

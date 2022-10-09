@@ -1,6 +1,6 @@
 import "./Ball.css"
 import React, { useEffect, useRef } from "react"
-import { Interpol, Ease } from "interpol"
+import { Interpol, Ease } from "../../../src"
 import { randomRange } from "./randomRange"
 
 export const Ball = () => {

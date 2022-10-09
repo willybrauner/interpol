@@ -6,13 +6,14 @@ import { Controls } from "./Controls"
 export function App() {
   const $ball = useRef<HTMLDivElement>()
   const $ball2 = useRef<HTMLDivElement>()
+  const $ball3 = useRef<HTMLDivElement>()
   const itp = useRef<Interpol>()
   const [instance, setInstance] = useState(null)
 
   useEffect(() => {
     const tl = new Timeline({
       debug: true,
-      repeat: 2,
+      repeat: 0,
       onComplete: () => console.log("Timeline One repeat complete"),
       onRepeatComplete: () => console.log("Timeline ALL repeats complete"),
     })
@@ -50,6 +51,24 @@ export function App() {
       },
       -800
     )
+    tl.add(
+      {
+        from: 0,
+        to: innerHeight / 2.5,
+        duration: 1000,
+        ease: Ease.inOutCubic,
+        onUpdate: ({ value, time, advancement }) => {
+          const x = advancement * (innerWidth / 2) - 20
+          const y = -value * 0.8
+          $ball3.current.style.transform = `
+        translateX(${x}px)
+        translateY(${y}px) 
+        translateZ(0)
+        `
+        },
+      },
+      -500
+    )
 
     setInstance(tl)
   }, [])
@@ -57,8 +76,11 @@ export function App() {
   return (
     <div className={"App"}>
       <Controls instance={instance} />
-      <div className={"ball"} ref={$ball} />
-      <div className={"ball ball-2"} ref={$ball2} />
+      <div className={"balls"}>
+        <div className={"ball"} ref={$ball} />
+        <div className={"ball"} ref={$ball2} />
+        <div className={"ball"} ref={$ball3} />
+      </div>
     </div>
   )
 }

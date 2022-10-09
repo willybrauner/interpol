@@ -64,10 +64,13 @@ export class Interpol {
   public get isReversed() {
     return this._isReversed
   }
+
   protected _isPlaying = false
   public get isPlaying() {
     return this._isPlaying
   }
+  protected _isPause = false
+
   public inTl = false
   protected repeatCounter = 0
 
@@ -113,23 +116,30 @@ export class Interpol {
     if (!this.paused) this.play()
   }
 
-  // Compute if is a function
+  // Compute if values are functions
   public refreshComputedValues(): void {
     const compute = (p) => (typeof p === "function" ? p() : p)
     this._to = compute(this.to)
     this._from = compute(this.from)
     this._duration = compute(this.duration)
-    this.log({ _from: this._from, _to: this._to, _duration: this._duration })
+    this.log("refreshComputedValues", {
+      _from: this._from,
+      _to: this._to,
+      _duration: this._duration,
+    })
   }
 
   public async play(): Promise<any> {
     await this._play()
   }
-  protected _play(createNewFullCompletePromise = true) {
+  protected _play(createNewFullCompletePromise = true, isReversedState: boolean = false) {
     if (this._isPlaying) {
       // refreshComputedValues value during the play if repeatRefresh is true
       if (this.repeatRefresh) this.refreshComputedValues()
 
+      if (!this.inTl) {
+        this._isReversed = isReversedState
+      }
       // recreate deferred promise to avoid multi callback:
       // ex: await play()
       //  some code... -> need to be called once even if play() is called multi times
@@ -137,6 +147,7 @@ export class Interpol {
       return this.onFullCompleteDeferred.promise
     }
     this._isPlaying = true
+    this._isPause = false
 
     // Refresh values before play
     this.refreshComputedValues()
@@ -147,9 +158,9 @@ export class Interpol {
     this.timeout = setTimeout(() => {
       // execute onStart event on each play
       this.onStart?.()
-
-      // start ticker
-      this.render()
+      // start ticker only if is single Interpol, not TL
+      if (!this.inTl) this.ticker.play()
+      this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     }, d)
 
     // create new onComplete deferred Promise and return it
@@ -164,6 +175,7 @@ export class Interpol {
   }
 
   public pause(): void {
+    this._isPause = true
     this._isPlaying = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
@@ -173,36 +185,43 @@ export class Interpol {
     this._stop()
   }
   protected _stop(resetRepeatCounter = true): void {
-    this._isPlaying = false
-    clearTimeout(this.timeout)
-    this.value = 0
-    this.time = 0
-    this.advancement = 0
-    this._isReversed = false
-    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
+    // reset values in specials case
+    if (!this.inTl || (this.inTl && this._isReversed)) {
+      this.value = 0
+      this.time = 0
+      this.advancement = 0
+    }
+    // reversed value il special case
+    if (!this.inTl) {
+      this._isReversed = false
+    }
     if (resetRepeatCounter) this.repeatCounter = 0
+    this._isPlaying = false
+    this._isPause = false
+    clearTimeout(this.timeout)
+    this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
   }
 
-  public reverse() {
-    this._isReversed = !this._isReversed
-    return this
+  public reverse(r?: boolean) {
+    this._isReversed = r ?? !this._isReversed
+    // if has been stopped
+    if (!this.isPlaying && !this._isPause) {
+      this.value = this._isReversed ? this._to : 0
+      this.time = this._isReversed ? this._duration : 0
+      this.advancement = this._isReversed ? 1 : 0
+    }
+    return this._play(true, this._isReversed)
   }
 
-  protected async render(): Promise<void> {
-    if (!this.inTl) this.ticker.play()
-    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
-  }
-
-  protected handleTickerUpdate = async ({ delta, time, elapsed }) => {
-    if (!this.ticker.isRunning) return
-
+  protected handleTickerUpdate = async ({ delta }) => {
     // Specific case if duration is 0
     // execute onComplete and return
     if (this._duration <= 0) {
       const obj = { value: this._to, time: this._duration, advancement: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
+      this.log("this._duration <= 0, return", this._duration <= 0)
       return
     }
 
@@ -242,14 +261,14 @@ export class Interpol {
       if (isNormalDirectionEnd || isReverseDirectionEnd) {
         this._isReversed = !this._isReversed
         this.log("yoyo! update reverse state to", this._isReversed)
-        this.play()
+        this.reverse(this._isReversed)
         return
       }
     }
 
     // end, exe onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
-      this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}`)
+      this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
       if (this.value !== this._to) this.value = this._to
       if (this.time !== this._duration) this.time = this._duration
