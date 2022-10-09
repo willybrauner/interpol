@@ -100,23 +100,23 @@ interface IInterpolConstruct {
   // default: `false`
   debug?: boolean
 
-  // Execute code before start
+  // Called before start
   // default: /
   beforeStart?: () => void
 
-  // Execute code on each play start
+  // Called on each play start
   // default: /
   onStart?: () => void
 
-  // Execute code on frame update
+  // Called on frame update
   // default: /
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
 
-  // Execute code when interpol is complete
+  // Called when interpol is complete
   // default: /
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
 
-  // Execute code when each interpol repeats are complete
+  // Called when each interpol repeats are complete
   // default: /
   onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
@@ -163,8 +163,10 @@ itp.stop()
 itp.replay()
 
 // Reverse and play the interpol
-// reverse(): void
-itp.reverse()
+// reverse(): Promise<any>
+itp.reverse().then(() => {
+  // itp complete
+})
 
 // Compute 'from' 'to' and 'duration' values if there are functions
 // refreshComputedValues(): void
@@ -226,7 +228,9 @@ tl.add({
 // start the timeline
 // Timeline don't have autoplay
 // play(): Promise<any>
-tl.play()
+tl.play().then(() => {
+  // tl complete
+})
 
 // paused the timeline
 // pause(): void
@@ -241,8 +245,10 @@ tl.stop()
 tl.replay()
 
 // reverse and play the timeline
-// replay(): Promise<any>
-tl.reverse()
+// reverse(): Promise<any>
+tl.reverse().then(() => {
+  // tl complete
+})
 ```
 
 ## Dev examples
