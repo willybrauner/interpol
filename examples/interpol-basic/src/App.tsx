@@ -15,7 +15,7 @@ export function App() {
       duration: 2000,
       ease: Ease.linear,
       paused: true,
-      debug:true,
+      debug: true,
       onUpdate: ({ value, time, advancement }) => {
         const x = advancement * innerWidth - 20
         const y = -value

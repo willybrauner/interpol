@@ -1,4 +1,4 @@
-import { IInterpolConstruct, Interpol, IUpdateParams } from "./Interpol"
+import { IInterpolConstruct, Interpol } from "./Interpol"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./Ticker"
 import debug from "@wbe/debug"
@@ -16,26 +16,25 @@ interface IAdd {
   position?: number
 }
 
+interface ITimelineConstruct {
+  onUpdate?: ({ time, advancement }) => void
+  onComplete?: ({ time, advancement }) => void
+  debug?: boolean
+}
+
 let TL_ID = 0
 
 export class Timeline {
   public advancement = 0
   public time = 0
   protected adds: IAdd[] = []
-  protected onFullCompleteDeferred = deferredPromise()
+  protected onCompleteDeferred = deferredPromise()
   protected ticker = new Ticker()
   protected tlDuration: number = 0
   protected debugEnable: boolean
   public readonly tlId: number
-  protected repeat: number
-  protected repeatCounter: number = 0
   protected onUpdate: ({ time, advancement }) => void
   protected onComplete: ({ time, advancement }) => void
-  protected onRepeatComplete: () => void
-  protected paused = false
-  public get isPaused() {
-    return this.paused
-  }
   protected playing = false
   public get isPlaying() {
     return this.playing
@@ -47,25 +46,16 @@ export class Timeline {
   protected _isPause = false
 
   constructor({
-    paused = true,
-    repeat = 0,
     onUpdate = () => {},
     onComplete = () => {},
-    onRepeatComplete = () => {},
     debug = false,
   }: {
-    paused?: boolean
-    repeat?: number
     onUpdate?: ({ time, advancement }) => void
     onComplete?: ({ time, advancement }) => void
-    onRepeatComplete?: () => void
     debug?: boolean
   } = {}) {
-    this.paused = paused
-    this.repeat = repeat
     this.onUpdate = onUpdate
     this.onComplete = onComplete
-    this.onRepeatComplete = onRepeatComplete
     this.debugEnable = debug
     this.ticker.debugEnable = debug
     this.tlId = ++TL_ID
@@ -106,7 +96,7 @@ export class Timeline {
       isLastOfTl: true,
     })
     this.log("adds", this.adds)
-    // return instance
+
     return this
   }
 
@@ -124,8 +114,8 @@ export class Timeline {
 
     if (this.isPlaying) {
       this._isReversed = isReversedState
-      if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
-      return this.onFullCompleteDeferred.promise
+      if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
+      return this.onCompleteDeferred.promise
     }
 
     this.log("play")
@@ -133,8 +123,8 @@ export class Timeline {
     this._isPause = true
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
-    if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
-    return this.onFullCompleteDeferred.promise
+    if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
+    return this.onCompleteDeferred.promise
   }
 
   public async replay(): Promise<any> {
@@ -156,7 +146,7 @@ export class Timeline {
   public stop(): void {
     this._stop()
   }
-  protected _stop(resetRepeatCounter = true): void {
+  protected _stop(): void {
     this.log("stop")
     this.advancement = 0
     this.time = 0
@@ -165,11 +155,10 @@ export class Timeline {
     this._isReversed = false
     for (let i = 0; i < this.adds.length; i++) this.adds[i].interpol.stop()
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
-    if (resetRepeatCounter) this.repeatCounter = 0
     this.ticker.stop()
   }
 
-  public reverse(r?: boolean) {
+  public reverse(r?: boolean): Promise<any> {
     this._isReversed = r ?? !this._isReversed
     // if stop
     if (!this.isPlaying && !this._isPause) {
@@ -217,38 +206,8 @@ export class Timeline {
     // stop at the end
     if (!filtered.length) {
       this.onComplete?.({ time: this.time, advancement: this.advancement })
-
-      // repeat logic
-      const repeatInfinitely = this.repeat < 0
-      const needToRepeat = this.repeat > 0 && this.repeatCounter + 1 < this.repeat
-      if (repeatInfinitely) {
-        this.replay()
-        return
-      }
-      if (needToRepeat) {
-        this.repeatCounter++
-        this.log("Have been repeated", this.repeatCounter)
-        this._stop(false)
-        this._play(false)
-        return
-      }
-      if (!needToRepeat && this.repeat !== 0) {
-        this.repeatCounter++
-        this.log("End repeats!", this.repeatCounter)
-        this.onRepeatComplete?.()
-        // and continue...
-      }
-
-      // If repeat is active, we want to resolve onComplete promise only
-      // when all repeats are complete
-      if (!repeatInfinitely && !needToRepeat) {
-        this.onFullCompleteDeferred.resolve()
-        this.log("this.onFullCompleteDeferred.resolve")
-      }
-
       // stop and reset after onComplete
-      // ! need to stop after repeat logic because stop() will reset repeatCounter
-      this.log("This is the Timeline end, stop")
+      this.onCompleteDeferred.resolve()
       this.stop()
     }
   }

@@ -19,13 +19,9 @@ export interface IInterpolConstruct {
   reverseEase?: (t: number) => number
   paused?: boolean
   delay?: number
-  yoyo?: boolean
-  repeat?: number
-  repeatRefresh?: boolean
   debug?: boolean
-  onStart?: () => void
-  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   beforeStart?: () => void
+  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
   onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
@@ -44,13 +40,8 @@ export class Interpol {
   public paused: boolean
   public delay: number
   public beforeStart: () => void
-  public onStart: () => void
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
-  public onRepeatComplete: (e: IUpdateParams) => void
-  public yoyo: boolean
-  public repeat: number
-  public repeatRefresh: boolean
   public ticker: Ticker = new Ticker()
   public advancement = 0
   public time = 0
@@ -59,7 +50,7 @@ export class Interpol {
   // internal
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>
-  protected onFullCompleteDeferred = deferredPromise()
+  protected onCompleteDeferred = deferredPromise()
   protected _isReversed = false
   public get isReversed() {
     return this._isReversed
@@ -72,26 +63,19 @@ export class Interpol {
   protected _isPause = false
 
   public inTl = false
-  protected repeatCounter = 0
 
   constructor({
     from = 0,
     to = 1000,
     duration = 1000,
-    // linear easing by default, without Ease object import
     ease = (t) => t,
     reverseEase,
     paused = false,
     delay = 0,
     beforeStart,
-    onStart,
     onUpdate,
     onComplete,
-    onRepeatComplete,
     debug = false,
-    yoyo = false,
-    repeat = 0,
-    repeatRefresh = false,
   }: IInterpolConstruct) {
     this.from = from
     this.to = to
@@ -101,13 +85,8 @@ export class Interpol {
     this.reverseEase = reverseEase
     this.delay = delay
     this.beforeStart = beforeStart
-    this.onStart = onStart
     this.onUpdate = onUpdate
     this.onComplete = onComplete
-    this.onRepeatComplete = onRepeatComplete
-    this.yoyo = yoyo
-    this.repeat = repeat
-    this.repeatRefresh = repeatRefresh
     this.debugEnable = debug
     this.ticker.debugEnable = debug
 
@@ -122,29 +101,20 @@ export class Interpol {
     this._to = compute(this.to)
     this._from = compute(this.from)
     this._duration = compute(this.duration)
-    this.log("refreshComputedValues", {
-      _from: this._from,
-      _to: this._to,
-      _duration: this._duration,
-    })
   }
 
   public async play(): Promise<any> {
     await this._play()
   }
-  protected _play(createNewFullCompletePromise = true, isReversedState: boolean = false) {
+  protected _play(createNewCompletePromise = true, isReversedState: boolean = false) {
     if (this._isPlaying) {
-      // refreshComputedValues value during the play if repeatRefresh is true
-      if (this.repeatRefresh) this.refreshComputedValues()
-
       if (!this.inTl) {
         this._isReversed = isReversedState
       }
-      // recreate deferred promise to avoid multi callback:
-      // ex: await play()
-      //  some code... -> need to be called once even if play() is called multi times
-      if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
-      return this.onFullCompleteDeferred.promise
+      // recreate deferred promise to avoid multi callback
+      // this one need to be called once even if play() is called multi times
+      if (createNewCompletePromise) this.onCompleteDeferred = deferredPromise()
+      return this.onCompleteDeferred.promise
     }
     this._isPlaying = true
     this._isPause = false
@@ -156,16 +126,14 @@ export class Interpol {
     // If this play is trigger before onComplete, we don't wait again
     const d = this.time > 0 ? 0 : this.delay
     this.timeout = setTimeout(() => {
-      // execute onStart event on each play
-      this.onStart?.()
       // start ticker only if is single Interpol, not TL
       if (!this.inTl) this.ticker.play()
       this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     }, d)
 
     // create new onComplete deferred Promise and return it
-    if (createNewFullCompletePromise) this.onFullCompleteDeferred = deferredPromise()
-    return this.onFullCompleteDeferred.promise
+    if (createNewCompletePromise) this.onCompleteDeferred = deferredPromise()
+    return this.onCompleteDeferred.promise
   }
 
   public async replay(): Promise<any> {
@@ -184,7 +152,7 @@ export class Interpol {
   public stop(): void {
     this._stop()
   }
-  protected _stop(resetRepeatCounter = true): void {
+  protected _stop(): void {
     // reset values in specials case
     if (!this.inTl || (this.inTl && this._isReversed)) {
       this.value = 0
@@ -195,7 +163,6 @@ export class Interpol {
     if (!this.inTl) {
       this._isReversed = false
     }
-    if (resetRepeatCounter) this.repeatCounter = 0
     this._isPlaying = false
     this._isPause = false
     clearTimeout(this.timeout)
@@ -256,17 +223,7 @@ export class Interpol {
     const isNormalDirectionEnd = !this._isReversed && this.advancement === 1
     const isReverseDirectionEnd = this._isReversed && this.advancement === 0
 
-    // yoyo case, reverse and play again
-    if (this.yoyo) {
-      if (isNormalDirectionEnd || isReverseDirectionEnd) {
-        this._isReversed = !this._isReversed
-        this.log("yoyo! update reverse state to", this._isReversed)
-        this.reverse(this._isReversed)
-        return
-      }
-    }
-
-    // end, exe onComplete
+    // end, onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
       this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
@@ -279,39 +236,8 @@ export class Interpol {
         advancement: this.advancement,
       })
 
-      // repeat logic
-      const repeatInfinitely = this.repeat < 0
-      const needToRepeat = this.repeat > 0 && this.repeatCounter + 1 < this.repeat
-
-      if (repeatInfinitely) {
-        this.replay()
-        return
-      }
-      if (needToRepeat) {
-        this.repeatCounter++
-        this.log("Have been repeated", this.repeatCounter)
-        this._stop(false)
-        this._play(false)
-        return
-      }
-      if (!needToRepeat && this.repeat !== 0) {
-        this.repeatCounter++
-        this.log("End repeats!", this.repeatCounter)
-        this.onRepeatComplete?.({
-          value: this.value,
-          time: this.time,
-          advancement: this.advancement,
-        })
-        // and continue...
-      }
-
-      // If repeat is active, we want to resolve onComplete promise only
-      // when all repeats are complete
-      if (!repeatInfinitely && !needToRepeat) {
-        this.onFullCompleteDeferred.resolve()
-      }
-      // stop and reset after onComplete
-      // ! need to stop after repeat logic because stop() will reset repeatCounter
+      // stop after onComplete
+      this.onCompleteDeferred.resolve()
       this.stop()
     }
   }

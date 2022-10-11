@@ -13,9 +13,7 @@ export function App() {
   useEffect(() => {
     const tl = new Timeline({
       debug: true,
-      repeat: 0,
       onComplete: () => console.log("Timeline One repeat complete"),
-      onRepeatComplete: () => console.log("Timeline ALL repeats complete"),
     })
 
     tl.add({
