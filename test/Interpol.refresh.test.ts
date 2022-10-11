@@ -18,7 +18,7 @@ describe.concurrent("Interpol refresh", () => {
     })
   })
 
-  it("should re compute if repeatRefresh is true", async () => {
+  it("should re compute if refreshComputedValues() is called", async () => {
     return new Promise(async (resolve: any) => {
       const mockTo = vi.fn()
       const mockFrom = vi.fn()
@@ -32,18 +32,18 @@ describe.concurrent("Interpol refresh", () => {
           return randomRange(-100, 100)
         },
         duration: () => 1000,
-        repeat: 2,
-        repeatRefresh: true,
       })
 
       expect(mockFrom).toHaveBeenCalledTimes(1)
       expect(mockTo).toHaveBeenCalledTimes(1)
       expect(itp._duration).toBe(1000)
-      await wait(1300)
+      await wait(itp._duration)
+      itp.refreshComputedValues()
+      await wait(500)
       expect(mockFrom).toHaveBeenCalledTimes(2)
       expect(mockTo).toHaveBeenCalledTimes(2)
       expect(itp._duration).toBe(1000)
       resolve()
     })
   })
-  })
+})

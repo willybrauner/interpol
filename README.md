@@ -72,7 +72,7 @@ interface IInterpolConstruct {
   ease?: (t: number) => number
 
   // Overwrite easing function on reverse
-  // default: `t => t` (lineal easing)
+  // default: /
   reverseEase?: (t: number) => number
 
   // Make interpol paused at start (not autoplay)
@@ -83,18 +83,6 @@ interface IInterpolConstruct {
   // default: `false`
   delay?: number
 
-  // Reverse and replay indefinitely at interpol end
-  // default: `false`
-  yoyo?: boolean
-
-  // Repeat N times. If value is negative, it repeats indefinitly
-  // default: `0`
-  repeat?: number
-
-  // Refresh computed values before each repeats
-  // default: `false`
-  repeatRefresh?: boolean
-
   // Enable @wbe/debug to get interpol instance logs
   // exe in your console `localStorage.debug = "interpol:*"`
   // default: `false`
@@ -104,10 +92,6 @@ interface IInterpolConstruct {
   // default: /
   beforeStart?: () => void
 
-  // Called on each play start
-  // default: /
-  onStart?: () => void
-
   // Called on frame update
   // default: /
   onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
@@ -115,10 +99,6 @@ interface IInterpolConstruct {
   // Called when interpol is complete
   // default: /
   onComplete?: ({ value, time, advancement }: IUpdateParams) => void
-
-  // Called when each interpol repeats are complete
-  // default: /
-  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
 }
 ```
 
@@ -129,20 +109,11 @@ import { Interpol } from "./Interpol"
 
 const itp = new Interpol({
   paused: true, // disable autoplay
-  yoyo: false, // disable yoyo (false by default)
-  repeat: 0,
   from: 0,
   to: 100,
-  onUpdate: ({ value, time, advancement }) => {
-    // ...
-  },
-  onComplete: ({ value, time, advancement }) => {
-    // ...
-  },
-  onRepeatComplete: ({ value, time, advancement }) => {
-    // only if repeat is positive value
-    // ...
-  },
+  beforeStart: () => {},
+  onUpdate: ({ value, time, advancement }) => {},
+  onComplete: ({ value, time, advancement }) => {},
 })
 
 // Play the interpol
@@ -176,11 +147,7 @@ itp.refreshComputedValues()
 ### Timeline constructor
 
 ```ts
-interface construct {
-  // repeat The current Timeline
-  // default: `0`
-  repeat?: number
-
+interface ITimelineConstruct {
   // Execute on frame update
   // default: /
   onUpdate?: ({ time, advancement }) => void
@@ -188,10 +155,6 @@ interface construct {
   // Execute on complete
   // default: /
   onComplete?: ({ time, advancement }) => void
-
-  // Execute on all repeats complete
-  // default: /
-  onRepeatComplete?: () => void
 
   // Enable @wbe/debug to get interpol instance logs
   // exe in your console `localStorage.debug = "interpol:Timeline"`
@@ -210,6 +173,9 @@ const tl = new Timeline({
   onComplete: () => {},
   onRepeatComplete: () => {},
 })
+
+// Add new Interpol object param 
+// or Interpol instance
 tl.add({
   from: 0,
   to: 100,
@@ -265,8 +231,6 @@ npm run test:watch
 
 # start dev server on selected example
 npm run dev:interpol-basic
-npm run dev:interport-repeat-refresh
-npm run dev:interport-reverse-ease
 npm run dev:timeline-basic
 ```
 
