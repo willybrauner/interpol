@@ -5,9 +5,9 @@ import { IInterpolConstruct } from "./Interpol"
 interface IOptions extends Omit<IInterpolConstruct, "from" | "to"> {
   [x: string]: any
   // same than interpol fn without "value" param
-  onUpdate?: ({ time, advancement }) => void
-  onComplete?: ({ time, advancement }) => void
-  onRepeatComplete?: ({ time, advancement }) => void
+  onUpdate?: ({ time, progress }) => void
+  onComplete?: ({ time, progress }) => void
+  onRepeatComplete?: ({ time, progress }) => void
 }
 
 /**
@@ -21,15 +21,10 @@ export function Interdom(
     reverseEase,
     paused,
     delay,
-    yoyo,
-    repeat,
-    repeatRefresh,
     debug,
-    onStart,
-    onUpdate,
     beforeStart,
+    onUpdate,
     onComplete,
-    onRepeatComplete,
     ...keys
   }: IOptions
 ) {
@@ -53,28 +48,19 @@ export function Interdom(
         reverseEase,
         paused,
         delay,
-        yoyo,
-        repeat,
-        repeatRefresh,
         debug,
         beforeStart: () => {
           last && beforeStart?.()
         },
-        onStart: () => {
-          last && onStart?.()
-        },
-        onUpdate: ({ value, time, advancement }) => {
-          last && onUpdate?.({ time, advancement })
+        onUpdate: ({ value, time, progress }) => {
+          last && onUpdate?.({ time, progress })
           //console.log("value", value)
           // TODO parse property value to apply
           target.style[key] = value + "px"
         },
-        onComplete: ({ value, time, advancement }) => {
-          last && onComplete?.({ time, advancement })
+        onComplete: ({ value, time, progress }) => {
+          last && onComplete?.({ time, progress })
           target[key] = value
-        },
-        onRepeatComplete: ({ value, time, advancement }) => {
-          last && onRepeatComplete?.({ time, advancement })
         },
       })
       itps.push(itp)
