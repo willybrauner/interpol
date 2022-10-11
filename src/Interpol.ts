@@ -159,7 +159,7 @@ export class Interpol {
       this.time = 0
       this.progress = 0
     }
-    // reversed value il special case
+
     if (!this.inTl) {
       this._isReversed = false
     }
