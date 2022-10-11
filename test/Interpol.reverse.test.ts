@@ -42,10 +42,7 @@ describe.concurrent("Interpol reverse", () => {
           to: 10,
           duration: 1000,
           onUpdate: (e) => (updateValues = e),
-          onComplete: () => {
-            console.log("complete!")
-            onComplete()
-          },
+          onComplete,
         })
         expect(itp.isReversed).toBe(false)
         await wait(100)
