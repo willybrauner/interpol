@@ -10,7 +10,6 @@ export function App() {
   useEffect(() => {
     const i = Interdom($ball.current, {
       duration: 1000,
-      repeatRefresh: true,
       left: () => randomRange(0, innerWidth / 2),
       top: () => randomRange(0, innerHeight / 2),
       ease: Ease.outCubic,
