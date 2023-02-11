@@ -28,6 +28,7 @@
     "microbundle": "^0.15.1",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
+    "vite": "^4.1.1",
     "vitest": "^0.28.4"
   },
   "prettier": {
@@ -35,7 +36,6 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@wbe/debug": "^1.1.0",
-    "vite": "^4.1.1"
+    "@wbe/debug": "^1.1.0"
   }
 }
