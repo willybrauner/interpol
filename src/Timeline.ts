@@ -17,15 +17,15 @@ interface IAdd {
 }
 
 interface ITimelineConstruct {
-  onUpdate?: ({ time, advancement }) => void
-  onComplete?: ({ time, advancement }) => void
+  onUpdate?: ({ time, progress }) => void
+  onComplete?: ({ time, progress }) => void
   debug?: boolean
 }
 
 let TL_ID = 0
 
 export class Timeline {
-  public advancement = 0
+  public progress = 0
   public time = 0
   protected adds: IAdd[] = []
   protected onCompleteDeferred = deferredPromise()
@@ -33,8 +33,8 @@ export class Timeline {
   protected tlDuration: number = 0
   protected debugEnable: boolean
   public readonly tlId: number
-  protected onUpdate: ({ time, advancement }) => void
-  protected onComplete: ({ time, advancement }) => void
+  protected onUpdate: ({ time, progress }) => void
+  protected onComplete: ({ time, progress }) => void
   protected playing = false
   public get isPlaying() {
     return this.playing
@@ -50,8 +50,8 @@ export class Timeline {
     onComplete = () => {},
     debug = false,
   }: {
-    onUpdate?: ({ time, advancement }) => void
-    onComplete?: ({ time, advancement }) => void
+    onUpdate?: ({ time, progress }) => void
+    onComplete?: ({ time, progress }) => void
     debug?: boolean
   } = {}) {
     this.onUpdate = onUpdate
@@ -148,7 +148,7 @@ export class Timeline {
   }
   protected _stop(): void {
     this.log("stop")
-    this.advancement = 0
+    this.progress = 0
     this.time = 0
     this.playing = false
     this._isPause = false
@@ -163,13 +163,13 @@ export class Timeline {
     // if stop
     if (!this.isPlaying && !this._isPause) {
       this.time = this._isReversed ? this.tlDuration : 0
-      this.advancement = this._isReversed ? 1 : 0
+      this.progress = this._isReversed ? 1 : 0
     }
 
     this.log("reverse()", {
       _isReverse: this._isReversed,
       time: this.time,
-      advancement: this.advancement,
+      progress: this.progress,
     })
     return this._play(true, this._isReversed)
   }
@@ -182,11 +182,11 @@ export class Timeline {
 
     // clamp elapse time with full duration
     this.time = clamp(0, this.tlDuration, this.time + delta)
-    this.advancement = clamp(0, round(this.time / this.tlDuration), 1)
+    this.progress = clamp(0, round(this.time / this.tlDuration), 1)
 
     // exe on update with TL properties
-    this.onUpdate?.({ advancement: this.advancement, time: this.time })
-    this.log("onUpdate", { advancement: this.advancement, time: this.time })
+    this.onUpdate?.({ progress: this.progress, time: this.time })
+    this.log("onUpdate", { progress: this.progress, time: this.time })
 
     // Filter only adds who are matching with elapsed time
     // It allows playing superposed itp in case of negative offset
@@ -205,7 +205,7 @@ export class Timeline {
 
     // stop at the end
     if (!filtered.length) {
-      this.onComplete?.({ time: this.time, advancement: this.advancement })
+      this.onComplete?.({ time: this.time, progress: this.progress })
       // stop and reset after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()

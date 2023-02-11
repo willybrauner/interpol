@@ -5,7 +5,7 @@
 
 interpol library interpolate value between two points.
 This is the lowest level of animate machine.
-Interpol is not a DOM API, it provides a real time advancement of the interpolation that can be use or bind
+Interpol is not a DOM API, it provides a real time progress of the interpolation that can be use or bind
 on... anything!
 
 ## Why
@@ -25,7 +25,7 @@ const itp = new Interpol({
   from: 0,
   to: 100,
   duration: 1000,
-  onUpdate: ({ time, value, advancement }) => {},
+  onUpdate: ({ time, value, progress }) => {},
   onComplete: () => {},
 })
 ```
@@ -97,11 +97,11 @@ interface IInterpolConstruct {
 
   // Called on frame update
   // default: /
-  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
+  onUpdate?: ({ value, time, progress }: IUpdateParams) => void
 
   // Called when interpol is complete
   // default: /
-  onComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  onComplete?: ({ value, time, progress }: IUpdateParams) => void
 }
 ```
 
@@ -115,8 +115,8 @@ const itp = new Interpol({
   from: 0,
   to: 100,
   beforeStart: () => {},
-  onUpdate: ({ value, time, advancement }) => {},
-  onComplete: ({ value, time, advancement }) => {},
+  onUpdate: ({ value, time, progress }) => {},
+  onComplete: ({ value, time, progress }) => {},
 })
 
 // Play the interpol
@@ -129,7 +129,7 @@ itp.play().then(() => {
 // pause(): void
 itp.pause()
 
-// Stop the interpol, will reset time, delta and advancement.
+// Stop the interpol, will reset time, delta and progress.
 itp.stop()
 
 // Replay from start the interpol.
@@ -153,11 +153,11 @@ itp.refreshComputedValues()
 interface ITimelineConstruct {
   // Execute on frame update
   // default: /
-  onUpdate?: ({ time, advancement }) => void
+  onUpdate?: ({ time, progress }) => void
 
   // Execute on complete
   // default: /
-  onComplete?: ({ time, advancement }) => void
+  onComplete?: ({ time, progress }) => void
 
   // Enable @wbe/debug to get interpol instance logs
   // exe in your console `localStorage.debug = "interpol:Timeline"`
@@ -182,14 +182,14 @@ const tl = new Timeline({
 tl.add({
   from: 0,
   to: 100,
-  onUpdate: ({ value, time, advancement }) => {
+  onUpdate: ({ value, time, progress }) => {
     // ...
   },
 })
 tl.add({
   from: 10,
   to: 1000,
-  onUpdate: ({ value, time, advancement }) => {
+  onUpdate: ({ value, time, progress }) => {
     // ...
   },
 })

@@ -16,13 +16,13 @@ describe.concurrent("Interpol delay", () => {
     await wait(delay * 0.5)
     expect(itp.isPlaying).toBe(true)
     expect(itp.time).toBe(0)
-    expect(itp.advancement).toBe(0)
+    expect(itp.progress).toBe(0)
     expect(itp.value).toBe(0)
     await wait(delay)
 
     // after the delay
     expect(itp.time).toBeGreaterThan(0)
-    expect(itp.advancement).toBeGreaterThan(0)
+    expect(itp.progress).toBeGreaterThan(0)
     expect(itp.value).toBeGreaterThan(0)
   })
 })

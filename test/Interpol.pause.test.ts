@@ -28,7 +28,7 @@ describe.concurrent("Interpol pause", () => {
 
       // We are sure that time is not reset on play() after pause()
       await wait(100)
-      expect(itp.advancement - savedTime).toBeLessThan(150)
+      expect(itp.progress - savedTime).toBeLessThan(150)
       expect(itp.isPlaying).toBe(true)
       resolve()
     })

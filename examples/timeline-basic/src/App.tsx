@@ -20,8 +20,8 @@ export function App() {
       to: () => to,
       duration: 800,
       ease: Ease.inOutQuart,
-      onUpdate: ({ value, time, advancement }) => {
-        const x = advancement * innerWidth - 50
+      onUpdate: ({ value, time, progress }) => {
+        const x = progress * innerWidth - 50
         const y = -value * 0.8
         el.style.transform = `
         translateX(${x}px)

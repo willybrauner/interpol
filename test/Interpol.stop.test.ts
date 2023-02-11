@@ -16,7 +16,7 @@ describe.concurrent("Interpol stop", () => {
       await wait(500)
       expect(itp.isPlaying).toBe(true)
       expect(itp.time).toBeGreaterThan(0)
-      expect(itp.advancement).toBeGreaterThan(0)
+      expect(itp.progress).toBeGreaterThan(0)
       expect(itp.value).toBeGreaterThan(0)
 
       // stop, value are reset
@@ -24,7 +24,7 @@ describe.concurrent("Interpol stop", () => {
       expect(itp.isPlaying).toBe(false)
       expect(mock).toHaveBeenCalledTimes(0)
       expect(itp.time).toBe(0)
-      expect(itp.advancement).toBe(0)
+      expect(itp.progress).toBe(0)
       expect(itp.value).toBe(0)
 
       // and play again (resume)
