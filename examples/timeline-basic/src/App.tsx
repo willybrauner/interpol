@@ -7,7 +7,6 @@ export function App() {
   const $ball = useRef<HTMLDivElement>()
   const $ball2 = useRef<HTMLDivElement>()
   const $ball3 = useRef<HTMLDivElement>()
-  const itp = useRef<Interpol>()
   const [instance, setInstance] = useState(null)
 
   useEffect(() => {
@@ -16,57 +15,25 @@ export function App() {
       onComplete: () => console.log("Timeline One repeat complete"),
     })
 
-    tl.add({
+    const itp = (el, to) => ({
       from: () => 0,
-      to: () => innerHeight,
-      duration: 1000,
+      to: () => to,
+      duration: 800,
       ease: Ease.inOutQuart,
       onUpdate: ({ value, time, advancement }) => {
-        const x = advancement * (innerWidth / 2) - 20
+        const x = advancement * innerWidth - 50
         const y = -value * 0.8
-        $ball.current.style.transform = `
+        el.style.transform = `
         translateX(${x}px)
         translateY(${y}px) 
         translateZ(0)
         `
       },
     })
-    tl.add(
-      {
-        from: 0,
-        to: innerHeight / 2,
-        duration: 1000,
-        ease: Ease.inOutQuart,
-        onUpdate: ({ value, time, advancement }) => {
-          const x = advancement * (innerWidth / 2) - 20
-          const y = -value * 0.8
-          $ball2.current.style.transform = `
-        translateX(${x}px)
-        translateY(${y}px) 
-        translateZ(0)
-        `
-        },
-      },
-      -800
-    )
-    tl.add(
-      {
-        from: 0,
-        to: innerHeight / 2.5,
-        duration: 1000,
-        ease: Ease.inOutCubic,
-        onUpdate: ({ value, time, advancement }) => {
-          const x = advancement * (innerWidth / 2) - 20
-          const y = -value * 0.8
-          $ball3.current.style.transform = `
-        translateX(${x}px)
-        translateY(${y}px) 
-        translateZ(0)
-        `
-        },
-      },
-      -500
-    )
+
+    tl.add(itp($ball.current, innerHeight), 0)
+    tl.add(itp($ball2.current, innerHeight / 2), -400)
+    tl.add(itp($ball3.current, innerHeight / 2.5), -500)
 
     setInstance(tl)
   }, [])

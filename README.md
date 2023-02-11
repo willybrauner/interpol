@@ -1,4 +1,7 @@
-# Interpol 👮🏽‍
+<h1 align="center" style="text-align:center">Interpol 👮🏽‍</h1>
+<p align="center">
+    <img alt="logo" src="logo.jpg">
+</p>
 
 interpol library interpolate value between two points.
 This is the lowest level of animate machine.
