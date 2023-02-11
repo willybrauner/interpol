@@ -9,9 +9,9 @@ describe.concurrent("Timeline reverse", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
       const tl = new Timeline({
-        onUpdate: ({ time, advancement }) => {
+        onUpdate: ({ time, progress }) => {
           t = time
-          a = advancement
+          a = progress
         },
         onComplete,
       })
@@ -34,9 +34,9 @@ describe.concurrent("Timeline reverse", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
       const tl = new Timeline({
-        onUpdate: ({ time, advancement }) => {
+        onUpdate: ({ time, progress }) => {
           t = time
-          a = advancement
+          a = progress
         },
         onComplete,
       })

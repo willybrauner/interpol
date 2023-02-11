@@ -24,7 +24,7 @@ describe.concurrent("Interpol reverse", () => {
         expect(itp.isReversed).toBe(true)
         await wait(1000)
         expect(onComplete).toHaveBeenCalledTimes(1)
-        expect(updateValues).toEqual({ value: 0, time: 0, advancement: 0 })
+        expect(updateValues).toEqual({ value: 0, time: 0, progress: 0 })
         resolve()
       })
     },
@@ -50,7 +50,7 @@ describe.concurrent("Interpol reverse", () => {
         expect(itp.isReversed).toBe(true)
         await itp.play()
         expect(onComplete).toHaveBeenCalledTimes(1)
-        expect(updateValues).toEqual({ value: 10, time: 1000, advancement: 1 })
+        expect(updateValues).toEqual({ value: 10, time: 1000, progress: 1 })
 
         for (let i = 0; i < 5; i++) {
           itp.play()
@@ -59,7 +59,7 @@ describe.concurrent("Interpol reverse", () => {
           await wait(100)
         }
         await wait(1000)
-        expect(updateValues).toEqual({ value: 0, time: 0, advancement: 0 })
+        expect(updateValues).toEqual({ value: 0, time: 0, progress: 0 })
         expect(onComplete).toHaveBeenCalledTimes(2)
         resolve()
       })

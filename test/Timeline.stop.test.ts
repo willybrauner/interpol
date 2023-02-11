@@ -11,13 +11,13 @@ describe.concurrent("Timeline stop", () => {
         const onCompleteMock = vi.fn()
 
         const tl = new Timeline({
-          onUpdate: ({ time, advancement }) => {
+          onUpdate: ({ time, progress }) => {
             expect(time).toBeGreaterThan(0)
-            expect(advancement).toBeGreaterThan(0)
+            expect(progress).toBeGreaterThan(0)
           },
-          onComplete: ({ time, advancement }) => {
+          onComplete: ({ time, progress }) => {
             expect(time).toBe(timelineDuration)
-            expect(advancement).toBe(1)
+            expect(progress).toBe(1)
             onCompleteMock()
           },
         })
@@ -36,7 +36,7 @@ describe.concurrent("Timeline stop", () => {
         await wait(timelineDuration * 0.5)
         tl.stop()
         expect(tl.time).toBe(0)
-        expect(tl.advancement).toBe(0)
+        expect(tl.progress).toBe(0)
         expect(onCompleteMock).toHaveBeenCalledTimes(0)
         resolve()
       })

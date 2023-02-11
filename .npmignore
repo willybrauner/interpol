@@ -7,9 +7,11 @@ src/*
 src/**
 test
 example
+examples
 example-node
 .babelrc
 .prettierignore
 .prettierrc
 jest.config.ts
 tsconfig.json
+vitest.config.ts

@@ -11,7 +11,7 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
     from,
     to,
     duration,
-    onUpdate: ({ value, time, advancement }) => {
+    onUpdate: ({ value, time, progress }) => {
       if (inter.from < inter.to) {
         expect(value).toBeGreaterThanOrEqual(inter.from as number)
       } else if (inter.from > inter.to) {
@@ -21,11 +21,11 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
         expect(value).toBe(inter.from)
       }
     },
-    onComplete: ({ value, time, advancement }) => {
-      // console.log("complete,", { value, time, advancement })
+    onComplete: ({ value, time, progress }) => {
+      // console.log("complete,", { value, time, progress })
       expect(value).toBe(inter.to)
       expect(time).toBe(inter.duration)
-      expect(advancement).toBe(1)
+      expect(progress).toBe(1)
       if (isLast) resolve()
     },
   })

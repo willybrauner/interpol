@@ -10,15 +10,15 @@ describe.concurrent("Timeline stress test", () => {
         const timelineDuration = itpNumber * itpDuration
 
         const tl = new Timeline({
-          onUpdate: ({ time, advancement }) => {
+          onUpdate: ({ time, progress }) => {
             t = time
-            a = advancement
+            a = progress
             expect(t).toBeGreaterThan(0)
             expect(a).toBeGreaterThan(0)
           },
-          onComplete: ({ time, advancement }) => {
+          onComplete: ({ time, progress }) => {
             expect(time).toBe(timelineDuration)
-            expect(advancement).toBe(1)
+            expect(progress).toBe(1)
           },
         })
 

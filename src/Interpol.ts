@@ -8,7 +8,7 @@ const log = debug("interpol:Interpol")
 export interface IUpdateParams {
   value: number
   time: number
-  advancement: number
+  progress: number
 }
 
 export interface IInterpolConstruct {
@@ -21,9 +21,9 @@ export interface IInterpolConstruct {
   delay?: number
   debug?: boolean
   beforeStart?: () => void
-  onUpdate?: ({ value, time, advancement }: IUpdateParams) => void
-  onComplete?: ({ value, time, advancement }: IUpdateParams) => void
-  onRepeatComplete?: ({ value, time, advancement }: IUpdateParams) => void
+  onUpdate?: ({ value, time, progress }: IUpdateParams) => void
+  onComplete?: ({ value, time, progress }: IUpdateParams) => void
+  onRepeatComplete?: ({ value, time, progress }: IUpdateParams) => void
 }
 
 let ID = 0
@@ -43,7 +43,7 @@ export class Interpol {
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
   public ticker: Ticker = new Ticker()
-  public advancement = 0
+  public progress = 0
   public time = 0
   public value = 0
   public debugEnable: boolean
@@ -157,7 +157,7 @@ export class Interpol {
     if (!this.inTl || (this.inTl && this._isReversed)) {
       this.value = 0
       this.time = 0
-      this.advancement = 0
+      this.progress = 0
     }
     // reversed value il special case
     if (!this.inTl) {
@@ -176,7 +176,7 @@ export class Interpol {
     if (!this.isPlaying && !this._isPause) {
       this.value = this._isReversed ? this._to : 0
       this.time = this._isReversed ? this._duration : 0
-      this.advancement = this._isReversed ? 1 : 0
+      this.progress = this._isReversed ? 1 : 0
     }
     return this._play(true, this._isReversed)
   }
@@ -185,7 +185,7 @@ export class Interpol {
     // Specific case if duration is 0
     // execute onComplete and return
     if (this._duration <= 0) {
-      const obj = { value: this._to, time: this._duration, advancement: 1 }
+      const obj = { value: this._to, time: this._duration, progress: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
       this.log("this._duration <= 0, return", this._duration <= 0)
@@ -199,33 +199,33 @@ export class Interpol {
     const easeFn = this._isReversed && this.reverseEase ? this.reverseEase : this.ease
 
     // calc time (time spend from the start)
-    // calc advancement (between 0 and 1)
+    // calc progress (between 0 and 1)
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + delta)
-    this.advancement = clamp(0, round(this.time / this._duration), 1)
-    this.value = this._from + (this._to - this._from) * easeFn(this.advancement)
+    this.progress = clamp(0, round(this.time / this._duration), 1)
+    this.value = this._from + (this._to - this._from) * easeFn(this.progress)
     this.value = round(this.value, 1000)
 
-    // Pass value, time and advancement
+    // Pass value, time and progress
     this.onUpdate?.({
       value: this.value,
       time: this.time,
-      advancement: this.advancement,
+      progress: this.progress,
     })
 
     this.log("onUpdate", {
       value: this.value,
       time: this.time,
-      advancement: this.advancement,
+      progress: this.progress,
     })
 
     // check direction end
-    const isNormalDirectionEnd = !this._isReversed && this.advancement === 1
-    const isReverseDirectionEnd = this._isReversed && this.advancement === 0
+    const isNormalDirectionEnd = !this._isReversed && this.progress === 1
+    const isReverseDirectionEnd = this._isReversed && this.progress === 0
 
     // end, onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
-      this.log(`advancement = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
+      this.log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
       if (this.value !== this._to) this.value = this._to
       if (this.time !== this._duration) this.time = this._duration
@@ -233,7 +233,7 @@ export class Interpol {
       this.onComplete?.({
         value: this.value,
         time: this.time,
-        advancement: this.advancement,
+        progress: this.progress,
       })
 
       // stop after onComplete

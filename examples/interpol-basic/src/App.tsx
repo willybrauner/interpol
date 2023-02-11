@@ -16,8 +16,8 @@ export function App() {
       ease: Ease.linear,
       paused: true,
       debug: true,
-      onUpdate: ({ value, time, advancement }) => {
-        const x = advancement * innerWidth - 20
+      onUpdate: ({ value, time, progress }) => {
+        const x = progress * innerWidth - 20
         const y = -value
         $ball.current.style.transform = `
         translateX(${x}px)
