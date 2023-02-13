@@ -63,11 +63,11 @@ tl.add(itp2)
 
 ```ts
 interface IInterpolConstruct {
-  // Start interpolation value (millisecond)
+  // Start interpolation value
   // default: `0`
   from?: number | (() => number)
 
-  // End interpolation value (millisecond)
+  // End interpolation value
   // default: /
   to?: number | (() => number)
 
