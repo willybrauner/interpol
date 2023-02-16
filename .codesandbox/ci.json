@@ -1,10 +1,9 @@
 {
-  "installCommand": "install",
   "buildCommand": "build",
-  "packages": ["src/*"],
+  "packages": ["./"],
   "sandboxes": [
-    "examples/basic",
-    "examples/interpol-repeat-refresh",
-    "examples/interpol-reverse-ease"
-  ]
+    "/examples/interpol-basic",
+    "/examples/timeline-basic"
+  ],
+  "node": "16"
 }

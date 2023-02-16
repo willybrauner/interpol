@@ -1,7 +1,7 @@
 {
   "name": "@wbe/interpol",
   "private": false,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "source": "src/index.ts",
   "main": "dist/index.cjs",
@@ -11,6 +11,12 @@
     "type": "git",
     "url": "git://github.com/willybrauner/interpol.git"
   },
+  "keywords": [
+    "interpol",
+    "interpolation",
+    "animation",
+    "timeline"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -24,18 +30,18 @@
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
   },
+  "dependencies": {
+    "@wbe/debug": "^1.1.0"
+  },
   "devDependencies": {
     "microbundle": "^0.15.1",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
     "vite": "^4.1.1",
-    "vitest": "^0.28.4"
+    "vitest": "^0.28.5"
   },
   "prettier": {
     "semi": false,
     "printWidth": 100
-  },
-  "dependencies": {
-    "@wbe/debug": "^1.1.0"
   }
 }
