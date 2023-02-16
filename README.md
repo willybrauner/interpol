@@ -61,6 +61,8 @@ const itp2 = new Interpol({
 const tl = new Timeline()
 tl.add(itp1)
 tl.add(itp2)
+
+tl.play()
 ```
 
 Advanced timeline:
@@ -101,6 +103,8 @@ tl.add(
   // set a negatif offsetDuration
   -100
 )
+
+tl.play()
 ```
 
 ## API
