@@ -3,7 +3,7 @@
     <img alt="logo" src="logo.jpg">
 </p>
 
-interpol library interpolate value between two points.
+interpol library interpolates value between two points.
 This is the lowest level of animate machine.
 Interpol is not a DOM API, it provides a real time progress of the interpolation that can be use or bind
 on... anything!
@@ -45,16 +45,62 @@ const itp1 = new Interpol({
   from: 0,
   to: 100,
   duration: 1000,
+  onUpdate: ({ time, value, progress }) => {
+    // ...
+  },
 })
 const itp2 = new Interpol({
   from: 0,
   to: 500,
   duration: 7000,
+  onUpdate: ({ time, value, progress }) => {
+    // ...
+  },
 })
 
 const tl = new Timeline()
 tl.add(itp1)
 tl.add(itp2)
+```
+
+Advanced timeline:
+
+```js
+import { Timeline } from "@wbe/interpol"
+
+const tl = new Timeline({
+  onUpdate: ({ time, value, progress }) => {
+    // global timeline update
+  },
+  onComplete: () => {
+    // timeline is complete!
+  },
+  // enable @wbe/debug on this timeline by adding `localStorage.debug = "interpol:*"`
+  // in your browser's console
+  debug: true,
+})
+
+// `add` method can recieve an interpol object without creat an interpol instance
+tl.add({
+  from: 0,
+  to: 100,
+  duration: 1000,
+  onUpdate: ({ time, value, progress }) => {
+    // here is current interpol update
+  },
+})
+tl.add(
+  {
+    from: -100,
+    to: 100,
+    duration: 500,
+    onUpdate: ({ time, value, progress }) => {
+      // current interpol update
+    },
+  },
+  // set a negatif offsetDuration
+  -100
+)
 ```
 
 ## API
@@ -183,22 +229,21 @@ const tl = new Timeline({
   onRepeatComplete: () => {},
 })
 
-// Add new Interpol object param 
+// Add new Interpol object param
 // or Interpol instance
-tl.add({
-  from: 0,
-  to: 100,
-  onUpdate: ({ value, time, progress }) => {
-    // ...
+// add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline
+tl.add(
+  {
+    from: 10,
+    to: 1000,
+    onUpdate: ({ value, time, progress }) => {
+      // ...
+    },
   },
-})
-tl.add({
-  from: 10,
-  to: 1000,
-  onUpdate: ({ value, time, progress }) => {
-    // ...
-  },
-})
+  // offset duration
+  // this one will start the current interpol 100ms before the last interpol end.
+  -100
+)
 
 // start the timeline
 // Timeline don't have autoplay
