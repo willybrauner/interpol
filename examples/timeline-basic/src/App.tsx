@@ -1,6 +1,6 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
-import { Interpol, Ease, Timeline } from "../../../src"
+import { Ease, Timeline } from "@wbe/interpol"
 import { Controls } from "./Controls"
 
 export function App() {
