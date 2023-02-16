@@ -1,0 +1,42 @@
+@import (reference) "../libs/ratio.less";
+
+.root {
+}
+
+.wrapper {
+  gap: 10rem;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: left;
+  gap: 10rem;
+}
+
+.button,
+.easeSelect,
+.easeOption {
+  display: block;
+  position: relative;
+  border-radius: 8rem;
+  border: 1px solid transparent;
+  padding: 8rem 10rem;
+  font-size: 100%;
+  background-color: var(--color-black-1);
+  cursor: pointer;
+}
+.button:hover {
+  border-color: var(--color-blue);
+}
+.button:active,
+.button:focus,
+.button:focus-visible {
+  border-color: var(--color-blue);
+}
+
+.easeSelect {
+  margin-top: 20rem;
+  max-width: 100%;
+}
