@@ -36,6 +36,8 @@ const itp = new Interpol({
 })
 ```
 
+[interpol codesandbox](https://codesandbox.io/s/interpol-basic-forked-z5vdwr)
+
 Chain interpols with Timeline:
 
 ```js
@@ -106,6 +108,8 @@ tl.add(
 
 tl.play()
 ```
+
+[timeline codesandbox](https://codesandbox.io/s/timeline-basic-forked-w9cy9c)
 
 ## API
 
