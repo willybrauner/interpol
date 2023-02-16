@@ -30,7 +30,7 @@ importers:
       typescript: ^4.6.4
       vite: ^3.1.0
     dependencies:
-      '@wbe/interpol': 0.1.0
+      '@wbe/interpol': link:../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -51,7 +51,7 @@ importers:
       typescript: ^4.6.4
       vite: ^3.1.0
     dependencies:
-      '@wbe/interpol': 0.1.0
+      '@wbe/interpol': link:../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -2014,12 +2014,6 @@ packages:
 
   /@wbe/debug/1.1.0:
     resolution: {integrity: sha512-jX50ED5hW5JtHnkLgbZaT0qYKh/GiXkpYcsuQEkulsA7cx2r0DANKkqdXIkzpD6+QtssCpHmznKVK+fS+etp3Q==}
-    dev: false
-
-  /@wbe/interpol/0.1.0:
-    resolution: {integrity: sha512-gfjEMJAhCaOptKNIyJOClufufAPIDyFjyDSWXRYWNuKYrFKuTHOR40HruvLIyJooZvDrNhLb6Kbc+cUy2UWa6Q==}
-    dependencies:
-      '@wbe/debug': 1.1.0
     dev: false
 
   /acorn-walk/8.2.0:
