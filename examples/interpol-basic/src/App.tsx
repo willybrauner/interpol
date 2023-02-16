@@ -31,7 +31,6 @@ export function App() {
         setParams({ value, time, progress })
         const x = progress * (window.innerWidth - ballSize)
         const y = -value
-
         $ball.current.style.transform = `
         translateX(${x}px)
         translateY(${y}px) 
