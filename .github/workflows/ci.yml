@@ -9,13 +9,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
       - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 6.32.11
+          version: latest
           run_install: true
 
       - name: build
