@@ -1,6 +1,6 @@
 {
   "buildCommand": "build",
   "packages": ["./"],
-  "sandboxes": ["examples/*"],
+  "sandboxes": ["examples/interpol-basic", "examples/timeline-basic"],
   "node": "16"
 }
