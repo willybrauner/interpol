@@ -25,7 +25,9 @@ export const Controls = ({
           onChange={(e) => dispatchEase(e.target.value)}
         >
           {Object.keys(Ease).map((e, i) => (
-            <option key={i} value={e} className={css.easeOption} children={e} />
+            <option key={i} value={e} className={css.easeOption}>
+              {e} : <em>{Ease[e].toString()}</em>
+            </option>
           ))}
         </select>
       </div>
