@@ -36,7 +36,7 @@ const itp = new Interpol({
 })
 ```
 
-[interpol codesandbox](https://codesandbox.io/s/interpol-basic-6v1wm8)
+[interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-basic-9n9u54)
 
 Chain interpols with Timeline:
 
