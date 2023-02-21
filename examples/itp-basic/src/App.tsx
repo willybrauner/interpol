@@ -1,19 +1,31 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
-import { Interpol, Ease, Interdom } from "../../../src"
+import { Ease, itp } from "@wbe/interpol"
 import { Controls } from "./Controls"
 import { randomRange } from "../../../test/utils/randomRange"
 
 export function App() {
   const $ball = useRef<HTMLDivElement>()
   const [instance, setInstance] = useState(null)
-  useEffect(() => {
-    const i = Interdom($ball.current, {
-      duration: 1000,
-      left: () => randomRange(0, innerWidth / 2),
-      top: () => randomRange(0, innerHeight / 2),
-      ease: Ease.outCubic,
+  /**
 
+   itp.from(el, {})
+   itp.to(el, {})
+   itp.fromTo(el, {})
+
+   */
+  useEffect(() => {
+    const i = itp($ball.current, {
+      duration: 1000,
+      left: [-100, 300],
+      top: [100, 300],
+      ease: Ease.outCubic,
+      beforeStart: () => {
+        //    console.log("itp beforeStart")
+      },
+      onUpdate: (e) => {
+        //      console.log("itp update",e)
+      },
     })
     setInstance(i)
   }, [])
