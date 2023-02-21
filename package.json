@@ -26,7 +26,7 @@
     "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
     "dev:interpol-basic": "pnpm --filter ./examples/interpol-basic run dev",
     "dev:timeline-basic": "pnpm --filter ./examples/timeline-basic run dev",
-    "dev:interdom-basic": "pnpm --filter ./examples/interdom-basic run dev",
+    "dev:itp-basic": "pnpm --filter ./examples/itp-basic run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
