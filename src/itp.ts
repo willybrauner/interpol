@@ -1,7 +1,10 @@
 import { Interpol, Timeline } from "./index"
 import { IInterpolConstruct } from "./Interpol"
+import debug from "@wbe/debug"
 
-export type Styles = Record<keyof CSSStyleDeclaration, number | string> & {
+const log = debug(`interpol:itp`)
+
+type AdditionalProperties = {
   x: number | string
   y: number | string
   scale: number
@@ -13,20 +16,19 @@ export type Styles = Record<keyof CSSStyleDeclaration, number | string> & {
   rotate: number
 }
 
-// type Style = Partial<CSSStyleDeclaration>
-interface IOptions extends Omit<IInterpolConstruct, "from" | "to"> {
+interface ITPOptions extends Omit<IInterpolConstruct, "from" | "to"> {
   // same than interpol fn without "value" param
   onUpdate?: ({ time, progress }) => void
   onComplete?: ({ time, progress }) => void
 }
-
-type Options = IOptions & Styles
+type Styles = Record<keyof CSSStyleDeclaration, number | string> & AdditionalProperties
+type Options = ITPOptions & Styles
 
 /**
  * Interdom
  */
 export function itp(
-  target: HTMLElement,
+  $target: HTMLElement,
   {
     duration,
     ease,
@@ -40,23 +42,45 @@ export function itp(
     ...keys
   }: Options
 ) {
-  console.log(keys)
   const toKeys = { ...keys }
-  console.log("toKeys", toKeys)
+  log("toKeys", toKeys)
   if (!Object.entries(toKeys).length) {
     console.warn("No properties to animate, return")
     return null
   }
 
   const ks = Object.keys(toKeys)
-  const itps = ks.map((key, i) => {
-    const currKey = toKeys[key]
-    const last = i === ks.length - 1
 
-    console.log("ks", ks)
+  // Map on available keys and return an interpol instance by key
+  // ex:
+  //  left: [0, 10] need its own interpol
+  //  y: [0, 10] need its own interpol two
+  const itps = ks.map((key, i) => {
+    const isLast = i === ks.length - 1
+    const value = toKeys[key]
+    log("value", value)
+
+    const valueIsArray = Array.isArray(value)
+    const hasArrayFrom = valueIsArray && value[0] !== null && value[0] !== undefined
+    const hasArrayTo = valueIsArray && value[1] !== null && value[1] !== undefined
+
+    const computedStyle = window.getComputedStyle($target, null)
+    const computedValue = computedStyle.getPropertyValue(key)
+    const unit = computedValue.replace(/[0-9]*/g, "")
+
+    const getFrom = () => (hasArrayFrom ? value[0] : parseInt(computedValue))
+    const getTo = () => {
+      if (hasArrayTo) return value[1]
+      else if (!valueIsArray) return value
+      else return parseInt(computedValue)
+    }
+
+    const [from, to] = [getFrom(), getTo()]
+    log({ from, to })
+
     return new Interpol({
-      from: currKey?.[0] ?? 0,
-      to: currKey?.[1] ?? toKeys[key],
+      from,
+      to,
       duration,
       ease,
       reverseEase,
@@ -64,18 +88,16 @@ export function itp(
       delay,
       debug,
       beforeStart: () => {
-        last && beforeStart?.()
+        isLast && beforeStart?.()
       },
       onUpdate: ({ value, time, progress }) => {
-        last && onUpdate?.({ time, progress })
-        // console.log("value", value)
-
-        // TODO parse property value to apply
-        target.style[key] = value + "px"
+        isLast && onUpdate?.({ time, progress })
+        // improve si ce n'est pas une key direct sur l'element
+        $target.style[key] = value + unit
       },
       onComplete: ({ value, time, progress }) => {
-        last && onComplete?.({ time, progress })
-        target[key] = value
+        isLast && onComplete?.({ time, progress })
+        $target[key] = value
       },
     })
   })
