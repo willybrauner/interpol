@@ -17,6 +17,7 @@
 .ball {
   will-change: transform;
   top:0;
+  left: 30px;
   position: absolute;
   width: 20px;
   height: 20px;
