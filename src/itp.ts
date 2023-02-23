@@ -1,6 +1,7 @@
-import { Interpol, Timeline } from "./index"
-import { IInterpolConstruct } from "./Interpol"
+import { Interpol } from "./index"
+import { IInterpolConstruct, IUpdateParams } from "./Interpol"
 import debug from "@wbe/debug"
+import { convertToPx } from "./helpers/convertToPx"
 
 const log = debug(`interpol:itp`)
 
@@ -16,11 +17,14 @@ type AdditionalProperties = {
   rotate: number
 }
 
-interface ITPOptions extends Omit<IInterpolConstruct, "from" | "to"> {
-  // same than interpol fn without "value" param
-  onUpdate?: ({ time, progress }) => void
-  onComplete?: ({ time, progress }) => void
+type CallbackParams = Record<string, IUpdateParams>[]
+
+interface ITPOptions<KEYS = any>
+  extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
+  onUpdate?: (e: CallbackParams) => void
+  onComplete?: (e: CallbackParams) => void
 }
+
 type Styles = Record<keyof CSSStyleDeclaration, number | string> & AdditionalProperties
 type Options = ITPOptions & Styles
 
@@ -42,42 +46,47 @@ export function itp(
     ...keys
   }: Options
 ) {
-  const toKeys = { ...keys }
-  log("toKeys", toKeys)
-  if (!Object.entries(toKeys).length) {
+  if (!Object.entries(keys).length) {
     console.warn("No properties to animate, return")
     return null
   }
 
-  const ks = Object.keys(toKeys)
+  const values: Record<keyof typeof keys, IUpdateParams>[] = []
 
   // Map on available keys and return an interpol instance by key
-  // ex:
   //  left: [0, 10] need its own interpol
   //  y: [0, 10] need its own interpol two
-  const itps = ks.map((key, i) => {
-    const isLast = i === ks.length - 1
-    const value = toKeys[key]
-    log("value", value)
+  const itps = Object.keys(keys).map((key, i) => {
+    const isLast = i === Object.keys(keys).length - 1
 
+    // check if "from" and "to" come from array
+    const value = keys[key]
+    log(key, value)
     const valueIsArray = Array.isArray(value)
     const hasArrayFrom = valueIsArray && value[0] !== null && value[0] !== undefined
     const hasArrayTo = valueIsArray && value[1] !== null && value[1] !== undefined
 
+    // compute "from" and "to" from the DOM element
     const computedStyle = window.getComputedStyle($target, null)
     const computedValue = computedStyle.getPropertyValue(key)
     const unit = computedValue.replace(/[0-9]*/g, "")
 
-    const getFrom = () => (hasArrayFrom ? value[0] : parseInt(computedValue))
+    // Now we have to choose the appropriate value
+    const getFrom = () => {
+      if (hasArrayFrom) return value[0]
+      else return computedValue
+    }
     const getTo = () => {
       if (hasArrayTo) return value[1]
       else if (!valueIsArray) return value
-      else return parseInt(computedValue)
+      else return computedValue
     }
+    const [from, to] = [convertToPx(getFrom(), $target), convertToPx(getTo(), $target)]
+    log(key, { from, to })
 
-    const [from, to] = [getFrom(), getTo()]
-    log({ from, to })
 
+
+    // return interpol instance for current key
     return new Interpol({
       from,
       to,
@@ -88,16 +97,27 @@ export function itp(
       delay,
       debug,
       beforeStart: () => {
+        $target.style[key] = `${from}${unit}`
         isLast && beforeStart?.()
       },
+
       onUpdate: ({ value, time, progress }) => {
-        isLast && onUpdate?.({ time, progress })
-        // improve si ce n'est pas une key direct sur l'element
-        $target.style[key] = value + unit
+        $target.style[key] = `${value}${unit}`
+
+        // Do not create a new object reference on each frame
+        if (values[key]) {
+          values[key].value = value
+          values[key].time = time
+          values[key].progress = progress
+        } else {
+          values[key] = { value, time, progress }
+        }
+        isLast && onUpdate?.(values)
       },
       onComplete: ({ value, time, progress }) => {
-        isLast && onComplete?.({ time, progress })
-        $target[key] = value
+        $target.style[key] = `${value}${unit}`
+        values[key] = { value, time, progress }
+        isLast && onComplete?.(values)
       },
     })
   })
