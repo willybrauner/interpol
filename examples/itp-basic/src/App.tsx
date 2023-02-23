@@ -15,10 +15,15 @@ export function App() {
   useEffect(() => {
     const i = itp($ball.current, {
       duration: 1000,
-      //      left: [-100, undefined],
-      left: 200,
-      top: [-100, 300],
+      left: [-300, '30rem'],
+      paused:true,
+      opacity: [0.8, 1],
+      // top: [-100, 300],
       ease: Ease.outCubic,
+      onUpdate:(e) =>
+      {
+//        console.log(e)
+      }
     })
     setInstance(i)
   }, [])
