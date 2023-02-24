@@ -2,6 +2,7 @@ import { Interpol } from "./index"
 import { IInterpolConstruct, IUpdateParams } from "./Interpol"
 import debug from "@wbe/debug"
 import { convertToPx } from "./helpers/convertToPx"
+import { getUnit } from "./helpers/getUnit"
 
 const log = debug(`interpol:itp`)
 
@@ -59,47 +60,50 @@ export function itp(
   const itps = Object.keys(keys).map((key, i) => {
     const isLast = i === Object.keys(keys).length - 1
     const value = keys[key]
-    // prepare unit
-    let fromUnit = "px"
-    let toUnit = "px"
-    const getUnit = (value: string): string =>
-      typeof value === "string" ? value.replace(/[0-9]*/g, "") : "px"
-    log(key, value)
+    let fromUnit: string
+    let toUnit: string
+    let hasExplicitFrom = false
+    let fFrom: number
+    let fTo: number
 
-    // check if "from" and "to" come from array
-    const valueIsArray = Array.isArray(value)
-    const hasArrayFrom = valueIsArray && value[0] !== null && value[0] !== undefined
-    const hasArrayTo = valueIsArray && value[1] !== null && value[1] !== undefined
+    // case, value is an array [from, to] or [from, _]
+    if (Array.isArray(value)) {
+      const [from, to] = value
+      const existInArray = (v) => v !== null && v !== undefined
 
-    // compute "from" and "to" from the DOM element
-    const computedStyle = window.getComputedStyle($target, null)
-    const computedValue = computedStyle.getPropertyValue(key)
+      if (existInArray(from)) {
+        hasExplicitFrom = true
+        const computedValue = getComputedStyle($target).getPropertyValue(key)
+        fromUnit = getUnit(from) || getUnit(computedValue)
+        fFrom = parseFloat(from)
+      }
 
-    // Now we have to choose the appropriate value
-    const getFrom = () => {
-      if (hasArrayFrom) {
-        fromUnit = getUnit(value[0])
-        return value[0]
-      } else return computedValue
+      if (existInArray(to)) {
+        const computedValue = getComputedStyle($target).getPropertyValue(key)
+        toUnit = getUnit(to) || getUnit(computedValue)
+        fTo = parseFloat(to)
+        // case of [from, null], "from" only, deduce the "to"
+      } else {
+        const computedValue = getComputedStyle($target).getPropertyValue(key)
+        fTo = convertToPx(computedValue, $target)
+      }
     }
-    const getTo = () => {
-      if (hasArrayTo) {
-        toUnit = getUnit(value[1])
-        return value[1]
-      } else if (!valueIsArray) {
-        toUnit = getUnit(value)
-        log("toUnit", toUnit)
-        return value
-      } else return computedValue
+    // not an array, value is a simple value (number or string)
+    else {
+      hasExplicitFrom = false
+      const computedValue = getComputedStyle($target).getPropertyValue(key)
+      fFrom = convertToPx(computedValue, $target)
+      fromUnit = getUnit(computedValue)
+      toUnit = getUnit(value)
+      fTo = convertToPx(value, $target)
     }
 
-    const [from, to] = [convertToPx(getFrom(), $target), convertToPx(getTo(), $target)]
-    log(key, { from, to })
+    log(key, { fFrom, fromUnit, fTo, toUnit })
 
     // return interpol instance for current key
     return new Interpol({
-      from,
-      to,
+      from: fFrom,
+      to: fTo,
       duration,
       ease,
       reverseEase,
@@ -107,12 +111,12 @@ export function itp(
       delay,
       debug,
       beforeStart: () => {
-        $target.style[key] = `${from}${fromUnit}`
+        if (hasExplicitFrom) $target.style[key] = `${fFrom}${fromUnit ?? ""}`
         isLast && beforeStart?.()
       },
 
       onUpdate: ({ value, time, progress }) => {
-        $target.style[key] = `${value}${toUnit}`
+        $target.style[key] = `${value}${toUnit ?? ""}`
 
         // Do not create a new object reference on each frame
         if (values[key]) {
@@ -125,7 +129,6 @@ export function itp(
         isLast && onUpdate?.(values)
       },
       onComplete: ({ value, time, progress }) => {
-        $target.style[key] = `${value}${toUnit}`
         values[key] = { value, time, progress }
         isLast && onComplete?.(values)
       },

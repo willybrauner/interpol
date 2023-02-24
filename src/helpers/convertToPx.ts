@@ -1,12 +1,14 @@
 /**
  * Convert any value string {number}{unit} to number in pixel value
  * @param value
+ * @param $element
  */
 export const convertToPx = (value: string | number, $element: HTMLElement): number => {
   if (typeof value === "number") return value
 
   const match = value.match(/^(\d+(?:\.\d+)?)(\D+)$/)
-  if (!match) return null
+  if (!match) return parseFloat(value)
+
   const number = parseFloat(match[1])
   const unit = match[2]
 
