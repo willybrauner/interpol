@@ -4,7 +4,6 @@ import { Ease, itp } from "@wbe/interpol"
 import { Controls } from "./Controls"
 import gsap from "gsap"
 
-
 export function App() {
   const $ball = useRef<HTMLDivElement>()
   const [instance, setInstance] = useState(null)
@@ -15,25 +14,24 @@ export function App() {
    */
 
   useEffect(() => {
-
     // gsap.to($ball.current,{
-    //   delay:2,
-    //   top: "100%",
+    //   delay:1,
+    //   left: "100%",
+    //   ease:"none",
+    //   duration: 1
     // })
 
     const i = itp($ball.current, {
       duration: 1000,
-      //left: ["0%", '30%'],
-      left: [-10, '30%'],
-      delay: 1000,
-//      paused:true,
-//      opacity: [0.8, 1],
-      // top: [-100, 300],
-      ease: Ease.outCubic,
-      onUpdate:(e) =>
-      {
-//        console.log(e)
-      }
+      // delay: 1000,
+      // paused:true,
+      left: "300px",
+      top: [-100, 300],
+      opacity: [0.1, 0.6],
+      ease: Ease.inOutCubic,
+      onUpdate: (e) => {
+        //        console.log(e)
+      },
     })
     setInstance(i)
   }, [])
