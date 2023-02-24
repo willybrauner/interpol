@@ -16,9 +16,9 @@
 
 .ball {
   will-change: transform;
-//  font-size: 2em;
+  font-size: 1em;
   top:0;
-  /*left: 2rem;*/
+  left:-4rem;
   position: absolute;
   width: 20px;
   height: 20px;
