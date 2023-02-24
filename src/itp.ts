@@ -58,10 +58,15 @@ export function itp(
   //  y: [0, 10] need its own interpol two
   const itps = Object.keys(keys).map((key, i) => {
     const isLast = i === Object.keys(keys).length - 1
+    const value = keys[key]
+    // prepare unit
+    let fromUnit = "px"
+    let toUnit = "px"
+    const getUnit = (value: string): string =>
+      typeof value === "string" ? value.replace(/[0-9]*/g, "") : "px"
+    log(key, value)
 
     // check if "from" and "to" come from array
-    const value = keys[key]
-    log(key, value)
     const valueIsArray = Array.isArray(value)
     const hasArrayFrom = valueIsArray && value[0] !== null && value[0] !== undefined
     const hasArrayTo = valueIsArray && value[1] !== null && value[1] !== undefined
@@ -69,22 +74,27 @@ export function itp(
     // compute "from" and "to" from the DOM element
     const computedStyle = window.getComputedStyle($target, null)
     const computedValue = computedStyle.getPropertyValue(key)
-    const unit = computedValue.replace(/[0-9]*/g, "")
 
     // Now we have to choose the appropriate value
     const getFrom = () => {
-      if (hasArrayFrom) return value[0]
-      else return computedValue
+      if (hasArrayFrom) {
+        fromUnit = getUnit(value[0])
+        return value[0]
+      } else return computedValue
     }
     const getTo = () => {
-      if (hasArrayTo) return value[1]
-      else if (!valueIsArray) return value
-      else return computedValue
+      if (hasArrayTo) {
+        toUnit = getUnit(value[1])
+        return value[1]
+      } else if (!valueIsArray) {
+        toUnit = getUnit(value)
+        log("toUnit", toUnit)
+        return value
+      } else return computedValue
     }
+
     const [from, to] = [convertToPx(getFrom(), $target), convertToPx(getTo(), $target)]
     log(key, { from, to })
-
-
 
     // return interpol instance for current key
     return new Interpol({
@@ -97,12 +107,12 @@ export function itp(
       delay,
       debug,
       beforeStart: () => {
-        $target.style[key] = `${from}${unit}`
+        $target.style[key] = `${from}${fromUnit}`
         isLast && beforeStart?.()
       },
 
       onUpdate: ({ value, time, progress }) => {
-        $target.style[key] = `${value}${unit}`
+        $target.style[key] = `${value}${toUnit}`
 
         // Do not create a new object reference on each frame
         if (values[key]) {
@@ -115,7 +125,7 @@ export function itp(
         isLast && onUpdate?.(values)
       },
       onComplete: ({ value, time, progress }) => {
-        $target.style[key] = `${value}${unit}`
+        $target.style[key] = `${value}${toUnit}`
         values[key] = { value, time, progress }
         isLast && onComplete?.(values)
       },
