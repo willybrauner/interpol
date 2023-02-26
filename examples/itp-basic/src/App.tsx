@@ -23,11 +23,12 @@ export function App() {
 
     const i = itp($ball.current, {
       duration: 1000,
-      // delay: 1000,
-      // paused:true,
-      left: "300px",
-      top: [-100, 300],
-      opacity: [0.1, 0.6],
+      delay: 1000,
+      //paused:true,
+      //x: 10,
+      left: [20, 300],
+      // top: [-100, 300],
+      // opacity: [0.1, 0.6],
       ease: Ease.inOutCubic,
       onUpdate: (e) => {
         //        console.log(e)

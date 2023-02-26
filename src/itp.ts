@@ -1,7 +1,6 @@
 import { Interpol } from "./index"
 import { IInterpolConstruct, IUpdateParams } from "./Interpol"
 import debug from "@wbe/debug"
-import { convertToPx } from "./helpers/convertToPx"
 import { getUnit } from "./helpers/getUnit"
 
 const log = debug(`interpol:itp`)
@@ -30,10 +29,37 @@ type Styles = Record<keyof CSSStyleDeclaration, number | string> & AdditionalPro
 type Options = ITPOptions & Styles
 
 /**
+ *
+ * UTILS
+ * - unit from brut value
+ * - or unit from computed value
+ *
+ * - value from brute value
+ * - or value from computed
+ */
+export const geValueAndUnit = (
+  $target: HTMLElement,
+  key: string,
+  brutValue: number | string,
+  proxyWindow = window
+): [value: number, unit: string] => {
+  const computedValue = proxyWindow.getComputedStyle($target).getPropertyValue(key)
+  // console.log('computedValue',computedValue)
+  // console.log(" getUnit(brutValue)", getUnit(brutValue))
+  // console.log(" getUnit(computedValue)", getUnit(computedValue))
+  const unit = getUnit(brutValue) || getUnit(computedValue)
+  const value =
+    (typeof brutValue === "string" ? parseFloat(brutValue) : brutValue) ?? parseFloat(computedValue)
+  return [value, unit]
+}
+
+// -----------------------------------------------------------------------------
+
+/**
  * Interdom
  */
 export function itp(
-  $target: HTMLElement,
+  target: HTMLElement,
   {
     duration,
     ease,
@@ -56,54 +82,43 @@ export function itp(
 
   // Map on available keys and return an interpol instance by key
   //  left: [0, 10] need its own interpol
-  //  y: [0, 10] need its own interpol two
+  //  top: [-10, 10] need its own interpol too
   const itps = Object.keys(keys).map((key, i) => {
     const isLast = i === Object.keys(keys).length - 1
-    const value = keys[key]
-    let fromUnit: string
-    let toUnit: string
+    let value = keys[key]
     let hasExplicitFrom = false
-    let fFrom: number
-    let fTo: number
+    let from: [number, string]
+    let to: [number, string]
 
-    // case, value is an array [from, to] or [from, _]
+    // if (key === "x") {
+    //   key = "transform"
+    //   value = `translateX(${value})`
+    // }
+    log({ key, value })
+
+    // case, value is an array [from, to] or [from, null]
     if (Array.isArray(value)) {
-      const [from, to] = value
-      const existInArray = (v) => v !== null && v !== undefined
-
-      if (existInArray(from)) {
-        hasExplicitFrom = true
-        const computedValue = getComputedStyle($target).getPropertyValue(key)
-        fromUnit = getUnit(from) || getUnit(computedValue)
-        fFrom = parseFloat(from)
-      }
-
-      if (existInArray(to)) {
-        const computedValue = getComputedStyle($target).getPropertyValue(key)
-        toUnit = getUnit(to) || getUnit(computedValue)
-        fTo = parseFloat(to)
-        // case of [from, null], "from" only, deduce the "to"
-      } else {
-        const computedValue = getComputedStyle($target).getPropertyValue(key)
-        fTo = convertToPx(computedValue, $target)
-      }
+      const [vFrom, vTo] = value
+      hasExplicitFrom = vFrom !== null && vFrom !== undefined
+      // TODO, convert PX computedStyle to currentUnit
+        // if from 4px and to 20%, when to start, 4px become 4% and JUMP
+        // it should be percent ratio of 4px
+      from = geValueAndUnit(target, key, vFrom)
+      to = geValueAndUnit(target, key, vTo)
     }
-    // not an array, value is a simple value (number or string)
+    // value is a number or a string, not an array
     else {
-      hasExplicitFrom = false
-      const computedValue = getComputedStyle($target).getPropertyValue(key)
-      fFrom = convertToPx(computedValue, $target)
-      fromUnit = getUnit(computedValue)
-      toUnit = getUnit(value)
-      fTo = convertToPx(value, $target)
+      const cptValue = window.getComputedStyle(target).getPropertyValue(key)
+      from = geValueAndUnit(target, key, cptValue)
+      to = geValueAndUnit(target, key, value)
     }
 
-    log(key, { fFrom, fromUnit, fTo, toUnit })
+    log(key, { from, to })
 
     // return interpol instance for current key
     return new Interpol({
-      from: fFrom,
-      to: fTo,
+      from: from[0],
+      to: to[0],
       duration,
       ease,
       reverseEase,
@@ -111,12 +126,12 @@ export function itp(
       delay,
       debug,
       beforeStart: () => {
-        if (hasExplicitFrom) $target.style[key] = `${fFrom}${fromUnit ?? ""}`
+        if (hasExplicitFrom) target.style[key] = `${from[0]}${from[1] ?? ""}`
         isLast && beforeStart?.()
       },
 
       onUpdate: ({ value, time, progress }) => {
-        $target.style[key] = `${value}${toUnit ?? ""}`
+        target.style[key] = `${value}${to[1] ?? ""}`
 
         // Do not create a new object reference on each frame
         if (values[key]) {
