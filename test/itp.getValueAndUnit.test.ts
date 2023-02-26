@@ -1,7 +1,7 @@
 import { beforeEach, expect, it } from "vitest"
-import { geValueAndUnit } from "../src/itp"
+import { geValueAndUnit } from "../src/idom/idom"
 import { JSDOM } from "jsdom"
-import { UNITS } from "../src/helpers/getUnit"
+import { UNITS } from "../src/idom/getUnit"
 import { randomRange } from "./utils/randomRange"
 
 let dom
@@ -19,24 +19,24 @@ it("should return value and unit if brutValue is passed as param", () => {
   // jsdom return nothing if is not set
   // Set a value "5px" allows to get the unit "px" even if a brute value is set
   $el.style.left = "5px"
-  expect(geValueAndUnit($el, "left", 100, dom.window)).toEqual([100, "px"])
+  expect(geValueAndUnit($el, "left", 100, null, dom.window)).toEqual([100, "px"])
   $el.style.opacity = "0.5"
-  expect(geValueAndUnit($el, "opacity", 1, dom.window)).toEqual([1, undefined])
+  expect(geValueAndUnit($el, "opacity", 1, null, dom.window)).toEqual([1, undefined])
   // if no property value and unit is set on top, use the brutValue
-  expect(geValueAndUnit($el, "top", 10, dom.window)).toEqual([10, undefined])
+  expect(geValueAndUnit($el, "top", 10, null, dom.window)).toEqual([10, undefined])
 })
 
 it("should return value and unit from computedValue, if brutValue is NOT passed as param", () => {
   $el.style.left = "5%"
-  expect(geValueAndUnit($el, "left", null, dom.window)).toEqual([5, "%"])
+  expect(geValueAndUnit($el, "left", null, null, dom.window)).toEqual([5, "%"])
   $el.style.opacity = "0.2"
-  expect(geValueAndUnit($el, "opacity", null, dom.window)).toEqual([0.2, undefined])
+  expect(geValueAndUnit($el, "opacity", null, null, dom.window)).toEqual([0.2, undefined])
 })
 
 it("should return value & unit with all available units", () => {
   // test all available units
   for (let unit of UNITS) {
     const value = randomRange(-1000, 1000)
-    expect(geValueAndUnit($el, "top", `${value}${unit}`, dom.window)).toEqual([value, unit])
+    expect(geValueAndUnit($el, "top", `${value}${unit}`, null, dom.window)).toEqual([value, unit])
   }
 })
