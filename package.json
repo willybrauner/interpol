@@ -35,6 +35,7 @@
     "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
+    "jsdom": "^21.1.0",
     "microbundle": "^0.15.1",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
