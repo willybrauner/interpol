@@ -1,5 +1,8 @@
 import { getUnit } from "./getUnit"
 import { convertValueToUnit } from "./convertValueToUnit"
+import debug from "@wbe/debug"
+import { getCptValue } from "./idom"
+const log = debug(`interpol:extractValueAndUnit`)
 
 /**
  *
@@ -24,12 +27,17 @@ export const extractValueAndUnit = (
   rawUnit?: string,
   proxyWindow = window
 ): [value: number, unit: string] => {
-  const computedValue = proxyWindow.getComputedStyle(target).getPropertyValue(key)
-  const unit = getUnit(rawValue) || getUnit(computedValue)
 
-  let value =
-    (typeof rawValue === "string" ? parseFloat(rawValue) : rawValue)
+  const computedValue = getCptValue(target, key, proxyWindow)
+
+  let value = (
+    typeof rawValue === "string"
+      ? parseFloat(rawValue)
+      : rawValue
+    )
     ?? parseFloat(computedValue)
+
+  const unit = getUnit(rawValue) || getUnit(computedValue)
 
   // if we have a rawUnit param
   // we want to convert the value to from his unit value to this rawUnit value
@@ -42,8 +50,10 @@ export const extractValueAndUnit = (
     value = convertValueToUnit(target, value, unit, rawUnit)
   }
 
+  log({target, key, rawValue, rawUnit, computedValue, unit, value})
+
   return [
-    value,
-    rawUnit || unit
+    value || 0,
+    rawUnit || unit || ""
   ]
 }

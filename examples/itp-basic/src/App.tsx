@@ -33,18 +33,22 @@ export function App() {
 
     const i = idom($ball.current, {
       duration: 1000,
-      delay: 1000,
+      // delay: 1000,
       //paused:true,
-      //x: 10,
+      x: 100,
+      y: [-20, 50],
+      scaleX: 2,
+//      z:0,
+
       //left: ["50%", "10px"],
       //left: ["1rem","250px"],
       // left: ["1rem","250px"],
       //left: ["50%","1rem"],
       //left: ["1rem", "50%"],
-      left: "3rem",
+      //left: "3rem",
       //top: [-100, 300],
 
-       opacity: [0.1, 0.6],
+      //opacity: [0.1, 0.6],
       ease: Ease.inOutCubic,
       onUpdate: (e) => {
         //        console.log(e)
