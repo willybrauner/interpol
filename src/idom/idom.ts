@@ -6,16 +6,28 @@ const log = debug(`interpol:idom`)
 
 // ----------------------------------------------------------------------------- TYPES
 
-type AdditionalProperties = {
-  x: number | string
-  y: number | string
-  scale: number
-  scaleX: number
-  scaleY: number
-  skewX: number
-  skewY: number
-  skew: number
-  rotate: number
+type ValueType = number | string
+interface AdditionalProperties<V = ValueType> {
+  x: V
+  y: V
+  z: V
+  translateX: V
+  translateY: V
+  translateZ: V
+  rotate: V
+  rotateX: V
+  rotateY: V
+  rotateZ: V
+  scale: V
+  scaleX: V
+  scaleY: V
+  scaleZ: V
+  skew: V
+  skewX: V
+  skewY: V
+  perspective: V
+  matrix: V
+  matrix3d: V
 }
 
 type CallbackParams = Record<string, IUpdateParams>[]
@@ -26,13 +38,61 @@ interface ITPOptions<KEYS = any>
   onComplete?: (e: CallbackParams) => void
 }
 
-type Styles = Record<keyof CSSStyleDeclaration, number | string> & AdditionalProperties
+type Styles = Record<keyof CSSStyleDeclaration, ValueType> & AdditionalProperties
 type Options = ITPOptions & Styles
+
+type ValueUnit = [number, string]
+
+type MapTransforms = Map<string, { toValue: number; toUnit: string; currentValue: number }>
 
 // ----------------------------------------------------------------------------- IDOM
 
+const validTransforms = [
+  "x",
+  "y",
+  "z",
+  "translateX",
+  "translateY",
+  "translateZ",
+  "rotate",
+  "rotateX",
+  "rotateY",
+  "rotateZ",
+  "scale",
+  "scaleX",
+  "scaleY",
+  "scaleZ",
+  "skew",
+  "skewX",
+  "skewY",
+  "perspective",
+  "matrix",
+  "matrix3d",
+]
+
 /**
- * Interdom
+ * Chain transforms properties
+ */
+const buildTransformChain = (transforms: MapTransforms): string => {
+  let chain = ""
+  for (const [key, { toUnit, currentValue }] of transforms) {
+    // if (key === "scale" || "scaleX" || "scaleY" || "scaleZ") u = ""
+    chain += `${key}(${currentValue}${toUnit ?? ""}) `
+  }
+  return chain
+}
+
+export const getCptValue = (target: HTMLElement, key: string, proxyWindow = window): string => {
+  let cptValue = proxyWindow.getComputedStyle(target).getPropertyValue(key)
+  if (cptValue === "none") cptValue = "0px"
+  return cptValue
+}
+
+/**
+ * IDOM
+ *
+ *
+ *
  */
 export function idom(
   target: HTMLElement,
@@ -51,7 +111,6 @@ export function idom(
 ) {
   if (!(target instanceof HTMLElement)) {
     console.warn("target param is not HTMLElement, return.", target)
-    // console.warn()
     return null
   }
   if (!Object.entries(keys).length) {
@@ -59,7 +118,11 @@ export function idom(
     return null
   }
 
+  // keep values
   const values: Record<keyof typeof keys, IUpdateParams>[] = []
+
+  // keep transforms
+  const transforms = new Map<string, { toValue: number; toUnit: string; currentValue: number }>()
 
   // Map on available keys and return an interpol instance by key
   //  left: [0, 10] need its own interpol
@@ -68,34 +131,40 @@ export function idom(
     const isLast = i === Object.keys(keys).length - 1
     let value = keys[key]
     let hasExplicitFrom = false
-    let from: [number, string]
-    let to: [number, string]
+    let fromValue: number
+    let fromUnit: string
+    let toValue: number
+    let toUnit: string
 
-    // if (key === "x") {
-    //   key = "transform"
-    //   value = `translateX(${value})`
-    // }
-    log({ key, value })
+    // transform
+    let initialKey = key
+    const keyIsTransform = validTransforms.includes(key)
+    if (keyIsTransform) key = "transform"
 
     // case, value is an array [from, to] or [from, null]
     if (Array.isArray(value)) {
       const [vFrom, vTo] = value
       hasExplicitFrom = vFrom !== null && vFrom !== undefined
-      to = extractValueAndUnit(target, key, vTo)
-      from = extractValueAndUnit(target, key, vFrom, to[1])
+      ;[toValue, toUnit] = extractValueAndUnit(target, key, vTo)
+      ;[fromValue, fromUnit] = extractValueAndUnit(target, key, vFrom, toUnit)
     }
     // value is a number or a string, not an array
     else {
-      const cptValue = window.getComputedStyle(target).getPropertyValue(key)
-      to = extractValueAndUnit(target, key, value)
-      from = extractValueAndUnit(target, key, cptValue, to[1])
+      ;[toValue, toUnit] = extractValueAndUnit(target, key, value)
+      ;[fromValue, fromUnit] = extractValueAndUnit(target, key, getCptValue(target, key), toUnit)
     }
-    log(key, { from, to })
+
+    if (keyIsTransform) {
+      if (initialKey === "x") initialKey = "translateX"
+      if (initialKey === "y") initialKey = "translateY"
+      if (initialKey === "z") initialKey = "translateZ"
+      transforms.set(initialKey, { toValue, toUnit, currentValue: null })
+    }
 
     // return interpol instance for current key
     return new Interpol({
-      from: from[0],
-      to: to[0],
+      from: fromValue,
+      to: toValue,
       duration,
       ease,
       reverseEase,
@@ -103,12 +172,24 @@ export function idom(
       delay,
       debug,
       beforeStart: () => {
-        if (hasExplicitFrom) target.style[key] = `${from[0]}${from[1] ?? ""}`
+        if (hasExplicitFrom) {
+          const vu = `${fromValue}${fromUnit}`
+          if (keyIsTransform) {
+            // FIXME adapter
+            target.style[key] = `${initialKey}(${vu})`
+          } else {
+            target.style[key] = vu
+          }
+        }
         isLast && beforeStart?.()
       },
-
       onUpdate: ({ value, time, progress }) => {
-        target.style[key] = `${value}${to[1] ?? ""}`
+        if (keyIsTransform) {
+          transforms.get(initialKey).currentValue = value
+          target.style[key] = buildTransformChain(transforms)
+        } else {
+          target.style[key] = `${value}${toUnit}`
+        }
 
         // Do not create a new object reference on each frame
         if (values[key]) {

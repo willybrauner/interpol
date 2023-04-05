@@ -21,16 +21,16 @@ it("should return value and unit if brutValue is passed as param", () => {
   $el.style.left = "5px"
   expect(extractValueAndUnit($el, "left", 100, null, dom.window)).toEqual([100, "px"])
   $el.style.opacity = "0.5"
-  expect(extractValueAndUnit($el, "opacity", 1, null, dom.window)).toEqual([1, undefined])
+  expect(extractValueAndUnit($el, "opacity", 1, null, dom.window)).toEqual([1, ""])
   // if no property value and unit is set on top, use the brutValue
-  expect(extractValueAndUnit($el, "top", 10, null, dom.window)).toEqual([10, undefined])
+  expect(extractValueAndUnit($el, "top", 10, null, dom.window)).toEqual([10, ""])
 })
 
 it("should return value and unit from computedValue, if brutValue is NOT passed as param", () => {
   $el.style.left = "5%"
   expect(extractValueAndUnit($el, "left", null, null, dom.window)).toEqual([5, "%"])
   $el.style.opacity = "0.2"
-  expect(extractValueAndUnit($el, "opacity", null, null, dom.window)).toEqual([0.2, undefined])
+  expect(extractValueAndUnit($el, "opacity", null, null, dom.window)).toEqual([0.2, ""])
 })
 
 it("should return value & unit with all available units", () => {
