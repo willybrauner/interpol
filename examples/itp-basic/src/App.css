@@ -18,12 +18,12 @@
   will-change: transform;
   font-size: 1em;
   /*top:-10px;*/
-  left:-16px;
+  /*left:-16px;*/
   opacity: 0.5;
   position: absolute;
   width: 20px;
   height: 20px;
   background: hotpink;
   border-radius: 100%;
-  transform: translateX(-10px);
+  transform: translateX(-10rem);
 }
