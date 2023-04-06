@@ -22,6 +22,8 @@ export function convertMatrix(matrixString: string): {
     const tx = matrixValues[4]
     const ty = matrixValues[5]
     const tz = matrixValues[14] || 0
+
+    // TODO doit retourner scaleX, scaleY, scaleZ, rotateX, rotateY, rotateZ ...
     const transformedValues: {
         translateX?: string
         translateY?: string
