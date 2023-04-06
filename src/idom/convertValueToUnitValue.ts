@@ -9,7 +9,7 @@ const log = debug(`interpol:convertValueToUnitValue`)
  *
  * @return a number value
  */
-export function convertValueToUnit(
+export function convertValueToUnitValue(
   el: HTMLElement,
   value,
   fromUnit: string,
