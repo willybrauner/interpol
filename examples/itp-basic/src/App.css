@@ -19,11 +19,11 @@
   font-size: 1em;
   /*top:-10px;*/
   /*left:-16px;*/
-  opacity: 0.5;
+  /*opacity: 0.5;*/
   position: absolute;
   width: 20px;
   height: 20px;
   background: hotpink;
   border-radius: 100%;
-  transform: translateX(-10rem);
+  /*transform: translateX(-10rem);*/
 }
