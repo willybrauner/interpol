@@ -1,9 +1,9 @@
 import { Interpol } from "../index"
-import { IInterpolConstruct } from "../interpol/Interpol"
 import debug from "@wbe/debug"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { convertMatrix } from "./convertMatrix"
+import { IInterpolConstruct } from "../common"
 const log = debug(`interpol:idom`)
 
 // ----------------------------------------------------------------------------- TYPES
@@ -29,16 +29,15 @@ interface CSSProps extends Record<keyof CSSStyleDeclaration, Value> {
   skewX: Value
   skewY: Value
   perspective: Value
-  matrix: Value
-  matrix3d: Value
 }
 
-interface IdomOptions extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
+interface IdomOptionsWithoutProps
+  extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
   onUpdate?: (props: Props) => void
   onComplete?: (props: Props) => void
 }
 
-type Options = IdomOptions & Partial<CSSProps>
+type Options = IdomOptionsWithoutProps & Partial<CSSProps>
 
 type PropOptions = Partial<{
   usedKey: string
@@ -73,8 +72,6 @@ const validTransforms = [
   "skewX",
   "skewY",
   "perspective",
-  "matrix",
-  "matrix3d",
 ]
 
 /**
@@ -82,8 +79,8 @@ const validTransforms = [
  */
 const buildTransformChain = (props: Map<string, PropOptions>): string => {
   let chain = ""
-  for (const [k, { to, transformFn, update }] of props)
-    chain += `${transformFn}(${update.value}${to.unit}) `
+  for (const [k, { to, transformFn, update, _isTransform }] of props)
+    if (_isTransform) chain += `${transformFn}(${update.value}${to.unit}) `
   return chain
 }
 
@@ -153,7 +150,7 @@ export function idom(
   const keysEntries = Object.keys(keys)
   const itps = keysEntries.map((key, i) => {
     const isLast = i === keysEntries.length - 1
-    let v = keys[key]
+    const v = keys[key]
 
     props.set(key, {
       usedKey: key,
@@ -236,19 +233,12 @@ export function idom(
     })
   })
 
-  const play = () => Promise.all(itps.map((e) => e.play()))
-  const replay = () => Promise.all(itps.map((e) => e.replay()))
-  const reverse = () => Promise.all(itps.map((e) => e.reverse()))
-  const stop = () => itps.forEach((e) => e.stop())
-  const pause = () => itps.forEach((e) => e.pause())
-  const refreshComputedValues = () => itps.forEach((e) => e.refreshComputedValues())
-
   return Object.freeze({
-    play,
-    replay,
-    stop,
-    pause,
-    reverse,
-    refreshComputedValues,
+    play: () => Promise.all(itps.map((e) => e.play())),
+    replay: () => Promise.all(itps.map((e) => e.replay())),
+    reverse: () => Promise.all(itps.map((e) => e.reverse())),
+    stop: () => itps.forEach((e) => e.stop()),
+    pause: () => itps.forEach((e) => e.pause()),
+    refreshComputedValues: () => itps.forEach((e) => e.refreshComputedValues()),
   })
 }
