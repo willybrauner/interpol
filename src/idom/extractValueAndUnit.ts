@@ -1,7 +1,7 @@
 import { getUnit } from "./getUnit"
-import { convertValueToUnit } from "./convertValueToUnit"
+import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import debug from "@wbe/debug"
-import { getCptValue } from "./idom"
+import { convertMatrix, getCssValue } from "./idom"
 const log = debug(`interpol:extractValueAndUnit`)
 
 /**
@@ -28,7 +28,14 @@ export const extractValueAndUnit = (
   proxyWindow = window
 ): [value: number, unit: string] => {
 
-  const computedValue = getCptValue(target, key, proxyWindow)
+
+  let computedValue = getCssValue(target, key, proxyWindow)
+  if (key === "transform" && rawValue) {
+   // log("r",target.style.transform)
+  //   log('rawValue',rawValue)
+  //   log("convertMatrix",convertMatrix(computedValue))
+  //   computedValue = Object.keys(convertMatrix(computedValue)).map(e => convertMatrix(computedValue)[e]).join(' ')
+  }
 
   let value = (
     typeof rawValue === "string"
@@ -47,10 +54,10 @@ export const extractValueAndUnit = (
   // possible conversion "-3%" (depend on parent width)
   // The final usage will be [from, to] as ["-3%", "50%"]
   if (rawUnit) {
-    value = convertValueToUnit(target, value, unit, rawUnit)
+    value = convertValueToUnitValue(target, value, unit, rawUnit)
   }
 
-  log({target, key, rawValue, rawUnit, computedValue, unit, value})
+  // log({target, key, rawValue, rawUnit, computedValue, unit, value})
 
   return [
     value || 0,
