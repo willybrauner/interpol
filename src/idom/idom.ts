@@ -1,48 +1,44 @@
 import { Interpol } from "../index"
-import { IInterpolConstruct, IUpdateParams } from "../interpol/Interpol"
+import { IInterpolConstruct } from "../interpol/Interpol"
 import debug from "@wbe/debug"
-import { extractValueAndUnit } from "./extractValueAndUnit"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
-import * as stream from "stream"
+import { convertMatrix } from "./convertMatrix"
 const log = debug(`interpol:idom`)
 
 // ----------------------------------------------------------------------------- TYPES
 
-type ValueType = number | string
-interface AdditionalProperties<V = ValueType> {
-  x: V
-  y: V
-  z: V
-  translateX: V
-  translateY: V
-  translateZ: V
-  rotate: V
-  rotateX: V
-  rotateY: V
-  rotateZ: V
-  scale: V
-  scaleX: V
-  scaleY: V
-  scaleZ: V
-  skew: V
-  skewX: V
-  skewY: V
-  perspective: V
-  matrix: V
-  matrix3d: V
+type V = number | string
+type Value = V | [V, V]
+interface CSSProps extends Record<keyof CSSStyleDeclaration, Value> {
+  x: Value
+  y: Value
+  z: Value
+  translateX: Value
+  translateY: Value
+  translateZ: Value
+  rotate: Value
+  rotateX: Value
+  rotateY: Value
+  rotateZ: Value
+  scale: Value
+  scaleX: Value
+  scaleY: Value
+  scaleZ: Value
+  skew: Value
+  skewX: Value
+  skewY: Value
+  perspective: Value
+  matrix: Value
+  matrix3d: Value
 }
 
-type CallbackParams = Record<string, IUpdateParams>[]
-
-interface ITPOptions<KEYS = any>
-  extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
-  onUpdate?: (e: CallbackParams) => void
-  onComplete?: (e: CallbackParams) => void
+interface IdomOptions extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
+  onUpdate?: (props: Props) => void
+  onComplete?: (props: Props) => void
 }
 
-type Styles = Record<keyof CSSStyleDeclaration, ValueType> & AdditionalProperties
-type Options = ITPOptions & Styles
+type Options = IdomOptions & Partial<CSSProps>
 
 type PropOptions = Partial<{
   usedKey: string
@@ -56,7 +52,7 @@ type PropOptions = Partial<{
 
 type Props = Map<string, PropOptions>
 
-// ----------------------------------------------------------------------------- IDOM
+// ----------------------------------------------------------------------------- UTILS
 
 const validTransforms = [
   "x",
@@ -81,56 +77,6 @@ const validTransforms = [
   "matrix3d",
 ]
 
-export function convertMatrix(matrixString: string): {
-  translateX?: string
-  translateY?: string
-  translateZ?: string
-  scale?: string
-  rotate?: string
-  skew?: string
-} {
-  const matrixValues = matrixString
-    .match(/matrix\((.+)\)/i)?.[1]
-    .split(",")
-    .map((val) => parseFloat(val.trim()))
-
-  const a = matrixValues[0]
-  const b = matrixValues[1]
-  const c = matrixValues[2]
-  const d = matrixValues[3]
-  const tx = matrixValues[4]
-  const ty = matrixValues[5]
-  const tz = matrixValues[14] || 0
-  const transformedValues: {
-    translateX?: string
-    translateY?: string
-    translateZ?: string
-    scale?: string
-    rotate?: string
-    skew?: string
-  } = {}
-
-  if (tx !== 0) {
-    transformedValues.translateX = `translateX(${tx}px)`
-  }
-  if (ty !== 0) {
-    transformedValues.translateY = `translateY(${ty}px)`
-  }
-  if (tz !== 0) {
-    transformedValues.translateZ = `translateZ(${tz}px)`
-  }
-  if (a !== 1 || d !== 1) {
-    transformedValues.scale = `scale(${a}, ${d})`
-  }
-  if (b !== 0 || c !== 0) {
-    transformedValues.skew = `skew(${Math.atan2(c, d)}rad, ${Math.atan2(b, a)}rad)`
-  }
-  if (b !== 0 || c !== 0 || a !== 1 || d !== 1) {
-    transformedValues.rotate = `rotate(${Math.atan2(b, a)}rad)`
-  }
-  return transformedValues
-}
-
 /**
  * Chain transforms properties
  */
@@ -141,6 +87,9 @@ const buildTransformChain = (props: Map<string, PropOptions>): string => {
   return chain
 }
 
+/**
+ * Get css value from target
+ */
 export const getCssValue = (
   target: HTMLElement,
   prop: PropOptions,
@@ -165,15 +114,10 @@ export const getCssValue = (
   return cptValue
 }
 
+// ----------------------------------------------------------------------------- IDOM
+
 /**
  * IDOM
- *
- *
- *
- *
- *
- *
- *
  *
  *
  */
@@ -201,16 +145,14 @@ export function idom(
     return null
   }
 
-  // keep values
-  const values: Record<keyof typeof keys, IUpdateParams>[] = []
-
   const props: Props = new Map<string, PropOptions>()
 
   // Map on available keys and return an interpol instance by key
   //  left: [0, 10] need its own interpol
   //  top: [-10, 10] need its own interpol too
-  const itps = Object.keys(keys).map((key, i) => {
-    const isLast = i === Object.keys(keys).length - 1
+  const keysEntries = Object.keys(keys)
+  const itps = keysEntries.map((key, i) => {
+    const isLast = i === keysEntries.length - 1
     let v = keys[key]
 
     props.set(key, {
@@ -232,23 +174,31 @@ export function idom(
       else prop.transformFn = key
     }
 
-    // // case, value is an array [from, to] or [from, null]
-    // if (Array.isArray(value)) {
-    //   const [vFrom, vTo] = value
-    //   hasExplicitFrom = vFrom !== null && vFrom !== undefined
-    //   ;[toValue, toUnit] = extractValueAndUnit(target, key, vTo)
-    //   ;[fromValue, fromUnit] = extractValueAndUnit(target, key, vFrom, toUnit)
-    // }
-    // // value is a number or a string, not an array
-    // else {
-
     const cssValue: string = getCssValue(target, prop)
     const cssValueN: number = parseFloat(cssValue) || 0
     const cssValueUnit: string = getUnit(cssValue)
-    prop.to.unit = getUnit(v) || cssValueUnit
-    prop.to.value = parseFloat(v) || cssValueN
-    prop.from.unit = cssValueUnit
-    prop.from.value = convertValueToUnitValue(target, cssValueN, prop.from.unit, prop.to.unit)
+
+    // // case, value is an array [from, to] or [from, null]
+    if (Array.isArray(v)) {
+      const [vFrom, vTo] = v
+      prop._hasExplicitFrom = vFrom !== null && vFrom !== undefined
+      prop.to.unit = getUnit(vTo) || cssValueUnit
+      prop.to.value = parseFloat(vTo) || cssValueN
+      prop.from.unit = prop.to.unit
+      prop.from.value = convertValueToUnitValue(
+        target,
+        parseFloat(vFrom) || cssValueN,
+        getUnit(vFrom) || cssValueUnit,
+        prop.to.unit
+      )
+    }
+    // value is a number or a string, not an array
+    else {
+      prop.to.unit = getUnit(v) || cssValueUnit
+      prop.to.value = parseFloat(v) || cssValueN
+      prop.from.unit = cssValueUnit
+      prop.from.value = convertValueToUnitValue(target, cssValueN, prop.from.unit, prop.to.unit)
+    }
 
     log(props)
 
@@ -272,7 +222,7 @@ export function idom(
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        isLast && onUpdate?.(values)
+        isLast && onUpdate?.(props)
         target.style[prop.usedKey] = prop._isTransform
           ? buildTransformChain(props)
           : value + prop.to.unit
@@ -281,7 +231,7 @@ export function idom(
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        isLast && onComplete?.(values)
+        isLast && onComplete?.(props)
       },
     })
   })
