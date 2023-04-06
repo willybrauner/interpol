@@ -44,7 +44,7 @@ interface ITPOptions<KEYS = any>
 type Styles = Record<keyof CSSStyleDeclaration, ValueType> & AdditionalProperties
 type Options = ITPOptions & Styles
 
-type PropsOptions = Partial<{
+type PropOptions = Partial<{
   usedKey: string
   update: { value: number; time: number; progress: number }
   to: { value: number; unit: string }
@@ -54,7 +54,7 @@ type PropsOptions = Partial<{
   _isTransform: boolean
 }>
 
-type Props = Map<string, PropsOptions>
+type Props = Map<string, PropOptions>
 
 // ----------------------------------------------------------------------------- IDOM
 
@@ -134,17 +134,34 @@ export function convertMatrix(matrixString: string): {
 /**
  * Chain transforms properties
  */
-const buildTransformChain = (props: Map<string, PropsOptions>): string => {
+const buildTransformChain = (props: Map<string, PropOptions>): string => {
   let chain = ""
-  for (const [k, { to, transformFn, update }] of props) {
+  for (const [k, { to, transformFn, update }] of props)
     chain += `${transformFn}(${update.value}${to.unit}) `
-  }
   return chain
 }
 
-export const getCssValue = (target: HTMLElement, key: string, proxyWindow = window): string => {
-  let cptValue = target.style[key] || proxyWindow.getComputedStyle(target).getPropertyValue(key)
+export const getCssValue = (
+  target: HTMLElement,
+  prop: PropOptions,
+  proxyWindow = window
+): string => {
+  // get value from style or computed style
+  let cptValue =
+    target.style[prop.usedKey] ||
+    proxyWindow.getComputedStyle(target).getPropertyValue(prop.usedKey)
   if (cptValue === "none") cptValue = "0px"
+
+  // get trans fn call from matrix of transform property, ex: translateX(10px)
+  // parse trans (translateX(10px)) and return "10px"
+  if (prop._isTransform) {
+    const trans = cptValue.includes("matrix(")
+      ? convertMatrix(cptValue)?.[prop.transformFn]
+      : cptValue
+    return trans.match(/-?\d+(?:\.\d+)?[a-zA-Z%]+/)?.[0]
+  }
+
+  // if not transform, return value
   return cptValue
 }
 
@@ -187,7 +204,7 @@ export function idom(
   // keep values
   const values: Record<keyof typeof keys, IUpdateParams>[] = []
 
-  const props: Props = new Map<string, PropsOptions>()
+  const props: Props = new Map<string, PropOptions>()
 
   // Map on available keys and return an interpol instance by key
   //  left: [0, 10] need its own interpol
@@ -225,7 +242,7 @@ export function idom(
     // // value is a number or a string, not an array
     // else {
 
-    const cssValue: string = getCssValue(target, prop.usedKey)
+    const cssValue: string = getCssValue(target, prop)
     const cssValueN: number = parseFloat(cssValue) || 0
     const cssValueUnit: string = getUnit(cssValue)
     prop.to.unit = getUnit(v) || cssValueUnit
