@@ -33,6 +33,7 @@ export function App() {
         // delay: 1000,
         //paused:true,
         x: 100,
+       //rotate: 360,
         // y: 30,
         // opacity: 0.2,
         //  y: [-20, 50],
@@ -58,7 +59,9 @@ export function App() {
     <div className={"App"}>
       <Controls instance={instance} />
       <div className={"wrapper"}>
-        <div className={"ball"} ref={$ball} style={{ opacity: 0.6 }} />
+        <div className={"ball"} ref={$ball}
+             //style={{ transform: "translateZ(-23px)" }}
+        />
       </div>
     </div>
   )
