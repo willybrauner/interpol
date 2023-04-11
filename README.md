@@ -286,14 +286,14 @@ tl.reverse().then(() => {
 pnpm i
 
 # build and watch lib changes
-npm run build:watch
+pnpm run build:watch
 
 # start tests and watch
-npm run test:watch
+pnpm run test:watch
 
 # start dev server on selected example
-npm run dev:interpol-basic
-npm run dev:timeline-basic
+pnpm run dev:interpol
+pnpm run dev:timeline
 ```
 
 ## Credits
