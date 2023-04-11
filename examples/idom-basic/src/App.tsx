@@ -1,7 +1,8 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
 import { Controls } from "./Controls"
-import { Ease, idom } from "../../../src"
+//import { Ease, idom } from "../../../src"
+import { Ease, idom } from "@wbe/interpol"
 import anime from "animejs/lib/anime.es.js"
 import gsap from "gsap"
 

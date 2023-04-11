@@ -1,4 +1,5 @@
-import { IInterpolConstruct, Interpol } from "./Interpol"
+import { Interpol } from "./Interpol"
+import { IInterpolConstruct } from "../common"
 import { deferredPromise } from "./helpers/deferredPromise"
 import Ticker from "./Ticker"
 import debug from "@wbe/debug"
