@@ -3,10 +3,15 @@
   "private": false,
   "version": "0.1.0",
   "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.module.js",
   "unpkg": "./dist/index.umd.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/interpol.git"
@@ -22,8 +27,8 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && microbundle --jsx React.createElement",
-    "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
+    "build": "vite build",
+    "build:watch": "vite build --watch",
     "dev:interpol-basic": "pnpm --filter ./examples/interpol-basic run dev",
     "dev:timeline-basic": "pnpm --filter ./examples/timeline-basic run dev",
     "dev:idom-basic": "pnpm --filter ./examples/idom-basic run dev",
@@ -35,11 +40,12 @@
     "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
+    "@types/node": "^18.15.11",
     "jsdom": "^21.1.0",
-    "microbundle": "^0.15.1",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
     "vite": "^4.1.1",
+    "vite-plugin-dts": "^2.2.0",
     "vitest": "^0.28.5"
   },
   "prettier": {
