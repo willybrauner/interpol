@@ -2,6 +2,7 @@
   "buildCommand": "build",
   "packages": ["./"],
   "sandboxes": [
+    "/examples/anim",
     "/examples/interpol-basic",
     "/examples/timeline-basic"
   ],
