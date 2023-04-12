@@ -23,7 +23,7 @@ importers:
       vite-plugin-dts: 2.2.0_vvgjenuklqywh2m3asaeh4bhzm
       vitest: 0.28.5_jsdom@21.1.0
 
-  examples/idom-basic:
+  examples/anim:
     specifiers:
       '@types/react': ^18.0.17
       '@types/react-dom': ^18.0.6
