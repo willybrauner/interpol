@@ -1,8 +1,7 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
 import { Controls } from "./Controls"
-//import { Ease, idom } from "../../../src"
-import { Ease, idom } from "@wbe/interpol"
+import { Ease, anim } from "@wbe/interpol"
 import anime from "animejs/lib/anime.es.js"
 import gsap from "gsap"
 
@@ -10,7 +9,8 @@ export function App() {
   const $ball = useRef<HTMLDivElement>()
   const [instance, setInstance] = useState(null)
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     // gsap.fromTo($ball.current,{
     //   left: "60%",
     // },{
@@ -29,7 +29,7 @@ export function App() {
     // });
 
     setInstance(
-      idom($ball.current, {
+      anim($ball.current, {
         duration: 1000,
         opacity: 0.2,
         x: 400,
