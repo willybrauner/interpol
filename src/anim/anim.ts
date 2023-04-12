@@ -118,7 +118,7 @@ export const getCssValue = (
  *
  *
  */
-export function idom(
+export function anim(
   target: HTMLElement,
   {
     duration,
