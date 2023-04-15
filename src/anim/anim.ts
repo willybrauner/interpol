@@ -3,7 +3,7 @@ import debug from "@wbe/debug"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { convertMatrix } from "./convertMatrix"
-import { IInterpolConstruct } from "../common"
+import { IInterpolConstruct } from "~/common"
 const log = debug(`interpol:idom`)
 
 // ----------------------------------------------------------------------------- TYPES
@@ -31,13 +31,15 @@ interface CSSProps extends Record<keyof CSSStyleDeclaration, Value> {
   perspective: Value
 }
 
-interface IdomOptionsWithoutProps
+interface IAnimOptionsWithoutProps
   extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
   onUpdate?: (props: Props) => void
   onComplete?: (props: Props) => void
+  proxyWindow?
+  proxyDocument?
 }
 
-type Options = IdomOptionsWithoutProps & Partial<CSSProps>
+type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
 
 type PropOptions = Partial<{
   usedKey: string
@@ -53,7 +55,7 @@ type Props = Map<string, PropOptions>
 
 // ----------------------------------------------------------------------------- UTILS
 
-const validTransforms = [
+export const validTransforms = [
   "x",
   "y",
   "z",
@@ -81,7 +83,7 @@ const buildTransformChain = (props: Map<string, PropOptions>): string => {
   let chain = ""
   for (const [k, { to, transformFn, update, _isTransform }] of props)
     if (_isTransform) chain += `${transformFn}(${update.value}${to.unit}) `
-  return chain
+  return chain.trim()
 }
 
 /**
@@ -130,13 +132,15 @@ export function anim(
     beforeStart,
     onUpdate,
     onComplete,
+    proxyWindow,
+    proxyDocument,
     ...keys
   }: Options
 ) {
-  if (!(target instanceof HTMLElement)) {
-    console.warn("target param is not HTMLElement, return.", target)
-    return null
-  }
+  // if (!(target instanceof HTMLElement)) {
+  //   console.warn("target param is not HTMLElement, return.", target)
+  //   return null
+  // }
   if (!Object.entries(keys).length) {
     console.warn("No properties to animate, return")
     return null
@@ -171,7 +175,7 @@ export function anim(
       else prop.transformFn = key
     }
 
-    const cssValue: string = getCssValue(target, prop)
+    const cssValue: string = getCssValue(target, prop, proxyWindow)
     const cssValueN: number = parseFloat(cssValue) || 0
     const cssValueUnit: string = getUnit(cssValue)
 
@@ -186,7 +190,9 @@ export function anim(
         target,
         parseFloat(vFrom) || cssValueN,
         getUnit(vFrom) || cssValueUnit,
-        prop.to.unit
+        prop.to.unit,
+        proxyWindow,
+        proxyDocument
       )
     }
     // value is a number or a string, not an array
@@ -194,7 +200,14 @@ export function anim(
       prop.to.unit = getUnit(v) || cssValueUnit
       prop.to.value = parseFloat(v) || cssValueN
       prop.from.unit = cssValueUnit
-      prop.from.value = convertValueToUnitValue(target, cssValueN, prop.from.unit, prop.to.unit)
+      prop.from.value = convertValueToUnitValue(
+        target,
+        cssValueN,
+        prop.from.unit,
+        prop.to.unit,
+        proxyWindow,
+        proxyDocument
+      )
     }
 
     log(props)
@@ -211,9 +224,10 @@ export function anim(
       debug,
       beforeStart: () => {
         isLast && beforeStart?.()
-        if (!prop._hasExplicitFrom) return
-        const vu = prop.from.value + prop.from.unit
-        target.style[prop.usedKey] = prop._isTransform ? `${prop.transformFn}(${vu})` : vu
+        if (prop._hasExplicitFrom) {
+          const vu = prop.from.value + prop.from.unit
+          target.style[prop.usedKey] = prop._isTransform ? `${prop.transformFn}(${vu})` : vu
+        }
       },
       onUpdate: ({ value, time, progress }) => {
         prop.update.value = value
@@ -228,7 +242,7 @@ export function anim(
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        isLast && onComplete?.(props)
+        if (isLast) onComplete?.(props)
       },
     })
   })
