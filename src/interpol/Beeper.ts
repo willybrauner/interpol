@@ -5,8 +5,7 @@ type TBeeper<S = any> = {
   off: TOff<S>
   on: (handler: THandler<S>) => void
   dispatch: (state: S) => TListeners<S>
-  get state(): S
-}
+  }
 
 /**
  * Beeper
@@ -25,9 +24,6 @@ export function Beeper<S = any>(initialState: S = null): TBeeper<S> {
     dispatch: (state: S) => {
       currentState = state
       return listeners.map((e: THandler<S>) => e(state))
-    },
-    get state() {
-      return currentState
-    },
+    }
   }
 }
