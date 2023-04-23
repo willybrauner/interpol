@@ -1,9 +1,9 @@
-import { deferredPromise } from "./helpers/deferredPromise"
-import { round } from "./helpers/round"
-import Ticker from "./Ticker"
+import { deferredPromise } from "~/helpers/deferredPromise"
+import { round } from "~/helpers/round"
+import Ticker from "~/core/Ticker"
 import debug from "@wbe/debug"
-import { clamp } from "./helpers/clamp"
-import { IInterpolConstruct, IUpdateParams } from "../common"
+import { clamp } from "~/helpers/clamp"
+import { IInterpolConstruct, IUpdateParams } from "~/types"
 const log = debug("interpol:Interpol")
 
 let ID = 0
@@ -22,7 +22,7 @@ export class Interpol {
   public beforeStart: () => void
   public onUpdate: (e: IUpdateParams) => void
   public onComplete: (e: IUpdateParams) => void
-  public ticker: Ticker = new Ticker()
+  public ticker: Ticker
   public progress = 0
   public time = 0
   public value = 0
@@ -56,6 +56,7 @@ export class Interpol {
     onUpdate,
     onComplete,
     debug = false,
+    ticker = new Ticker(),
   }: IInterpolConstruct) {
     this.from = from
     this.to = to
@@ -68,6 +69,7 @@ export class Interpol {
     this.onUpdate = onUpdate
     this.onComplete = onComplete
     this.debugEnable = debug
+    this.ticker = ticker
     this.ticker.debugEnable = debug
 
     // start!
@@ -130,16 +132,11 @@ export class Interpol {
   }
 
   public stop(): void {
-    this._stop()
-  }
-  protected _stop(): void {
-    // reset values in specials case
     if (!this.inTl || (this.inTl && this._isReversed)) {
       this.value = 0
       this.time = 0
       this.progress = 0
     }
-
     if (!this.inTl) {
       this._isReversed = false
     }
@@ -207,8 +204,8 @@ export class Interpol {
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
       this.log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
-      if (this.value !== this._to) this.value = this._to
-      if (this.time !== this._duration) this.time = this._duration
+      this.value = this._to
+      this.time = this._duration
       // Call current interpol onComplete method
       this.onComplete?.({
         value: this.value,
