@@ -9,7 +9,7 @@ describe.concurrent("Interpol beforeStart", () => {
         const itp = new Interpol({
           to: 100,
           duration: 500,
-          paused: true,
+          paused,
           beforeStart,
         })
         expect(beforeStart).toHaveBeenCalledTimes(1)
@@ -17,6 +17,9 @@ describe.concurrent("Interpol beforeStart", () => {
         expect(beforeStart).toHaveBeenCalledTimes(1)
         resolve()
       })
+
+    // play with paused = true
+    // play with paused = false
     return Promise.all([pms(true), pms(false)])
   })
 })

@@ -1,3 +1,5 @@
+import Ticker from "~/core/Ticker"
+
 export interface IUpdateParams {
   value: number
   time: number
@@ -17,4 +19,5 @@ export interface IInterpolConstruct {
   onUpdate?: ({ value, time, progress }: IUpdateParams) => void
   onComplete?: ({ value, time, progress }: IUpdateParams) => void
   onRepeatComplete?: ({ value, time, progress }: IUpdateParams) => void
+  ticker?: Ticker
 }
