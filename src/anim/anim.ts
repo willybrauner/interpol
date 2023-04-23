@@ -3,7 +3,8 @@ import debug from "@wbe/debug"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { convertMatrix } from "./convertMatrix"
-import { IInterpolConstruct } from "~/common"
+import { IInterpolConstruct } from "~/types"
+import Ticker from "~/core/Ticker"
 const log = debug(`interpol:idom`)
 
 // ----------------------------------------------------------------------------- TYPES
@@ -148,6 +149,8 @@ export function anim(
 
   const props: Props = new Map<string, PropOptions>()
 
+  const ticker = new Ticker()
+
   // Map on available keys and return an interpol instance by key
   //  left: [0, 10] need its own interpol
   //  top: [-10, 10] need its own interpol too
@@ -221,27 +224,32 @@ export function anim(
       reverseEase,
       paused,
       delay,
+      ticker,
       debug,
       beforeStart: () => {
-        isLast && beforeStart?.()
         if (prop._hasExplicitFrom) {
           const vu = prop.from.value + prop.from.unit
           target.style[prop.usedKey] = prop._isTransform ? `${prop.transformFn}(${vu})` : vu
         }
+        if (isLast) beforeStart?.()
       },
       onUpdate: ({ value, time, progress }) => {
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        isLast && onUpdate?.(props)
         target.style[prop.usedKey] = prop._isTransform
           ? buildTransformChain(props)
           : value + prop.to.unit
+        if (isLast) onUpdate?.(props)
       },
       onComplete: ({ value, time, progress }) => {
+        // FIXME : called on reverse
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
+        target.style[prop.usedKey] = prop._isTransform
+          ? buildTransformChain(props)
+          : value + prop.to.unit
         if (isLast) onComplete?.(props)
       },
     })

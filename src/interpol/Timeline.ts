@@ -1,10 +1,10 @@
 import { Interpol } from "./Interpol"
-import { IInterpolConstruct } from "../common"
-import { deferredPromise } from "./helpers/deferredPromise"
-import Ticker from "./Ticker"
+import { IInterpolConstruct } from "~/types"
+import { deferredPromise } from "~/helpers/deferredPromise"
+import Ticker from "../core/Ticker"
 import debug from "@wbe/debug"
-import { clamp } from "./helpers/clamp"
-import { round } from "./helpers/round"
+import { clamp } from "~/helpers/clamp"
+import { round } from "~/helpers/round"
 const log = debug("interpol:Timeline")
 
 interface IAdd {
@@ -15,12 +15,6 @@ interface IAdd {
   isLastOfTl: boolean
   play?: boolean
   position?: number
-}
-
-interface ITimelineConstruct {
-  onUpdate?: ({ time, progress }) => void
-  onComplete?: ({ time, progress }) => void
-  debug?: boolean
 }
 
 let TL_ID = 0
