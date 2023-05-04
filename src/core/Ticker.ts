@@ -45,7 +45,7 @@ export default class Ticker {
 
   public play(): void {
     this.isRunning = true
-    this.start = Date.now()
+    this.start = performance.now()
     this.time = this.start
     this.elapsed = this.keepElapsed + (this.time - this.start)
     this.delta = 16
@@ -66,7 +66,7 @@ export default class Ticker {
   protected tick(): void {
     if (!this.isRunning) return
 
-    const now = Date.now()
+    const now = performance.now()
     this.delta = now - this.time
     this.time = now
     this.elapsed = this.keepElapsed + (this.time - this.start)
@@ -79,7 +79,7 @@ export default class Ticker {
     }
 
     this.onUpdateEmitter.dispatch(onUpdateObj)
-    this.log("tick", onUpdateObj)
+    log("tick", onUpdateObj)
     this.raf = RAF(this.tick.bind(this))
   }
 

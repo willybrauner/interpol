@@ -150,6 +150,7 @@ export function anim(
   const props: Props = new Map<string, PropOptions>()
 
   const ticker = new Ticker()
+  log("ticker", ticker)
 
   // Map on available keys and return an interpol instance by key
   //  left: [0, 10] need its own interpol
