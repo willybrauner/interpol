@@ -79,7 +79,7 @@ export default class Ticker {
     }
 
     this.onUpdateEmitter.dispatch(onUpdateObj)
-    log("tick", onUpdateObj)
+    this.log("tick", onUpdateObj)
     this.raf = RAF(this.tick.bind(this))
   }
 
