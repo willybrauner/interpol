@@ -24,20 +24,18 @@ export default class Ticker {
   public delta: number
   // store the raf
   public debugEnable: boolean
+  // store the raf
+  protected raf: number
+  // check if ticker is running
   public isRunning = false
-  protected raf
-  protected fps: number
-  protected interval: number
+
   public onUpdateEmitter = Beeper<{
-    interval: number
     delta: number
     time: number
     elapsed: number
   }>()
 
-  constructor({ fps = 60, debug = false } = {}) {
-    this.fps = fps
-    this.interval = 1000 / this.fps
+  constructor({ debug = false } = {}) {
     // set outside "play()" because play is resume too
     this.keepElapsed = 0
     this.debugEnable = debug
@@ -72,14 +70,13 @@ export default class Ticker {
     this.elapsed = this.keepElapsed + (this.time - this.start)
 
     const onUpdateObj = {
-      interval: this.interval,
       delta: this.delta,
       time: this.time,
       elapsed: this.elapsed,
     }
 
     this.onUpdateEmitter.dispatch(onUpdateObj)
-    this.log("tick", onUpdateObj)
+    log("tick", onUpdateObj)
     this.raf = RAF(this.tick.bind(this))
   }
 
