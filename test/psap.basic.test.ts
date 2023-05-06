@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
-import { anim } from "../src"
+import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
 import { propsCamelCase } from "./utils/CSSProperties"
 
@@ -22,7 +22,7 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
         $el.style[prop] = "0px"
         const last = i === propsCamelCase.length - 1
         const to = `${randomRange(-100, 100)}px`
-        anim($el, {
+        psap.to($el, {
           [prop]: to,
           ...proxy,
           onComplete: () => {
@@ -47,7 +47,7 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
         return acc
       }, {})
 
-      anim($el, {
+      psap.to($el, {
         ...props,
         ...proxy,
         onComplete: async () => {
@@ -66,14 +66,18 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
         const from = `${randomRange(-100, 100)}px`
         const to = `${randomRange(-100, 100)}px`
 
-        anim($el, {
-          [prop]: [from, to],
-          ...proxy,
-          onComplete: () => {
-            expect($el.style[prop]).toBe(to)
-            if (last) resolve()
-          },
-        })
+        psap.fromTo(
+          $el,
+          { [prop]: from },
+          {
+            [prop]: to,
+            ...proxy,
+            onComplete: () => {
+              expect($el.style[prop]).toBe(to)
+              if (last) resolve()
+            },
+          }
+        )
       })
     }))
 
@@ -87,12 +91,16 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
       doc.body.append($el)
       const from = `${randomRange(-100, 100)}px`
       const to = `${randomRange(-100, 100)}px`
-      const props = propsCamelCase.reduce((acc, prop) => {
-        acc[prop] = [from, to]
+      const propsFrom = propsCamelCase.reduce((acc, prop) => {
+        acc[prop] = from
         return acc
       }, {})
-      anim($el, {
-        ...props,
+      const propsTo = propsCamelCase.reduce((acc, prop) => {
+        acc[prop] = to
+        return acc
+      }, {})
+      psap.fromTo($el, propsFrom, {
+        ...propsTo,
         ...proxy,
         onComplete: () => {
           propsCamelCase.forEach((prop) => {
@@ -100,27 +108,6 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
           })
           resolve()
         },
-      })
-    }))
-
-  it("should anim properly [from _]", () =>
-    new Promise((resolve: any) => {
-      const { doc, proxy, $el } = getDocument()
-      // 1. create an animation for each property
-      propsCamelCase.forEach((prop, i) => {
-        const last = i === propsCamelCase.length - 1
-        const from = `${randomRange(-100, 100)}px`
-        const to = `${randomRange(-100, 100)}px`
-        // set a default value to the property, this one will be the target, if only from is set
-        $el.style[prop] = to
-        anim($el, {
-          [prop]: [from, null],
-          ...proxy,
-          onComplete: () => {
-            expect($el.style[prop]).toBe(to)
-            if (last) resolve()
-          },
-        })
       })
     }))
 })
