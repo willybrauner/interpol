@@ -53,6 +53,22 @@ type PropOptions = Partial<{
 
 type Props = Map<string, PropOptions>
 
+type Return = Readonly<{
+  play: () => Promise<Awaited<any>[]>
+  stop: () => void
+  refreshComputedValues: () => void
+  replay: () => Promise<Awaited<any>[]>
+  reverse: () => Promise<Awaited<unknown>[]>
+  pause: () => void
+}>
+type To = (target: Element | HTMLElement, to: Options) => Return
+type FromTo = (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) => Return
+type Psap = {
+  to: To
+  fromTo: FromTo
+}
+
+
 // ----------------------------------------------------------------------------- UTILS
 
 export const validTransforms = [
@@ -183,7 +199,7 @@ const anim = (
         proxyDocument
       )
     }
-    // case, we have one object, to
+    // case, we have one object to
     else {
       prop.to.unit = getUnit(v) || cssValueUnit
       prop.to.value = parseFloat(v) || cssValueN
@@ -225,11 +241,7 @@ const anim = (
           : value + prop.to.unit
         if (isLast) onUpdate?.(props)
       },
-      onComplete: ({ value, time, progress }) => {
-        // FIXME : called on reverse
-        prop.update.value = value
-        prop.update.time = time
-        prop.update.progress = progress
+      onComplete: ({ value }) => {
         target.style[prop.usedKey] = prop._isTransform
           ? buildTransformChain(props)
           : value + prop.to.unit
@@ -249,24 +261,9 @@ const anim = (
 }
 
 // Final API
-
-type Return = Readonly<{
-  play: () => Promise<Awaited<any>[]>
-  stop: () => void
-  refreshComputedValues: () => void
-  replay: () => Promise<Awaited<any>[]>
-  reverse: () => Promise<Awaited<unknown>[]>
-  pause: () => void
-}>
-type To = (target: Element | HTMLElement, to: Options) => Return
-type FromTo = (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) => Return
-type Psap = {
-  to: To
-  fromTo: FromTo
-}
-
 export const psap: Psap = {
-  to: (target: Element | HTMLElement, to: Options) => anim(target, undefined, to),
+  to: (target: Element | HTMLElement, to: Options) =>
+    anim(target, undefined, to),
   fromTo: (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) =>
     anim(target, from, to),
 }
