@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
-import { anim } from "../src"
+import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
-import { validTransforms } from "../src/anim/anim"
+import { validTransforms } from "../src/psap/psap"
 
 const getDocument = () => {
   const dom = new JSDOM()
@@ -19,7 +19,7 @@ describe.concurrent("anim specific CSS Properties", () => {
     const { proxy, $el } = getDocument()
     $el.style.opacity = "0"
     const to = 0.2
-    anim($el, {
+    psap.to($el, {
       opacity: to,
       ...proxy,
       onComplete: () => {
@@ -36,7 +36,7 @@ describe.concurrent("anim specific CSS Properties", () => {
         const { proxy, $el } = getDocument()
         $el.style.transform = `${prop}(0px)`
         const to = randomRange(-100, 100)
-        anim($el, {
+        psap.to($el, {
           [prop]: to,
           ...proxy,
           onComplete: () => {
@@ -59,7 +59,7 @@ describe.concurrent("anim specific CSS Properties", () => {
         const { proxy, $el } = getDocument()
         $el.style.transform = `${prop}(0px)`
         const to = randomRange(-100, 100)
-        anim($el, {
+        psap.to($el, {
           [getAdapter(prop)]: to,
           ...proxy,
           onComplete: () => {
@@ -74,7 +74,7 @@ describe.concurrent("anim specific CSS Properties", () => {
     const { proxy, $el } = getDocument()
     $el.style.transform = `translateX(0px) translateY(0px) translateZ(0px)`
     const to = randomRange(-100, 100)
-    anim($el, {
+    psap.to($el, {
       translateX: to,
       translateY: to,
       translateZ: to,

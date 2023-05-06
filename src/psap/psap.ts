@@ -1,16 +1,15 @@
-import { Interpol } from "../index"
-import debug from "@wbe/debug"
-import { getUnit } from "./getUnit"
-import { convertValueToUnitValue } from "./convertValueToUnitValue"
-import { convertMatrix } from "./convertMatrix"
-import { IInterpolConstruct } from "~/types"
 import Ticker from "~/core/Ticker"
-const log = debug(`interpol:idom`)
+import { IInterpolConstruct } from "~/types"
+import { convertMatrix } from "~/psap/convertMatrix"
+import debug from "@wbe/debug"
+import { getUnit } from "~/psap/getUnit"
+import { convertValueToUnitValue } from "~/psap/convertValueToUnitValue"
+import { Interpol } from "~/interpol/Interpol"
+const log = debug(`interpol:psap`)
 
 // ----------------------------------------------------------------------------- TYPES
 
-type V = number | string
-type Value = V | [V, V]
+type Value = number | string
 interface CSSProps extends Record<keyof CSSStyleDeclaration, Value> {
   x: Value
   y: Value
@@ -114,15 +113,13 @@ export const getCssValue = (
   return cptValue
 }
 
-// ----------------------------------------------------------------------------- IDOM
-
 /**
- * IDOM
  *
  *
  */
-export function anim(
-  target: HTMLElement,
+const anim = (
+  target,
+  fromKeys: Options,
   {
     duration,
     ease,
@@ -137,24 +134,11 @@ export function anim(
     proxyDocument,
     ...keys
   }: Options
-) {
-  // if (!(target instanceof HTMLElement)) {
-  //   console.warn("target param is not HTMLElement, return.", target)
-  //   return null
-  // }
-  if (!Object.entries(keys).length) {
-    console.warn("No properties to animate, return")
-    return null
-  }
-
+) => {
   const props: Props = new Map<string, PropOptions>()
 
   const ticker = new Ticker()
-  log("ticker", ticker)
 
-  // Map on available keys and return an interpol instance by key
-  //  left: [0, 10] need its own interpol
-  //  top: [-10, 10] need its own interpol too
   const keysEntries = Object.keys(keys)
   const itps = keysEntries.map((key, i) => {
     const isLast = i === keysEntries.length - 1
@@ -162,8 +146,8 @@ export function anim(
 
     props.set(key, {
       usedKey: key,
-      to: { value: undefined, unit: undefined },
       from: { value: undefined, unit: undefined },
+      to: { value: undefined, unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
     })
@@ -183,9 +167,9 @@ export function anim(
     const cssValueN: number = parseFloat(cssValue) || 0
     const cssValueUnit: string = getUnit(cssValue)
 
-    // // case, value is an array [from, to] or [from, null]
-    if (Array.isArray(v)) {
-      const [vFrom, vTo] = v
+    // // case, we have two objects, from To
+    if (fromKeys) {
+      const [vFrom, vTo] = [fromKeys[key], keys[key]]
       prop._hasExplicitFrom = vFrom !== null && vFrom !== undefined
       prop.to.unit = getUnit(vTo) || cssValueUnit
       prop.to.value = parseFloat(vTo) || cssValueN
@@ -199,7 +183,7 @@ export function anim(
         proxyDocument
       )
     }
-    // value is a number or a string, not an array
+    // case, we have one object, to
     else {
       prop.to.unit = getUnit(v) || cssValueUnit
       prop.to.value = parseFloat(v) || cssValueN
@@ -214,13 +198,11 @@ export function anim(
       )
     }
 
-    log(props)
-
     // return interpol instance for current key
     return new Interpol({
       from: prop.from.value,
       to: prop.to.value,
-      duration,
+      duration: duration ? (duration as number) * 1000 : 1000,
       ease,
       reverseEase,
       paused,
@@ -264,4 +246,27 @@ export function anim(
     pause: () => itps.forEach((e) => e.pause()),
     refreshComputedValues: () => itps.forEach((e) => e.refreshComputedValues()),
   })
+}
+
+// Final API
+
+type Return = Readonly<{
+  play: () => Promise<Awaited<any>[]>
+  stop: () => void
+  refreshComputedValues: () => void
+  replay: () => Promise<Awaited<any>[]>
+  reverse: () => Promise<Awaited<unknown>[]>
+  pause: () => void
+}>
+type To = (target: Element | HTMLElement, to: Options) => Return
+type FromTo = (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) => Return
+type Psap = {
+  to: To
+  fromTo: FromTo
+}
+
+export const psap: Psap = {
+  to: (target: Element | HTMLElement, to: Options) => anim(target, undefined, to),
+  fromTo: (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) =>
+    anim(target, from, to),
 }
