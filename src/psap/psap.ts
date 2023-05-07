@@ -68,7 +68,6 @@ type Psap = {
   fromTo: FromTo
 }
 
-
 // ----------------------------------------------------------------------------- UTILS
 
 export const validTransforms = [
@@ -262,8 +261,7 @@ const anim = (
 
 // Final API
 export const psap: Psap = {
-  to: (target: Element | HTMLElement, to: Options) =>
-    anim(target, undefined, to),
+  to: (target: Element | HTMLElement, to: Options) => anim(target, undefined, to),
   fromTo: (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) =>
     anim(target, from, to),
 }

@@ -6,16 +6,23 @@ const $ball = document.querySelector(".ball")
 ;["play", "reverse", "replay", "pause", "stop"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
+window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 
 const a = psap.fromTo(
   $ball,
   {
-    x: "-10rem",
+    x: 0,
+    y: `-20px`,
+//    rotateY: 0,
+    // z: `16px`,
   },
   {
-    x: 20,
+    x: 30,
+    y: `20rem`,
+  //  rotateY: 100,
+    // z: `18rem`,
     duration: 1,
-    ease: Ease.inOutCubic,
+    ease: Ease.linear,
     debug: true,
   }
 )
