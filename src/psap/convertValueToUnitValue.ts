@@ -18,7 +18,7 @@ export function convertValueToUnitValue(
   pDocument = document
 ): number {
   if (fromUnit === toUnit) {
-    log("unit are the same, return value", value)
+    log("unit 'from' and 'to' are the same, return the value", value)
     return value
   }
 

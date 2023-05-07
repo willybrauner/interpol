@@ -1,6 +1,7 @@
 import { toCamelCase } from "./toCamelCase"
 
-export const propsDashCase = [
+
+export const CSSPropertiesDashCase = [
   "width",
   "height",
   "min-width",
@@ -10,16 +11,15 @@ export const propsDashCase = [
   "font-size",
   "line-height",
   "letter-spacing",
-  // "margin",
   "margin-top",
   "margin-right",
   "margin-bottom",
   "margin-left",
-  // "padding",
   "padding-top",
   "padding-right",
   "padding-bottom",
   "padding-left",
+
   "border",
   "border-width",
   "border-top-width",
@@ -27,11 +27,15 @@ export const propsDashCase = [
   "border-bottom-width",
   "border-left-width",
   "border-radius",
+
   "top",
   "right",
   "bottom",
   "left",
+
+  // "margin",
+  // "padding",
 ]
 
-export const propsCamelCase = propsDashCase.map((prop) => toCamelCase(prop))
+export const CSSPropertiesCamelCase = CSSPropertiesDashCase.map((prop) => toCamelCase(prop))
 
