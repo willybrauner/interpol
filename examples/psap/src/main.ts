@@ -10,12 +10,10 @@ const $ball = document.querySelector(".ball")
 const a = psap.fromTo(
   $ball,
   {
-    opacity: 0.2,
     x: "-10rem",
   },
   {
     x: 20,
-    // opacity: 1,
     duration: 1,
     ease: Ease.inOutCubic,
     debug: true,
