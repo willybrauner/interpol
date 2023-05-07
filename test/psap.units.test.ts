@@ -15,7 +15,7 @@ const getDocument = () => {
 }
 
 describe.concurrent("anim with different units", () => {
-  it.only("should anim 'from' an unit to another unit", () => {
+  it("should anim 'from' an unit to another unit", () => {
     const test = (fromUnit: string, toUnit: string, props = CSSPropertiesCamelCase) =>
       new Promise((resolve: any) => {
         const { proxy, $el } = getDocument()
@@ -82,32 +82,27 @@ describe.concurrent("anim with different units", () => {
       })
     }))
 
-  // it.only("should anim an transform properties unit from another unit", () => {
-  //   return new Promise((resolve:any) => {
-  //     const { proxy, $el } = getDocument()
-  //     UNITS.forEach((unit, i) => {
-  //       const last = i === UNITS.length - 1
-  //       const [currUnit, nextUnit] = [UNITS[i], UNITS[i + 1] || UNITS[0]]
-  //       const from = `${randomRange(-100, 100)}${currUnit}`
-  //       const to = `${randomRange(-100, 100)}${nextUnit}}`
-  //       psap.fromTo(
-  //         $el,
-  //         {
-  //           x: from,
-  //           y: from,
-  //         },
-  //         {
-  //           x: to,
-  //           y: to,
-  //           ...proxy,
-  //           onComplete: () => {
-  //             console.log($el.style.transform, to)
-  //             expect($el.style.transform).toBe(to)
-  //             last && resolve()
-  //           },
-  //         }
-  //       )
-  //     })
-  //   })
-  // })
+  it("should anim an 'transform' properties unit from another unit", () =>
+    new Promise((resolve: any) => {
+      const { proxy, $el } = getDocument()
+      $el.style.transform = "translateX(0px) translateY(0px) translateZ(0px)"
+      psap.fromTo(
+        $el,
+        {
+          x: 0,
+          y: `0rem`,
+          z: `0px`,
+        },
+        {
+          x: 10,
+          y: `20rem`,
+          z: `-10px`,
+          ...proxy,
+          onComplete: () => {
+            expect($el.style.transform).toBe(`translateX(10px) translateY(20rem) translateZ(-10px)`)
+            resolve()
+          },
+        }
+      )
+    }))
 })
