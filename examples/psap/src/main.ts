@@ -13,13 +13,13 @@ const a = psap.fromTo(
   {
     x: 0,
     y: `-20px`,
-//    rotateY: 0,
+    rotateY: "0deg",
     // z: `16px`,
   },
   {
     x: 30,
     y: `20rem`,
-  //  rotateY: 100,
+    rotateY: "100deg",
     // z: `18rem`,
     duration: 1,
     ease: Ease.linear,
