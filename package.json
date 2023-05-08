@@ -1,18 +1,20 @@
 {
-  "name": "@wbe/interpol",
+  "name": "psap",
   "private": false,
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/willybrauner/interpol.git"
+    "url": "git://github.com/willybrauner/psap.git"
   },
   "keywords": [
+    "psap",
     "interpol",
     "interpolation",
     "animation",
-    "timeline"
+    "timeline",
+    "dom"
   ],
   "publishConfig": {
     "access": "public"
@@ -21,25 +23,25 @@
     "clean": "rm -rf dist",
     "build": "vite build",
     "build:watch": "vite build --watch",
-    "dev:interpol": "pnpm --filter ./examples/interpol-basic run dev",
-    "dev:timeline": "pnpm --filter ./examples/timeline-basic run dev",
+    "dev:interpol": "pnpm --filter ./examples/interpol run dev",
+    "dev:timeline": "pnpm --filter ./examples/timeline run dev",
     "dev:psap": "pnpm --filter ./examples/psap run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
   },
   "dependencies": {
-    "@wbe/debug": "^1.1.0",
-    "rollup-plugin-visualizer": "^5.9.0"
+    "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.11",
-    "jsdom": "^21.1.0",
-    "prettier": "^2.8.4",
-    "typescript": "^4.9.5",
-    "vite": "^4.1.1",
-    "vite-plugin-dts": "^2.2.0",
-    "vitest": "^0.28.5"
+    "rollup-plugin-visualizer": "^5.9.0",
+    "@types/node": "^20.1.0",
+    "jsdom": "^22.0.0",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.5",
+    "vite-plugin-dts": "^2.3.0",
+    "vitest": "^0.31.0"
   },
   "prettier": {
     "semi": false,
