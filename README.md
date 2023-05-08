@@ -1,3 +1,5 @@
+<h1 align="center" style="text-align:center">psap</h1>
+
 <h1 align="center" style="text-align:center">Interpol 👮🏽‍</h1>
 <p align="center">
     <img alt="logo" src="logo.jpg">
@@ -5,7 +7,7 @@
 
 interpol library interpolates value between two points.
 This is the lowest level of animate machine.
-Interpol is not a DOM API, it provides a real time progress of the interpolation that can be use or bind
+Interpol is not a DOM API, it provides real time progress of the interpolation that can be use or bind
 on... anything!
 
 ## Why

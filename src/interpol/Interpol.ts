@@ -1,9 +1,9 @@
-import { deferredPromise } from "~/helpers/deferredPromise"
-import { round } from "~/helpers/round"
+import { deferredPromise } from "~/core/deferredPromise"
+import { round } from "~/core/round"
 import Ticker from "~/core/Ticker"
 import debug from "@wbe/debug"
-import { clamp } from "~/helpers/clamp"
-import { IInterpolConstruct, IUpdateParams } from "~/types"
+import { clamp } from "~/core/clamp"
+import { IInterpolConstruct, IUpdateParams } from "~/core/types"
 const log = debug("interpol:Interpol")
 
 let ID = 0
