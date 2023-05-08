@@ -1,14 +1,15 @@
 {
-  "name": "@wbe/interpol",
-  "private": false,
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/willybrauner/interpol.git"
+    "url": "git://github.com/willybrauner/psap.git"
   },
   "keywords": [
+    "psap",
+    "pretty gsap",
     "interpol",
     "interpolation",
     "animation",
@@ -19,20 +20,24 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "vite build",
-    "build:watch": "vite build --watch",
-    "dev:interpol": "pnpm --filter ./examples/interpol-basic run dev",
-    "dev:timeline": "pnpm --filter ./examples/timeline-basic run dev",
+    "build": "pnpm recursive run build",
+    "build:watch": "pnpm recursive run build --watch",
+    "build:interpol": "pnpm run build --filter ./packages/interpol",
+    "build:interpol:watch": "pnpm run build --filter ./packages/interpol --watch",
+    "build:psap": "pnpm run build --filter ./packages/psap",
+    "build:psap:watch": "pnpm run build --filter ./packages/psap --watch",
+    "dev:interpol:interpol": "pnpm --filter ./examples/interpol run dev",
+    "dev:interpol:timeline": "pnpm --filter ./examples/timeline run dev",
     "dev:psap": "pnpm --filter ./examples/psap run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "pre-publish": "npm run build && npm run test"
   },
   "dependencies": {
-    "@wbe/debug": "^1.1.0",
-    "rollup-plugin-visualizer": "^5.9.0"
+    "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
+    "rollup-plugin-visualizer": "^5.9.0",
     "@types/node": "^18.15.11",
     "jsdom": "^21.1.0",
     "prettier": "^2.8.4",

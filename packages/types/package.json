@@ -1,0 +1,24 @@
+{
+  "name": "@psap/types",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "types": "./src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/willybrauner/psap.git"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && vite build",
+    "build:watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5",
+    "vite": "^4.3.5",
+    "vite-plugin-dts": "^2.3.0"
+  }
+}
