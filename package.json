@@ -1,7 +1,6 @@
 {
   "name": "psap",
-  "private": false,
-  "version": "0.1.0",
+  "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.js",
   "repository": {
@@ -16,9 +15,6 @@
     "timeline",
     "dom"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "vite build",
@@ -34,10 +30,11 @@
     "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
-    "rollup-plugin-visualizer": "^5.9.0",
+    "@changesets/cli": "^2.26.1",
     "@types/node": "^20.1.0",
     "jsdom": "^22.0.0",
     "prettier": "^2.8.8",
+    "rollup-plugin-visualizer": "^5.9.0",
     "typescript": "^5.0.4",
     "vite": "^4.3.5",
     "vite-plugin-dts": "^2.3.0",
