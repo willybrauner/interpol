@@ -1,5 +1,5 @@
 import Ticker from "~/core/Ticker"
-import { IInterpolConstruct } from "~/types"
+import { IInterpolConstruct } from "~/core/types"
 import { convertMatrix } from "~/psap/convertMatrix"
 import debug from "@wbe/debug"
 import { getUnit } from "~/psap/getUnit"
