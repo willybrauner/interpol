@@ -17,7 +17,6 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "pnpm run build:interpol && pnpm run build:psap",
-    "build:watch": "pnpm run build:interpol && pnpm run build:psap",
     "build:interpol": "pnpm --filter ./packages/interpol run build",
     "build:interpol:watch": "pnpm --filter ./packages/interpol run build:watch",
     "build:psap": "pnpm --filter ./packages/psap run build",
@@ -32,6 +31,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.1",
     "@types/node": "^20.1.0",
+    "concurrently": "^8.0.1",
     "jsdom": "^22.0.0",
     "prettier": "^2.8.8",
     "rollup-plugin-visualizer": "^5.9.0",

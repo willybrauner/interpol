@@ -1,10 +1,8 @@
 import debug from "@wbe/debug"
-import { IInterpolConstruct } from "@psap/interpol/dist/core/types"
 import { convertMatrix } from "./convertMatrix"
-import { Ticker, Interpol } from "@psap/interpol"
+import { IInterpolConstruct, Ticker, Interpol } from "@psap/interpol"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
-
 const log = debug(`interpol:psap`)
 
 // ----------------------------------------------------------------------------- TYPES

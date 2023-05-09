@@ -2,18 +2,9 @@
   "name": "@psap/interpol",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "module": "./dist/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
+  "files": ["dist"],
+  "main": "./dist/interpol.cjs",
+  "module": "./dist/interpol.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"

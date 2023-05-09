@@ -2,18 +2,9 @@
   "name": "@psap/psap",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "module": "./dist/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
+  "files": ["dist"],
+  "main": "./dist/psap.cjs",
+  "module": "./dist/psap.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"
@@ -30,8 +21,8 @@
     "build:watch": "vite build --watch"
   },
   "dependencies": {
-    "@wbe/debug": "^1.1.0",
-    "@psap/interpol": "workspace:*"
+    "@psap/interpol": "^0.0.0",
+    "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
     "typescript": "^5.0.4",

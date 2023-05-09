@@ -15,7 +15,8 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: [resolve(__dirname, "src/index.ts")],
-      name: "interpol",
+      name: "psap",
+      fileName: "psap",
       formats: ["es", "cjs"],
     },
   },
