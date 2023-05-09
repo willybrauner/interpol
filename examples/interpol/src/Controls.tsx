@@ -1,6 +1,6 @@
 import css from "./Controls.module.less"
 import React from "react"
-import { Ease, Interpol } from "@wbe/interpol"
+import { Ease, Interpol } from "@psap/interpol"
 export const Controls = ({
   className,
   instance,

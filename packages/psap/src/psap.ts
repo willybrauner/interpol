@@ -1,10 +1,10 @@
-import Ticker from "~/core/Ticker"
-import { IInterpolConstruct } from "~/core/types"
-import { convertMatrix } from "~/psap/convertMatrix"
 import debug from "@wbe/debug"
-import { getUnit } from "~/psap/getUnit"
-import { convertValueToUnitValue } from "~/psap/convertValueToUnitValue"
-import { Interpol } from "~/interpol/Interpol"
+import { IInterpolConstruct } from "@psap/interpol/dist/core/types"
+import { convertMatrix } from "./convertMatrix"
+import { Ticker, Interpol } from "@psap/interpol"
+import { getUnit } from "./getUnit"
+import { convertValueToUnitValue } from "./convertValueToUnitValue"
+
 const log = debug(`interpol:psap`)
 
 // ----------------------------------------------------------------------------- TYPES

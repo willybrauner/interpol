@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
-import { psap } from "../src"
+import { psap } from "../packages"
 import { randomRange } from "./utils/randomRange"
 import { CSSPropertiesCamelCase } from "./utils/CSSProperties"
 

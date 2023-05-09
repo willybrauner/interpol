@@ -1,5 +1,5 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline, Interpol, Ease } from "../src"
+import { Timeline, Interpol, Ease } from "../packages"
 import { randomRange } from "./utils/randomRange"
 
 describe.concurrent("Timeline stress test", () => {

@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../src"
+import { Interpol } from "../packages"
 import { randomRange } from "./utils/randomRange"
 import { wait } from "./utils/wait"
 

@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../src"
+import { Interpol } from "../packages"
 
 describe.concurrent("Interpol play", () => {
   it("should auto play by default", async () => {

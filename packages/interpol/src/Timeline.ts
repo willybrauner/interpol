@@ -1,10 +1,10 @@
 import { Interpol } from "./Interpol"
-import { IInterpolConstruct } from "~/core/types"
-import { deferredPromise } from "~/core/deferredPromise"
-import Ticker from "~/core/Ticker"
+import { Ticker } from "./core/Ticker"
+import { deferredPromise } from "./core/deferredPromise"
+import { IInterpolConstruct } from "./core/types"
+import { clamp } from "./core/clamp"
+import { round } from "./core/round"
 import debug from "@wbe/debug"
-import { clamp } from "~/core/clamp"
-import { round } from "~/core/round"
 const log = debug("interpol:Timeline")
 
 interface IAdd {

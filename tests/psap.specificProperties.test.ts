@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
-import { psap } from "../src"
+import { psap } from "../packages"
 import { randomRange } from "./utils/randomRange"
-import { validTransforms } from "../src/psap/psap"
+import { validTransforms } from "../packages/psap/src/psap"
 
 const getDocument = () => {
   const dom = new JSDOM()

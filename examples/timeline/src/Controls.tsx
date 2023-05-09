@@ -1,5 +1,5 @@
 import React from "react"
-import { Interpol } from "@wbe/interpol"
+import { Interpol } from "@psap/interpol"
 export const Controls = ({ instance }: { instance: Interpol }) => {
   return (
     <div className="Controls">

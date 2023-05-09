@@ -1,5 +1,4 @@
 {
-  // test comment
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
@@ -8,20 +7,19 @@
     "outDir": "dist",
     "strict": false,
     "jsx": "preserve",
-    "allowJs": true,
+    "declaration": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "types": [
-      "vite/client"
-    ],
     "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
       "~/*": ["src/*"]
     },
     "lib": ["esnext", "dom"]
   },
-  "include": ["src", "*.d.ts"]
+  "exclude": ["node_modules", "dist"],
+  "include": ["packages", "*.d.ts"]
 }

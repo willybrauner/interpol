@@ -1,4 +1,4 @@
-import Ticker from "~/core/Ticker"
+import { Ticker } from "./Ticker"
 
 export interface IUpdateParams {
   value: number

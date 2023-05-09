@@ -4,12 +4,10 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "vite --host",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "latest",
+    "@psap/interpol": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

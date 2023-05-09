@@ -1,5 +1,6 @@
 import "./index.css"
-import { psap, Ease } from "@wbe/interpol"
+import { psap } from "@psap/psap"
+import { Ease } from "@psap/interpol"
 
 const $ball = document.querySelector(".ball")
 

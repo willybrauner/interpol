@@ -1,6 +1,6 @@
 import css from "./App.module.less"
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Interpol, Ease } from "@wbe/interpol"
+import { Interpol, Ease } from "@psap/interpol"
 import { Controls } from "./Controls"
 import { Params } from "./Params"
 import { useWindowSize } from "../libs/useWindowSize"

@@ -1,0 +1,41 @@
+{
+  "name": "@psap/interpol",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/willybrauner/psap.git"
+  },
+  "keywords": [
+    "interpol",
+    "interpolation",
+    "animation",
+    "timeline"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && vite build",
+    "build:watch": "vite build --watch"
+  },
+  "dependencies": {
+    "@wbe/debug": "^1.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vite": "^4.3.5",
+    "vite-plugin-dts": "^2.3.0",
+    "vitest": "^0.31.0"
+  }
+}

@@ -11,7 +11,7 @@ export const CANCEL_RAF = typeof window === "undefined" ? (cb) => {} : cancelAni
 /**
  * Ticker
  */
-export default class Ticker {
+export class Ticker {
   // Contain timestamp when the experience starts and will stay the same
   public start: number
   // Contain the current timestamp and will change on each frame
@@ -25,7 +25,7 @@ export default class Ticker {
   // store the raf
   public debugEnable: boolean
   // store the raf
-  protected raf: number
+  protected raf
   // check if ticker is running
   public isRunning = false
 
