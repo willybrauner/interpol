@@ -22,7 +22,6 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
       }
     },
     onComplete: ({ value, time, progress }) => {
-      // console.log("complete,", { value, time, progress })
       expect(value).toBe(inter.to)
       expect(time).toBe(inter.duration)
       expect(progress).toBe(1)

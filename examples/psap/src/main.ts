@@ -12,7 +12,7 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 const a = psap.fromTo(
   $ball,
   {
-    x: 0,
+    x: -40,
     y: `-20px`,
     z: 0,
     rotateY: "0deg",

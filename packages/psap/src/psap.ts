@@ -107,12 +107,10 @@ export const getCssValue = (
   prop: PropOptions,
   proxyWindow = window
 ): string => {
-  // get value from style or computed style
   let cptValue =
     target.style[prop.usedKey] ||
     proxyWindow.getComputedStyle(target).getPropertyValue(prop.usedKey)
   if (cptValue === "none") cptValue = "0px"
-
   // get trans fn call from matrix of transform property, ex: translateX(10px)
   // parse trans (translateX(10px)) and return "10px"
   if (prop._isTransform) {
@@ -225,7 +223,9 @@ const anim = (
       beforeStart: () => {
         if (prop._hasExplicitFrom) {
           const vu = prop.from.value + prop.from.unit
-          target.style[prop.usedKey] = prop._isTransform ? `${prop.transformFn}(${vu})` : vu
+          if (isLast) {
+            target.style[prop.usedKey] = prop._isTransform ? `${prop.transformFn}(${vu})` : vu
+          }
         }
         if (isLast) beforeStart?.()
       },

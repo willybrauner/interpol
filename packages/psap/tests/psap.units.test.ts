@@ -86,20 +86,21 @@ describe.concurrent("anim with different units", () => {
     new Promise((resolve: any) => {
       const { proxy, $el } = getDocument()
       $el.style.transform = "translateX(0px) translateY(0px) translateZ(0px)"
+      
       psap.fromTo(
         $el,
         {
-          x: 0,
-          y: `0rem`,
-          z: `0px`,
+          x: -1,
+          y: "-2rem",
+          z: -3,
         },
         {
-          x: 10,
-          y: `20rem`,
-          z: `-10px`,
+          x: 1,
+          y: "2rem",
+          z: "3px",
           ...proxy,
           onComplete: () => {
-            expect($el.style.transform).toBe(`translateX(10px) translateY(20rem) translateZ(-10px)`)
+            expect($el.style.transform).toBe(`translateX(1px) translateY(2rem) translateZ(3px)`)
             resolve()
           },
         }

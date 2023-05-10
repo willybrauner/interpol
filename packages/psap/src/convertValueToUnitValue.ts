@@ -21,7 +21,6 @@ export function convertValueToUnitValue(
     log("unit 'from' and 'to' are the same, return the value", value)
     return value
   }
-
   // log({ fromUnit, toUnit, value })
   // create a temp node element in order to get his width
   const tempEl = pDocument.createElement(el.tagName)
