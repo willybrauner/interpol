@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../packages"
+import { Interpol } from "../src"
 
 describe.concurrent("Interpol beforeStart", () => {
   it("should execute beforeStart before the play", async () => {

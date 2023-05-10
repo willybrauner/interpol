@@ -1,6 +1,6 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../packages"
 import { wait } from "./utils/wait"
+import { Interpol } from "../src"
 
 describe.concurrent("Interpol pause", () => {
   it("should play, pause and play again (resume)", async () => {

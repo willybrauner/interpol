@@ -1,7 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../packages"
-import { randomRange } from "./utils/randomRange"
+import { Interpol } from "../src"
 import { interpolParamsGenerator } from "./utils/interpolParamsGenerator"
+import { randomRange } from "./utils/randomRange"
 
 /**
  * Create generic interpol tester

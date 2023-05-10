@@ -1,7 +1,7 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline, Interpol, Ease } from "../packages"
-import { randomRange } from "./utils/randomRange"
+import { Timeline } from "../src"
 import { wait } from "./utils/wait"
+
 
 describe.concurrent("Timeline reverse", () => {
   it("should reverse timeline properly", () => {

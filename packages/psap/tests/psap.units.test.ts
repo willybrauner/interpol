@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
 import { randomRange } from "./utils/randomRange"
 import { CSSPropertiesCamelCase } from "./utils/CSSProperties"
-import { psap } from "../packages"
+import { psap } from "../src"
 
 const getDocument = () => {
   const dom = new JSDOM()

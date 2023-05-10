@@ -2,9 +2,17 @@
   "name": "@psap/psap",
   "version": "0.0.0",
   "type": "module",
-  "files": ["dist"],
-  "main": "./dist/psap.cjs",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/psap.umd.cjs",
   "module": "./dist/psap.js",
+  "exports": {
+    ".": {
+      "import": "./dist/psap.js",
+      "require": "./dist/psap.umd.cjs"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"

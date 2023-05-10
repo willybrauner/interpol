@@ -14,14 +14,14 @@ const a = psap.fromTo(
   {
     x: 0,
     y: `-20px`,
+    z: 0,
     rotateY: "0deg",
-    // z: `16px`,
   },
   {
     x: 30,
     y: `20rem`,
     rotateY: "100deg",
-    // z: `18rem`,
+    z: 0,
     duration: 1,
     ease: Ease.linear,
     debug: true,

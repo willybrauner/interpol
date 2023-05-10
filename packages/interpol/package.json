@@ -2,9 +2,17 @@
   "name": "@psap/interpol",
   "version": "0.0.0",
   "type": "module",
-  "files": ["dist"],
-  "main": "./dist/interpol.cjs",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/interpol.umd.cjs",
   "module": "./dist/interpol.js",
+  "exports": {
+    ".": {
+      "import": "./dist/interpol.js",
+      "require": "./dist/interpol.umd.cjs"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"

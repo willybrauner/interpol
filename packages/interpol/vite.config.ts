@@ -17,7 +17,6 @@ export default defineConfig({
       entry: [resolve(__dirname, "src/index.ts")],
       name: "interpol",
       fileName: "interpol",
-      formats: ["es", "cjs"],
     },
   },
 

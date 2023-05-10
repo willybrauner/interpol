@@ -1,6 +1,5 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline, Interpol, Ease } from "../packages"
-import { wait } from "./utils/wait"
+import { Interpol, Timeline } from "../src"
 
 describe.concurrent("Timeline pause", () => {
   it("Timeline should pause and play properly", () => {

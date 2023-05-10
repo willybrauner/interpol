@@ -5,7 +5,6 @@ const log = debug("interpol:Ticker")
 // Useful trick from https://github.com/SolalDR/animate/blob/master/src/Timeline.ts
 export const RAF =
   typeof window === "undefined" ? (cb) => setTimeout(cb, 16) : requestAnimationFrame
-
 export const CANCEL_RAF = typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
 
 /**
