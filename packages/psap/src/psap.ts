@@ -1,11 +1,33 @@
 import debug from "@wbe/debug"
-import { convertMatrix } from "./convertMatrix"
 import { IInterpolConstruct, Ticker, Interpol } from "@psap/interpol"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
-const log = debug(`interpol:psap`)
+import { buildTransformChain } from "./buildTransformChain"
+import { getCssValue } from "./getCssValue"
+const log = debug(`psap:psap`)
 
 // ----------------------------------------------------------------------------- TYPES
+
+export const VALID_TRANSFORMS = [
+  "x",
+  "y",
+  "z",
+  "translateX",
+  "translateY",
+  "translateZ",
+  "rotate",
+  "rotateX",
+  "rotateY",
+  "rotateZ",
+  "scale",
+  "scaleX",
+  "scaleY",
+  "scaleZ",
+  "skew",
+  "skewX",
+  "skewY",
+  "perspective",
+]
 
 type Value = number | string
 interface CSSProps extends Record<keyof CSSStyleDeclaration, Value> {
@@ -39,7 +61,7 @@ interface IAnimOptionsWithoutProps
 
 type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
 
-type PropOptions = Partial<{
+export type PropOptions = Partial<{
   usedKey: string
   update: { value: number; time: number; progress: number }
   to: { value: number; unit: string }
@@ -67,62 +89,6 @@ type Psap = {
 }
 
 // ----------------------------------------------------------------------------- UTILS
-
-export const validTransforms = [
-  "x",
-  "y",
-  "z",
-  "translateX",
-  "translateY",
-  "translateZ",
-  "rotate",
-  "rotateX",
-  "rotateY",
-  "rotateZ",
-  "scale",
-  "scaleX",
-  "scaleY",
-  "scaleZ",
-  "skew",
-  "skewX",
-  "skewY",
-  "perspective",
-]
-
-/**
- * Chain transforms properties
- */
-const buildTransformChain = (props: Map<string, PropOptions>): string => {
-  let chain = ""
-  for (const [k, { to, transformFn, update, _isTransform }] of props)
-    if (_isTransform) chain += `${transformFn}(${update.value}${to.unit}) `
-  return chain.trim()
-}
-
-/**
- * Get css value from target
- */
-export const getCssValue = (
-  target: HTMLElement,
-  prop: PropOptions,
-  proxyWindow = window
-): string => {
-  let cptValue =
-    target.style[prop.usedKey] ||
-    proxyWindow.getComputedStyle(target).getPropertyValue(prop.usedKey)
-  if (cptValue === "none") cptValue = "0px"
-  // get trans fn call from matrix of transform property, ex: translateX(10px)
-  // parse trans (translateX(10px)) and return "10px"
-  if (prop._isTransform) {
-    const trans = cptValue.includes("matrix(")
-      ? convertMatrix(cptValue)?.[prop.transformFn]
-      : cptValue
-    return trans.match(/-?\d+(?:\.\d+)?[a-zA-Z%]+/)?.[0]
-  }
-
-  // if not transform, return value
-  return cptValue
-}
 
 /**
  *
@@ -155,6 +121,7 @@ const anim = (
     const isLast = i === keysEntries.length - 1
     const v = keys[key]
 
+    // Add prop to props
     props.set(key, {
       usedKey: key,
       from: { value: undefined, unit: undefined },
@@ -165,7 +132,7 @@ const anim = (
 
     const prop = props.get(key)
 
-    prop._isTransform = validTransforms.includes(key)
+    prop._isTransform = VALID_TRANSFORMS.includes(key)
     if (prop._isTransform) {
       prop.usedKey = "transform"
       if (key === "x") prop.transformFn = "translateX"
@@ -174,11 +141,14 @@ const anim = (
       else prop.transformFn = key
     }
 
+    // Value from css ex: translateX(10px) -> "10px"
     const cssValue: string = getCssValue(target, prop, proxyWindow)
+    // Number value without unit -> 10 (or 0)
     const cssValueN: number = parseFloat(cssValue) || 0
+    // Css value Unit -> "px"
     const cssValueUnit: string = getUnit(cssValue)
 
-    // // case, we have two objects, from To
+    // // Case we have two objects: "fromTo"
     if (fromKeys) {
       const [vFrom, vTo] = [fromKeys[key], keys[key]]
       prop._hasExplicitFrom = vFrom !== null && vFrom !== undefined
@@ -194,7 +164,7 @@ const anim = (
         proxyDocument
       )
     }
-    // case, we have one object to
+    // Case we have one object: "to"
     else {
       prop.to.unit = getUnit(v) || cssValueUnit
       prop.to.value = parseFloat(v) || cssValueN
@@ -207,9 +177,11 @@ const anim = (
         proxyWindow,
         proxyDocument
       )
+      log({ "parseFloat(v)": parseFloat(v), cssValueN })
+      log("prop.from.value", prop.from.value)
     }
 
-    // return interpol instance for current key
+    // Return interpol instance for current key
     return new Interpol({
       from: prop.from.value,
       to: prop.to.value,
@@ -240,7 +212,7 @@ const anim = (
       },
       onComplete: ({ value }) => {
         target.style[prop.usedKey] = prop._isTransform
-          ? buildTransformChain(props)
+          ? buildTransformChain(props, false)
           : value + prop.to.unit
         if (isLast) onComplete?.(props)
       },

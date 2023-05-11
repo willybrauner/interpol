@@ -1,6 +1,7 @@
 import "./index.css"
 import { psap } from "@psap/psap"
 import { Ease } from "@psap/interpol"
+import { gsap } from "gsap"
 
 const $ball = document.querySelector(".ball")
 
@@ -9,21 +10,34 @@ const $ball = document.querySelector(".ball")
 )
 window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 
+// anime({
+//   targets: '.css-transforms-demo .el',
+//   translateX: 250,
+//   scale: 2,
+//   rotate: '1turn'
+// });
+
 const a = psap.fromTo(
   $ball,
   {
-    x: -40,
-    y: `-20px`,
-    z: 0,
-    rotateY: "0deg",
+    // x: -40,
+    // y: `-20px`,
+    //z: 0,
+    // rotateY: "0deg",
+    scale: 21,
   },
   {
-    x: 30,
-    y: `20rem`,
-    rotateY: "100deg",
-    z: 0,
+    // x: 30,
+    // y: `20rem`,
+    // rotateY: "100deg",
+    scale: 10,
+    // z: 0,
     duration: 1,
-    ease: Ease.linear,
-    debug: true,
+    // debug: true,
   }
 )
+
+// const a = psap.to($ball, {
+//   scale: 10,
+//   duration: 1,
+// })

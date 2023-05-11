@@ -86,7 +86,6 @@ button:focus-visible {
 }
 
 .ball {
-  will-change: transform;
   font-size: 1em;
   /*top:-10px;*/
   /*left:-16px;*/
@@ -96,5 +95,5 @@ button:focus-visible {
   height: 20px;
   background: hotpink;
   border-radius: 100%;
-  /*transform: translateX(-10rem);*/
+  transform: scale(30);
 }

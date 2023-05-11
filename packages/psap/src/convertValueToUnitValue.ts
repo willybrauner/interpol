@@ -1,5 +1,5 @@
 import debug from "@wbe/debug"
-const log = debug(`interpol:convertValueToUnitValue`)
+const log = debug(`psap:convertValueToUnitValue`)
 
 /**
  * Convert a value from unit value to another unit value
@@ -17,11 +17,13 @@ export function convertValueToUnitValue(
   pWindow = window,
   pDocument = document
 ): number {
+  log({ fromUnit, toUnit, value })
+
   if (fromUnit === toUnit) {
     log("unit 'from' and 'to' are the same, return the value", value)
     return value
   }
-  // log({ fromUnit, toUnit, value })
+
   // create a temp node element in order to get his width
   const tempEl = pDocument.createElement(el.tagName)
   const parentEl = el.parentNode && el.parentNode !== pDocument ? el.parentNode : pDocument.body
@@ -30,6 +32,8 @@ export function convertValueToUnitValue(
   parentEl.appendChild(tempEl)
   const tempWidthPx = tempEl.offsetWidth
   parentEl.removeChild(tempEl)
+
+  log({ tempEl, parentEl, tempWidthPx })
 
   // get font-sizes
   const parentFontSize = parseFloat(pWindow.getComputedStyle(el.parentElement).fontSize)

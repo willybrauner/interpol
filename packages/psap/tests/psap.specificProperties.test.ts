@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
 import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
-import { validTransforms } from "../src/psap"
+import { VALID_TRANSFORMS } from "../src/psap"
 
 const getDocument = () => {
   const dom = new JSDOM()
@@ -15,22 +15,24 @@ const getDocument = () => {
 }
 
 describe.concurrent("anim specific CSS Properties", () => {
-  it("should anim properly 'to' on opacity", () => {
-    const { proxy, $el } = getDocument()
-    $el.style.opacity = "0"
-    const to = 0.2
-    psap.to($el, {
-      opacity: to,
-      ...proxy,
-      onComplete: () => {
-        expect($el.style.opacity).toBe(`${to}`)
-      },
-    })
-  })
+  it("should anim properly 'to' on opacity", () =>
+    new Promise((resolve: any) => {
+      const { proxy, $el } = getDocument()
+      $el.style.opacity = "0"
+      const to = 0.2
+      psap.to($el, {
+        opacity: to,
+        ...proxy,
+        onComplete: () => {
+          expect($el.style.opacity).toBe(`${to}`)
+          resolve()
+        },
+      })
+    }))
 
   it("should anim properly 'to' on regular transform properties", () =>
     new Promise((resolve: any) => {
-      const props = validTransforms.filter((prop) => prop !== "x" && prop !== "y" && prop !== "z")
+      const props = VALID_TRANSFORMS.filter((prop) => prop !== "x" && prop !== "y" && prop !== "z")
       props.forEach((prop, i) => {
         const isLast = i === props.length - 1
         const { proxy, $el } = getDocument()
@@ -50,7 +52,6 @@ describe.concurrent("anim specific CSS Properties", () => {
   it("should anim properly 'to' on adapter transform properties x, y, z", () =>
     new Promise((resolve: any) => {
       const props = ["translateX", "translateY", "translateZ"]
-
       // transform PROPS to adapter PROPS
       const getAdapter = (prop: string) => prop[prop.length - 1].toLowerCase()
 
@@ -74,16 +75,34 @@ describe.concurrent("anim specific CSS Properties", () => {
     const { proxy, $el } = getDocument()
     $el.style.transform = `translateX(0px) translateY(0px) translateZ(0px)`
     const to = randomRange(-100, 100)
-    psap.to($el, {
-      translateX: to,
-      translateY: to,
-      translateZ: to,
-      ...proxy,
-      onComplete: () => {
-        expect($el.style.transform).toBe(
-          `translateX(${to}px) translateY(${to}px) translateZ(${to}px)`
-        )
-      },
+    return new Promise((resolve: any) => {
+      psap.to($el, {
+        translateX: to,
+        translateY: to,
+        translateZ: to,
+        ...proxy,
+        onComplete: () => {
+          expect($el.style.transform).toBe(
+            `translateX(${to}px) translateY(${to}px) translateZ(${to}px)`
+          )
+          resolve()
+        },
+      })
+    })
+  })
+
+  it("should anim properly 'scale' with no unit", () => {
+    return new Promise((resolve: any) => {
+      const { proxy, $el } = getDocument()
+      $el.style.transform = `scale(0)`
+      psap.to($el, {
+        scale: 10,
+        ...proxy,
+        onComplete: () => {
+          expect($el.style.transform).toBe("scale(10)")
+          resolve()
+        },
+      })
     })
   })
 })

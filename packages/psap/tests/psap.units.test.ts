@@ -86,7 +86,6 @@ describe.concurrent("anim with different units", () => {
     new Promise((resolve: any) => {
       const { proxy, $el } = getDocument()
       $el.style.transform = "translateX(0px) translateY(0px) translateZ(0px)"
-      
       psap.fromTo(
         $el,
         {
