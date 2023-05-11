@@ -12,15 +12,19 @@ export const getCssValue = (
   proxyWindow = window
 ): string => {
   let cptValue =
-    target.style[prop.usedKey] ||
+    target?.style[prop.usedKey] ||
     proxyWindow.getComputedStyle(target).getPropertyValue(prop.usedKey)
   if (cptValue === "none") cptValue = "0px"
+
   // get trans fn call from matrix of transform property, ex: translateX(10px)
   // parse trans (translateX(10px)) and return "10px"
   if (prop._isTransform) {
     const trans = /^matrix(3d)?\([^)]*\)$/.test(cptValue)
       ? convertMatrix(cptValue)?.[prop.transformFn]
       : cptValue
+
+    log("prop.transformFn",prop.transformFn)
+    log('convertMatrix(cptValue)',convertMatrix(cptValue))
 
     const transExtract = trans.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
     // log({ transExtract })

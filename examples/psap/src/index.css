@@ -69,7 +69,6 @@ button:focus-visible {
   }
 }
 
-
 .App {
   width: 100vw;
   height: 100vh;
@@ -86,14 +85,13 @@ button:focus-visible {
 }
 
 .ball {
-  font-size: 1em;
-  /*top:-10px;*/
-  /*left:-16px;*/
-  /*opacity: 0.5;*/
-  position: absolute;
+  background: hotpink;
   width: 20px;
   height: 20px;
-  background: hotpink;
   border-radius: 100%;
-  transform: scale(30);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  transform: translateX(10px) scaleX(1.1);
 }

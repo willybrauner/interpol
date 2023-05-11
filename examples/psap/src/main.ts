@@ -17,27 +17,29 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 //   rotate: '1turn'
 // });
 
-const a = psap.fromTo(
-  $ball,
-  {
-    // x: -40,
-    // y: `-20px`,
-    //z: 0,
-    // rotateY: "0deg",
-    scale: 21,
-  },
-  {
-    // x: 30,
-    // y: `20rem`,
-    // rotateY: "100deg",
-    scale: 10,
-    // z: 0,
-    duration: 1,
-    // debug: true,
-  }
-)
+// const a = psap.fromTo(
+//   $ball,
+//   {
+//     // x: -40,
+//     // y: `-20px`,
+//     //z: 0,
+//     // rotateY: "0deg",
+//     scaleX: 21,
+//   },
+//   {
+//     // x: 30,
+//     // y: `20rem`,
+//     // rotateY: "100deg",
+//     scaleX: 10,
+//     // z: 0,
+//     duration: 1,
+//     paused: true,
+//     // debug: true,
+//   }
+// )
 
-// const a = psap.to($ball, {
-//   scale: 10,
-//   duration: 1,
-// })
+const a = psap.to($ball, {
+  scaleX: 10,
+  duration: 1,
+  paused: true,
+})

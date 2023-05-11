@@ -4,6 +4,8 @@ import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
+import { w } from "vitest/dist/types-b7007192"
+import { convertMatrix } from "./convertMatrix"
 const log = debug(`psap:psap`)
 
 // ----------------------------------------------------------------------------- TYPES
@@ -107,15 +109,39 @@ const anim = (
     beforeStart,
     onUpdate,
     onComplete,
-    proxyWindow,
-    proxyDocument,
+    proxyWindow = window,
+    proxyDocument = document,
     ...keys
   }: Options
 ) => {
   const props: Props = new Map<string, PropOptions>()
-
   const ticker = new Ticker()
 
+  // TODO décommente et continue.
+  // TODO on doit ajouter à props les valeurs récupérer de matrix ex: {scaleY : 1.5}
+  // TODO faire comme si ces valeurs étaient ajoutée manuellement par le dev dans keys
+
+  // let cptValue =
+  //   target?.style["transform"] || proxyWindow.getComputedStyle(target).getPropertyValue("transform")
+  // const trans = /^matrix(3d)?\([^)]*\)$/.test(cptValue) ? convertMatrix(cptValue) : cptValue
+  // for (const key in trans) {
+  //   if (trans[key] === "" || keys[key]) delete trans[key]
+  // }
+  // console.log("----------trans", trans)
+  //
+  // // get all transformFn and their values from cssValues
+  // const cssObj: PropOptions = {
+  //   usedKey: "transform",
+  //   _isTransform: true,
+  //   transformFn: "translateX",
+  // }
+  // const cssValue: string = getCssValue(target, cssObj, proxyWindow)
+  // // log("cssObj", cssObj)
+  // // log("cssValue", cssValue)
+  //
+  // keys = { ...{ x: cssValue }, ...keys }
+
+  // Start loop on prop keys
   const keysEntries = Object.keys(keys)
   const itps = keysEntries.map((key, i) => {
     const isLast = i === keysEntries.length - 1
@@ -148,7 +174,9 @@ const anim = (
     // Css value Unit -> "px"
     const cssValueUnit: string = getUnit(cssValue)
 
-    // // Case we have two objects: "fromTo"
+    log({ cssValue, cssValueN, cssValueUnit })
+
+    // Case we have two objects: "fromTo"
     if (fromKeys) {
       const [vFrom, vTo] = [fromKeys[key], keys[key]]
       prop._hasExplicitFrom = vFrom !== null && vFrom !== undefined
@@ -180,6 +208,8 @@ const anim = (
       log({ "parseFloat(v)": parseFloat(v), cssValueN })
       log("prop.from.value", prop.from.value)
     }
+    log("prop", prop)
+    log("props", props)
 
     // Return interpol instance for current key
     return new Interpol({
@@ -193,10 +223,12 @@ const anim = (
       ticker,
       debug,
       beforeStart: () => {
-        if (prop._hasExplicitFrom) {
-          const vu = prop.from.value + prop.from.unit
+        if (prop._hasExplicitFrom || paused) {
           if (isLast) {
-            target.style[prop.usedKey] = prop._isTransform ? `${prop.transformFn}(${vu})` : vu
+            log("beforeStart buildTransformChain(props)", buildTransformChain(props))
+            target.style[prop.usedKey] = prop._isTransform
+              ? buildTransformChain(props)
+              : prop.from.value + prop.from.unit
           }
         }
         if (isLast) beforeStart?.()
