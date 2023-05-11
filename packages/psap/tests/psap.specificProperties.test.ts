@@ -105,4 +105,19 @@ describe.concurrent("anim specific CSS Properties", () => {
       })
     })
   })
+
+  it("should keep existing transform properties on DOM if a new one is animated", () => {
+    return new Promise((resolve: any) => {
+      const { proxy, $el } = getDocument()
+      $el.style.transform = `translateX(10px) scale(0)`
+      psap.to($el, {
+        scale: 10,
+        ...proxy,
+        onComplete: () => {
+          expect($el.style.transform).toBe("translateX(10px) scale(10)")
+          resolve()
+        },
+      })
+    })
+  })
 })
