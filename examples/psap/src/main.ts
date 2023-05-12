@@ -33,7 +33,7 @@ const a = psap.fromTo(
     scaleY: 10,
     // z: 0,
 //    duration: 1,
-    paused: true,
+ //   paused: true,
     // debug: true,
   }
 )
