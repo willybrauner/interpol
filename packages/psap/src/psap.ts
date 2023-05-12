@@ -8,18 +8,14 @@ import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
 const log = debug(`psap:psap`)
 
-// ----------------------------------------------------------------------------- TYPES
-
 // prettier-ignore
 export const VALID_TRANSFORMS = [
   "x", "y", "z", "translateX", "translateY", "translateZ", "rotate", "rotateX", "rotateY",
   "rotateZ", "scale", "scaleX", "scaleY", "scaleZ", "skew", "skewX", "skewY", "perspective"
-]
-
-type Value = number | string
+] as const
 
 interface CSSProps
-  extends Record<keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number], Value> {}
+  extends Record<keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number], number | string> {}
 
 interface IAnimOptionsWithoutProps
   extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
@@ -62,10 +58,11 @@ type Psap = {
   from: From
 }
 
-// ----------------------------------------------------------------------------- UTILS
-
 /**
  * Main anim Function used by "to", "from" and "fromTo" methods
+ *
+ *
+ *
  */
 const anim = (
   target,
@@ -95,12 +92,11 @@ const anim = (
   // in case "from" object only is set
   keys = { ...fromKeys, ...keys }
 
-  // add transform props from CSS to keys
+  // Get all transform fn from CSS (translate, rotate...)
   const transformValues =
     target?.style["transform"] || proxyWindow.getComputedStyle(target).getPropertyValue("transform")
   const trans = isMatrix(transformValues) ? convertMatrix(transformValues) : transformValues
 
-  // Get all transform fn from CSS (translate, rotate...)
   // Filter empty values and already defined keys
   // and add them to keys in order to be kept in the loop
   for (const transformFn in trans) {
@@ -133,7 +129,7 @@ const anim = (
 
     const prop = props.get(key)
 
-    prop._isTransform = VALID_TRANSFORMS.includes(key)
+    prop._isTransform = VALID_TRANSFORMS.includes(key as (typeof VALID_TRANSFORMS)[number])
     if (prop._isTransform) {
       prop.usedKey = "transform"
       if (key === "x") prop.transformFn = "translateX"
@@ -180,8 +176,8 @@ const anim = (
         proxyWindow,
         proxyDocument
       )
-      log({ "parseFloat(v)": parseFloat(v), cssValueN })
-      log("prop.from.value", prop.from.value)
+      // log({ "parseFloat(v)": parseFloat(v), cssValueN })
+      // log("prop.from.value", prop.from.value)
     }
     log("prop", prop)
     log("props", props)
@@ -236,10 +232,13 @@ const anim = (
   })
 }
 
-// Final API
-// prettier-ignore
+/**
+ * Final API
+ *
+ *
+ */
 export const psap: Psap = {
-  to: (target: Element | HTMLElement, to: Options) => anim(target, undefined, to),
-  from: (target: Element | HTMLElement, from: Partial<CSSProps>) => anim(target, from, undefined),
-  fromTo: (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) => anim(target, from, to),
+  to: (target, to) => anim(target, undefined, to),
+  from: (target, from) => anim(target, from, undefined),
+  fromTo: (target, from, to) => anim(target, from, to),
 }

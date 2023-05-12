@@ -24,8 +24,8 @@ export const getCssValue = (
       ? convertMatrix(cptValue)?.[prop.transformFn]
       : cptValue
 
-    log("prop.transformFn", prop.transformFn)
-    log("convertMatrix(cptValue)", convertMatrix(cptValue))
+    // log("prop.transformFn", prop.transformFn)
+    // log("convertMatrix(cptValue)", convertMatrix(cptValue))
 
     const transExtract = trans.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
     // log({ transExtract })
