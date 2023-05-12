@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup"
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: { psap: "src/index.ts" },
   splitting: false,
   clean: true,
   minify: true,
