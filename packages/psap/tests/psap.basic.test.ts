@@ -14,7 +14,7 @@ const getDocument = () => {
   return { dom, win, doc, proxy, $el }
 }
 
-describe.concurrent("anim common CSS Properties (px), one anim() by property", () => {
+describe.concurrent("should anim properly 'to' common CSS Properties (one psap per property)", () => {
   it("should anim properly 'to'", () =>
     new Promise((resolve: any) => {
       const { doc, proxy, $el } = getDocument()
@@ -37,7 +37,7 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
   // on large number of properties, onComplete is called before all animations are done
   // and I don't know why
   // so we need to wait a bit...
-  it("should anim properly 'to' animating all properties on the same anim()", () =>
+  it("should anim properly 'to' animating all properties on the same psap", () =>
     new Promise((resolve: any) => {
       const { doc, proxy, $el } = getDocument()
       doc.body.append($el)
@@ -58,7 +58,7 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
     }))
 
   // 1. create an animation for each property
-  it("should anim properly [from to], one anim() by property", () =>
+  it("should anim properly 'fromTo'", () =>
     new Promise((resolve: any) => {
       const { doc, proxy, $el } = getDocument()
       CSSPropertiesCamelCase.forEach((prop, i) => {
@@ -85,7 +85,7 @@ describe.concurrent("anim common CSS Properties (px), one anim() by property", (
   // on large number of properties, onComplete is called before all animations are done
   // and I don't know why
   // so we need to wait a bit...
-  it("should anim properly [from to] animating all properties on the same anim()", () =>
+  it("should anim properly 'fromTo' all properties on the same psap", () =>
     new Promise((resolve: any) => {
       const { doc, proxy, $el } = getDocument()
       doc.body.append($el)
