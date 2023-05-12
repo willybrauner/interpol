@@ -93,5 +93,5 @@ button:focus-visible {
   left: 50%;
   top: 50%;
 
-  transform: translateX(10px) scaleX(1.1);
+  transform: translateX(10px);
 }

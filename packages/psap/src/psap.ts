@@ -4,61 +4,29 @@ import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
-import { w } from "vitest/dist/types-b7007192"
 import { convertMatrix } from "./convertMatrix"
+import { isMatrix } from "./isMatrix"
 const log = debug(`psap:psap`)
 
 // ----------------------------------------------------------------------------- TYPES
 
+// prettier-ignore
 export const VALID_TRANSFORMS = [
-  "x",
-  "y",
-  "z",
-  "translateX",
-  "translateY",
-  "translateZ",
-  "rotate",
-  "rotateX",
-  "rotateY",
-  "rotateZ",
-  "scale",
-  "scaleX",
-  "scaleY",
-  "scaleZ",
-  "skew",
-  "skewX",
-  "skewY",
-  "perspective",
+  "x", "y", "z", "translateX", "translateY", "translateZ", "rotate", "rotateX", "rotateY",
+  "rotateZ", "scale", "scaleX", "scaleY", "scaleZ", "skew", "skewX", "skewY", "perspective"
 ]
 
 type Value = number | string
-interface CSSProps extends Record<keyof CSSStyleDeclaration, Value> {
-  x: Value
-  y: Value
-  z: Value
-  translateX: Value
-  translateY: Value
-  translateZ: Value
-  rotate: Value
-  rotateX: Value
-  rotateY: Value
-  rotateZ: Value
-  scale: Value
-  scaleX: Value
-  scaleY: Value
-  scaleZ: Value
-  skew: Value
-  skewX: Value
-  skewY: Value
-  perspective: Value
-}
+
+interface CSSProps
+  extends Record<keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number], Value> {}
 
 interface IAnimOptionsWithoutProps
   extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
   onUpdate?: (props: Props) => void
   onComplete?: (props: Props) => void
-  proxyWindow?
-  proxyDocument?
+  proxyWindow?: Window | any
+  proxyDocument?: Document | any
 }
 
 type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
@@ -75,26 +43,29 @@ export type PropOptions = Partial<{
 
 type Props = Map<string, PropOptions>
 
-type Return = Readonly<{
-  play: () => Promise<Awaited<any>[]>
+type PsapAPI = Readonly<{
+  play: () => Promise<any>
   stop: () => void
   refreshComputedValues: () => void
-  replay: () => Promise<Awaited<any>[]>
-  reverse: () => Promise<Awaited<unknown>[]>
+  replay: () => Promise<any>
+  reverse: () => Promise<any>
   pause: () => void
 }>
-type To = (target: Element | HTMLElement, to: Options) => Return
-type FromTo = (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) => Return
+
+type Target = Element | HTMLElement
+type To = (target: Target, to: Options) => PsapAPI
+type From = (target: Target, from: Partial<CSSProps>) => PsapAPI
+type FromTo = (target: Target, from: Partial<CSSProps>, to: Options) => PsapAPI
 type Psap = {
   to: To
   fromTo: FromTo
+  from: From
 }
 
 // ----------------------------------------------------------------------------- UTILS
 
 /**
- *
- *
+ * Main anim Function used by "to", "from" and "fromTo" methods
  */
 const anim = (
   target,
@@ -114,40 +85,44 @@ const anim = (
     ...keys
   }: Options
 ) => {
-  const props: Props = new Map<string, PropOptions>()
+  // Create a common ticker for all interpolations
   const ticker = new Ticker()
 
-  // TODO décommente et continue.
-  // TODO on doit ajouter à props les valeurs récupérer de matrix ex: {scaleY : 1.5}
-  // TODO faire comme si ces valeurs étaient ajoutée manuellement par le dev dans keys
+  // Props Map will contain all props to animate, it will be our main reference
+  const props: Props = new Map<string, PropOptions>()
 
-  // let cptValue =
-  //   target?.style["transform"] || proxyWindow.getComputedStyle(target).getPropertyValue("transform")
-  // const trans = /^matrix(3d)?\([^)]*\)$/.test(cptValue) ? convertMatrix(cptValue) : cptValue
-  // for (const key in trans) {
-  //   if (trans[key] === "" || keys[key]) delete trans[key]
-  // }
-  // console.log("----------trans", trans)
-  //
-  // // get all transformFn and their values from cssValues
-  // const cssObj: PropOptions = {
-  //   usedKey: "transform",
-  //   _isTransform: true,
-  //   transformFn: "translateX",
-  // }
-  // const cssValue: string = getCssValue(target, cssObj, proxyWindow)
-  // // log("cssObj", cssObj)
-  // // log("cssValue", cssValue)
-  //
-  // keys = { ...{ x: cssValue }, ...keys }
+  // Before all, merge fromKeys and keys
+  // in case "from" object only is set
+  keys = { ...fromKeys, ...keys }
 
-  // Start loop on prop keys
-  const keysEntries = Object.keys(keys)
-  const itps = keysEntries.map((key, i) => {
-    const isLast = i === keysEntries.length - 1
+  // add transform props from CSS to keys
+  const transformValues =
+    target?.style["transform"] || proxyWindow.getComputedStyle(target).getPropertyValue("transform")
+  const trans = isMatrix(transformValues) ? convertMatrix(transformValues) : transformValues
+
+  // Get all transform fn from CSS (translate, rotate...)
+  // Filter empty values and already defined keys
+  // and add them to keys in order to be kept in the loop
+  for (const transformFn in trans) {
+    if (trans[transformFn] === "" || keys[transformFn]) {
+      delete trans[transformFn]
+    } else {
+      const cssValue: string = getCssValue(
+        target,
+        { usedKey: "transform", transformFn },
+        proxyWindow
+      )
+      keys = { ...{ [transformFn]: cssValue }, ...keys }
+    }
+  }
+
+  // Start loop of prop keys \o/
+  // ...........................
+  const itps = Object.keys(keys).map((key, i) => {
+    const isLast = i === Object.keys(keys).length - 1
     const v = keys[key]
 
-    // Add prop to props
+    // Set the known information in the main "props" Map
     props.set(key, {
       usedKey: key,
       from: { value: undefined, unit: undefined },
@@ -192,7 +167,7 @@ const anim = (
         proxyDocument
       )
     }
-    // Case we have one object: "to"
+    // Case we have one object: "to" or "from" only
     else {
       prop.to.unit = getUnit(v) || cssValueUnit
       prop.to.value = parseFloat(v) || cssValueN
@@ -262,8 +237,9 @@ const anim = (
 }
 
 // Final API
+// prettier-ignore
 export const psap: Psap = {
   to: (target: Element | HTMLElement, to: Options) => anim(target, undefined, to),
-  fromTo: (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) =>
-    anim(target, from, to),
+  from: (target: Element | HTMLElement, from: Partial<CSSProps>) => anim(target, from, undefined),
+  fromTo: (target: Element | HTMLElement, from: Partial<CSSProps>, to: Options) => anim(target, from, to),
 }

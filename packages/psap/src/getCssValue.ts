@@ -1,6 +1,7 @@
 import { PropOptions } from "./psap"
 import { convertMatrix } from "./convertMatrix"
 import debug from "@wbe/debug"
+import { isMatrix } from "./isMatrix"
 const log = debug(`psap:getCssValue`)
 
 /**
@@ -19,12 +20,12 @@ export const getCssValue = (
   // get trans fn call from matrix of transform property, ex: translateX(10px)
   // parse trans (translateX(10px)) and return "10px"
   if (prop._isTransform) {
-    const trans = /^matrix(3d)?\([^)]*\)$/.test(cptValue)
+    const trans = isMatrix(cptValue)
       ? convertMatrix(cptValue)?.[prop.transformFn]
       : cptValue
 
-    log("prop.transformFn",prop.transformFn)
-    log('convertMatrix(cptValue)',convertMatrix(cptValue))
+    log("prop.transformFn", prop.transformFn)
+    log("convertMatrix(cptValue)", convertMatrix(cptValue))
 
     const transExtract = trans.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
     // log({ transExtract })
