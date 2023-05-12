@@ -1,11 +1,12 @@
 import debug from "@wbe/debug"
-import { IInterpolConstruct, Ticker, Interpol } from "@psap/interpol"
+import { Ticker, Interpol, IInterpolConstruct } from "@psap/interpol"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
+
 const log = debug(`psap:psap`)
 
 // prettier-ignore
@@ -24,8 +25,7 @@ interface IAnimOptionsWithoutProps
   proxyWindow?: Window | any
   proxyDocument?: Document | any
 }
-
-type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
+type Options = Partial<IAnimOptionsWithoutProps & Partial<CSSProps>>
 
 export type PropOptions = Partial<{
   usedKey: string

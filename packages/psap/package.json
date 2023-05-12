@@ -5,14 +5,9 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/psap.umd.cjs",
-  "module": "./dist/psap.js",
-  "exports": {
-    ".": {
-      "import": "./dist/psap.js",
-      "require": "./dist/psap.umd.cjs"
-    }
-  },
+  "main": "dist/psap.cjs",
+  "module": "dist/psap.js",
+  "types": "dist/psap.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"
@@ -25,17 +20,16 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build": "tsup",
+    "build:watch": "tsup --watch --sourcemap"
   },
   "dependencies": {
     "@psap/interpol": "^0.0.0",
     "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
+    "tsup": "^6.7.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.5",
-    "vite-plugin-dts": "^2.3.0",
     "vitest": "^0.31.0"
   }
 }
