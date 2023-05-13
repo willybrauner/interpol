@@ -167,6 +167,9 @@ export class Interpol {
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
       this.log("this._duration <= 0, return", this._duration <= 0)
+      // stop after onComplete
+      this.onCompleteDeferred.resolve()
+      this.stop()
       return
     }
 

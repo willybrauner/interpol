@@ -38,14 +38,38 @@ describe.concurrent("Interpol play", () => {
   })
 
   it("play should return a resolved promise when complete", async () => {
-    const mock = vi.fn()
-    const itp = new Interpol({
-      to: 100,
-      paused: true,
-      onComplete: () => mock(),
+    return new Promise(async (resolve: any) => {
+      const mock = vi.fn()
+      const itp = new Interpol({
+        to: 100,
+        duration: 100,
+        paused: true,
+        onComplete: () => mock(),
+      })
+      await itp.play()
+      expect(itp.isPlaying).toBe(false)
+      expect(mock).toBeCalledTimes(1)
+      resolve()
     })
-    await itp.play()
-    expect(itp.isPlaying).toBe(false)
-    expect(mock).toBeCalledTimes(1)
+  })
+
+  it("play should play with duration 0", async () => {
+    const mock = vi.fn()
+    return new Promise((resolve: any) => {
+      new Interpol({
+        to: 1000,
+        duration: 0,
+        onUpdate: () => {
+          mock()
+          expect(mock).toBeCalledTimes(1)
+        },
+        onComplete: ({ value, time, progress }) => {
+          mock()
+          expect(mock).toBeCalledTimes(2)
+          expect(time).toBe(0)
+          resolve()
+        },
+      })
+    })
   })
 })

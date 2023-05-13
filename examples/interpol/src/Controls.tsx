@@ -26,7 +26,7 @@ export const Controls = ({
         >
           {Object.keys(Ease).map((e, i) => (
             <option key={i} value={e} className={css.easeOption}>
-              {e} : <em>{Ease[e].toString()}</em>
+              {e} : {Ease[e].toString()}
             </option>
           ))}
         </select>
