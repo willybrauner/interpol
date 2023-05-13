@@ -8,5 +8,6 @@ export default defineConfig({
   dts: true,
   format: ["cjs", "esm"],
   external: ["@wbe/debug"],
-  name: "interpol",
+  name: "psap",
+  globalName: "psap"
 })

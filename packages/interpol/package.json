@@ -5,9 +5,10 @@
   "files": [
     "dist"
   ],
-  "main": "dist/interpol.cjs",
-  "module": "dist/interpol.js",
-  "types": "dist/interpol.d.ts",
+  "sideEffects": false,
+  "main": "./dist/interpol.cjs",
+  "module": "./dist/interpol.js",
+  "types": "./dist/interpol.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"

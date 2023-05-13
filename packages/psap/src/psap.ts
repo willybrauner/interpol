@@ -25,7 +25,7 @@ interface IAnimOptionsWithoutProps
   proxyWindow?: Window | any
   proxyDocument?: Document | any
 }
-type Options = Partial<IAnimOptionsWithoutProps & Partial<CSSProps>>
+type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
 
 export type PropOptions = Partial<{
   usedKey: string
@@ -39,7 +39,7 @@ export type PropOptions = Partial<{
 
 type Props = Map<string, PropOptions>
 
-type PsapAPI = Readonly<{
+type API = Readonly<{
   play: () => Promise<any>
   stop: () => void
   refreshComputedValues: () => void
@@ -49,9 +49,10 @@ type PsapAPI = Readonly<{
 }>
 
 type Target = Element | HTMLElement
-type To = (target: Target, to: Options) => PsapAPI
-type From = (target: Target, from: Partial<CSSProps>) => PsapAPI
-type FromTo = (target: Target, from: Partial<CSSProps>, to: Options) => PsapAPI
+type To = (target: Target, to: Options) => API
+type From = (target: Target, from: Partial<CSSProps>) => API
+type FromTo = (target: Target, from: Partial<CSSProps>, to: Options) => API
+
 type Psap = {
   to: To
   fromTo: FromTo
@@ -64,7 +65,7 @@ type Psap = {
  *
  *
  */
-const anim = (
+const _anim = (
   target,
   fromKeys: Options,
   {
@@ -186,7 +187,7 @@ const anim = (
     return new Interpol({
       from: prop.from.value,
       to: prop.to.value,
-      duration: duration ? (duration as number) * 1000 : 1000,
+      duration: duration !== undefined ? (duration as number) * 1000 : 1000,
       ease,
       reverseEase,
       paused,
@@ -237,8 +238,10 @@ const anim = (
  *
  *
  */
-export const psap: Psap = {
-  to: (target, to) => anim(target, undefined, to),
-  from: (target, from) => anim(target, from, undefined),
-  fromTo: (target, from, to) => anim(target, from, to),
+const psap: Psap = {
+  to: (target, to) => _anim(target, undefined, to),
+  from: (target, from) => _anim(target, from, undefined),
+  fromTo: (target, from, to) => _anim(target, from, to),
 }
+
+export { psap }

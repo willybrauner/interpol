@@ -5,9 +5,10 @@
   "files": [
     "dist"
   ],
-  "main": "dist/psap.cjs",
-  "module": "dist/psap.js",
-  "types": "dist/psap.d.ts",
+  "sideEffects": false,
+  "main": "./dist/psap.cjs",
+  "module": "./dist/psap.js",
+  "types": "./dist/psap.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"

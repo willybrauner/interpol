@@ -17,6 +17,6 @@ export const buildTransformChain = (
 
   // force 30
   //  if (!chain.includes("translateZ") && force3D) chain += "translateZ(0px) "
-  log("chain", chain)
+  // log("chain", chain)
   return chain.trim()
 }

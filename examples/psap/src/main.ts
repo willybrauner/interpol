@@ -1,7 +1,7 @@
 import "./index.css"
-import { psap } from "@psap/psap"
 import { Ease } from "@psap/interpol"
 import { gsap } from "gsap"
+import { psap } from "@psap/psap"
 
 const $ball = document.querySelector(".ball")
 
@@ -31,16 +31,10 @@ const a = psap.fromTo(
     // y: `20rem`,
     // rotateY: "100deg",
     scaleY: 10,
+    //duration: 0,
     // z: 0,
-//    duration: 1,
- //   paused: true,
+    //    duration: 1,
+    //   paused: true,
     // debug: true,
   }
 )
-
-
-// const a = psap.to($ball, {
-//   scaleX: 10,
-//   duration: 1,
-//   paused: true,
-// })
