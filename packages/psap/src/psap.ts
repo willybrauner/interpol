@@ -91,25 +91,30 @@ const _anim = (
 
   // Before all, merge fromKeys and keys
   // in case "from" object only is set
-  keys = { ...fromKeys, ...keys }
+  keys = { ...(fromKeys || {}), ...(keys || {}) }
 
-  // Get all transform fn from CSS (translate, rotate...)
-  const transformValues =
-    target?.style["transform"] || proxyWindow.getComputedStyle(target).getPropertyValue("transform")
-  const trans = isMatrix(transformValues) ? convertMatrix(transformValues) : transformValues
-
-  // Filter empty values and already defined keys
-  // and add them to keys in order to be kept in the loop
-  for (const transformFn in trans) {
-    if (trans[transformFn] === "" || keys[transformFn]) {
-      delete trans[transformFn]
-    } else {
-      const cssValue: string = getCssValue(
-        target,
-        { usedKey: "transform", transformFn },
-        proxyWindow
-      )
-      keys = { ...{ [transformFn]: cssValue }, ...keys }
+  // .......................
+  // Prepare transform props
+  // If keys contains valid transform keys
+  if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
+    // Get all transform fn from CSS (translate, rotate...)
+    const transformValues =
+      target?.style["transform"] ||
+      proxyWindow.getComputedStyle(target).getPropertyValue("transform")
+    const trans = isMatrix(transformValues) ? convertMatrix(transformValues) : transformValues
+    // Filter empty values and already defined keys
+    // and add them to keys in order to be kept in the loop
+    for (const transformFn in trans) {
+      if (trans[transformFn] === "" || keys[transformFn]) {
+        delete trans[transformFn]
+      } else {
+        const cssValue: string = getCssValue(
+          target,
+          { usedKey: "transform", transformFn },
+          proxyWindow
+        )
+        keys = { ...{ [transformFn]: cssValue }, ...keys }
+      }
     }
   }
 
@@ -240,7 +245,7 @@ const _anim = (
  */
 const psap: Psap = {
   to: (target, to) => _anim(target, undefined, to),
-  from: (target, from) => _anim(target, from, undefined),
+  from: (target, from) => _anim(target, from, {}),
   fromTo: (target, from, to) => _anim(target, from, to),
 }
 
