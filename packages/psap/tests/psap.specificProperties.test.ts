@@ -105,49 +105,4 @@ describe.concurrent("anim specific CSS Properties", () => {
       })
     })
   })
-
-
-  // FIXME
-  it("cool", () => {
-    return new Promise((resolve: any) => {
-      const { proxy, $el } = getDocument()
-      $el.style.transform = "translateX(10px) scale(1.1)"
-      psap.to($el, {
-        scale: 10,
-        duration: 0,
-        ...proxy,
-        onUpdate: (e) => {
-          console.log("e", e)
-        },
-        onComplete: () => {
-          expect($el.style.transform).toBe("translateX(10px) scale(10)")
-          resolve()
-        },
-      })
-    })
-  })
-
-  // it.only("should keep existing transform properties on DOM if a new one is animated", () => {
-  //   const test = (startTransform: string, expectedTransform: string, prop: string, to: number) =>
-  //     new Promise((resolve: any) => {
-  //       const { proxy, $el } = getDocument()
-  //       $el.style.transform = startTransform
-  //       psap.to($el, {
-  //         [prop]: to,
-  //         duration: 0,
-  //         ...proxy,
-  //         onUpdate: (e) => {
-  //           console.log("prop", prop, $el.style.transform,e)
-  //         },
-  //         onComplete: () => {
-  //           expect($el.style.transform).toBe(expectedTransform)
-  //           resolve()
-  //         },
-  //       })
-  //     })
-  //
-  //   return Promise.all([
-  //     test("translateX(10px) scale(1.1)", "translateX(1px) scale(10)", "scaleX", 10),
-  //   ])
-  // })
 })
