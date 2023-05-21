@@ -129,4 +129,27 @@ describe.concurrent("anim specific CSS Properties", () => {
       })
     })
   })
+
+  it("should anim different transform fn together and respect different units", () => {
+    return new Promise((resolve: any) => {
+      const { proxy, $el } = getDocument()
+      $el.style.transform = "translateX(0px) scale(1.1)"
+      $el.style.left = "0rem"
+      psap.to($el, {
+        x: 10,
+        scale: 10,
+        left: "10rem",
+        duration: 0,
+        ...proxy,
+        // onUpdate: (e) => {
+        //   console.log(e)
+        // },
+        onComplete: () => {
+          expect($el.style.transform).toBe("translateX(10px) scale(10)")
+          expect($el.style.left).toBe("10rem")
+          resolve()
+        },
+      })
+    })
+  })
 })

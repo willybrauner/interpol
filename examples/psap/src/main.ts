@@ -56,7 +56,8 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 const a = psap.to($ball, {
   marginLeft: "100px",
   opacity: 0.5,
-//  scaleX: 2,
+  // skew: 2,
   x: 100,
   duration: 1,
+//  onUpdate: (e)=> console.log('e',e)
 })
