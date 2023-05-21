@@ -6,13 +6,17 @@ const log = debug(`psap:buildTransformChain`)
  */
 export const buildTransformChain = (
   props: Map<string, PropOptions>,
+  valueToUse: "to" | "from" | "update" = "to",
   force3D: boolean = true
 ): string => {
   let chain = ""
-  for (const [k, { from, to, transformFn, update, _isTransform }] of props) {
-    if (_isTransform) chain += `${transformFn}(${update.value || from.value}${to.unit}) `
+  for (const [k, prop] of props) {
+    if (prop._isTransform) {
+      chain += `${prop.transformFn}(${prop[valueToUse].value}${prop.to.unit}) `
+    }
   }
 
+//  log("chain", chain)
   // add non animated properties
 
   // force 30

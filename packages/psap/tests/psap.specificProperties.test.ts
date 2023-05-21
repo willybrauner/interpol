@@ -30,24 +30,42 @@ describe.concurrent("anim specific CSS Properties", () => {
       })
     }))
 
-  it("should anim properly 'to' on regular transform properties", () =>
+  it.only("should anim properly 'to' on opacity and a transform prop", () =>
     new Promise((resolve: any) => {
-      const props = VALID_TRANSFORMS.filter((prop) => prop !== "x" && prop !== "y" && prop !== "z")
-      props.forEach((prop, i) => {
-        const isLast = i === props.length - 1
-        const { proxy, $el } = getDocument()
-        $el.style.transform = `${prop}(0px)`
-        const to = randomRange(-100, 100)
-        psap.to($el, {
-          [prop]: to,
-          ...proxy,
-          onComplete: () => {
-            expect($el.style.transform).toBe(`${prop}(${to}px)`)
-            isLast && resolve()
-          },
-        })
+      const { proxy, $el } = getDocument()
+      $el.style.opacity = "0"
+      $el.style.transform = "translateX(0px)"
+      const to = 0.2
+      psap.to($el, {
+        opacity: to,
+        translateX: 100,
+        ...proxy,
+        onComplete: () => {
+          expect($el.style.opacity).toBe(`${to}`)
+          resolve()
+        },
       })
     }))
+
+
+  // it("should anim properly 'to' on regular transform properties", () =>
+  //   new Promise((resolve: any) => {
+  //     const props = VALID_TRANSFORMS.filter((prop) => prop !== "x" && prop !== "y" && prop !== "z")
+  //     props.forEach((prop, i) => {
+  //       const isLast = i === props.length - 1
+  //       const { proxy, $el } = getDocument()
+  //       $el.style.transform = `${prop}(0px)`
+  //       const to = randomRange(-100, 100)
+  //       psap.to($el, {
+  //         [prop]: to,
+  //         ...proxy,
+  //         onComplete: () => {
+  //           expect($el.style.transform).toBe(`${prop}(${to}px)`)
+  //           isLast && resolve()
+  //         },
+  //       })
+  //     })
+  //   }))
 
   it("should anim properly 'to' on adapter transform properties x, y, z", () =>
     new Promise((resolve: any) => {

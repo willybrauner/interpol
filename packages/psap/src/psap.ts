@@ -6,6 +6,7 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
+import { w } from "vitest/dist/types-b7007192"
 
 const log = debug(`psap:psap`)
 
@@ -34,6 +35,7 @@ export type PropOptions = Partial<{
   from: { value: number; unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
+  _hasExplicitTo: boolean
   _isTransform: boolean
 }>
 
@@ -65,24 +67,7 @@ type Psap = {
  *
  *
  */
-const _anim = (
-  target,
-  fromKeys: Options,
-  {
-    duration,
-    ease,
-    reverseEase,
-    paused,
-    delay,
-    debug,
-    beforeStart,
-    onUpdate,
-    onComplete,
-    proxyWindow = window,
-    proxyDocument = document,
-    ...keys
-  }: Options
-) => {
+const _anim = (target, fromKeys: Options, toKeys: Options) => {
   // Create a common ticker for all interpolations
   const ticker = new Ticker()
 
@@ -91,29 +76,54 @@ const _anim = (
 
   // Before all, merge fromKeys and keys
   // in case "from" object only is set
-  keys = { ...(fromKeys || {}), ...(keys || {}) }
+  let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
+
+  const o: IAnimOptionsWithoutProps = {
+    duration: 1,
+    ease: (t) => t,
+    reverseEase: (t) => t,
+    paused: false,
+    delay: 0,
+    debug: false,
+    beforeStart: () => {},
+    onUpdate: (props) => {},
+    onComplete: (props) => {},
+    proxyWindow: typeof window !== "undefined" && window,
+    proxyDocument: typeof window !== "undefined" && document,
+  }
+  // same with classic for loop
+  for (let i = 0; i < Object.keys(o).length; i++) {
+    const option = Object.keys(o)[i]
+    if (keys[option]) {
+      o[option] = keys[option]
+      delete keys[option]
+    }
+  }
 
   // .......................
   // Prepare transform props
   // If keys contains valid transform keys
   if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
     // Get all transform fn from CSS (translate, rotate...)
-    const transformValues =
-      target?.style["transform"] ||
-      proxyWindow.getComputedStyle(target).getPropertyValue("transform")
-    const trans = isMatrix(transformValues) ? convertMatrix(transformValues) : transformValues
-    // Filter empty values and already defined keys
-    // and add them to keys in order to be kept in the loop
-    for (const transformFn in trans) {
-      if (trans[transformFn] === "" || keys[transformFn]) {
-        delete trans[transformFn]
-      } else {
-        const cssValue: string = getCssValue(
-          target,
-          { usedKey: "transform", transformFn },
-          proxyWindow
-        )
-        keys = { ...{ [transformFn]: cssValue }, ...keys }
+    const transformFn =
+      target?.style.transform ??
+      o.proxyWindow.getComputedStyle(target).getPropertyValue("transform")
+
+    if (transformFn && transformFn !== "none") {
+      const trans = isMatrix(transformFn) ? convertMatrix(transformFn) : transformFn
+      // Filter empty values and already defined keys
+      // and add them to keys in order to be kept in the loop
+      for (const transformFn in trans) {
+        if (trans[transformFn] === "" || keys[transformFn]) {
+          delete trans[transformFn]
+        } else {
+          const cssValue: string = getCssValue(
+            target,
+            { usedKey: "transform", transformFn },
+            o.proxyWindow
+          )
+          keys = { ...{ [transformFn]: cssValue }, ...keys }
+        }
       }
     }
   }
@@ -131,6 +141,7 @@ const _anim = (
       to: { value: undefined, unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
+      _hasExplicitTo: false,
     })
 
     const prop = props.get(key)
@@ -144,88 +155,101 @@ const _anim = (
       else prop.transformFn = key
     }
 
-    // Value from css ex: translateX(10px) -> "10px"
-    const cssValue: string = getCssValue(target, prop, proxyWindow)
+    log("-----------------------------------------------------------------------")
+
+    // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
+    let cssValue: string = getCssValue(target, prop, o.proxyWindow)
+    //    cssValue = Number.isNaN(cssValue) || cssValue === "" ? "0px" : cssValue
     // Number value without unit -> 10 (or 0)
     const cssValueN: number = parseFloat(cssValue) || 0
     // Css value Unit -> "px"
-    const cssValueUnit: string = getUnit(cssValue)
+    const cssValueUnit: string = getUnit(cssValue, prop)
+    log("before specific cases", { cssValue, cssValueN, cssValueUnit })
 
-    log({ cssValue, cssValueN, cssValueUnit })
+    // Case we have one object: "from"
+    if (fromKeys && !toKeys) {
+      log("is from")
+      prop._hasExplicitFrom = true
+      prop.from.unit = getUnit(v, prop) || cssValueUnit
+      prop.from.value = parseFloat(v) && !isNaN(parseFloat(v)) ? parseFloat(v) : cssValueN
+      prop.to.unit = cssValueUnit
+      prop.to.value = cssValueN
+    }
 
     // Case we have two objects: "fromTo"
-    if (fromKeys) {
+    else if (fromKeys && toKeys) {
+      log("is fromTo")
       const [vFrom, vTo] = [fromKeys[key], keys[key]]
       prop._hasExplicitFrom = vFrom !== null && vFrom !== undefined
-      prop.to.unit = getUnit(vTo) || cssValueUnit
-      prop.to.value = parseFloat(vTo) || cssValueN
+
+      prop.to.unit = getUnit(vTo, prop) || cssValueUnit
+      prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.from.unit = prop.to.unit
       prop.from.value = convertValueToUnitValue(
         target,
-        parseFloat(vFrom) || cssValueN,
-        getUnit(vFrom) || cssValueUnit,
+        parseFloat(vFrom) && !isNaN(parseFloat(vFrom)) ? parseFloat(vFrom) : cssValueN,
+        getUnit(vFrom, prop) || cssValueUnit,
         prop.to.unit,
-        proxyWindow,
-        proxyDocument
+        o.proxyWindow,
+        o.proxyDocument
       )
     }
-    // Case we have one object: "to" or "from" only
+    // Case we have one object: "to"
     else {
-      prop.to.unit = getUnit(v) || cssValueUnit
-      prop.to.value = parseFloat(v) || cssValueN
+      log("is to")
+      prop.to.unit = getUnit(v, prop) || cssValueUnit
+      prop.to.value = parseFloat(v) && !isNaN(parseFloat(v)) ? parseFloat(v) : cssValueN
       prop.from.unit = cssValueUnit
       prop.from.value = convertValueToUnitValue(
         target,
         cssValueN,
         prop.from.unit,
         prop.to.unit,
-        proxyWindow,
-        proxyDocument
+        o.proxyWindow,
+        o.proxyDocument
       )
-      // log({ "parseFloat(v)": parseFloat(v), cssValueN })
-      // log("prop.from.value", prop.from.value)
     }
     log("prop", prop)
     log("props", props)
 
     // Return interpol instance for current key
-    return new Interpol({
+    const itp = new Interpol({
       from: prop.from.value,
       to: prop.to.value,
-      duration: duration !== undefined ? (duration as number) * 1000 : 1000,
-      ease,
-      reverseEase,
-      paused,
-      delay,
+      duration: o.duration !== undefined ? (o.duration as number) * 1000 : 1000,
+      ease: o.ease,
+      reverseEase: o.reverseEase,
+      paused: o.paused,
+      delay: o.delay,
       ticker,
-      debug,
+      debug: o.debug,
       beforeStart: () => {
-        if (prop._hasExplicitFrom || paused) {
-          if (isLast) {
-            log("beforeStart buildTransformChain(props)", buildTransformChain(props))
-            target.style[prop.usedKey] = prop._isTransform
-              ? buildTransformChain(props)
-              : prop.from.value + prop.from.unit
-          }
+        if (prop._hasExplicitFrom || o.paused) {
+          target.style[prop.usedKey] = prop._isTransform
+            ? buildTransformChain(props, "from")
+            : prop.from.value + prop.from.unit
         }
-        if (isLast) beforeStart?.()
+        if (isLast) o.beforeStart?.()
       },
       onUpdate: ({ value, time, progress }) => {
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
         target.style[prop.usedKey] = prop._isTransform
-          ? buildTransformChain(props)
+          ? buildTransformChain(props, "update")
           : value + prop.to.unit
-        if (isLast) onUpdate?.(props)
+        if (isLast) o.onUpdate?.(props)
       },
-      onComplete: ({ value }) => {
+      onComplete: () => {
+        const dir = itp.isReversed ? "from" : "to"
         target.style[prop.usedKey] = prop._isTransform
-          ? buildTransformChain(props, false)
-          : value + prop.to.unit
-        if (isLast) onComplete?.(props)
+          ? buildTransformChain(props, dir)
+          : prop[dir].value + prop[dir].unit
+        if (isLast) o.onComplete?.(props)
       },
     })
+
+    return itp
   })
 
   return Object.freeze({
@@ -245,7 +269,7 @@ const _anim = (
  */
 const psap: Psap = {
   to: (target, to) => _anim(target, undefined, to),
-  from: (target, from) => _anim(target, from, {}),
+  from: (target, from) => _anim(target, from, undefined),
   fromTo: (target, from, to) => _anim(target, from, to),
 }
 
