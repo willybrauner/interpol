@@ -23,33 +23,33 @@ const $ball = document.querySelectorAll(".ball")
 // });
 //
 
-// const a = psap.fromTo(
-//   $ball,
-//   {
-//     rotateY: -100,
-//     marginTop: "-10px",
-//     x: "-3rem",
-//     scaleY: 1,
-//   },
-//   {
-//     rotateY: 100,
-//     x: "3rem",
-//     scaleY: 10,
-//     marginTop: "110px",
-//     duration: 1,
-//   }
-// )
-
-const a = psap.to($ball, {
-  // marginLeft: "100px",
-  scale: () => randomRange(0.5, 5),
-  x: () => randomRange(-100, 100),
-  y: () => randomRange(-100, 100),
-  ease: Ease.inOutCubic,
-  // x: 100,
-  //  duration: 0.5,
-  //  ease: Ease.inCubic,
-})
+const a = psap.fromTo(
+  $ball,
+  {
+    rotateY: ()=> randomRange(-100, 100),
+    marginTop: "-10px",
+    x:()=> randomRange(-100, 100),
+    scaleY: 1,
+  },
+  {
+    rotateY:()=> randomRange(-100, 100),
+    x:()=> randomRange(-100, 100),
+    scaleY: 10,
+    marginTop: "110px",
+    duration: 1,
+  }
+)
+//
+// const a = psap.to($ball, {
+//   // marginLeft: "100px",
+//   scale: () => randomRange(0.5, 5),
+//   x: () => randomRange(-100, 100),
+//   y: () => randomRange(-100, 100),
+//   ease: Ease.inOutCubic,
+//   // x: 100,
+//   //  duration: 0.5,
+//   //  ease: Ease.inCubic,
+// })
 
 // const a = psap.to($ball, {
 //   marginLeft: "100px",

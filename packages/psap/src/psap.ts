@@ -6,6 +6,7 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
+import { b } from "vitest/dist/types-b7007192"
 
 const log = debug(`psap:psap`)
 const isSSR = () => typeof window === "undefined"
@@ -287,9 +288,8 @@ const _anim = (target: HTMLElement, fromKeys: Options, toKeys: Options) => {
 }
 
 /**
- * Final API
+ *
  */
-
 const returnAPI = (a: any[]) =>
   Object.freeze({
     play: () => Promise.all(a.map((e) => e.play())),
@@ -299,19 +299,31 @@ const returnAPI = (a: any[]) =>
     pause: () => a.forEach((e) => e.pause()),
   })
 
+function isNodeList($el): boolean {
+  return isSSR()
+    ? Array.isArray($el)
+    : NodeList.prototype.isPrototypeOf($el) || $el.constructor === NodeList
+}
+
+const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
+
+/**
+ * Final
+ */
 const psap: Psap = {
   set: (target, to) => {
-    if (!Array.isArray(Array.from(target))) target = [target]
-    const a = [...target].map((e) => _anim(e, undefined, { ...to, _type: "set" }))
-    return returnAPI(a)
+    const anims = fTarget(target).map((e) => _anim(e, undefined, { ...to, _type: "set" }))
+    return returnAPI(anims)
   },
   to: (target, to) => {
-    if (!Array.isArray(Array.from(target))) target = [target]
-    const a = [...target].map((e) => _anim(e, undefined, { ...to, _type: "to" }))
-    return returnAPI(a)
+    const anims = fTarget(target).map((e) => _anim(e, undefined, { ...to, _type: "to" }))
+    return returnAPI(anims)
   },
-  from: (target, from) => _anim(target, { ...from, _type: "from" }, undefined),
-  fromTo: (target, from, to) => _anim(target, { ...from, _type: "fromTo" }, to),
+  from: (target, from) =>
+    returnAPI(fTarget(target).map((e) => _anim(e, { ...from, _type: "from" }, undefined))),
+
+  fromTo: (target, from, to) =>
+    returnAPI(fTarget(target).map((e) => _anim(e, { ...from, _type: "fromTo" }, to))),
 }
 
 export { psap }
