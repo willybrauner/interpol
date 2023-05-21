@@ -52,7 +52,7 @@ type API = Readonly<{
 
 type Target = Element | HTMLElement
 type To = (target: Target, to: Options) => API
-type From = (target: Target, from: Partial<CSSProps>) => API
+type From = (target: Target, from: Options) => API
 type FromTo = (target: Target, from: Partial<CSSProps>, to: Options) => API
 
 type Psap = {

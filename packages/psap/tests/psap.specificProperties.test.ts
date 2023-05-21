@@ -30,7 +30,7 @@ describe.concurrent("anim specific CSS Properties", () => {
       })
     }))
 
-  it.only("should anim properly 'to' on opacity and a transform prop", () =>
+  it("should anim properly 'to' on opacity and a transform prop", () =>
     new Promise((resolve: any) => {
       const { proxy, $el } = getDocument()
       $el.style.opacity = "0"
