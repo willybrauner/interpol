@@ -40,13 +40,13 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 //   }
 // )
 
-const a = psap.to($ball, {
+const a = psap.set($ball, {
   // marginLeft: "100px",
   opacity: 0.5,
   scale: () => randomRange(1, 10),
   // x: 100,
-  duration: 0.5,
-  ease: Ease.inCubic,
+  //  duration: 0.5,
+  //  ease: Ease.inCubic,
 })
 
 // const a = psap.to($ball, {

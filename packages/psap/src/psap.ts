@@ -31,14 +31,19 @@ interface CSSProps
     number | (() => number) | string | (() => string)
   > {}
 
+type AnimType = "to" | "from" | "fromTo" | "set"
+
 interface IAnimOptionsWithoutProps
   extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
   onUpdate?: (props: Props) => void
   onComplete?: (props: Props) => void
   proxyWindow?: Window | any
   proxyDocument?: Document | any
+  _type?: AnimType
 }
+
 type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
+type OptionsParams = Omit<Options, "_type">
 
 export type PropOptions = Partial<{
   usedKey: string
@@ -62,11 +67,23 @@ type API = Readonly<{
 }>
 
 type Target = Element | HTMLElement
-type To = (target: Target, to: Options) => API
-type From = (target: Target, from: Options) => API
-type FromTo = (target: Target, from: Partial<CSSProps>, to: Options) => API
+type SetOmit =
+  | "ease"
+  | "reverseEase"
+  | "paused"
+  | "delay"
+  | "duration"
+  | "onUpdate"
+  | "beforeStart"
+  | "onRepeatComplete"
+
+type Set = (target: Target, to: Omit<OptionsParams, SetOmit>) => API
+type To = (target: Target, to: OptionsParams) => API
+type From = (target: Target, from: OptionsParams) => API
+type FromTo = (target: Target, from: Partial<CSSProps>, to: OptionsParams) => API
 
 type Psap = {
+  set: Set
   to: To
   fromTo: FromTo
   from: From
@@ -102,6 +119,7 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     onComplete: (props) => {},
     proxyWindow: !isSSR() && window,
     proxyDocument: !isSSR() && document,
+    _type: null,
   }
 
   // Merge options
@@ -113,8 +131,8 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     }
   }
 
-  // .......................
   // Prepare transform props
+  // .......................
   // If keys contains valid transform keys
   if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
     // Get all transform fn from CSS (translate, rotate...)
@@ -170,7 +188,7 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
       else prop.transformFn = key
     }
 
-    log("-----------------------------------------------------------------------")
+    log("---------------------------------------------------------------------------------")
 
     // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
     let cssValue: string = getCssValue(target, prop, o.proxyWindow)
@@ -178,11 +196,10 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     const cssValueN: number = parseFloat(cssValue) || 0
     // Css value Unit -> "px"
     const cssValueUnit: string = getUnit(cssValue, prop)
-    log("before specific cases", { cssValue, cssValueN, cssValueUnit })
+    log({ cssValue, cssValueN, cssValueUnit })
 
     // Case we have one object: "from"
-    if (fromKeys && !toKeys) {
-      log("is from")
+    if (o._type === "from") {
       prop._hasExplicitFrom = true
       prop.from.unit = getUnit(v, prop) || cssValueUnit
       prop.from.value = parseFloat(v) && !isNaN(parseFloat(v)) ? parseFloat(v) : cssValueN
@@ -191,11 +208,9 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     }
 
     // Case we have two objects: "fromTo"
-    else if (fromKeys && toKeys) {
-      log("is fromTo")
+    else if (o._type === "fromTo") {
+      prop._hasExplicitFrom = true
       const [vFrom, vTo] = [fromKeys[key], keys[key]]
-      prop._hasExplicitFrom = vFrom !== null && vFrom !== undefined
-
       prop.to.unit = getUnit(vTo, prop) || cssValueUnit
       prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.from.unit = prop.to.unit
@@ -208,9 +223,8 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
         o.proxyDocument
       )
     }
-    // Case we have one object: "to"
+    // Case we have one object: "to" or "set"
     else {
-      log("is to")
       prop.to.unit = getUnit(v, prop) || cssValueUnit
       prop.to.value = parseFloat(v) && !isNaN(parseFloat(v)) ? parseFloat(v) : cssValueN
       prop.from.unit = cssValueUnit
@@ -223,14 +237,17 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
         o.proxyDocument
       )
     }
+
     log("prop", prop)
-    log("props", props)
 
     // Return interpol instance for current key
     const itp = new Interpol({
       from: prop.from.value,
       to: prop.to.value,
-      duration: o.duration !== undefined ? (o.duration as number) * 1000 : 1000,
+      duration:
+        // case "set" we don't want to animate
+        // else animate 1s by default if no duration is specified
+        o._type === "set" ? 0 : o.duration !== undefined ? (o.duration as number) * 1000 : 1000,
       ease: o.ease,
       reverseEase: o.reverseEase,
       paused: o.paused,
@@ -277,13 +294,12 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
 
 /**
  * Final API
- *
- *
  */
 const psap: Psap = {
-  to: (target, to) => _anim(target, undefined, to),
-  from: (target, from) => _anim(target, from, undefined),
-  fromTo: (target, from, to) => _anim(target, from, to),
+  set: (target, to) => _anim(target, undefined, { ...to, _type: "set" }),
+  to: (target, to) => _anim(target, undefined, { ...to, _type: "to" }),
+  from: (target, from) => _anim(target, { ...from, _type: "from" }, undefined),
+  fromTo: (target, from, to) => _anim(target, { ...from, _type: "fromTo" }, to),
 }
 
 export { psap }

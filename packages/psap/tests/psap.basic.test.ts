@@ -130,5 +130,23 @@ describe.concurrent(
           },
         })
       }))
+
+    it("should not anim 'set' method", () =>
+      new Promise((resolve: any) => {
+        const { proxy, $el } = getDocument()
+        psap.set($el, {
+          left: `10px`,
+          width: `10rem`,
+          x: 10,
+          y: "10rem",
+          ...proxy,
+          onComplete: () => {
+            expect($el.style.left).toBe("10px")
+            expect($el.style.width).toBe("10rem")
+            expect($el.style.transform).toBe("translateX(10px) translateY(10rem)")
+            resolve()
+          },
+        })
+      }))
   }
 )
