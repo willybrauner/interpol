@@ -168,7 +168,6 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
 
     // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
     let cssValue: string = getCssValue(target, prop, o.proxyWindow)
-    //    cssValue = Number.isNaN(cssValue) || cssValue === "" ? "0px" : cssValue
     // Number value without unit -> 10 (or 0)
     const cssValueN: number = parseFloat(cssValue) || 0
     // Css value Unit -> "px"

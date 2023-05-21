@@ -25,8 +25,18 @@ export const getCssValue = (
   // get trans fn call from matrix of transform property, ex: translateX(10px)
   // parse trans (translateX(10px)) and return "10px"
   if (prop._isTransform) {
-    const trans = isMatrix(cptValue) ? convertMatrix(cptValue)?.[prop.transformFn] : "0"
-    const transExtract = trans.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
+    // if transform is a matrix, we need to convert default value to an object
+    // and get the value from the transform function
+    let defaultValue
+    if (isMatrix(cptValue)) {
+      defaultValue = convertMatrix(cptValue)?.[prop.transformFn]
+      // else if transform is a scale, default value is 1
+      // else default value is 0
+    } else {
+      defaultValue = prop.transformFn.includes("scale") ? "1" : "0"
+    }
+
+    const transExtract = defaultValue.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
     // log({ transExtract })
     return transExtract
   }

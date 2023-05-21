@@ -115,21 +115,6 @@ describe.concurrent("anim specific CSS Properties", () => {
     })
   })
 
-  it("should anim properly 'scale' with no unit", () => {
-    return new Promise((resolve: any) => {
-      const { proxy, $el } = getDocument()
-      $el.style.transform = `scale(0)`
-      psap.to($el, {
-        scale: 10,
-        ...proxy,
-        onComplete: () => {
-          expect($el.style.transform).toBe("scale(10)")
-          resolve()
-        },
-      })
-    })
-  })
-
   it("should anim different transform fn together and respect different units", () => {
     return new Promise((resolve: any) => {
       const { proxy, $el } = getDocument()
@@ -141,12 +126,23 @@ describe.concurrent("anim specific CSS Properties", () => {
         left: "10rem",
         duration: 0,
         ...proxy,
-        // onUpdate: (e) => {
-        //   console.log(e)
-        // },
         onComplete: () => {
           expect($el.style.transform).toBe("translateX(10px) scale(10)")
           expect($el.style.left).toBe("10rem")
+          resolve()
+        },
+      })
+    })
+  })
+
+  it("should anim properly 'scale' with no unit and stop to '1'", () => {
+    return new Promise((resolve: any) => {
+      const { proxy, $el } = getDocument()
+      psap.from($el, {
+        scale: 10,
+        ...proxy,
+        onComplete: () => {
+          expect($el.style.transform).toBe("scale(1)")
           resolve()
         },
       })

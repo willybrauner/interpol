@@ -17,47 +17,36 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 //   rotate: '1turn'
 // });
 //
+
 // const a = psap.fromTo(
 //   $ball,
 //   {
-//     // y: `-20px`,
-//     //z: 0,
-//     // rotateY: "-100deg",
 //     rotateY: -100,
 //     marginTop: "-10px",
 //     x: "-3rem",
 //     scaleY: 1,
 //   },
 //   {
-//     // y: `20rem`,
-//     // rotateY: "100deg",
 //     rotateY: 100,
 //     x: "3rem",
 //     scaleY: 10,
-//     duration: 1,
-//
 //     marginTop: "110px",
-//     //duration: 0,
-//     // z: 0,
-//     //    duration: 1,
-//       paused: true,
-//     // debug: true,
+//     duration: 1,
 //   }
 // )
+
+const a = psap.to($ball, {
+  // marginLeft: "100px",
+  // opacity: 0.5,
+  scale: 10,
+  // x: 100,
+  duration: 0.5,
+  ease: Ease.inCubic
+})
 
 // const a = psap.to($ball, {
 //   marginLeft: "100px",
 //   opacity: 0.5,
-//   scaleX: 2,
 //   x: 100,
 //   duration: 1,
 // })
-
-const a = psap.to($ball, {
-  marginLeft: "100px",
-  opacity: 0.5,
-  // skew: 2,
-  x: 100,
-  duration: 1,
-//  onUpdate: (e)=> console.log('e',e)
-})
