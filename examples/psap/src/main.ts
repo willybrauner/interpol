@@ -53,10 +53,10 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 //   duration: 1,
 // })
 
-const a = psap.from($ball, {
+const a = psap.to($ball, {
   marginLeft: "100px",
   opacity: 0.5,
-  scaleX: 2,
+//  scaleX: 2,
   x: 100,
   duration: 1,
 })

@@ -11,9 +11,18 @@ import { w } from "vitest/dist/types-b7007192"
 const log = debug(`psap:psap`)
 
 // prettier-ignore
+export const DEG_UNIT_FN = ["rotate", "rotateX", "rotateY", "rotateZ", "skew", "skewX", "skewY"] as const
+export const RAD_UNIT_FN = ["perspective"] as const
+export const PX_UNIT_FN = ["translateX", "translateY", "translateZ"] as const
+const NO_UNIT_FN = ["scale", "scaleX", "scaleY", "scaleZ"] as const
 export const VALID_TRANSFORMS = [
-  "x", "y", "z", "translateX", "translateY", "translateZ", "rotate", "rotateX", "rotateY",
-  "rotateZ", "scale", "scaleX", "scaleY", "scaleZ", "skew", "skewX", "skewY", "perspective"
+  "x",
+  "y",
+  "z",
+  ...PX_UNIT_FN,
+  ...DEG_UNIT_FN,
+  ...RAD_UNIT_FN,
+  ...NO_UNIT_FN,
 ] as const
 
 interface CSSProps
