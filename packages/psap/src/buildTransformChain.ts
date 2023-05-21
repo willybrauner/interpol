@@ -15,10 +15,6 @@ export const buildTransformChain = (
       chain += `${prop.transformFn}(${prop[valueToUse].value}${prop.to.unit}) `
     }
   }
-
-//  log("chain", chain)
-  // add non animated properties
-
   // force 30
   //  if (!chain.includes("translateZ") && force3D) chain += "translateZ(0px) "
   // log("chain", chain)

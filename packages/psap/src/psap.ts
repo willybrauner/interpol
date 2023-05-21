@@ -6,15 +6,15 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
-import { w } from "vitest/dist/types-b7007192"
 
 const log = debug(`psap:psap`)
+const isSSR = () => typeof window === "undefined"
 
 // prettier-ignore
 export const DEG_UNIT_FN = ["rotate", "rotateX", "rotateY", "rotateZ", "skew", "skewX", "skewY"] as const
 export const RAD_UNIT_FN = ["perspective"] as const
 export const PX_UNIT_FN = ["translateX", "translateY", "translateZ"] as const
-const NO_UNIT_FN = ["scale", "scaleX", "scaleY", "scaleZ"] as const
+export const NO_UNIT_FN = ["scale", "scaleX", "scaleY", "scaleZ"] as const
 export const VALID_TRANSFORMS = [
   "x",
   "y",
@@ -97,8 +97,8 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     beforeStart: () => {},
     onUpdate: (props) => {},
     onComplete: (props) => {},
-    proxyWindow: typeof window !== "undefined" && window,
-    proxyDocument: typeof window !== "undefined" && document,
+    proxyWindow: !isSSR() && window,
+    proxyDocument: !isSSR() && document,
   }
   // same with classic for loop
   for (let i = 0; i < Object.keys(o).length; i++) {
