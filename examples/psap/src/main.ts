@@ -3,6 +3,11 @@ import { Ease } from "@psap/interpol"
 import { gsap } from "gsap"
 import { psap } from "@psap/psap"
 
+function randomRange(min: number, max: number, decimal = 0): number {
+  const rand = Math.random() * (max - min + 1) + min
+  const power = Math.pow(10, decimal)
+  return Math.floor(rand * power) / power
+}
 const $ball = document.querySelector(".ball")
 
 ;["play", "reverse", "replay", "pause", "stop"].forEach(
@@ -37,11 +42,11 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 
 const a = psap.to($ball, {
   // marginLeft: "100px",
-  // opacity: 0.5,
-  scale: 10,
+  opacity: 0.5,
+  scale: () => randomRange(1, 10),
   // x: 100,
   duration: 0.5,
-  ease: Ease.inCubic
+  ease: Ease.inCubic,
 })
 
 // const a = psap.to($ball, {

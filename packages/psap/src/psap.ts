@@ -26,7 +26,10 @@ export const VALID_TRANSFORMS = [
 ] as const
 
 interface CSSProps
-  extends Record<keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number], number | string> {}
+  extends Record<
+    keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number],
+    number | (() => number) | string | (() => string)
+  > {}
 
 interface IAnimOptionsWithoutProps
   extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
@@ -40,8 +43,8 @@ type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
 export type PropOptions = Partial<{
   usedKey: string
   update: { value: number; time: number; progress: number }
-  to: { value: number; unit: string }
-  from: { value: number; unit: string }
+  to: { value: number | (() => number); unit: string }
+  from: { value: number | (() => number); unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
   _hasExplicitTo: boolean
@@ -53,7 +56,6 @@ type Props = Map<string, PropOptions>
 type API = Readonly<{
   play: () => Promise<any>
   stop: () => void
-  refreshComputedValues: () => void
   replay: () => Promise<any>
   reverse: () => Promise<any>
   pause: () => void
@@ -86,6 +88,7 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
   // Before all, merge fromKeys and keys
   // in case "from" object only is set
   let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
+  let _copyKeys = { ...keys }
 
   const o: IAnimOptionsWithoutProps = {
     duration: 1,
@@ -100,7 +103,8 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     proxyWindow: !isSSR() && window,
     proxyDocument: !isSSR() && document,
   }
-  // same with classic for loop
+
+  // Merge options
   for (let i = 0; i < Object.keys(o).length; i++) {
     const option = Object.keys(o)[i]
     if (keys[option]) {
@@ -141,7 +145,9 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
   // ...........................
   const itps = Object.keys(keys).map((key, i) => {
     const isLast = i === Object.keys(keys).length - 1
-    const v = keys[key]
+
+    const compute = (p) => (typeof p === "function" ? p() : p)
+    const v = compute(keys[key])
 
     // Set the known information in the main "props" Map
     props.set(key, {
@@ -266,7 +272,6 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     reverse: () => Promise.all(itps.map((e) => e.reverse())),
     stop: () => itps.forEach((e) => e.stop()),
     pause: () => itps.forEach((e) => e.pause()),
-    refreshComputedValues: () => itps.forEach((e) => e.refreshComputedValues()),
   })
 }
 
