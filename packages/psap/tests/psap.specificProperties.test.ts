@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { JSDOM } from "jsdom"
 import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
-import { VALID_TRANSFORMS } from "../src/psap"
+import { DEG_UNIT_FN, NO_UNIT_FN, PX_UNIT_FN, RAD_UNIT_FN, VALID_TRANSFORMS } from "../src/psap"
 
 const getDocument = () => {
   const dom = new JSDOM()
@@ -47,25 +47,31 @@ describe.concurrent("anim specific CSS Properties", () => {
       })
     }))
 
-
-  // it("should anim properly 'to' on regular transform properties", () =>
-  //   new Promise((resolve: any) => {
-  //     const props = VALID_TRANSFORMS.filter((prop) => prop !== "x" && prop !== "y" && prop !== "z")
-  //     props.forEach((prop, i) => {
-  //       const isLast = i === props.length - 1
-  //       const { proxy, $el } = getDocument()
-  //       $el.style.transform = `${prop}(0px)`
-  //       const to = randomRange(-100, 100)
-  //       psap.to($el, {
-  //         [prop]: to,
-  //         ...proxy,
-  //         onComplete: () => {
-  //           expect($el.style.transform).toBe(`${prop}(${to}px)`)
-  //           isLast && resolve()
-  //         },
-  //       })
-  //     })
-  //   }))
+  it("should anim properly 'to' on regular transform properties", () => {
+    const test = (props, unit) =>
+      new Promise((resolve: any) => {
+        props.forEach((prop, i) => {
+          const isLast = i === props.length - 1
+          const { proxy, $el } = getDocument()
+          $el.style.transform = `${prop}(0${unit})`
+          const to = randomRange(-100, 100)
+          psap.to($el, {
+            [prop]: to,
+            ...proxy,
+            onComplete: () => {
+              expect($el.style.transform).toBe(`${prop}(${to}${unit})`)
+              isLast && resolve()
+            },
+          })
+        })
+      })
+    return Promise.all([
+      test(DEG_UNIT_FN, "deg"),
+      test(PX_UNIT_FN, "px"),
+      test(RAD_UNIT_FN, "rad"),
+      test(NO_UNIT_FN, ""),
+    ])
+  })
 
   it("should anim properly 'to' on adapter transform properties x, y, z", () =>
     new Promise((resolve: any) => {
