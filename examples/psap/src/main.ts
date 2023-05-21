@@ -8,12 +8,12 @@ function randomRange(min: number, max: number, decimal = 0): number {
   const power = Math.pow(10, decimal)
   return Math.floor(rand * power) / power
 }
-const $ball = document.querySelector(".ball")
+const $ball = document.querySelectorAll(".ball")
 
 ;["play", "reverse", "replay", "pause", "stop"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
-window.addEventListener("keydown", (e) => e.key === " " && a.replay())
+//window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 
 // anime({
 //   targets: '.css-transforms-demo .el',
@@ -40,10 +40,12 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 //   }
 // )
 
-const a = psap.set($ball, {
+const a = psap.to($ball, {
   // marginLeft: "100px",
-  opacity: 0.5,
-  scale: () => randomRange(1, 10),
+  scale: () => randomRange(0.5, 5),
+  x: () => randomRange(-100, 100),
+  y: () => randomRange(-100, 100),
+  ease: Ease.inOutCubic,
   // x: 100,
   //  duration: 0.5,
   //  ease: Ease.inCubic,

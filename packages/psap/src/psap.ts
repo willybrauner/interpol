@@ -66,7 +66,7 @@ type API = Readonly<{
   pause: () => void
 }>
 
-type Target = Element | HTMLElement
+type Target = any
 type SetOmit =
   | "ease"
   | "reverseEase"
@@ -95,7 +95,7 @@ type Psap = {
  *
  *
  */
-const _anim = (target, fromKeys: Options, toKeys: Options) => {
+const _anim = (target: HTMLElement, fromKeys: Options, toKeys: Options) => {
   // Create a common ticker for all interpolations
   const ticker = new Ticker()
 
@@ -283,21 +283,33 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     return itp
   })
 
-  return Object.freeze({
-    play: () => Promise.all(itps.map((e) => e.play())),
-    replay: () => Promise.all(itps.map((e) => e.replay())),
-    reverse: () => Promise.all(itps.map((e) => e.reverse())),
-    stop: () => itps.forEach((e) => e.stop()),
-    pause: () => itps.forEach((e) => e.pause()),
-  })
+  return returnAPI(itps)
 }
 
 /**
  * Final API
  */
+
+const returnAPI = (a: any[]) =>
+  Object.freeze({
+    play: () => Promise.all(a.map((e) => e.play())),
+    replay: () => Promise.all(a.map((e) => e.replay())),
+    reverse: () => Promise.all(a.map((e) => e.reverse())),
+    stop: () => a.forEach((e) => e.stop()),
+    pause: () => a.forEach((e) => e.pause()),
+  })
+
 const psap: Psap = {
-  set: (target, to) => _anim(target, undefined, { ...to, _type: "set" }),
-  to: (target, to) => _anim(target, undefined, { ...to, _type: "to" }),
+  set: (target, to) => {
+    if (!Array.isArray(Array.from(target))) target = [target]
+    const a = [...target].map((e) => _anim(e, undefined, { ...to, _type: "set" }))
+    return returnAPI(a)
+  },
+  to: (target, to) => {
+    if (!Array.isArray(Array.from(target))) target = [target]
+    const a = [...target].map((e) => _anim(e, undefined, { ...to, _type: "to" }))
+    return returnAPI(a)
+  },
   from: (target, from) => _anim(target, { ...from, _type: "from" }, undefined),
   fromTo: (target, from, to) => _anim(target, { ...from, _type: "fromTo" }, to),
 }
