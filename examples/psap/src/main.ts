@@ -52,9 +52,14 @@ const $ball = document.querySelectorAll(".ball")
 //   //  ease: Ease.inCubic,
 // })
 
-const a = psap.to($ball, {
-  left: "100px",
-  paused: true,
+const a = psap.fromTo($ball, {
+//  left: "-100px",
+  x: () => randomRange(-100, 100),
+  y: () => randomRange(-100, 100),
+},{
+//  left: "100px",
+    x: () => randomRange(-100, 100),
+  y: () => randomRange(-100, 100),
   beforeStart: () => {
     console.log("beforeStart", $ball)
   },

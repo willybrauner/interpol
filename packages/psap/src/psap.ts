@@ -52,7 +52,6 @@ export type PropOptions = Partial<{
   from: { value: number | (() => number); unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
-  _hasExplicitTo: boolean
   _isTransform: boolean
 }>
 
@@ -111,7 +110,6 @@ const _anim = (
   // Before all, merge fromKeys and keys
   // in case "from" object only is set
   let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
-  let _copyKeys = { ...keys }
 
   const o: IAnimOptionsWithoutProps = {
     duration: 1,
@@ -181,7 +179,6 @@ const _anim = (
       to: { value: undefined, unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
-      _hasExplicitTo: false,
     })
 
     const prop = props.get(key)
