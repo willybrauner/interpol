@@ -3,7 +3,7 @@ import { psap } from "../src"
 import { getDocument } from "./utils/getDocument"
 
 describe.concurrent("multiple targets", () => {
-  it("should not anim multiple targets on psap.set", () =>
+  it("should anim multiple targets on psap.set", () =>
     new Promise(async (resolve: any) => {
       const { proxy, $el, $el2 } = getDocument()
       const onCompleteMock = vi.fn()
@@ -21,7 +21,7 @@ describe.concurrent("multiple targets", () => {
       resolve()
     }))
 
-  it("should not anim multiple targets on psap.to", () =>
+  it("should anim multiple targets on psap.to", () =>
     new Promise(async (resolve: any) => {
       const { dom, doc, proxy, $el, $el2 } = getDocument()
       const beforeStartMock = vi.fn()
@@ -46,7 +46,7 @@ describe.concurrent("multiple targets", () => {
       resolve()
     }))
 
-  it("should not anim multiple targets on psap.from", () =>
+  it("should anim multiple targets on psap.from", () =>
     new Promise(async (resolve: any) => {
       const { dom, doc, proxy, $el, $el2 } = getDocument()
       const beforeStartMock = vi.fn()
@@ -71,7 +71,7 @@ describe.concurrent("multiple targets", () => {
       resolve()
     }))
 
-  it("should not anim multiple targets on psap.fromTo", () =>
+  it("should anim multiple targets on psap.fromTo", () =>
     new Promise(async (resolve: any) => {
       const { dom, doc, proxy, $el, $el2 } = getDocument()
       const beforeStartMock = vi.fn()
@@ -102,6 +102,40 @@ describe.concurrent("multiple targets", () => {
           },
         }
       )
+      await animTo.play()
+      expect(beforeStartMock).toHaveBeenCalledTimes(1)
+      expect(onCompleteMock).toHaveBeenCalledTimes(1)
+      resolve()
+    }))
+
+  /**
+   * Stress test
+   */
+  it("should anim lot of targets - stress test", () =>
+    new Promise(async (resolve: any) => {
+      const { proxy, $el } = getDocument()
+      const targets = []
+      for (let i = 0; i < 100; i++) {
+        targets.push($el.cloneNode(true))
+      }
+
+      const beforeStartMock = vi.fn()
+      const onCompleteMock = vi.fn()
+      const animTo = psap.to(targets, {
+        left: 10,
+        duration: 1,
+        paused: true,
+        ...proxy,
+        beforeStart: () => {
+          beforeStartMock()
+        },
+        onComplete: () => {
+          onCompleteMock()
+          targets.forEach((e) => {
+            expect(e.style.left).toBe("10px")
+          })
+        },
+      })
       await animTo.play()
       expect(beforeStartMock).toHaveBeenCalledTimes(1)
       expect(onCompleteMock).toHaveBeenCalledTimes(1)
