@@ -8,12 +8,29 @@ function randomRange(min: number, max: number, decimal = 0): number {
   const power = Math.pow(10, decimal)
   return Math.floor(rand * power) / power
 }
-const $ball = document.querySelector(".ball")
+
+const $wrapper = document.querySelector(".wrapper")
+// clone and append new node in wrapper
+for (let i = 0; i < 10; i++) {
+  const el = document.querySelector(".ball")
+  const $clone = el.cloneNode(true)
+  $wrapper.appendChild($clone)
+}
+const $ball = document.querySelectorAll(".ball")
 
 ;["play", "reverse", "replay", "pause", "stop"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
-window.addEventListener("keydown", (e) => e.key === " " && a.replay())
+
+// -----------------------------------------------------------------------------
+
+const a = psap.to($ball, {
+  x: () => randomRange(-100, 100),
+  y: () => randomRange(-100, 100),
+  duration: 1,
+  stagger: 0.02,
+  ease: Ease.inOutExpo,
+})
 
 // anime({
 //   targets: '.css-transforms-demo .el',
@@ -26,28 +43,30 @@ window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 // const a = psap.fromTo(
 //   $ball,
 //   {
-//     rotateY: -100,
+//     rotateY: () => randomRange(-100, 100),
 //     marginTop: "-10px",
-//     x: "-3rem",
+//     x: () => randomRange(-100, 100),
 //     scaleY: 1,
 //   },
 //   {
-//     rotateY: 100,
-//     x: "3rem",
+//     rotateY: () => randomRange(-100, 100),
+//     x: () => randomRange(-100, 100),
 //     scaleY: 10,
 //     marginTop: "110px",
 //     duration: 1,
 //   }
 // )
 
-const a = psap.set($ball, {
-  // marginLeft: "100px",
-  opacity: 0.5,
-  scale: () => randomRange(1, 10),
-  // x: 100,
-  //  duration: 0.5,
-  //  ease: Ease.inCubic,
-})
+// const a = psap.to($ball, {
+//   // marginLeft: "100px",
+//   scale: () => randomRange(0.5, 5),
+//   x: () => randomRange(-100, 100),
+//   y: () => randomRange(-100, 100),
+//   ease: Ease.inOutCubic,
+//   // x: 100,
+//   //  duration: 0.5,
+//   //  ease: Ease.inCubic,
+// })
 
 // const a = psap.to($ball, {
 //   marginLeft: "100px",

@@ -40,6 +40,7 @@ interface IAnimOptionsWithoutProps
   proxyWindow?: Window | any
   proxyDocument?: Document | any
   _type?: AnimType
+  stagger?: number
 }
 
 type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
@@ -52,7 +53,6 @@ export type PropOptions = Partial<{
   from: { value: number | (() => number); unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
-  _hasExplicitTo: boolean
   _isTransform: boolean
 }>
 
@@ -66,7 +66,8 @@ type API = Readonly<{
   pause: () => void
 }>
 
-type Target = Element | HTMLElement
+type Target = Element | Element[] | HTMLElement | HTMLElement[] | NodeList | Node
+
 type SetOmit =
   | "ease"
   | "reverseEase"
@@ -95,7 +96,13 @@ type Psap = {
  *
  *
  */
-const _anim = (target, fromKeys: Options, toKeys: Options) => {
+const _anim = (
+  target: HTMLElement,
+  index: number,
+  isLastAnim: boolean,
+  fromKeys: Options,
+  toKeys: Options
+) => {
   // Create a common ticker for all interpolations
   const ticker = new Ticker()
 
@@ -105,12 +112,11 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
   // Before all, merge fromKeys and keys
   // in case "from" object only is set
   let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
-  let _copyKeys = { ...keys }
 
   const o: IAnimOptionsWithoutProps = {
     duration: 1,
     ease: (t) => t,
-    reverseEase: (t) => t,
+    reverseEase: null,
     paused: false,
     delay: 0,
     debug: false,
@@ -119,6 +125,7 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     onComplete: (props) => {},
     proxyWindow: !isSSR() && window,
     proxyDocument: !isSSR() && document,
+    stagger: 0,
     _type: null,
   }
 
@@ -162,10 +169,13 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
   // Start loop of prop keys \o/
   // ...........................
   const itps = Object.keys(keys).map((key, i) => {
-    const isLast = i === Object.keys(keys).length - 1
+    const isLastProp = i === Object.keys(keys).length - 1
+    const isLast = isLastAnim && isLastProp
 
     const compute = (p) => (typeof p === "function" ? p() : p)
-    const v = compute(keys[key])
+    const vTo = compute(keys?.[key])
+    const vFrom = compute(fromKeys?.[key])
+    o.duration = compute(o.duration)
 
     // Set the known information in the main "props" Map
     props.set(key, {
@@ -174,7 +184,6 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
       to: { value: undefined, unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
-      _hasExplicitTo: false,
     })
 
     const prop = props.get(key)
@@ -201,8 +210,8 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     // Case we have one object: "from"
     if (o._type === "from") {
       prop._hasExplicitFrom = true
-      prop.from.unit = getUnit(v, prop) || cssValueUnit
-      prop.from.value = parseFloat(v) && !isNaN(parseFloat(v)) ? parseFloat(v) : cssValueN
+      prop.from.unit = getUnit(vTo, prop) || cssValueUnit
+      prop.from.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.to.unit = cssValueUnit
       prop.to.value = cssValueN
     }
@@ -210,7 +219,6 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     // Case we have two objects: "fromTo"
     else if (o._type === "fromTo") {
       prop._hasExplicitFrom = true
-      const [vFrom, vTo] = [fromKeys[key], keys[key]]
       prop.to.unit = getUnit(vTo, prop) || cssValueUnit
       prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.from.unit = prop.to.unit
@@ -225,8 +233,8 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     }
     // Case we have one object: "to" or "set"
     else {
-      prop.to.unit = getUnit(v, prop) || cssValueUnit
-      prop.to.value = parseFloat(v) && !isNaN(parseFloat(v)) ? parseFloat(v) : cssValueN
+      prop.to.unit = getUnit(vTo, prop) || cssValueUnit
+      prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.from.unit = cssValueUnit
       prop.from.value = convertValueToUnitValue(
         target,
@@ -251,7 +259,7 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
       ease: o.ease,
       reverseEase: o.reverseEase,
       paused: o.paused,
-      delay: o.delay,
+      delay: (o.delay + index * o.stagger) * 1000,
       ticker,
       debug: o.debug,
       beforeStart: () => {
@@ -283,23 +291,61 @@ const _anim = (target, fromKeys: Options, toKeys: Options) => {
     return itp
   })
 
-  return Object.freeze({
-    play: () => Promise.all(itps.map((e) => e.play())),
-    replay: () => Promise.all(itps.map((e) => e.replay())),
-    reverse: () => Promise.all(itps.map((e) => e.reverse())),
-    stop: () => itps.forEach((e) => e.stop()),
-    pause: () => itps.forEach((e) => e.pause()),
-  })
+  return returnAPI(itps)
 }
 
 /**
- * Final API
+ *
  */
+const returnAPI = (a: any[]) =>
+  Object.freeze({
+    play: () => Promise.all(a.map((e) => e.play())),
+    replay: () => Promise.all(a.map((e) => e.replay())),
+    reverse: () => Promise.all(a.map((e) => e.reverse())),
+    stop: () => a.forEach((e) => e.stop()),
+    pause: () => a.forEach((e) => e.pause()),
+  })
+
+const isNodeList = ($el): boolean => {
+  return isSSR()
+    ? Array.isArray($el)
+    : NodeList.prototype.isPrototypeOf($el) || $el.constructor === NodeList
+}
+
+const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
+const isLast = (i, t) => i === t.length - 1
+
+/**
+ * Final
+ */
+
+// Abstracted commons anims function
+const anims = (target, from, to) =>
+  fTarget(target).map((trg, index) => _anim(trg, index, isLast(index, fTarget(target)), from, to))
+
 const psap: Psap = {
-  set: (target, to) => _anim(target, undefined, { ...to, _type: "set" }),
-  to: (target, to) => _anim(target, undefined, { ...to, _type: "to" }),
-  from: (target, from) => _anim(target, { ...from, _type: "from" }, undefined),
-  fromTo: (target, from, to) => _anim(target, { ...from, _type: "fromTo" }, to),
+  set: (target, to) => {
+    const from = undefined
+    to = { ...to, _type: "set" } as Options
+    return returnAPI(anims(target, from, to))
+  },
+
+  to: (target, to) => {
+    const from = undefined
+    to = { ...to, _type: "to" } as Options
+    return returnAPI(anims(target, from, to))
+  },
+
+  from: (target, from) => {
+    from = { ...from, _type: "from" } as Options
+    const to = undefined
+    return returnAPI(anims(target, from, to))
+  },
+
+  fromTo: (target, from, to) => {
+    from = { ...from, _type: "fromTo" } as Options
+    return returnAPI(anims(target, from, to))
+  },
 }
 
 export { psap }
