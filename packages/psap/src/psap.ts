@@ -6,7 +6,6 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
-import { b } from "vitest/dist/types-b7007192"
 
 const log = debug(`psap:psap`)
 const isSSR = () => typeof window === "undefined"

@@ -3,7 +3,7 @@ import { JSDOM } from "jsdom"
 export const getDocument = () => {
   const dom = new JSDOM()
   const win = dom.window
-  const doc = win.document
+  const doc = dom.window.document
   const proxy = { proxyWindow: win, proxyDocument: doc }
 
   const $el = doc.createElement("div")
