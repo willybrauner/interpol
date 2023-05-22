@@ -8,13 +8,28 @@ function randomRange(min: number, max: number, decimal = 0): number {
   const power = Math.pow(10, decimal)
   return Math.floor(rand * power) / power
 }
+
+const $wrapper = document.querySelector(".wrapper")
+// clone and append new node in wrapper
+for (let i = 0; i < 10; i++) {
+  const el = document.querySelector(".ball")
+  const $clone = el.cloneNode(true)
+  $wrapper.appendChild($clone)
+}
 const $ball = document.querySelectorAll(".ball")
 
 ;["play", "reverse", "replay", "pause", "stop"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
 
-//window.addEventListener("keydown", (e) => e.key === " " && a.replay())
+// -----------------------------------------------------------------------------
+
+const a = psap.to($ball, {
+  x: randomRange(-400, 400),
+  y: randomRange(-400, 400),
+  duration: randomRange(0.5, 1, 10),
+  ease: Ease.inOutExpo,
+})
 
 // anime({
 //   targets: '.css-transforms-demo .el',
@@ -51,22 +66,6 @@ const $ball = document.querySelectorAll(".ball")
 //   //  duration: 0.5,
 //   //  ease: Ease.inCubic,
 // })
-
-const a = psap.fromTo($ball, {
-//  left: "-100px",
-  x: () => randomRange(-100, 100),
-  y: () => randomRange(-100, 100),
-},{
-//  left: "100px",
-    x: () => randomRange(-100, 100),
-  y: () => randomRange(-100, 100),
-  beforeStart: () => {
-    console.log("beforeStart", $ball)
-  },
-  onComplete: () => {
-    console.log("complete", $ball)
-  },
-})
 
 // const a = psap.to($ball, {
 //   marginLeft: "100px",
