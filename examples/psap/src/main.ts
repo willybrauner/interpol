@@ -25,9 +25,10 @@ const $ball = document.querySelectorAll(".ball")
 // -----------------------------------------------------------------------------
 
 const a = psap.to($ball, {
-  x: randomRange(-400, 400),
-  y: randomRange(-400, 400),
-  duration: randomRange(0.5, 1, 10),
+  x: () => randomRange(-100, 100),
+  y: () => randomRange(-100, 100),
+  duration: 1,
+  stagger: 0.02,
   ease: Ease.inOutExpo,
 })
 

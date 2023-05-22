@@ -40,6 +40,7 @@ interface IAnimOptionsWithoutProps
   proxyWindow?: Window | any
   proxyDocument?: Document | any
   _type?: AnimType
+  stagger?: number
 }
 
 type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
@@ -65,7 +66,8 @@ type API = Readonly<{
   pause: () => void
 }>
 
-type Target = any
+type Target = Element | Element[] | HTMLElement | HTMLElement[] | NodeList | Node
+
 type SetOmit =
   | "ease"
   | "reverseEase"
@@ -113,7 +115,7 @@ const _anim = (
 
   const o: IAnimOptionsWithoutProps = {
     duration: 1,
-    ease: t => t,
+    ease: (t) => t,
     reverseEase: null,
     paused: false,
     delay: 0,
@@ -123,6 +125,7 @@ const _anim = (
     onComplete: (props) => {},
     proxyWindow: !isSSR() && window,
     proxyDocument: !isSSR() && document,
+    stagger: 0,
     _type: null,
   }
 
@@ -256,7 +259,7 @@ const _anim = (
       ease: o.ease,
       reverseEase: o.reverseEase,
       paused: o.paused,
-      delay: o.delay,
+      delay: (o.delay + index * o.stagger) * 1000,
       ticker,
       debug: o.debug,
       beforeStart: () => {

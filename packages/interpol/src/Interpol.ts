@@ -107,7 +107,7 @@ export class Interpol {
 
     // Delay is set only on first play.
     // If this play is trigger before onComplete, we don't wait again
-    const d = this.time > 0 ? 0 : this.delay
+    const d = this.time > 0 && !this._isReversed ? 0 : this.delay
     this.timeout = setTimeout(() => {
       // start ticker only if is single Interpol, not TL
       if (!this.inTl) this.ticker.play()
