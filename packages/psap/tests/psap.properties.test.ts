@@ -1,18 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { JSDOM } from "jsdom"
 import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
-import { DEG_UNIT_FN, NO_UNIT_FN, PX_UNIT_FN, RAD_UNIT_FN, VALID_TRANSFORMS } from "../src/psap"
-
-const getDocument = () => {
-  const dom = new JSDOM()
-  const win = dom.window
-  const doc = win.document
-  const proxy = { proxyWindow: win, proxyDocument: doc }
-  const $el = doc.createElement("div")
-  doc.body.append($el)
-  return { dom, win, doc, proxy, $el }
-}
+import { DEG_UNIT_FN, NO_UNIT_FN, PX_UNIT_FN, RAD_UNIT_FN } from "../src/psap"
+import { getDocument } from "./utils/getDocument"
 
 describe.concurrent("anim specific CSS Properties", () => {
   it("should anim properly 'to' on opacity", () =>

@@ -96,7 +96,13 @@ type Psap = {
  *
  *
  */
-const _anim = (target: HTMLElement, fromKeys: Options, toKeys: Options) => {
+const _anim = (
+  target: HTMLElement,
+  index: number,
+  isLastAnim: boolean,
+  fromKeys: Options,
+  toKeys: Options
+) => {
   // Create a common ticker for all interpolations
   const ticker = new Ticker()
 
@@ -163,7 +169,8 @@ const _anim = (target: HTMLElement, fromKeys: Options, toKeys: Options) => {
   // Start loop of prop keys \o/
   // ...........................
   const itps = Object.keys(keys).map((key, i) => {
-    const isLast = i === Object.keys(keys).length - 1
+    const isLastProp = i === Object.keys(keys).length - 1
+    const isLast = isLastAnim && isLastProp
 
     const compute = (p) => (typeof p === "function" ? p() : p)
     const v = compute(keys[key])
@@ -299,31 +306,46 @@ const returnAPI = (a: any[]) =>
     pause: () => a.forEach((e) => e.pause()),
   })
 
-function isNodeList($el): boolean {
+const isNodeList = ($el): boolean => {
   return isSSR()
     ? Array.isArray($el)
     : NodeList.prototype.isPrototypeOf($el) || $el.constructor === NodeList
 }
 
 const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
+const isLast = (i, t) => i === t.length - 1
 
 /**
  * Final
  */
+
+// Abstracted commons anims function
+const anims = (target, from, to) =>
+  fTarget(target).map((trg, index) => _anim(trg, index, isLast(index, fTarget(target)), from, to))
+
 const psap: Psap = {
   set: (target, to) => {
-    const anims = fTarget(target).map((e) => _anim(e, undefined, { ...to, _type: "set" }))
-    return returnAPI(anims)
+    const from = undefined
+    to = { ...to, _type: "set" } as Options
+    return returnAPI(anims(target, from, to))
   },
-  to: (target, to) => {
-    const anims = fTarget(target).map((e) => _anim(e, undefined, { ...to, _type: "to" }))
-    return returnAPI(anims)
-  },
-  from: (target, from) =>
-    returnAPI(fTarget(target).map((e) => _anim(e, { ...from, _type: "from" }, undefined))),
 
-  fromTo: (target, from, to) =>
-    returnAPI(fTarget(target).map((e) => _anim(e, { ...from, _type: "fromTo" }, to))),
+  to: (target, to) => {
+    const from = undefined
+    to = { ...to, _type: "to" } as Options
+    return returnAPI(anims(target, from, to))
+  },
+
+  from: (target, from) => {
+    from = { ...from, _type: "from" } as Options
+    const to = undefined
+    return returnAPI(anims(target, from, to))
+  },
+
+  fromTo: (target, from, to) => {
+    from = { ...from, _type: "fromTo" } as Options
+    return returnAPI(anims(target, from, to))
+  },
 }
 
 export { psap }

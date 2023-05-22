@@ -3,16 +3,7 @@ import { JSDOM } from "jsdom"
 import { randomRange } from "./utils/randomRange"
 import { CSSPropertiesCamelCase } from "./utils/CSSProperties"
 import { psap } from "../src"
-
-const getDocument = () => {
-  const dom = new JSDOM()
-  const win = dom.window
-  const doc = win.document
-  const proxy = { proxyWindow: win, proxyDocument: doc }
-  const $el = doc.createElement("div")
-  doc.body.append($el)
-  return { dom, win, doc, proxy, $el }
-}
+import { getDocument } from "./utils/getDocument"
 
 describe.concurrent("anim with different units", () => {
   it("should anim 'from' an unit to another unit", () => {

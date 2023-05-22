@@ -1,18 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { JSDOM } from "jsdom"
 import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
 import { CSSPropertiesCamelCase } from "./utils/CSSProperties"
-
-const getDocument = () => {
-  const dom = new JSDOM()
-  const win = dom.window
-  const doc = win.document
-  const proxy = { proxyWindow: win, proxyDocument: doc }
-  const $el = doc.createElement("div")
-  doc.body.append($el)
-  return { dom, win, doc, proxy, $el }
-}
+import { getDocument } from "./utils/getDocument"
 
 describe.concurrent(
   "should anim properly 'to' common CSS Properties (one psap per property)",

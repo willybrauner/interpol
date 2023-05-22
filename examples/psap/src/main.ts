@@ -13,6 +13,7 @@ const $ball = document.querySelectorAll(".ball")
 ;["play", "reverse", "replay", "pause", "stop"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
+
 //window.addEventListener("keydown", (e) => e.key === " " && a.replay())
 
 // anime({
@@ -23,23 +24,23 @@ const $ball = document.querySelectorAll(".ball")
 // });
 //
 
-const a = psap.fromTo(
-  $ball,
-  {
-    rotateY: ()=> randomRange(-100, 100),
-    marginTop: "-10px",
-    x:()=> randomRange(-100, 100),
-    scaleY: 1,
-  },
-  {
-    rotateY:()=> randomRange(-100, 100),
-    x:()=> randomRange(-100, 100),
-    scaleY: 10,
-    marginTop: "110px",
-    duration: 1,
-  }
-)
-//
+// const a = psap.fromTo(
+//   $ball,
+//   {
+//     rotateY: () => randomRange(-100, 100),
+//     marginTop: "-10px",
+//     x: () => randomRange(-100, 100),
+//     scaleY: 1,
+//   },
+//   {
+//     rotateY: () => randomRange(-100, 100),
+//     x: () => randomRange(-100, 100),
+//     scaleY: 10,
+//     marginTop: "110px",
+//     duration: 1,
+//   }
+// )
+
 // const a = psap.to($ball, {
 //   // marginLeft: "100px",
 //   scale: () => randomRange(0.5, 5),
@@ -50,6 +51,17 @@ const a = psap.fromTo(
 //   //  duration: 0.5,
 //   //  ease: Ease.inCubic,
 // })
+
+const a = psap.to($ball, {
+  left: "100px",
+  paused: true,
+  beforeStart: () => {
+    console.log("beforeStart", $ball)
+  },
+  onComplete: () => {
+    console.log("complete", $ball)
+  },
+})
 
 // const a = psap.to($ball, {
 //   marginLeft: "100px",
