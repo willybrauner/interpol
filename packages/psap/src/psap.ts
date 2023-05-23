@@ -49,8 +49,9 @@ type OptionsParams = Omit<Options, "_type">
 export type PropOptions = Partial<{
   usedKey: string
   update: { value: number; time: number; progress: number }
-  to: { value: number | (() => number); unit: string }
-  from: { value: number | (() => number); unit: string }
+  duration: { value: number; _value: number | (() => number) }
+  to: { value: number; _value: number | (() => number); unit: string }
+  from: { value: number | (() => number); _value: number | (() => number); unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
   _isTransform: boolean
@@ -64,6 +65,7 @@ type API = Readonly<{
   replay: () => Promise<any>
   reverse: () => Promise<any>
   pause: () => void
+  props?
 }>
 
 type Target = Element | Element[] | HTMLElement | HTMLElement[] | NodeList | Node
@@ -89,6 +91,8 @@ type Psap = {
   fromTo: FromTo
   from: From
 }
+
+const compute = (p) => (typeof p === "function" ? p() : p)
 
 /**
  * Main anim Function used by "to", "from" and "fromTo" methods
@@ -172,19 +176,19 @@ const _anim = (
     const isLastProp = i === Object.keys(keys).length - 1
     const isLast = isLastAnim && isLastProp
 
-    const compute = (p) => (typeof p === "function" ? p() : p)
-    const vTo = compute(keys?.[key])
-    const vFrom = compute(fromKeys?.[key])
-    o.duration = compute(o.duration)
-
     // Set the known information in the main "props" Map
     props.set(key, {
       usedKey: key,
-      from: { value: undefined, unit: undefined },
-      to: { value: undefined, unit: undefined },
+      duration: { value: undefined, _value: o.duration },
+      from: { value: undefined, _value: fromKeys?.[key], unit: undefined },
+      to: { value: undefined, _value: keys?.[key], unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
     })
+
+    const vTo = compute(keys?.[key])
+    const vFrom = compute(fromKeys?.[key])
+    o.duration = compute(o.duration)
 
     const prop = props.get(key)
 
@@ -288,23 +292,53 @@ const _anim = (
       },
     })
 
-    return itp
+    const refresh = () => {
+  //    itp.setFrom(prop.from._value)
+      itp.setTo(prop.to._value)
+//      itp.setDuration(prop.duration._value)
+      log(prop.to._value,itp.to)
+    }
+
+    return { itp, refresh }
   })
 
-  return returnAPI(itps)
+  // _anim return (multiple itp)
+  return Object.freeze({
+    props,
+    play: () => Promise.all(itps.map(({ itp, refresh }) => itp.play())),
+    replay: () => Promise.all(itps.map(({ itp, refresh }) => itp.replay())),
+    reverse: () => Promise.all(itps.map(({ itp, refresh }) => itp.reverse())),
+    stop: () => itps.forEach(({ itp, refresh }) => itp.stop()),
+    pause: () => itps.forEach(({ itp, refresh }) => itp.pause()),
+    refresh: () => {
+      itps.forEach(({ itp, refresh }) => {
+        refresh()
+      })
+      // console.log("from itp api props", props)
+      // for (let [_, value] of props) {
+      //   for (let el of ["from", "to", "duration"]) {
+      //     value[el].value = compute(value[el]._value)
+      //   }
+      // }
+    },
+  })
 }
 
 /**
- *
+ * return
  */
-const returnAPI = (a: any[]) =>
-  Object.freeze({
-    play: () => Promise.all(a.map((e) => e.play())),
-    replay: () => Promise.all(a.map((e) => e.replay())),
-    reverse: () => Promise.all(a.map((e) => e.reverse())),
-    stop: () => a.forEach((e) => e.stop()),
-    pause: () => a.forEach((e) => e.pause()),
+const returnAPI = (anims: any[], props?) => {
+  log("props", props)
+  return Object.freeze({
+    props,
+    play: () => Promise.all(anims.map((e) => e.play())),
+    replay: () => Promise.all(anims.map((e) => e.replay())),
+    reverse: () => Promise.all(anims.map((e) => e.reverse())),
+    stop: () => anims.forEach((e) => e.stop()),
+    pause: () => anims.forEach((e) => e.pause()),
+    refresh: () => anims.forEach((e) => e.refresh()),
   })
+}
 
 const isNodeList = ($el): boolean => {
   return isSSR()
@@ -312,14 +346,13 @@ const isNodeList = ($el): boolean => {
     : NodeList.prototype.isPrototypeOf($el) || $el.constructor === NodeList
 }
 
-const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
-const isLast = (i, t) => i === t.length - 1
-
 /**
  * Final
  */
 
 // Abstracted commons anims function
+const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
+const isLast = (i, t) => i === t.length - 1
 const anims = (target, from, to) =>
   fTarget(target).map((trg, index) => _anim(trg, index, isLast(index, fTarget(target)), from, to))
 
@@ -333,7 +366,10 @@ const psap: Psap = {
   to: (target, to) => {
     const from = undefined
     to = { ...to, _type: "to" } as Options
-    return returnAPI(anims(target, from, to))
+    const a = anims(target, from, to)
+    //    const getAllProps = () =>
+    log(a.map((anim) => anim))
+    return returnAPI(a)
   },
 
   from: (target, from) => {

@@ -11,14 +11,14 @@ function randomRange(min: number, max: number, decimal = 0): number {
 
 const $wrapper = document.querySelector(".wrapper")
 // clone and append new node in wrapper
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 0; i++) {
   const el = document.querySelector(".ball")
   const $clone = el.cloneNode(true)
   $wrapper.appendChild($clone)
 }
 const $ball = document.querySelectorAll(".ball")
 
-;["play", "reverse", "replay", "pause", "stop"].forEach(
+;["play", "reverse", "replay", "pause", "stop", "refresh"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
 
@@ -26,7 +26,7 @@ const $ball = document.querySelectorAll(".ball")
 
 const a = psap.to($ball, {
   x: () => randomRange(-100, 100),
-  y: () => randomRange(-100, 100),
+//  y: () => randomRange(-100, 100),
   duration: 1,
   stagger: 0.02,
   ease: Ease.inOutExpo,

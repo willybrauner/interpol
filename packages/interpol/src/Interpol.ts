@@ -8,6 +8,7 @@ import { round } from "./core/round"
 const log = debug("interpol:Interpol")
 
 let ID = 0
+const compute = (p) => (typeof p === "function" ? p() : p)
 
 export class Interpol {
   public from: number | (() => number)
@@ -80,10 +81,19 @@ export class Interpol {
 
   // Compute if values are functions
   public refreshComputedValues(): void {
-    const compute = (p) => (typeof p === "function" ? p() : p)
     this._to = compute(this.to)
     this._from = compute(this.from)
     this._duration = compute(this.duration)
+  }
+
+  public setTo(v: number | (() => number)): void {
+    this._to = compute(v)
+  }
+  public setFrom(v: number | (() => number)): void {
+    this._from = compute(v)
+  }
+  public setDuration(v: number | (() => number)): void {
+    this._duration = compute(v)
   }
 
   public async play(): Promise<any> {
