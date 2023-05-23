@@ -132,7 +132,7 @@ describe.concurrent("multiple targets", () => {
         onComplete: () => {
           onCompleteMock()
           targets.forEach((e) => {
-            expect(e.style.left).toBe("10px")
+            expect(parseFloat(e.style.left)).toBeCloseTo(10, 100)
           })
         },
       })
