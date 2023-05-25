@@ -4,6 +4,7 @@ import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
+import { compute } from "./core/compute"
 
 const log = debug("interpol:Interpol")
 
@@ -79,12 +80,14 @@ export class Interpol {
   }
 
   // Compute if values are functions
-  public refreshComputedValues(): void {
-    const compute = (p) => (typeof p === "function" ? p() : p)
-    this._to = compute(this.to)
-    this._from = compute(this.from)
-    this._duration = compute(this.duration)
+  public refreshComputedValues(to = this.to, from = this.from, duration = this.duration): void {
+    this._to = compute(to)
+    this._from = compute(from)
+    this._duration = compute(duration)
   }
+
+  // helpers for refresh method assignments
+  public refresh = () => {}
 
   public async play(): Promise<any> {
     await this._play()

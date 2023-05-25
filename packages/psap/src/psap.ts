@@ -6,6 +6,7 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
+import { compute } from "@psap/interpol"
 
 const log = debug(`psap:psap`)
 const isSSR = () => typeof window === "undefined"
@@ -49,8 +50,9 @@ type OptionsParams = Omit<Options, "_type">
 export type PropOptions = Partial<{
   usedKey: string
   update: { value: number; time: number; progress: number }
-  to: { value: number | (() => number); unit: string }
-  from: { value: number | (() => number); unit: string }
+  duration: { value: number; _value: number | (() => number) }
+  to: { value: number; _value: number | (() => number); unit: string }
+  from: { value: number; _value: number | (() => number); unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
   _isTransform: boolean
@@ -64,6 +66,7 @@ type API = Readonly<{
   replay: () => Promise<any>
   reverse: () => Promise<any>
   pause: () => void
+  refresh: () => void
 }>
 
 type Target = Element | Element[] | HTMLElement | HTMLElement[] | NodeList | Node
@@ -90,8 +93,9 @@ type Psap = {
   from: From
 }
 
+
 /**
- * Main anim Function used by "to", "from" and "fromTo" methods
+ * Main anim Function
  *
  *
  *
@@ -109,8 +113,7 @@ const _anim = (
   // Props Map will contain all props to animate, it will be our main reference
   const props: Props = new Map<string, PropOptions>()
 
-  // Before all, merge fromKeys and keys
-  // in case "from" object only is set
+  // Before all, merge fromKeys and keys in case "from" object only is set
   let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
 
   const o: IAnimOptionsWithoutProps = {
@@ -168,25 +171,27 @@ const _anim = (
 
   // Start loop of prop keys \o/
   // ...........................
+
   const itps = Object.keys(keys).map((key, i) => {
     const isLastProp = i === Object.keys(keys).length - 1
     const isLast = isLastAnim && isLastProp
 
-    const compute = (p) => (typeof p === "function" ? p() : p)
-    const vTo = compute(keys?.[key])
-    const vFrom = compute(fromKeys?.[key])
-    o.duration = compute(o.duration)
-
     // Set the known information in the main "props" Map
     props.set(key, {
       usedKey: key,
-      from: { value: undefined, unit: undefined },
-      to: { value: undefined, unit: undefined },
+      duration: { value: undefined, _value: o.duration },
+      from: { value: undefined, _value: fromKeys?.[key], unit: undefined },
+      to: { value: undefined, _value: keys?.[key], unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
     })
 
+    const vTo = compute(keys?.[key])
+    const vFrom = compute(fromKeys?.[key])
+    o.duration = compute(o.duration)
+
     const prop = props.get(key)
+    prop.duration.value = o.duration as number
 
     prop._isTransform = VALID_TRANSFORMS.includes(key as (typeof VALID_TRANSFORMS)[number])
     if (prop._isTransform) {
@@ -287,24 +292,34 @@ const _anim = (
         if (isLast) o.onComplete?.(props)
       },
     })
+    // assign refresh method to interpol instance
+    itp.refresh = () => {
+      for (let el of ["to", "from", "duration"]) {
+        prop[el].value = compute(prop[el]._value) ?? 0
+        itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
+      }
+    }
 
     return itp
   })
 
+  // _anim return (multiple itp)
   return returnAPI(itps)
 }
 
 /**
- *
+ * return
  */
-const returnAPI = (a: any[]) =>
-  Object.freeze({
-    play: () => Promise.all(a.map((e) => e.play())),
-    replay: () => Promise.all(a.map((e) => e.replay())),
-    reverse: () => Promise.all(a.map((e) => e.reverse())),
-    stop: () => a.forEach((e) => e.stop()),
-    pause: () => a.forEach((e) => e.pause()),
+const returnAPI = (anims: any[]):API => {
+  return Object.freeze({
+    play: () => Promise.all(anims.map((e) => e.play())),
+    replay: () => Promise.all(anims.map((e) => e.replay())),
+    reverse: () => Promise.all(anims.map((e) => e.reverse())),
+    stop: () => anims.forEach((e) => e.stop()),
+    pause: () => anims.forEach((e) => e.pause()),
+    refresh: () => anims.forEach((e) => e.refresh()),
   })
+}
 
 const isNodeList = ($el): boolean => {
   return isSSR()
@@ -312,14 +327,12 @@ const isNodeList = ($el): boolean => {
     : NodeList.prototype.isPrototypeOf($el) || $el.constructor === NodeList
 }
 
-const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
-const isLast = (i, t) => i === t.length - 1
-
 /**
  * Final
  */
-
 // Abstracted commons anims function
+const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
+const isLast = (i, t) => i === t.length - 1
 const anims = (target, from, to) =>
   fTarget(target).map((trg, index) => _anim(trg, index, isLast(index, fTarget(target)), from, to))
 
