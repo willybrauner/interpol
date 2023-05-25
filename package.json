@@ -16,11 +16,13 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm run build:interpol && pnpm run build:psap",
+    "build": "turbo run build",
+    "build:watch": "turbo run build -- --watch",
     "build:interpol": "pnpm --filter ./packages/interpol run build",
     "build:interpol:watch": "pnpm --filter ./packages/interpol run build:watch",
     "build:psap": "pnpm --filter ./packages/psap run build",
     "build:psap:watch": "pnpm --filter ./packages/psap run build:watch",
+    "dev": "turbo run dev",
     "dev:interpol": "pnpm --filter ./examples/interpol run dev",
     "dev:timeline": "pnpm --filter ./examples/timeline run dev",
     "dev:psap": "pnpm --filter ./examples/psap run dev",
@@ -32,6 +34,7 @@
     "@changesets/cli": "^2.26.1",
     "@types/node": "^20.1.0",
     "prettier": "^2.8.8",
+    "turbo": "^1.9.9",
     "typescript": "^5.0.4",
     "vite": "^4.3.5",
     "vitest": "^0.31.0"
