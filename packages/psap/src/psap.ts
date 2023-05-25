@@ -6,6 +6,7 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
+import { compute } from "@psap/interpol"
 
 const log = debug(`psap:psap`)
 const isSSR = () => typeof window === "undefined"
@@ -92,10 +93,9 @@ type Psap = {
   from: From
 }
 
-const compute = (p) => (typeof p === "function" ? p() : p)
 
 /**
- * Main anim Function used by "to", "from" and "fromTo" methods
+ * Main anim Function
  *
  *
  *
@@ -113,8 +113,7 @@ const _anim = (
   // Props Map will contain all props to animate, it will be our main reference
   const props: Props = new Map<string, PropOptions>()
 
-  // Before all, merge fromKeys and keys
-  // in case "from" object only is set
+  // Before all, merge fromKeys and keys in case "from" object only is set
   let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
 
   const o: IAnimOptionsWithoutProps = {
@@ -304,26 +303,15 @@ const _anim = (
     return itp
   })
 
-  // create all interpol instances
-
   // _anim return (multiple itp)
-  return Object.freeze({
-    play: () => Promise.all(itps.map((itp) => itp.play())),
-    replay: () => Promise.all(itps.map((itp) => itp.replay())),
-    reverse: () => Promise.all(itps.map((itp) => itp.reverse())),
-    stop: () => itps.forEach((itp) => itp.stop()),
-    pause: () => itps.forEach((itp) => itp.pause()),
-    refresh: () => itps.forEach((itp) => itp.refresh()),
-  }) as API
+  return returnAPI(itps)
 }
 
 /**
  * return
  */
-const returnAPI = (anims: any[], props?) => {
-  log("props", props)
+const returnAPI = (anims: any[]):API => {
   return Object.freeze({
-    props,
     play: () => Promise.all(anims.map((e) => e.play())),
     replay: () => Promise.all(anims.map((e) => e.replay())),
     reverse: () => Promise.all(anims.map((e) => e.reverse())),
@@ -342,7 +330,6 @@ const isNodeList = ($el): boolean => {
 /**
  * Final
  */
-
 // Abstracted commons anims function
 const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
 const isLast = (i, t) => i === t.length - 1

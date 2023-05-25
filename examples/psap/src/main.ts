@@ -11,7 +11,7 @@ function randomRange(min: number, max: number, decimal = 0): number {
 
 const $wrapper = document.querySelector(".wrapper")
 // clone and append new node in wrapper
-for (let i = 0; i < 0; i++) {
+for (let i = 0; i < 110; i++) {
   const el = document.querySelector(".ball")
   const $clone = el.cloneNode(true)
   $wrapper.appendChild($clone)
@@ -28,11 +28,13 @@ const a = psap.fromTo(
   $ball,
   {
     x: () => randomRange(-200, 200),
+    y: () => randomRange(-200, 200),
   },
   {
     x: () => randomRange(-200, 200),
+    y: () => randomRange(-200, 200),
     duration: 1,
-    stagger: 0.02,
+    stagger: 0.01,
     ease: Ease.inOutExpo,
   }
 )

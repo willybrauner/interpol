@@ -40,6 +40,22 @@ describe.concurrent("computed values", () => {
       })
     return Promise.all([test("fromTo")])
   })
+
+  it("should refresh computed values when refresh() is called", () =>
+    new Promise(async (resolve: any) => {
+      const { proxy, $el } = getDocument()
+      const [first, second] = [10, 100]
+      let isFirst = true
+      const anim = psap.to($el, {
+        top: () => (isFirst ? first : second),
+        ...proxy,
+      })
+      await anim.play()
+      expect($el.style.top).toBe(`${first}px`)
+      isFirst = false
+      anim.refresh()
+      await anim.play()
+      expect($el.style.top).toBe(`${second}px`)
+      resolve()
+    }))
 })
-
-

@@ -4,11 +4,11 @@ import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
+import { compute } from "./core/compute"
 
 const log = debug("interpol:Interpol")
 
 let ID = 0
-const compute = (p) => (typeof p === "function" ? p() : p)
 
 export class Interpol {
   public from: number | (() => number)
