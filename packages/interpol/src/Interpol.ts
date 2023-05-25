@@ -80,21 +80,14 @@ export class Interpol {
   }
 
   // Compute if values are functions
-  public refreshComputedValues(): void {
-    this._to = compute(this.to)
-    this._from = compute(this.from)
-    this._duration = compute(this.duration)
+  public refreshComputedValues(to = this.to, from = this.from, duration = this.duration): void {
+    this._to = compute(to)
+    this._from = compute(from)
+    this._duration = compute(duration)
   }
 
-  public setTo(v: number | (() => number)): void {
-    this._to = compute(v)
-  }
-  public setFrom(v: number | (() => number)): void {
-    this._from = compute(v)
-  }
-  public setDuration(v: number | (() => number)): void {
-    this._duration = compute(v)
-  }
+  // helpers for refresh method assignments
+  public refresh = () => {}
 
   public async play(): Promise<any> {
     await this._play()

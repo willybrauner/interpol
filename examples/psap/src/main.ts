@@ -24,13 +24,18 @@ const $ball = document.querySelectorAll(".ball")
 
 // -----------------------------------------------------------------------------
 
-const a = psap.to($ball, {
-  x: () => randomRange(-100, 100),
-//  y: () => randomRange(-100, 100),
-  duration: 1,
-  stagger: 0.02,
-  ease: Ease.inOutExpo,
-})
+const a = psap.fromTo(
+  $ball,
+  {
+    x: () => randomRange(-200, 200),
+  },
+  {
+    x: () => randomRange(-200, 200),
+    duration: 1,
+    stagger: 0.02,
+    ease: Ease.inOutExpo,
+  }
+)
 
 // anime({
 //   targets: '.css-transforms-demo .el',

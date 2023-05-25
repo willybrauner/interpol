@@ -51,7 +51,7 @@ export type PropOptions = Partial<{
   update: { value: number; time: number; progress: number }
   duration: { value: number; _value: number | (() => number) }
   to: { value: number; _value: number | (() => number); unit: string }
-  from: { value: number | (() => number); _value: number | (() => number); unit: string }
+  from: { value: number; _value: number | (() => number); unit: string }
   transformFn: string
   _hasExplicitFrom: boolean
   _isTransform: boolean
@@ -65,7 +65,7 @@ type API = Readonly<{
   replay: () => Promise<any>
   reverse: () => Promise<any>
   pause: () => void
-  props?
+  refresh: () => void
 }>
 
 type Target = Element | Element[] | HTMLElement | HTMLElement[] | NodeList | Node
@@ -172,6 +172,7 @@ const _anim = (
 
   // Start loop of prop keys \o/
   // ...........................
+
   const itps = Object.keys(keys).map((key, i) => {
     const isLastProp = i === Object.keys(keys).length - 1
     const isLast = isLastAnim && isLastProp
@@ -191,6 +192,7 @@ const _anim = (
     o.duration = compute(o.duration)
 
     const prop = props.get(key)
+    prop.duration.value = o.duration as number
 
     prop._isTransform = VALID_TRANSFORMS.includes(key as (typeof VALID_TRANSFORMS)[number])
     if (prop._isTransform) {
@@ -291,37 +293,28 @@ const _anim = (
         if (isLast) o.onComplete?.(props)
       },
     })
-
-    const refresh = () => {
-  //    itp.setFrom(prop.from._value)
-      itp.setTo(prop.to._value)
-//      itp.setDuration(prop.duration._value)
-      log(prop.to._value,itp.to)
+    // assign refresh method to interpol instance
+    itp.refresh = () => {
+      for (let el of ["to", "from", "duration"]) {
+        prop[el].value = compute(prop[el]._value) ?? 0
+        itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
+      }
     }
 
-    return { itp, refresh }
+    return itp
   })
+
+  // create all interpol instances
 
   // _anim return (multiple itp)
   return Object.freeze({
-    props,
-    play: () => Promise.all(itps.map(({ itp, refresh }) => itp.play())),
-    replay: () => Promise.all(itps.map(({ itp, refresh }) => itp.replay())),
-    reverse: () => Promise.all(itps.map(({ itp, refresh }) => itp.reverse())),
-    stop: () => itps.forEach(({ itp, refresh }) => itp.stop()),
-    pause: () => itps.forEach(({ itp, refresh }) => itp.pause()),
-    refresh: () => {
-      itps.forEach(({ itp, refresh }) => {
-        refresh()
-      })
-      // console.log("from itp api props", props)
-      // for (let [_, value] of props) {
-      //   for (let el of ["from", "to", "duration"]) {
-      //     value[el].value = compute(value[el]._value)
-      //   }
-      // }
-    },
-  })
+    play: () => Promise.all(itps.map((itp) => itp.play())),
+    replay: () => Promise.all(itps.map((itp) => itp.replay())),
+    reverse: () => Promise.all(itps.map((itp) => itp.reverse())),
+    stop: () => itps.forEach((itp) => itp.stop()),
+    pause: () => itps.forEach((itp) => itp.pause()),
+    refresh: () => itps.forEach((itp) => itp.refresh()),
+  }) as API
 }
 
 /**
@@ -366,10 +359,7 @@ const psap: Psap = {
   to: (target, to) => {
     const from = undefined
     to = { ...to, _type: "to" } as Options
-    const a = anims(target, from, to)
-    //    const getAllProps = () =>
-    log(a.map((anim) => anim))
-    return returnAPI(a)
+    return returnAPI(anims(target, from, to))
   },
 
   from: (target, from) => {
