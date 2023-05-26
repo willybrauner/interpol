@@ -1,4 +1,4 @@
-name: CI
+name: tests
 on: [push]
 jobs:
   build:
@@ -31,3 +31,6 @@ jobs:
 
       - name: test
         run: pnpm run test
+
+      - name: size
+        run: pnpm run size

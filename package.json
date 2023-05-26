@@ -28,12 +28,15 @@
     "dev:psap": "pnpm --filter ./examples/psap run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
+    "size": "size-limit",
     "pre-publish": "npm run build && npm run test"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.1",
+    "@size-limit/preset-small-lib": "^8.2.4",
     "@types/node": "^20.1.0",
     "prettier": "^2.8.8",
+    "size-limit": "^8.2.4",
     "turbo": "^1.9.9",
     "typescript": "^5.0.4",
     "vite": "^4.3.5",
@@ -42,5 +45,17 @@
   "prettier": {
     "semi": false,
     "printWidth": 100
-  }
+  },
+  "size-limit": [
+    {
+      "name": "@psap/psap",
+      "path": "packages/psap/dist/psap.js",
+      "limit": "6 KB"
+    },
+    {
+      "name": "@psap/interpol",
+      "path": "packages/interpol/dist/interpol.js",
+      "limit": "4 KB"
+    }
+  ]
 }
