@@ -28,6 +28,7 @@
     "dev:psap": "pnpm --filter ./examples/psap run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
+    "size": "size-limit",
     "pre-publish": "npm run build && npm run test"
   },
   "devDependencies": {
@@ -42,5 +43,17 @@
   "prettier": {
     "semi": false,
     "printWidth": 100
-  }
+  },
+  "size-limit": [
+    {
+      "name": "@psap/psap",
+      "path": "packages/psap/dist/psap.js",
+      "limit": "8 KB"
+    },
+    {
+      "name": "@psap/interpol",
+      "path": "packages/interpol/dist/interpol.js",
+      "limit": "8 KB"
+    }
+  ]
 }
