@@ -50,12 +50,12 @@
     {
       "name": "@psap/psap",
       "path": "packages/psap/dist/psap.js",
-      "limit": "8 KB"
+      "limit": "2 KB"
     },
     {
       "name": "@psap/interpol",
       "path": "packages/interpol/dist/interpol.js",
-      "limit": "8 KB"
+      "limit": "2 KB"
     }
   ]
 }
