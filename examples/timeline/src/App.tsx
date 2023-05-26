@@ -1,6 +1,6 @@
 import "./App.css"
 import React, { useEffect, useRef, useState } from "react"
-import { Ease, Timeline } from "@psap/interpol"
+import { Timeline } from "@psap/interpol"
 import { Controls } from "./Controls"
 
 export function App() {
@@ -19,7 +19,6 @@ export function App() {
       from: () => 0,
       to: () => to,
       duration: 800,
-      ease: Ease.inOutQuart,
       onUpdate: ({ value, time, progress }) => {
         const x = progress * innerWidth - 50
         const y = -value * 0.8

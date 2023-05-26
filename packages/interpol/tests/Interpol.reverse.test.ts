@@ -23,9 +23,9 @@ describe.concurrent("Interpol reverse", () => {
         expect(itp.isReversed).toBe(true)
         await wait(1000)
         expect(onComplete).toHaveBeenCalledTimes(1)
-        expect(updateValues.value).toBeCloseTo(0, 0.2)
-        expect(updateValues.time).toBeCloseTo(0, 0.2)
-        expect(updateValues.progress).toBeCloseTo(0, 0.2)
+        expect(updateValues.value).toBeCloseTo(0, 100)
+        expect(updateValues.time).toBeCloseTo(0, 100)
+        expect(updateValues.progress).toBeCloseTo(0, 100)
         resolve()
       })
     },

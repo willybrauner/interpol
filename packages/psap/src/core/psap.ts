@@ -7,6 +7,7 @@ import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
 import { compute } from "@psap/interpol"
+import { easeAdaptor, EaseName } from "../utils/ease"
 
 const log = debug(`psap:psap`)
 const isSSR = () => typeof window === "undefined"
@@ -35,7 +36,12 @@ interface CSSProps
 type AnimType = "to" | "from" | "fromTo" | "set"
 
 interface IAnimOptionsWithoutProps
-  extends Omit<IInterpolConstruct, "from" | "to" | "onUpdate" | "onComplete"> {
+  extends Omit<
+    IInterpolConstruct,
+    "reverseEase" | "ease" | "from" | "to" | "onUpdate" | "onComplete"
+  > {
+  ease?: EaseName | ((t: number) => number)
+  reverseEase?: EaseName | ((t: number) => number)
   onUpdate?: (props: Props) => void
   onComplete?: (props: Props) => void
   proxyWindow?: Window | any
@@ -92,7 +98,6 @@ type Psap = {
   fromTo: FromTo
   from: From
 }
-
 
 /**
  * Main anim Function
@@ -252,6 +257,7 @@ const _anim = (
     }
 
     log("prop", prop)
+    const chooseEase = (ease) => (typeof ease === "string" ? easeAdaptor(ease as EaseName) : ease)
 
     // Return interpol instance for current key
     const itp = new Interpol({
@@ -261,8 +267,8 @@ const _anim = (
         // case "set" we don't want to animate
         // else animate 1s by default if no duration is specified
         o._type === "set" ? 0 : o.duration !== undefined ? (o.duration as number) * 1000 : 1000,
-      ease: o.ease,
-      reverseEase: o.reverseEase,
+      ease: chooseEase(o.ease),
+      reverseEase: chooseEase(o.reverseEase),
       paused: o.paused,
       delay: (o.delay + index * o.stagger) * 1000,
       ticker,
@@ -310,7 +316,7 @@ const _anim = (
 /**
  * return
  */
-const returnAPI = (anims: any[]):API => {
+const returnAPI = (anims: any[]): API => {
   return Object.freeze({
     play: () => Promise.all(anims.map((e) => e.play())),
     replay: () => Promise.all(anims.map((e) => e.replay())),

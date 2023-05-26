@@ -1,1 +1,1 @@
-export { psap } from "./psap"
+export { psap } from "./core/psap"

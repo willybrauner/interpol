@@ -1,5 +1,4 @@
 import "./index.css"
-import { Ease } from "@psap/interpol"
 import { gsap } from "gsap"
 import { psap } from "@psap/psap"
 
@@ -11,7 +10,7 @@ function randomRange(min: number, max: number, decimal = 0): number {
 
 const $wrapper = document.querySelector(".wrapper")
 // clone and append new node in wrapper
-for (let i = 0; i < 110; i++) {
+for (let i = 0; i < 1; i++) {
   const el = document.querySelector(".ball")
   const $clone = el.cloneNode(true)
   $wrapper.appendChild($clone)
@@ -24,20 +23,23 @@ const $ball = document.querySelectorAll(".ball")
 
 // -----------------------------------------------------------------------------
 
-const a = psap.fromTo(
-  $ball,
-  {
-    x: () => randomRange(-200, 200),
-    y: () => randomRange(-200, 200),
-  },
-  {
-    x: () => randomRange(-200, 200),
-    y: () => randomRange(-200, 200),
-    duration: 1,
-    stagger: 0.01,
-    ease: Ease.inOutExpo,
-  }
-)
+// const a = gsap.to(
+//   $ball,
+//   {
+//     x: 100,
+//   //  y: () => randomRange(-200, 200),
+//     duration: 1,
+//    // stagger: 0.01,
+//     ease: "power2.in",
+//   }
+// )
+
+const a = psap.to($ball, {
+  x: 100,
+  //  y: () => randomRange(-200, 200),
+  duration: 1,
+  //    stagger: 0.01,
+})
 
 // anime({
 //   targets: '.css-transforms-demo .el',
