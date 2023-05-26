@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { psap } from "../src"
 import { randomRange } from "./utils/randomRange"
-import { DEG_UNIT_FN, NO_UNIT_FN, PX_UNIT_FN, RAD_UNIT_FN } from "../src/psap"
+import { DEG_UNIT_FN, NO_UNIT_FN, PX_UNIT_FN, RAD_UNIT_FN } from "../src/core/psap"
 import { getDocument } from "./utils/getDocument"
 
 describe.concurrent("anim specific CSS Properties", () => {

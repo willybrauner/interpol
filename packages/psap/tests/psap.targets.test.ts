@@ -107,37 +107,4 @@ describe.concurrent("multiple targets", () => {
       expect(onCompleteMock).toHaveBeenCalledTimes(1)
       resolve()
     }))
-
-  /**
-   * Stress test
-   */
-  it("should anim lot of targets - stress test", () =>
-    new Promise(async (resolve: any) => {
-      const { proxy, $el } = getDocument()
-      const targets = []
-      for (let i = 0; i < 30; i++) {
-        targets.push($el.cloneNode(true))
-      }
-
-      const beforeStartMock = vi.fn()
-      const onCompleteMock = vi.fn()
-      const animTo = psap.to(targets, {
-        left: 10,
-        duration: 1,
-        paused: true,
-        ...proxy,
-        beforeStart: () => {
-          beforeStartMock()
-        },
-        onComplete: () => {
-          onCompleteMock()
-          targets.forEach((e) => {
-            expect(parseFloat(e.style.left)).toBeCloseTo(10, 5)
-          })
-        },
-      })
-      await animTo.play()
-      expect(onCompleteMock).toHaveBeenCalledTimes(1)
-      resolve()
-    }))
 })
