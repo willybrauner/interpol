@@ -115,12 +115,15 @@ describe.concurrent("multiple targets", () => {
       psap.to(test, {
         hello: 10,
         ...proxy,
-        onUpdate: () => {
-          console.log("-", test.hello)
+        onUpdate: (props) => {
+          // console.log(props.get("hello").update.value)
+          expect(test.hello).toBeGreaterThan(0)
+          expect(test.hello).toBe(props.get("hello").update.value)
         },
-        onComplete:() => {
+        onComplete: () => {
+          expect(test.hello).toBe(10)
           resolve()
-        }
+        },
       })
     })
   })

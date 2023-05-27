@@ -154,9 +154,6 @@ const _anim = (
     }
   }
 
-  const isTargetObj = !(target instanceof o.proxyWindow.HTMLElement)
-  console.log("isTargetObj", isTargetObj)
-
   // Prepare transform props
   // .......................
   // If keys contains valid transform keys
@@ -200,7 +197,7 @@ const _anim = (
       to: { value: undefined, _value: keys?.[key], unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
-      _isObject: isTargetObj,
+      _isObject: !(target instanceof o.proxyWindow.HTMLElement),
     })
 
     const vTo = compute(keys?.[key])
@@ -221,13 +218,12 @@ const _anim = (
 
     log("---------------------------------------------------------------------------------")
 
-    console.log(prop)
     // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
     let cssValue: string = prop._isObject ? null : getCssValue(target, prop, o.proxyWindow)
     // Number value without unit -> 10 (or 0)
     const cssValueN: number = parseFloat(cssValue) || 0
     // Css value Unit -> "px"
-    const cssValueUnit: string = getUnit(cssValue, prop)
+    const cssValueUnit: string = prop._isObject ? null : getUnit(cssValue, prop)
     log({ cssValue, cssValueN, cssValueUnit })
 
     // Case we have one object: "from"
@@ -270,9 +266,18 @@ const _anim = (
     }
 
     log("prop", prop)
+
+    // prepare interpol ease
     const chooseEase = (ease) => (typeof ease === "string" ? easeAdaptor(ease as EaseName) : ease)
 
+    // prepare interpol setValueOn: where we have to set the value
+    let setValueOn = (v: number | string): void => {
+      prop._isObject ? (target[prop.usedKey] = v) : (target.style[prop.usedKey] = v)
+    }
+
     // Return interpol instance for current key
+
+    // prettier-ignore
     const itp = new Interpol({
       from: prop.from.value,
       to: prop.to.value,
@@ -288,13 +293,7 @@ const _anim = (
       debug: o.debug,
       beforeStart: () => {
         if (prop._hasExplicitFrom || o.paused) {
-          if (prop._isObject) {
-            target[prop.usedKey] = prop.from.value
-          } else {
-            target.style[prop.usedKey] = prop._isTransform
-              ? buildTransformChain(props, "from")
-              : prop.from.value + prop.from.unit
-          }
+          setValueOn(prop._isTransform ? buildTransformChain(props, "from") : prop.from.value + prop.from.unit)
         }
         if (isLast) o.beforeStart?.()
       },
@@ -302,25 +301,12 @@ const _anim = (
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-
-        if (prop._isObject) {
-          target[prop.usedKey] = value
-        } else {
-          target.style[prop.usedKey] = prop._isTransform
-            ? buildTransformChain(props, "update")
-            : value + prop.to.unit
-        }
+        setValueOn(prop._isTransform ? buildTransformChain(props, "update") : value + prop.to.unit)
         if (isLast) o.onUpdate?.(props)
       },
       onComplete: () => {
         const dir = itp.isReversed ? "from" : "to"
-        if (prop._isObject) {
-          target[prop.usedKey] = prop[dir].value
-        } else {
-          target.style[prop.usedKey] = prop._isTransform
-            ? buildTransformChain(props, dir)
-            : prop[dir].value + prop[dir].unit
-        }
+        setValueOn(prop._isTransform ? buildTransformChain(props, dir) : prop[dir].value + prop[dir].unit)
         if (isLast) o.onComplete?.(props)
       },
     })
