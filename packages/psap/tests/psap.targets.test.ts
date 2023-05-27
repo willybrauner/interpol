@@ -107,4 +107,21 @@ describe.concurrent("multiple targets", () => {
       expect(onCompleteMock).toHaveBeenCalledTimes(1)
       resolve()
     }))
+
+  it.only("should work with an object as target", () => {
+    return new Promise((resolve: any) => {
+      const { proxy } = getDocument()
+      const test = { hello: 0 }
+      psap.to(test, {
+        hello: 10,
+        ...proxy,
+        onUpdate: () => {
+          console.log("-", test.hello)
+        },
+        onComplete:() => {
+          resolve()
+        }
+      })
+    })
+  })
 })

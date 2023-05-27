@@ -62,6 +62,7 @@ export type PropOptions = Partial<{
   transformFn: string
   _hasExplicitFrom: boolean
   _isTransform: boolean
+  _isObject: boolean
 }>
 
 type Props = Map<string, PropOptions>
@@ -75,7 +76,14 @@ type API = Readonly<{
   refresh: () => void
 }>
 
-type Target = Element | Element[] | HTMLElement | HTMLElement[] | NodeList | Node
+type Target =
+  | Element
+  | Element[]
+  | HTMLElement
+  | HTMLElement[]
+  | NodeList
+  | Node
+  | Record<string, number>
 
 type SetOmit =
   | "ease"
@@ -146,6 +154,9 @@ const _anim = (
     }
   }
 
+  const isTargetObj = !(target instanceof o.proxyWindow.HTMLElement)
+  console.log("isTargetObj", isTargetObj)
+
   // Prepare transform props
   // .......................
   // If keys contains valid transform keys
@@ -189,6 +200,7 @@ const _anim = (
       to: { value: undefined, _value: keys?.[key], unit: undefined },
       update: { value: undefined, time: undefined, progress: undefined },
       _hasExplicitFrom: false,
+      _isObject: isTargetObj,
     })
 
     const vTo = compute(keys?.[key])
@@ -209,8 +221,9 @@ const _anim = (
 
     log("---------------------------------------------------------------------------------")
 
+    console.log(prop)
     // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
-    let cssValue: string = getCssValue(target, prop, o.proxyWindow)
+    let cssValue: string = prop._isObject ? null : getCssValue(target, prop, o.proxyWindow)
     // Number value without unit -> 10 (or 0)
     const cssValueN: number = parseFloat(cssValue) || 0
     // Css value Unit -> "px"
@@ -275,9 +288,13 @@ const _anim = (
       debug: o.debug,
       beforeStart: () => {
         if (prop._hasExplicitFrom || o.paused) {
-          target.style[prop.usedKey] = prop._isTransform
-            ? buildTransformChain(props, "from")
-            : prop.from.value + prop.from.unit
+          if (prop._isObject) {
+            target[prop.usedKey] = prop.from.value
+          } else {
+            target.style[prop.usedKey] = prop._isTransform
+              ? buildTransformChain(props, "from")
+              : prop.from.value + prop.from.unit
+          }
         }
         if (isLast) o.beforeStart?.()
       },
@@ -285,16 +302,25 @@ const _anim = (
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        target.style[prop.usedKey] = prop._isTransform
-          ? buildTransformChain(props, "update")
-          : value + prop.to.unit
+
+        if (prop._isObject) {
+          target[prop.usedKey] = value
+        } else {
+          target.style[prop.usedKey] = prop._isTransform
+            ? buildTransformChain(props, "update")
+            : value + prop.to.unit
+        }
         if (isLast) o.onUpdate?.(props)
       },
       onComplete: () => {
         const dir = itp.isReversed ? "from" : "to"
-        target.style[prop.usedKey] = prop._isTransform
-          ? buildTransformChain(props, dir)
-          : prop[dir].value + prop[dir].unit
+        if (prop._isObject) {
+          target[prop.usedKey] = prop[dir].value
+        } else {
+          target.style[prop.usedKey] = prop._isTransform
+            ? buildTransformChain(props, dir)
+            : prop[dir].value + prop[dir].unit
+        }
         if (isLast) o.onComplete?.(props)
       },
     })
@@ -309,7 +335,7 @@ const _anim = (
     return itp
   })
 
-  // _anim return (multiple itp)
+  // _anim return (multiple itps)
   return returnAPI(itps)
 }
 

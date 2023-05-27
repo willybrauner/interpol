@@ -34,8 +34,13 @@ const $ball = document.querySelectorAll(".ball")
 //   }
 // )
 
-const a = psap.to($ball, {
-  x: 100,
+const obj = { coucou: 0 }
+
+const a = psap.to(obj, {
+  coucou: 100,
+  onUpdate: () => {
+    console.log(obj.coucou)
+  },
   //  y: () => randomRange(-200, 200),
   duration: 1,
   //    stagger: 0.01,
