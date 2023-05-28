@@ -1,6 +1,7 @@
 import { describe, vi, expect, it } from "vitest"
 import { psap } from "../src"
 import { getDocument } from "./utils/getDocument"
+import { wait } from "./utils/wait"
 
 describe.concurrent("multiple targets", () => {
   it("should anim multiple targets on psap.set", () =>
@@ -21,9 +22,14 @@ describe.concurrent("multiple targets", () => {
       resolve()
     }))
 
+  // afterEach(() => {
+  //   beforeStartMock.mockClear()
+  //   onCompleteMock.mockClear()
+  // })
+
   it("should anim multiple targets on psap.to", () =>
     new Promise(async (resolve: any) => {
-      const { dom, doc, proxy, $el, $el2 } = getDocument()
+      const { proxy, $el, $el2 } = getDocument()
       const beforeStartMock = vi.fn()
       const onCompleteMock = vi.fn()
       const animTo = psap.to([$el, $el2], {
@@ -36,11 +42,12 @@ describe.concurrent("multiple targets", () => {
         },
         onComplete: () => {
           onCompleteMock()
-          expect($el.style.left).toBe("10px")
-          expect($el2.style.left).toBe("10px")
         },
       })
       await animTo.play()
+      await wait(100)
+      expect($el.style.left).toBe("10px")
+      expect($el2.style.left).toBe("10px")
       expect(beforeStartMock).toHaveBeenCalledTimes(1)
       expect(onCompleteMock).toHaveBeenCalledTimes(1)
       resolve()
@@ -48,7 +55,7 @@ describe.concurrent("multiple targets", () => {
 
   it("should anim multiple targets on psap.from", () =>
     new Promise(async (resolve: any) => {
-      const { dom, doc, proxy, $el, $el2 } = getDocument()
+      const { proxy, $el, $el2 } = getDocument()
       const beforeStartMock = vi.fn()
       const onCompleteMock = vi.fn()
       const animTo = psap.from([$el, $el2], {
@@ -73,7 +80,7 @@ describe.concurrent("multiple targets", () => {
 
   it("should anim multiple targets on psap.fromTo", () =>
     new Promise(async (resolve: any) => {
-      const { dom, doc, proxy, $el, $el2 } = getDocument()
+      const { proxy, $el, $el2 } = getDocument()
       const beforeStartMock = vi.fn()
       const onCompleteMock = vi.fn()
       const animTo = psap.fromTo(
