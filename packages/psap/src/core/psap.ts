@@ -10,48 +10,53 @@ import { compute } from "@psap/interpol"
 import { easeAdaptor, EaseName } from "../utils/ease"
 
 const log = debug(`psap:psap`)
+
+/**
+ * To move
+ */
 const isSSR = () => typeof window === "undefined"
 
+/**
+ * Constants
+ *
+ *
+ */
 // prettier-ignore
 export const DEG_UNIT_FN = ["rotate", "rotateX", "rotateY", "rotateZ", "skew", "skewX", "skewY"] as const
 export const RAD_UNIT_FN = ["perspective"] as const
 export const PX_UNIT_FN = ["translateX", "translateY", "translateZ"] as const
 export const NO_UNIT_FN = ["scale", "scaleX", "scaleY", "scaleZ"] as const
-export const VALID_TRANSFORMS = [
-  "x",
-  "y",
-  "z",
-  ...PX_UNIT_FN,
-  ...DEG_UNIT_FN,
-  ...RAD_UNIT_FN,
-  ...NO_UNIT_FN,
-] as const
+// prettier-ignore
+export const VALID_TRANSFORMS = ["x", "y", "z", ...PX_UNIT_FN, ...DEG_UNIT_FN, ...RAD_UNIT_FN, ...NO_UNIT_FN] as const
 
-interface CSSProps
-  extends Record<
-    keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number],
-    number | (() => number) | string | (() => string)
-  > {}
+/**
+ * Types
+ *
+ *
+ */
+type CSSProps = Record<
+  keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number],
+  number | (() => number) | string | (() => string)
+>
 
 type AnimType = "to" | "from" | "fromTo" | "set"
 
-interface IAnimOptionsWithoutProps
+interface OptionsWithoutProps
   extends Omit<
     IInterpolConstruct,
     "reverseEase" | "ease" | "from" | "to" | "onUpdate" | "onComplete"
   > {
-  ease?: EaseName | ((t: number) => number)
-  reverseEase?: EaseName | ((t: number) => number)
-  onUpdate?: (props: Props) => void
-  onComplete?: (props: Props) => void
-  proxyWindow?: Window | any
-  proxyDocument?: Document | any
-  _type?: AnimType
-  stagger?: number
+  ease: EaseName | ((t: number) => number)
+  reverseEase: EaseName | ((t: number) => number)
+  onUpdate: (props: Props) => void
+  onComplete: (props: Props) => void
+  proxyWindow: Window | any
+  proxyDocument: Document | any
+  stagger: number
+  _type: AnimType
 }
 
-type Options = IAnimOptionsWithoutProps & Partial<CSSProps>
-type OptionsParams = Omit<Options, "_type">
+type Options<T> = (Partial<OptionsWithoutProps> & Partial<CSSProps>) | T
 
 export type PropOptions = Partial<{
   usedKey: string
@@ -69,23 +74,19 @@ type Props = Map<string, PropOptions>
 
 type API = Readonly<{
   play: () => Promise<any>
-  stop: () => void
   replay: () => Promise<any>
   reverse: () => Promise<any>
+  stop: () => void
   pause: () => void
   refresh: () => void
 }>
 
 type Target =
-  | Element
-  | Element[]
-  | HTMLElement
-  | HTMLElement[]
-  | NodeList
-  | Node
-  | Record<string, number>
+  //  | string TODO
+  Element | HTMLElement | Node | Element[] | HTMLElement[] | NodeList | Record<string, number>
 
-type SetOmit =
+// Omit OmitPsapSet make loose the Options<T> type
+type OmitPsapSet =
   | "ease"
   | "reverseEase"
   | "paused"
@@ -95,30 +96,24 @@ type SetOmit =
   | "beforeStart"
   | "onRepeatComplete"
 
-type Set = (target: Target, to: Omit<OptionsParams, SetOmit>) => API
-type To = (target: Target, to: OptionsParams) => API
-type From = (target: Target, from: OptionsParams) => API
-type FromTo = (target: Target, from: Partial<CSSProps>, to: OptionsParams) => API
-
 type Psap = {
-  set: Set
-  to: To
-  fromTo: FromTo
-  from: From
+  set: <T extends Target>(target: T, to: Options<T>) => API
+  to: <T extends Target>(target: T, to: Options<T>) => API
+  from: <T extends Target>(target: T, from: Options<T>) => API
+  fromTo: <T extends Target>(target: T, from: Partial<CSSProps>, to: Options<T>) => API
 }
 
 /**
- * Main anim Function
- *
+ * Main _anim function
  *
  *
  */
-const _anim = (
-  target: HTMLElement,
+const _anim = <T>(
+  target: T,
   index: number,
   isLastAnim: boolean,
-  fromKeys: Options,
-  toKeys: Options
+  fromKeys: Options<T>,
+  toKeys: Options<T>
 ) => {
   // Create a common ticker for all interpolations
   const ticker = new Ticker()
@@ -129,7 +124,7 @@ const _anim = (
   // Before all, merge fromKeys and keys in case "from" object only is set
   let keys = { ...(fromKeys || {}), ...(toKeys || {}) }
 
-  const o: IAnimOptionsWithoutProps = {
+  const o: OptionsWithoutProps = {
     duration: 1,
     ease: (t) => t,
     reverseEase: null,
@@ -160,7 +155,7 @@ const _anim = (
   if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
     // Get all transform fn from CSS (translate, rotate...)
     const transformFn =
-      target?.style.transform ??
+      (target as HTMLElement)?.style.transform ??
       o.proxyWindow.getComputedStyle(target).getPropertyValue("transform")
 
     if (transformFn && transformFn !== "none") {
@@ -172,7 +167,7 @@ const _anim = (
           delete trans[transformFn]
         } else {
           const cssValue: string = getCssValue(
-            target,
+            target as HTMLElement,
             { usedKey: "transform", transformFn },
             o.proxyWindow
           )
@@ -182,7 +177,7 @@ const _anim = (
     }
   }
 
-  // Start loop of prop keys \o/
+  // Start loop of prop keys \o\
   // ...........................
 
   const itps = Object.keys(keys).map((key, i) => {
@@ -216,10 +211,12 @@ const _anim = (
       else prop.transformFn = key
     }
 
-    log("---------------------------------------------------------------------------------")
+    log("-----------------------------------------------------------------------")
 
     // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
-    let cssValue: string = prop._isObject ? null : getCssValue(target, prop, o.proxyWindow)
+    let cssValue: string = prop._isObject
+      ? null
+      : getCssValue(target as HTMLElement, prop, o.proxyWindow)
     // Number value without unit -> 10 (or 0)
     const cssValueN: number = parseFloat(cssValue) || 0
     // Css value Unit -> "px"
@@ -242,7 +239,7 @@ const _anim = (
       prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.from.unit = prop.to.unit
       prop.from.value = convertValueToUnitValue(
-        target,
+        target as HTMLElement,
         parseFloat(vFrom) && !isNaN(parseFloat(vFrom)) ? parseFloat(vFrom) : cssValueN,
         getUnit(vFrom, prop) || cssValueUnit,
         prop.to.unit,
@@ -256,7 +253,7 @@ const _anim = (
       prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
       prop.from.unit = cssValueUnit
       prop.from.value = convertValueToUnitValue(
-        target,
+        target as HTMLElement,
         cssValueN,
         prop.from.unit,
         prop.to.unit,
@@ -272,18 +269,17 @@ const _anim = (
 
     // prepare interpol setValueOn: where we have to set the value
     let setValueOn = (v: number | string): void => {
-      prop._isObject ? (target[prop.usedKey] = v) : (target.style[prop.usedKey] = v)
+      prop._isObject ? (target[prop.usedKey] = v) : ((target as HTMLElement)[prop.usedKey] = v)
     }
 
     // Return interpol instance for current key
-
     // prettier-ignore
     const itp = new Interpol({
       from: prop.from.value,
       to: prop.to.value,
       duration:
-        // case "set" we don't want to animate
-        // else animate 1s by default if no duration is specified
+      // case "set" we don't want to animate
+      // else animate 1s by default if no duration is specified
         o._type === "set" ? 0 : o.duration !== undefined ? (o.duration as number) * 1000 : 1000,
       ease: chooseEase(o.ease),
       reverseEase: chooseEase(o.reverseEase),
@@ -308,7 +304,7 @@ const _anim = (
         const dir = itp.isReversed ? "from" : "to"
         setValueOn(prop._isTransform ? buildTransformChain(props, dir) : prop[dir].value + prop[dir].unit)
         if (isLast) o.onComplete?.(props)
-      },
+      }
     })
     // assign refresh method to interpol instance
     itp.refresh = () => {
@@ -326,9 +322,11 @@ const _anim = (
 }
 
 /**
- * return
+ * Final
+ *
+ *
  */
-const returnAPI = (anims: any[]): API => {
+const returnAPI = (anims): API => {
   return Object.freeze({
     play: () => Promise.all(anims.map((e) => e.play())),
     replay: () => Promise.all(anims.map((e) => e.replay())),
@@ -339,42 +337,39 @@ const returnAPI = (anims: any[]): API => {
   })
 }
 
-const isNodeList = ($el): boolean => {
-  return isSSR()
+const fTarget = <T extends Target>(t: T): T[] => {
+  if (typeof t === "string") return Array.from(document.querySelectorAll(t))
+  else if (isNodeList(t)) return Array.from(t as T[])
+  else return [t]
+}
+// return one anim per target
+const anims = <T extends Target>(target: T, from, to) =>
+  fTarget<T>(target).map((trg, index) =>
+    _anim<T>(trg, index, isLast(index, fTarget(target)), from, to)
+  )
+
+const isNodeList = ($el): boolean =>
+  isSSR()
     ? Array.isArray($el)
     : NodeList.prototype.isPrototypeOf($el) || $el.constructor === NodeList
-}
 
-/**
- * Final
- */
-// Abstracted commons anims function
-const fTarget = (t): any[] => (isNodeList(t) ? Array.from(t) : [t])
-const isLast = (i, t) => i === t.length - 1
-const anims = (target, from, to) =>
-  fTarget(target).map((trg, index) => _anim(trg, index, isLast(index, fTarget(target)), from, to))
+const isLast = (i: number, t: any[]): boolean => i === t.length - 1
 
 const psap: Psap = {
   set: (target, to) => {
-    const from = undefined
-    to = { ...to, _type: "set" } as Options
-    return returnAPI(anims(target, from, to))
+    to = { ...to, _type: "set" }
+    return returnAPI(anims(target, undefined, to))
   },
-
   to: (target, to) => {
-    const from = undefined
-    to = { ...to, _type: "to" } as Options
-    return returnAPI(anims(target, from, to))
+    to = { ...to, _type: "to" }
+    return returnAPI(anims(target, undefined, to))
   },
-
   from: (target, from) => {
-    from = { ...from, _type: "from" } as Options
-    const to = undefined
-    return returnAPI(anims(target, from, to))
+    from = { ...from, _type: "from" }
+    return returnAPI(anims(target, from, undefined))
   },
-
   fromTo: (target, from, to) => {
-    from = { ...from, _type: "fromTo" } as Options
+    to = { ...to, _type: "fromTo" }
     return returnAPI(anims(target, from, to))
   },
 }
