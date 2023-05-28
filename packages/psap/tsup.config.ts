@@ -9,5 +9,6 @@ export default defineConfig({
   format: ["cjs", "esm"],
   external: ["@wbe/debug"],
   name: "psap",
-  globalName: "psap"
+  globalName: "psap",
+  sourcemap: true
 })
