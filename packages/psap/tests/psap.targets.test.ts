@@ -108,7 +108,7 @@ describe.concurrent("multiple targets", () => {
       resolve()
     }))
 
-  it.only("should work with an object as target", () => {
+  it("should work with an object as target", () => {
     return new Promise((resolve: any) => {
       const { proxy } = getDocument()
       const test = { hello: 0 }

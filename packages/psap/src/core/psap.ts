@@ -82,8 +82,13 @@ type API = Readonly<{
 }>
 
 type Target =
-  //  | string TODO
-  Element | HTMLElement | Node | Element[] | HTMLElement[] | NodeList | Record<string, number>
+  | Element
+  | HTMLElement
+  | Node
+  | Element[]
+  | HTMLElement[]
+  | NodeList
+  | Record<string, number>
 
 // Omit OmitPsapSet make loose the Options<T> type
 type OmitPsapSet =
@@ -269,7 +274,9 @@ const _anim = <T>(
 
     // prepare interpol setValueOn: where we have to set the value
     let setValueOn = (v: number | string): void => {
-      prop._isObject ? (target[prop.usedKey] = v) : ((target as HTMLElement)[prop.usedKey] = v)
+      prop._isObject
+        ? (target[prop.usedKey] = v)
+        : ((target as HTMLElement).style[prop.usedKey] = v)
     }
 
     // Return interpol instance for current key
