@@ -117,11 +117,10 @@ const _anim = <T>(
   isLastAnim: boolean,
   inTl: boolean,
   fromKeys: Options<T>,
-  toKeys: Options<T>,
-  tickerr?: Ticker
+  toKeys: Options<T>
 ) => {
   // Create a common ticker for all interpolations
-  const ticker = tickerr ?? new Ticker()
+  const ticker = new Ticker()
 
   // Props Map will contain all props to animate, it will be our main reference
   const props: Props = new Map<string, PropOptions>()
@@ -353,9 +352,9 @@ const fTarget = <T extends Target>(t: T): T[] => {
   else return [t]
 }
 // return one anim per target
-export const computeAnims = <T extends Target>(target: T, from, to, inTl = false, ticker = null) =>
+export const computeAnims = <T extends Target>(target: T, from, to, inTl = false) =>
   fTarget<T>(target).map((trg, index) =>
-    _anim<T>(trg, index, isLast(index, fTarget(target)), inTl, from, to, ticker)
+    _anim<T>(trg, index, isLast(index, fTarget(target)), inTl, from, to)
   )
 
 const isNodeList = ($el): boolean =>
