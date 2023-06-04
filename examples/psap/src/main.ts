@@ -28,16 +28,14 @@ const a = psap.timeline()
 a.to($ball[0], {
   //margin: "10px",
   x: 200,
-  duration: 0.3,
+  ease: "power2.inOut",
+  duration: 1,
 })
-a.to(
-  $ball[1],
-  {
-    duration: 0.3,
-    y: 200,
-  },
-  -0
-)
+a.to($ball[0], {
+  y: 200,
+  ease: "power4.out",
+  duration: 1,
+})
 // tl.to($ball, {
 //   x: 100,
 //   y: 100,
