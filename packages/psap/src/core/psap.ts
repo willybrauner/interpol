@@ -6,15 +6,11 @@ import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
-import { compute } from "@psap/interpol"
+import { isSSR, compute } from "@psap/utils"
 import { easeAdaptor, EaseName } from "../utils/ease"
+import { PsapTimeline } from "./PsapTimeline"
 
 const log = debug(`psap:psap`)
-
-/**
- * To move
- */
-const isSSR = () => typeof window === "undefined"
 
 /**
  * Constants
@@ -59,6 +55,7 @@ interface OptionsWithoutProps
 type Options<T> = (Partial<OptionsWithoutProps> & Partial<CSSProps>) | T
 
 export type PropOptions = Partial<{
+  target
   usedKey: string
   update: { value: number; time: number; progress: number }
   duration: { value: number; _value: number | (() => number) }
@@ -106,6 +103,7 @@ type Psap = {
   to: <T extends Target>(target: T, to: Options<T>) => API
   from: <T extends Target>(target: T, from: Options<T>) => API
   fromTo: <T extends Target>(target: T, from: Partial<CSSProps>, to: Options<T>) => API
+  timeline: (e) => PsapTimeline
 }
 
 /**
@@ -117,11 +115,13 @@ const _anim = <T>(
   target: T,
   index: number,
   isLastAnim: boolean,
+  inTl: boolean,
   fromKeys: Options<T>,
-  toKeys: Options<T>
+  toKeys: Options<T>,
+  tickerr?: Ticker
 ) => {
   // Create a common ticker for all interpolations
-  const ticker = new Ticker()
+  const ticker = tickerr ?? new Ticker()
 
   // Props Map will contain all props to animate, it will be our main reference
   const props: Props = new Map<string, PropOptions>()
@@ -191,6 +191,7 @@ const _anim = <T>(
 
     // Set the known information in the main "props" Map
     props.set(key, {
+      target,
       usedKey: key,
       duration: { value: undefined, _value: o.duration },
       from: { value: undefined, _value: fromKeys?.[key], unit: undefined },
@@ -321,6 +322,7 @@ const _anim = <T>(
       }
     }
 
+    itp.prop = prop
     return itp
   })
 
@@ -341,6 +343,7 @@ const returnAPI = (anims): API => {
     stop: () => anims.forEach((e) => e.stop()),
     pause: () => anims.forEach((e) => e.pause()),
     refresh: () => anims.forEach((e) => e.refresh()),
+    _props: anims.map((e) => e.prop),
   })
 }
 
@@ -350,9 +353,9 @@ const fTarget = <T extends Target>(t: T): T[] => {
   else return [t]
 }
 // return one anim per target
-const anims = <T extends Target>(target: T, from, to) =>
+export const computeAnims = <T extends Target>(target: T, from, to, inTl = false, ticker = null) =>
   fTarget<T>(target).map((trg, index) =>
-    _anim<T>(trg, index, isLast(index, fTarget(target)), from, to)
+    _anim<T>(trg, index, isLast(index, fTarget(target)), inTl, from, to, ticker)
   )
 
 const isNodeList = ($el): boolean =>
@@ -365,19 +368,23 @@ const isLast = (i: number, t: any[]): boolean => i === t.length - 1
 const psap: Psap = {
   set: (target, to) => {
     to = { ...to, _type: "set" }
-    return returnAPI(anims(target, undefined, to))
+    return returnAPI(computeAnims(target, undefined, to))
   },
   to: (target, to) => {
     to = { ...to, _type: "to" }
-    return returnAPI(anims(target, undefined, to))
+    return returnAPI(computeAnims(target, undefined, to))
   },
   from: (target, from) => {
     from = { ...from, _type: "from" }
-    return returnAPI(anims(target, from, undefined))
+    return returnAPI(computeAnims(target, from, undefined))
   },
   fromTo: (target, from, to) => {
     to = { ...to, _type: "fromTo" }
-    return returnAPI(anims(target, from, to))
+    return returnAPI(computeAnims(target, from, to))
+  },
+  // TODO pass params to timeline
+  timeline: (): PsapTimeline => {
+    return new PsapTimeline()
   },
 }
 

@@ -46,6 +46,9 @@ export class Interpol {
 
   public inTl = false
 
+  // store psap prop on the objetw
+  public prop
+
   constructor({
     from = 0,
     to = 1000,

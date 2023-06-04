@@ -2,7 +2,6 @@ import { Interpol } from "./Interpol"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { IInterpolConstruct } from "./core/types"
-import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import debug from "@wbe/debug"
 const log = debug("interpol:Timeline")
@@ -91,7 +90,6 @@ export class Timeline {
       isLastOfTl: true,
     })
     this.log("adds", this.adds)
-
     return this
   }
 
@@ -171,6 +169,10 @@ export class Timeline {
 
   protected handleTickerUpdate = async ({ delta }) => {
     if (!this.ticker.isRunning) return
+
+    const clamp = (min: number, value: number, max: number): number => {
+      return Math.max(min, Math.min(value, max))
+    }
 
     // delta sign depend of reverse state
     delta = this._isReversed ? -delta : delta

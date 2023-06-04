@@ -15,6 +15,7 @@ for (let i = 0; i < 1; i++) {
   const $clone = el.cloneNode(true)
   $wrapper.appendChild($clone)
 }
+const $button = document.querySelector(".button")
 const $ball = document.querySelectorAll(".ball")
 
 ;["play", "reverse", "replay", "pause", "stop", "refresh"].forEach(
@@ -23,28 +24,40 @@ const $ball = document.querySelectorAll(".ball")
 
 // -----------------------------------------------------------------------------
 
-// const a = gsap.to(
-//   $ball,
-//   {
-//     x: 100,
-//   //  y: () => randomRange(-200, 200),
-//     duration: 1,
-//    // stagger: 0.01,
-//     ease: "power2.in",
-//   }
-// )
-
-const obj = { coucou: 0 }
-
-const a = psap.to(obj, {
-  coucou: 100,
-  onUpdate: () => {
-    console.log(obj.coucou)
-  },
-  //  y: () => randomRange(-200, 200),
-  duration: 1,
-  //    stagger: 0.01,
+const a = psap.timeline()
+a.to($ball[0], {
+  //margin: "10px",
+  x: 200
 })
+a.to($ball[1], {
+  y: 200
+})
+// tl.to($ball, {
+//   x: 100,
+//   y: 100,
+//   duration: 1.2
+// })
+
+// const a = psap.to($ball, {
+//   y: () => randomRange(-400, 400),
+//   x: () => randomRange(-400, 400),
+//   duration: 1,
+//   stagger: 0.001,
+//   ease: "power2.inOut",
+// })
+//
+// await a.play()
+
+// const obj = { coucou: 0 }
+// const a = psap.to(obj, {
+//   coucou: 100,
+//   onUpdate: () => {
+//     console.log(obj.coucou)
+//   },
+//   //  y: () => randomRange(-200, 200),
+//   duration: 1,
+//   //    stagger: 0.01,
+// })
 
 // anime({
 //   targets: '.css-transforms-demo .el',
