@@ -1,10 +1,6 @@
 import { IInterpolConstruct, IUpdateParams } from "./core/types"
 import debug from "@wbe/debug"
-import { Ticker } from "./core/Ticker"
-import { deferredPromise } from "./core/deferredPromise"
-import { clamp } from "./core/clamp"
-import { round } from "./core/round"
-import { compute } from "./core/compute"
+import { Ticker, deferredPromise, clamp, round, compute } from "@psap/utils"
 
 const log = debug("interpol:Interpol")
 

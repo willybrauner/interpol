@@ -1,8 +1,7 @@
 import { Interpol } from "./Interpol"
-import { Ticker } from "./core/Ticker"
-import { deferredPromise } from "./core/deferredPromise"
+import { Ticker, deferredPromise, round } from "@psap/utils"
 import { IInterpolConstruct } from "./core/types"
-import { round } from "./core/round"
+
 import debug from "@wbe/debug"
 const log = debug("interpol:Timeline")
 
