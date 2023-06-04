@@ -1,4 +1,4 @@
-import { Ticker } from "@psap/interpol"
+import { Ticker } from "@psap/utils"
 import { computeAnims } from "./psap"
 import debug from "@wbe/debug"
 import { round, clamp } from "@psap/utils"
@@ -34,7 +34,7 @@ export class PsapTimeline {
     const duration = to?.duration ? to?.duration * 1000 : 1000
     offsetPosition = offsetPosition ? offsetPosition * 1000 : 0
 
-    this.tlDuration += duration + (offsetPosition)
+    this.tlDuration += duration + offsetPosition
     const prevPsap = this.psaps?.[this.psaps.length - 1]
     // if not, prev, this is the 1st, start position is 0 else, origin is the prev end + offset
     let startPositionInTl: number = prevPsap ? prevPsap.endPositionInTl + offsetPosition : 0
