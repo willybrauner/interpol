@@ -27,11 +27,17 @@ const $ball = document.querySelectorAll(".ball")
 const a = psap.timeline()
 a.to($ball[0], {
   //margin: "10px",
-  x: 200
+  x: 200,
+  duration: 0.3,
 })
-a.to($ball[1], {
-  y: 200
-})
+a.to(
+  $ball[1],
+  {
+    duration: 0.3,
+    y: 200,
+  },
+  -0
+)
 // tl.to($ball, {
 //   x: 100,
 //   y: 100,

@@ -103,7 +103,7 @@ type Psap = {
   to: <T extends Target>(target: T, to: Options<T>) => API
   from: <T extends Target>(target: T, from: Options<T>) => API
   fromTo: <T extends Target>(target: T, from: Partial<CSSProps>, to: Options<T>) => API
-  timeline: (e) => PsapTimeline
+  timeline: (e?) => PsapTimeline
 }
 
 /**
