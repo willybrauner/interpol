@@ -9,7 +9,7 @@ import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
 import { easeAdaptor, EaseName } from "../utils/ease"
 import { PsapTimeline } from "./PsapTimeline"
-
+import pre from "@changesets/cli/dist/declarations/src/commands/pre"
 const log = debug(`psap:psap`)
 
 /**
@@ -17,13 +17,27 @@ const log = debug(`psap:psap`)
  *
  *
  */
-// prettier-ignore
-export const DEG_UNIT_FN = ["rotate", "rotateX", "rotateY", "rotateZ", "skew", "skewX", "skewY"] as const
 export const RAD_UNIT_FN = ["perspective"] as const
 export const PX_UNIT_FN = ["translateX", "translateY", "translateZ"] as const
 export const NO_UNIT_FN = ["scale", "scaleX", "scaleY", "scaleZ"] as const
-// prettier-ignore
-export const VALID_TRANSFORMS = ["x", "y", "z", ...PX_UNIT_FN, ...DEG_UNIT_FN, ...RAD_UNIT_FN, ...NO_UNIT_FN] as const
+export const DEG_UNIT_FN = [
+  "rotate",
+  "rotateX",
+  "rotateY",
+  "rotateZ",
+  "skew",
+  "skewX",
+  "skewY",
+] as const
+export const VALID_TRANSFORMS = [
+  "x",
+  "y",
+  "z",
+  ...PX_UNIT_FN,
+  ...DEG_UNIT_FN,
+  ...RAD_UNIT_FN,
+  ...NO_UNIT_FN,
+] as const
 
 /**
  * Types
@@ -153,33 +167,36 @@ const _anim = <T>(
     }
   }
 
-  // Prepare transform props
-  // .......................
-  // If keys contains valid transform keys
-  if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
-    // Get all transform fn from CSS (translate, rotate...)
-    const transformFn =
-      (target as HTMLElement)?.style.transform ??
-      o.proxyWindow.getComputedStyle(target).getPropertyValue("transform")
+  const prepareTransformProps = () => {
+    // Prepare transform props
+    // .......................
+    // If keys contains valid transform keys
+    if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
+      // Get all transform fn from CSS (translate, rotate...)
+      const transformFn =
+        (target as HTMLElement)?.style.transform ??
+        o.proxyWindow.getComputedStyle(target).getPropertyValue("transform")
 
-    if (transformFn && transformFn !== "none") {
-      const trans = isMatrix(transformFn) ? convertMatrix(transformFn) : transformFn
-      // Filter empty values and already defined keys
-      // and add them to keys in order to be kept in the loop
-      for (const transformFn in trans) {
-        if (trans[transformFn] === "" || keys[transformFn]) {
-          delete trans[transformFn]
-        } else {
-          const cssValue: string = getCssValue(
-            target as HTMLElement,
-            { usedKey: "transform", transformFn },
-            o.proxyWindow
-          )
-          keys = { ...{ [transformFn]: cssValue }, ...keys }
+      if (transformFn && transformFn !== "none") {
+        const trans = isMatrix(transformFn) ? convertMatrix(transformFn) : transformFn
+        // Filter empty values and already defined keys
+        // and add them to keys in order to be kept in the loop
+        for (const transformFn in trans) {
+          if (trans[transformFn] === "" || keys[transformFn]) {
+            delete trans[transformFn]
+          } else {
+            const cssValue: string = getCssValue(
+              target as HTMLElement,
+              { usedKey: "transform", transformFn },
+              o.proxyWindow
+            )
+            keys = { ...{ [transformFn]: cssValue }, ...keys }
+          }
         }
       }
     }
   }
+  prepareTransformProps()
 
   // Start loop of prop keys \o\
   // ...........................
@@ -296,7 +313,7 @@ const _anim = <T>(
       debug: o.debug,
       beforeStart: () => {
         if (prop._hasExplicitFrom || o.paused) {
-          setValueOn(prop._isTransform ? buildTransformChain(props, "from") : prop.from.value + prop.from.unit)
+          setValueOn(prop._isTransform ? buildTransformChain(target,props, "from") : prop.from.value + prop.from.unit)
         }
         if (isLast) o.beforeStart?.()
       },
@@ -304,12 +321,12 @@ const _anim = <T>(
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        setValueOn(prop._isTransform ? buildTransformChain(props, "update") : value + prop.to.unit)
+        setValueOn(prop._isTransform ? buildTransformChain(target,props, "update") : value + prop.to.unit)
         if (isLast) o.onUpdate?.(props)
       },
       onComplete: () => {
         const dir = itp.isReversed ? "from" : "to"
-        setValueOn(prop._isTransform ? buildTransformChain(props, dir) : prop[dir].value + prop[dir].unit)
+        setValueOn(prop._isTransform ? buildTransformChain(target,props, dir) : prop[dir].value + prop[dir].unit)
         if (isLast) o.onComplete?.(props)
       }
     })

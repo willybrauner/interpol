@@ -5,18 +5,48 @@ const log = debug(`psap:buildTransformChain`)
  * Chain transforms properties
  */
 export const buildTransformChain = (
+  target,
   props: Map<string, PropOptions>,
-  valueToUse: "to" | "from" | "update" = "to",
-  force3D: boolean = true
+  valueToUse: "to" | "from" | "update" = "to"
 ): string => {
-  let chain = ""
+
+  // store all transform fn
+  const TRANS_MAP = new Map()
+
+  // get transform function on the target if this transform didn't exist when the target was created
+  const tFn = (target as HTMLElement)?.style.transform.split(/\s(?![^(]*\))/g) || []
+  for (const t of tFn) {
+    const fn = t.split("(")[0]
+    if (fn) TRANS_MAP.set(fn, t)
+  }
+
+  // get transform fn from props
   for (const [k, prop] of props) {
     if (prop._isTransform) {
-      chain += `${prop.transformFn}(${prop[valueToUse].value}${prop.to.unit}) `
+      TRANS_MAP.set(
+        prop.transformFn,
+        `${prop.transformFn}(${prop[valueToUse].value}${prop.to.unit})`
+      )
     }
   }
-  // force 30
-  //  if (!chain.includes("translateZ") && force3D) chain += "translateZ(0px) "
-  // log("chain", chain)
-  return chain.trim()
+
+  // let translate3d = (x, y, z) => `translate3d(${x}, ${y}, ${z})`
+  // const t3d = { x: "0px", y: "0px", z: "0px" }
+  // for (const [key, value] of TRANS_MAP.entries()) {
+  //   if (key === "translate3d") continue
+  //   for (let c of ["x", "y", "z"]) {
+  //     if (key === `translate${c.toUpperCase()}`) t3d[c] = value.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
+  //   }
+  //   TRANS_MAP.set("translate3d", `translate3d(${t3d.x}, ${t3d.y}, ${t3d.z})`)
+  // }
+
+  // always add translateZ
+  TRANS_MAP.set("translateZ", "translateZ(0px)")
+
+  let chain = ""
+  for (const [key, value] of TRANS_MAP.entries()) {
+    chain += value + " "
+  }
+
+  return chain
 }
