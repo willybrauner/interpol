@@ -29,17 +29,7 @@ export const buildTransformChain = (
       )
     }
   }
-
-  // let translate3d = (x, y, z) => `translate3d(${x}, ${y}, ${z})`
-  // const t3d = { x: "0px", y: "0px", z: "0px" }
-  // for (const [key, value] of TRANS_MAP.entries()) {
-  //   if (key === "translate3d") continue
-  //   for (let c of ["x", "y", "z"]) {
-  //     if (key === `translate${c.toUpperCase()}`) t3d[c] = value.match(/(\d+(?:\.\d+)?)(\w+)?/)?.[0]
-  //   }
-  //   TRANS_MAP.set("translate3d", `translate3d(${t3d.x}, ${t3d.y}, ${t3d.z})`)
-  // }
-
+  
   // always add translateZ
   TRANS_MAP.set("translateZ", "translateZ(0px)")
 
