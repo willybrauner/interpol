@@ -31,6 +31,7 @@ a.to($ball[0], {
   ease: "power2.inOut",
   duration: 0.5,
 })
+
 a.to($ball[0], {
   y: 200,
   ease: "power4.out",
@@ -45,7 +46,18 @@ a.to(
     ease: "power4.out",
     duration: 0.5,
   },
-  -0.5
+  -0.3
+)
+
+a.to(
+  $ball[1],
+  {
+    x: -20,
+    skew: 20,
+    duration: 2,
+    ease: "power2.out",
+  },
+  -0.3
 )
 // tl.to($ball, {
 //   x: 100,

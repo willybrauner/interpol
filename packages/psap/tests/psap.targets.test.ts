@@ -97,7 +97,7 @@ describe.concurrent("multiple targets", () => {
             onCompleteMock()
             const expected = ($el) => {
               expect($el.style.left).toBe("0px")
-              expect($el.style.transform).toBe("translateX(-10px)")
+              expect($el.style.transform).toBe("translateX(-10px) translateZ(0px)")
             }
             expected($el)
             expected($el2)

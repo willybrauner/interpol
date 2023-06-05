@@ -1,10 +1,9 @@
-import { Ticker } from "@psap/utils"
-import { computeAnims } from "./psap"
+import { compute, Ticker } from "@psap/utils"
+import { computeAnims, CSSProps, Options, OptionsWithoutProps, Target } from "./psap"
 import debug from "@wbe/debug"
 import { deferredPromise, round, clamp } from "@psap/utils"
 
 const log = debug(`psap:PsapTimeline`)
-//
 interface IAdd {
   psap
   offsetPosition: number
@@ -15,6 +14,12 @@ interface IAdd {
   position?: number
 }
 
+export interface PsapTimelineConstruct {
+  paused: boolean
+  onUpdate: ({ time, progress }) => void
+  onComplete: ({ time, progress }) => void
+}
+
 /**
  * Psap Timeline
  *
@@ -22,7 +27,7 @@ interface IAdd {
  *
  */
 export class PsapTimeline {
-  private adds = []
+  private adds: IAdd[] = []
   private time = 0
   private progress = 0
   private tlDuration: number = 0
@@ -40,18 +45,24 @@ export class PsapTimeline {
     return this._isReversed
   }
   protected _isPause = false
+  public paused: boolean = false
 
-  protected add(psap, duration: number, offsetPosition: number = 0) {
+  constructor({ paused, onUpdate, onComplete }: Partial<PsapTimelineConstruct> = {}) {
+    this.paused = paused
+    this.onUpdate = onUpdate
+    this.onComplete = onComplete
+  }
+
+  protected add(psap, duration: number | (() => number), offsetPosition: number = 0) {
     psap.map((e) => e.stop())
-
+    duration = duration ? compute(duration) * 1000 : 1000
+    offsetPosition = offsetPosition ? offsetPosition * 1000 : 0
     this.tlDuration += duration + offsetPosition
     const prevPsap = this.adds?.[this.adds.length - 1]
     // if not, prev, this is the 1st, start position is 0 else, origin is the prev end + offset
     let startPositionInTl: number = prevPsap ? prevPsap.endPositionInTl + offsetPosition : 0
     // calc end position in TL (start pos + duration of interpolation)
     const endPositionInTl = startPositionInTl + duration
-    log("startPositionInTl", startPositionInTl)
-    log("endPositionInTl", endPositionInTl)
     // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) this.adds[i].isLastOfTl = false
 
@@ -62,7 +73,6 @@ export class PsapTimeline {
       endPositionInTl,
       isLastOfTl: true,
     })
-    console.log("this.adds", this.adds)
   }
 
   /**
@@ -71,21 +81,11 @@ export class PsapTimeline {
    * @param to
    * @param offsetPosition
    */
-  public to(targets, to, offsetPosition: number = 0) {
-    // compute
+  public to<T extends Target>(targets: T, to: Options<any>, offsetPosition: number = 0) {
     to = { ...to, _type: "to" }
     const psap = computeAnims(targets, undefined, to, true)
-    // stop
-    psap.map((e) => e.stop())
-    // prepare
-    const duration = to?.duration ? to?.duration * 1000 : 1000
-    offsetPosition = offsetPosition ? offsetPosition * 1000 : 0
-    // add psap to timeline
-    this.add(psap, duration, offsetPosition)
-
-    // auto play
-    // TODO conditionner l'autoplay si paused true dans le construct
-    this.play()
+    this.add(psap, to?.duration, offsetPosition)
+    if (!this.paused) this.play()
     return this
   }
 

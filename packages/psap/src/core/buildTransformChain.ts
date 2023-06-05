@@ -9,7 +9,6 @@ export const buildTransformChain = (
   props: Map<string, PropOptions>,
   valueToUse: "to" | "from" | "update" = "to"
 ): string => {
-
   // store all transform fn
   const TRANS_MAP = new Map()
 
@@ -29,14 +28,16 @@ export const buildTransformChain = (
       )
     }
   }
-  
+
   // always add translateZ
-  TRANS_MAP.set("translateZ", "translateZ(0px)")
+  TRANS_MAP.set("translateZ", TRANS_MAP.get("translateZ") || "translateZ(0px)")
 
   let chain = ""
   for (const [key, value] of TRANS_MAP.entries()) {
-    chain += value + " "
+    chain += `${value} `
   }
 
+  // remove last space add the end of the chain
+  chain = chain.slice(0, -1)
   return chain
 }

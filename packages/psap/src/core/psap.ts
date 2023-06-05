@@ -8,8 +8,7 @@ import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
 import { easeAdaptor, EaseName } from "../utils/ease"
-import { PsapTimeline } from "./PsapTimeline"
-import pre from "@changesets/cli/dist/declarations/src/commands/pre"
+import { PsapTimeline, PsapTimelineConstruct } from "./PsapTimeline"
 const log = debug(`psap:psap`)
 
 /**
@@ -44,14 +43,14 @@ export const VALID_TRANSFORMS = [
  *
  *
  */
-type CSSProps = Record<
+export type CSSProps = Record<
   keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number],
   number | (() => number) | string | (() => string)
 >
 
 type AnimType = "to" | "from" | "fromTo" | "set"
 
-interface OptionsWithoutProps
+export interface OptionsWithoutProps
   extends Omit<
     IInterpolConstruct,
     "reverseEase" | "ease" | "from" | "to" | "onUpdate" | "onComplete"
@@ -66,7 +65,7 @@ interface OptionsWithoutProps
   _type: AnimType
 }
 
-type Options<T> = (Partial<OptionsWithoutProps> & Partial<CSSProps>) | T
+export type Options<T = any> = (Partial<OptionsWithoutProps> & Partial<CSSProps>) | T
 
 export type PropOptions = Partial<{
   target
@@ -92,7 +91,7 @@ type API = Readonly<{
   refresh: () => void
 }>
 
-type Target =
+export type Target =
   | Element
   | HTMLElement
   | Node
@@ -117,7 +116,7 @@ type Psap = {
   to: <T extends Target>(target: T, to: Options<T>) => API
   from: <T extends Target>(target: T, from: Options<T>) => API
   fromTo: <T extends Target>(target: T, from: Partial<CSSProps>, to: Options<T>) => API
-  timeline: (e?) => PsapTimeline
+  timeline: (params?: Partial<PsapTimelineConstruct>) => PsapTimeline
 }
 
 /**
@@ -398,9 +397,8 @@ const psap: Psap = {
     to = { ...to, _type: "fromTo" }
     return returnAPI(computeAnims(target, from, to))
   },
-  // TODO pass params to timeline
-  timeline: (): PsapTimeline => {
-    return new PsapTimeline()
+  timeline: (params = {}): PsapTimeline => {
+    return new PsapTimeline(params)
   },
 }
 

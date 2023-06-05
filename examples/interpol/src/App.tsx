@@ -63,7 +63,6 @@ export function App() {
   )
 }
 
-
 // prettier-ignore
 export const Ease = {
   linear: t => t,
