@@ -44,6 +44,8 @@ export class Interpol {
 
   // store psap prop on the objetw
   public prop
+  // helpers for refresh method assignments
+  public refresh = () => {}
 
   constructor({
     from = 0,
@@ -73,6 +75,9 @@ export class Interpol {
     this.ticker = ticker
     this.ticker.debugEnable = debug
 
+    // compute values
+    this.refreshComputedValues()
+
     // start!
     this.beforeStart?.()
     if (!this.paused) this.play()
@@ -85,46 +90,64 @@ export class Interpol {
     this._duration = compute(duration)
   }
 
-  // helpers for refresh method assignments
-  public refresh = () => {}
-
-  public async play(): Promise<any> {
-    await this._play()
-  }
-  protected _play(createNewCompletePromise = true, isReversedState: boolean = false) {
-    if (this._isPlaying) {
-      if (!this.inTl) {
-        this._isReversed = isReversedState
-      }
-      // recreate deferred promise to avoid multi callback
-      // this one need to be called once even if play() is called multi times
-      if (createNewCompletePromise) this.onCompleteDeferred = deferredPromise()
-      return this.onCompleteDeferred.promise
+  public async play(from: number = 0): Promise<any> {
+    // If is playing reverse, juste return the state
+    if (this._isPlaying && this._isReversed) {
+      this._isReversed = false
+      return
     }
+
+    if (this._isPlaying) {
+      this.stop()
+      return await this.play(from)
+    }
+
+    this.value = this._to * from
+    this.time = this._duration * from
+    this.progress = from
+    this._isReversed = false
     this._isPlaying = true
     this._isPause = false
 
-    // Refresh values before play
-    this.refreshComputedValues()
-
-    // Delay is set only on first play.
+    // Delay is set only on first play
     // If this play is trigger before onComplete, we don't wait again
-    const d = this.time > 0 && !this._isReversed ? 0 : this.delay
-    this.timeout = setTimeout(() => {
-      // start ticker only if is single Interpol, not TL
-      if (!this.inTl) this.ticker.play()
-      this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
-    }, d)
-
-    // create new onComplete deferred Promise and return it
-    if (createNewCompletePromise) this.onCompleteDeferred = deferredPromise()
+    // start ticker only if is single Interpol, not TL
+    this.timeout = setTimeout(
+      () => {
+        if (!this.inTl) this.ticker.play()
+        this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+      },
+      this.time > 0 ? 0 : this.delay
+    )
+    this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
 
-  public async replay(): Promise<any> {
+  public async reverse(from: number = 1): Promise<any> {
+    // If is playing normal direction, change to reverse and return
+    if (this._isPlaying && !this._isReversed) {
+      this._isReversed = true
+      return
+    }
+    // If is playing reverse, restart reverse
+    if (this._isPlaying && this._isReversed) {
+      this.stop()
+      return await this.reverse(from)
+    }
+
+    this.value = this._to * from
+    this.time = this._duration * from
+    this.progress = from
+    this._isReversed = true
     this._isPlaying = true
-    this.stop()
-    await this.play()
+    this._isPause = false
+
+    // start ticker only if is single Interpol, not TL
+    if (!this.inTl) this.ticker.play()
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+    // create new onComplete deferred Promise and return it
+    this.onCompleteDeferred = deferredPromise()
+    return this.onCompleteDeferred.promise
   }
 
   public pause(): void {
@@ -132,6 +155,14 @@ export class Interpol {
     this._isPlaying = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
+  }
+
+  public resume(): void {
+    if (!this._isPause) return
+    this._isPause = false
+    this._isPlaying = true
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+    if (!this.inTl) this.ticker.play()
   }
 
   public stop(): void {
@@ -148,17 +179,6 @@ export class Interpol {
     clearTimeout(this.timeout)
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
-  }
-
-  public reverse(r?: boolean) {
-    this._isReversed = r ?? !this._isReversed
-    // if has been stopped
-    if (!this.isPlaying && !this._isPause) {
-      this.value = this._isReversed ? this._to : 0
-      this.time = this._isReversed ? this._duration : 0
-      this.progress = this._isReversed ? 1 : 0
-    }
-    return this._play(true, this._isReversed)
   }
 
   protected handleTickerUpdate = async ({ delta }) => {

@@ -22,9 +22,11 @@ const $ball = document.querySelectorAll(".ball")
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
 
+document.querySelector<HTMLButtonElement>(`.play`).onclick = ()=> a.play(0)
+document.querySelector<HTMLButtonElement>(`.reverse`).onclick = ()=> a.reverse(1)
 // -----------------------------------------------------------------------------
 
-const a = psap.timeline()
+const a =gsap.timeline()
 a.to($ball[0], {
   margin: "10px",
   x: 200,
@@ -41,12 +43,12 @@ a.to($ball[0], {
 a.to(
   $ball[1],
   {
-    y: 200,
+    y: 150,
     scale: 10,
     ease: "power4.out",
     duration: 0.5,
-  },
-  -0.3
+  }
+  //-0.3
 )
 
 a.to(
@@ -56,8 +58,8 @@ a.to(
     skew: 20,
     duration: 2,
     ease: "power2.out",
-  },
-  -0.3
+  }
+  //-0.3
 )
 // tl.to($ball, {
 //   x: 100,

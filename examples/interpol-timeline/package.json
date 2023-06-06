@@ -1,5 +1,5 @@
 {
-  "name": "timeline-example",
+  "name": "interpol-timeline-example",
   "version": "0.0.0",
   "type": "module",
   "main": "src/index.ts",

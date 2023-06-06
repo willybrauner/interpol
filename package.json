@@ -24,7 +24,7 @@
     "build:psap:watch": "pnpm --filter ./packages/psap run build:watch",
     "dev": "turbo run dev",
     "dev:interpol": "pnpm --filter ./examples/interpol run dev",
-    "dev:timeline": "pnpm --filter ./examples/timeline run dev",
+    "dev:interpol-timeline": "pnpm --filter examples/interpol-timeline run dev",
     "dev:psap": "pnpm --filter ./examples/psap run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",

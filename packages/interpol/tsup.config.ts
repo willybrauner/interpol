@@ -9,4 +9,5 @@ export default defineConfig({
   format: ["cjs", "esm"],
   external: ["@wbe/debug"],
   name: "interpol",
+  sourcemap: true
 })

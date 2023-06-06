@@ -14,11 +14,16 @@ export const Controls = ({
   return (
     <div className={[css.root, className].join(" ")}>
       <div className={css.wrapper}>
+        {/* prettier-ignore */}
         <div className={css.buttons}>
-          {["play", "reverse", "pause", "stop", "replay"].map((e, i) => (
-            <button className={css.button} onClick={() => instance[e]()} key={i} children={e} />
-          ))}
+          <button className={css.button} onClick={() => instance.play(0)} children={"play 0"} />
+          <button className={css.button} onClick={() => instance.play(0.5)} children={"play .5"} />
+          <button className={css.button} onClick={() => instance.reverse(1)} children={"reverse 1"} />
+          <button className={css.button} onClick={() => instance.reverse(0.5)} children={"reverse .5"} />
         </div>
+        <button className={css.button} onClick={() => instance.resume()} children={"resume"} />
+        <button className={css.button} onClick={() => instance.pause()} children={"pause"} />
+        <button className={css.button} onClick={() => instance.stop()} children={"stop"} />
 
         <select
           className={css.easeSelect}
