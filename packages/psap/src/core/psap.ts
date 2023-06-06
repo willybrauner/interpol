@@ -83,9 +83,9 @@ export type PropOptions = Partial<{
 type Props = Map<string, PropOptions>
 
 type API = Readonly<{
-  play: () => Promise<any>
+  play: (from?: number) => Promise<any>
+  reverse: (from?: number) => Promise<any>
   resume: () => Promise<any>
-  reverse: () => Promise<any>
   stop: () => void
   pause: () => void
   refresh: () => void
@@ -352,9 +352,9 @@ const _anim = <T>(
  */
 const returnAPI = (anims): API => {
   return Object.freeze({
-    play: () => Promise.all(anims.map((e) => e.play())),
+    play: (from) => Promise.all(anims.map((e) => e.play(from))),
+    reverse: (from) => Promise.all(anims.map((e) => e.reverse(from))),
     resume: () => Promise.all(anims.map((e) => e.resume())),
-    reverse: () => Promise.all(anims.map((e) => e.reverse())),
     stop: () => anims.forEach((e) => e.stop()),
     pause: () => anims.forEach((e) => e.pause()),
     refresh: () => anims.forEach((e) => e.refresh()),

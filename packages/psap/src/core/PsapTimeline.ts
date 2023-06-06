@@ -89,29 +89,36 @@ export class PsapTimeline {
     return this
   }
 
-  public async play(): Promise<any> {
-    await this._play()
+  public async play(from: number = 0): Promise<any> {
+    await this._play(from)
   }
-  public async _play(createNewFullCompletePromise = true, isReversedState = false): Promise<any> {
-    if (this.isPlaying) {
-      this._isReversed = isReversedState
-      if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
-      return this.onCompleteDeferred.promise
+  public async _play(
+    from,
+    createNewFullCompletePromise = true,
+    isReversedState = false
+  ): Promise<any> {
+    // If is playing reverse, juste return the state
+    if (this.isPlaying && this._isReversed) {
+      this._isReversed = false
+      return
     }
+
+    if (this.isPlaying) {
+      this.stop()
+      return await this.play(from)
+    }
+
     log("tl play")
+    this.time = this.tlDuration * from
+    this.progress = from
+    this._isReversed = false
     this.playing = true
     this._isPause = false
+
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
-  }
-
-  public async replay(): Promise<any> {
-    log("replay")
-    this.playing = true
-    this.stop()
-    await this.play()
   }
 
   public pause(): void {

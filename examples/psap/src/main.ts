@@ -18,63 +18,58 @@ for (let i = 0; i < 1; i++) {
 const $button = document.querySelector(".button")
 const $ball = document.querySelectorAll(".ball")
 
-;["play", "reverse", "replay", "pause", "stop", "refresh"].forEach(
+;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
 
-document.querySelector<HTMLButtonElement>(`.play`).onclick = ()=> a.play(0)
-document.querySelector<HTMLButtonElement>(`.reverse`).onclick = ()=> a.reverse(1)
+document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play()
+document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse()
 // -----------------------------------------------------------------------------
-
-const a =gsap.timeline()
-a.to($ball[0], {
-  margin: "10px",
-  x: 200,
-  ease: "power2.inOut",
-  duration: 0.5,
-})
-
-a.to($ball[0], {
-  y: 200,
-  ease: "power4.out",
-  duration: 0.5,
-})
-
-a.to(
-  $ball[1],
-  {
-    y: 150,
-    scale: 10,
-    ease: "power4.out",
-    duration: 0.5,
-  }
-  //-0.3
-)
-
-a.to(
-  $ball[1],
-  {
-    x: -20,
-    skew: 20,
-    duration: 2,
-    ease: "power2.out",
-  }
-  //-0.3
-)
-// tl.to($ball, {
-//   x: 100,
-//   y: 100,
-//   duration: 1.2
-// })
-
-// const a = psap.to($ball, {
-//   y: () => randomRange(-400, 400),
-//   x: () => randomRange(-400, 400),
-//   duration: 1,
-//   stagger: 0.001,
-//   ease: "power2.inOut",
-// })
 //
+// const a = psap.timeline()
+// a.to($ball[0], {
+//   margin: "10px",
+//   x: 200,
+//   ease: "power2.inOut",
+//   duration: 0.5,
+// })
+
+// a.to($ball[0], {
+//   y: 200,
+//   ease: "power4.out",
+//   duration: 0.5,
+// })
+
+// a.to(
+//   $ball[1],
+//   {
+//     y: 150,
+//     scale: 10,
+//     ease: "power4.out",
+//     duration: 0.5,
+//   }
+//   //-0.3
+// )
+
+// a.to(
+//   $ball[1],
+//   {
+//     x: -20,
+//     skew: 20,
+//     duration: 2,
+//     ease: "power2.out",
+//   }
+//   //-0.3
+// )
+
+const a = psap.to($ball, {
+  y: () => 100,
+  x: () => 100,
+  duration: 1,
+  stagger: 0.1,
+  ease: "power2.inOut",
+})
+
 // await a.play()
 
 // const obj = { coucou: 0 }
