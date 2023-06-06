@@ -5,7 +5,7 @@ import { deferredPromise, round, clamp } from "@psap/utils"
 
 const log = debug(`psap:PsapTimeline`)
 interface IAdd {
-  psap
+  psaps
   offsetPosition: number
   startPositionInTl: number
   endPositionInTl: number
@@ -36,9 +36,9 @@ export class PsapTimeline {
   protected onUpdate: ({ time, progress }) => void
   protected onComplete: ({ time, progress }) => void
 
-  public playing: boolean = false
+  public _isPlaying: boolean = false
   public get isPlaying() {
-    return this.playing
+    return this._isPlaying
   }
   protected _isReversed = false
   public get isReversed() {
@@ -46,6 +46,9 @@ export class PsapTimeline {
   }
   protected _isPause = false
   public paused: boolean = false
+
+  protected playFrom = 0
+  protected reverseFrom = 1
 
   constructor({ paused, onUpdate, onComplete }: Partial<PsapTimelineConstruct> = {}) {
     this.paused = paused
@@ -58,21 +61,23 @@ export class PsapTimeline {
     duration = duration ? compute(duration) * 1000 : 1000
     offsetPosition = offsetPosition ? offsetPosition * 1000 : 0
     this.tlDuration += duration + offsetPosition
-    const prevPsap = this.adds?.[this.adds.length - 1]
+    const prevPsap: IAdd = this.adds?.[this.adds.length - 1]
     // if not, prev, this is the 1st, start position is 0 else, origin is the prev end + offset
     let startPositionInTl: number = prevPsap ? prevPsap.endPositionInTl + offsetPosition : 0
     // calc end position in TL (start pos + duration of interpolation)
-    const endPositionInTl = startPositionInTl + duration
+    const endPositionInTl: number = startPositionInTl + duration
     // update all "isLastOfTl" property
     for (let i = 0; i < this.adds.length; i++) this.adds[i].isLastOfTl = false
 
     this.adds.push({
-      psap,
+      psaps: psap,
       offsetPosition,
       startPositionInTl,
       endPositionInTl,
       isLastOfTl: true,
     })
+
+    console.log(this.adds)
   }
 
   /**
@@ -90,13 +95,7 @@ export class PsapTimeline {
   }
 
   public async play(from: number = 0): Promise<any> {
-    await this._play(from)
-  }
-  public async _play(
-    from,
-    createNewFullCompletePromise = true,
-    isReversedState = false
-  ): Promise<any> {
+    this.playFrom = from
     // If is playing reverse, juste return the state
     if (this.isPlaying && this._isReversed) {
       this._isReversed = false
@@ -112,20 +111,48 @@ export class PsapTimeline {
     this.time = this.tlDuration * from
     this.progress = from
     this._isReversed = false
-    this.playing = true
+    this._isPlaying = true
     this._isPause = false
 
+    this.executeOnAllPsaps((e) => e.initPosition())
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
-    if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
+    this.onCompleteDeferred = deferredPromise()
+    return this.onCompleteDeferred.promise
+  }
+
+  public async reverse(from: number = 1): Promise<any> {
+    this.reverseFrom = from
+    // If is playing normal direction, change to reverse and return
+    if (this.isPlaying && !this._isReversed) {
+      this._isReversed = true
+      return
+    }
+    // If is playing reverse, restart reverse
+    if (this.isPlaying && this._isReversed) {
+      this.stop()
+      return await this.reverse(from)
+    }
+
+    this.time = this.tlDuration * from
+    this.progress = from
+    this._isReversed = true
+    this._isPlaying = true
+    this._isPause = false
+
+    // start ticker only if is single Interpol, not TL
+    this.ticker.play()
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+    // create new onComplete deferred Promise and return it
+    this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
 
   public pause(): void {
     log("pause")
-    this.playing = false
+    this._isPlaying = false
     this._isPause = true
-    for (let i = 0; i < this.adds.length; i++) this.adds[i].psap.map((e) => e.pause())
+    this.executeOnAllPsaps((e) => e.pause())
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.pause()
   }
@@ -134,28 +161,12 @@ export class PsapTimeline {
     log("stop")
     this.progress = 0
     this.time = 0
-    this.playing = false
+    this._isPlaying = false
     this._isPause = false
     this._isReversed = false
-    for (let i = 0; i < this.adds.length; i++) this.adds[i].psap.map((e) => e.stop())
+    this.executeOnAllPsaps((e) => e.stop())
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     this.ticker.stop()
-  }
-
-  public reverse(r?: boolean): Promise<any> {
-    this._isReversed = r ?? !this._isReversed
-    // if stop
-    if (!this.isPlaying && !this._isPause) {
-      this.time = this._isReversed ? this.tlDuration : 0
-      this.progress = this._isReversed ? 1 : 0
-    }
-
-    log("reverse()", {
-      _isReverse: this._isReversed,
-      time: this.time,
-      progress: this.progress,
-    })
-    return this._play(true, this._isReversed)
   }
 
   handleTickerUpdate = ({ delta }) => {
@@ -174,7 +185,6 @@ export class PsapTimeline {
 
     // Filter only adds who are matching with elapsed time
     // It allows playing superposed itp in case of negative offset
-    // TODO revoir car ça ne prend pas toujours
     const filtered = this.adds.filter((e) =>
       !this._isReversed
         ? e.startPositionInTl <= this.time && this.time < e.endPositionInTl
@@ -183,19 +193,49 @@ export class PsapTimeline {
 
     log("filtered", filtered)
     for (let i = 0; i < filtered.length; i++) {
-      // TODO à revoir
-      filtered[i].psap.map((e) => {
-        this._isReversed ? e.reverse() : e.play()
+      filtered[i].psaps.forEach((e) => {
+        //if (e._isPlaying) return
+        log(e)
+        this._isReversed ? e.reverse(1, false) : e.play(0, false)
       })
     }
 
-    // stop at the end
-    if (!filtered.length) {
+    // Iterate through the animations
+    // for (let i = 0; i < this.adds.length; i++) {
+    //   const { psap, startPositionInTl, endPositionInTl, isLastOfTl } = this.adds[i];
+    //
+    //   // Check if the animation should be played/reversed
+    //   if (
+    //     (!this._isReversed && startPositionInTl <= this.time && this.time < endPositionInTl) ||
+    //     (this._isReversed && startPositionInTl < this.time && this.time <= endPositionInTl)
+    //   ) {
+    //     // If it's the first animation or the previous animation is not playing/reversing, play/reverse the current animation
+    //     if (i === 0 || !this.adds[i - 1].psap.some(e => e.isPlaying)) {
+    //       psap.forEach((e) => {
+    //         this._isReversed ? e.reverse() : e.play();
+    //       });
+    //     }
+    //   } else if (isLastOfTl) {
+    //     // If the animation is the last one and it's not in the current time range, stop it
+    //     psap.forEach((e) => {
+    //       e.stop();
+    //     });
+    //   }
+    // }
+
+    if (this.time >= this.tlDuration) {
       this.onComplete?.({ time: this.time, progress: this.progress })
-      // stop and reset after onComplete
+      // Stop and reset after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()
     }
+  }
+
+  private executeOnAllPsaps(cb: (e) => void): void {
+    for (let i = 0; i < this.adds.length; i++)
+      for (let j = 0; j < this.adds[i].psaps.length; j++) {
+        cb(this.adds[i].psaps[j])
+      }
   }
 
   /**

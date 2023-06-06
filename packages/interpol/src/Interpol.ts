@@ -42,10 +42,9 @@ export class Interpol {
 
   public inTl = false
 
-  // store psap prop on the objetw
-  public prop
-  // helpers for refresh method assignments
-  public refresh = () => {}
+  __refresh
+  __prop
+  __initPosition
 
   constructor({
     from = 0,
@@ -90,7 +89,12 @@ export class Interpol {
     this._duration = compute(duration)
   }
 
-  public async play(from: number = 0): Promise<any> {
+  public async play(from: number = 0, allowReplay = true): Promise<any> {
+    if (this._isPlaying && !allowReplay) {
+      console.log("allowReplay is false")
+      return
+    }
+
     // If is playing reverse, juste return the state
     if (this._isPlaying && this._isReversed) {
       this._isReversed = false

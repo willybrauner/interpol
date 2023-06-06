@@ -22,53 +22,35 @@ const $ball = document.querySelectorAll(".ball")
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
 
-document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play()
-document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse()
+// document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play()
+// document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse()
 // -----------------------------------------------------------------------------
 //
-// const a = psap.timeline()
-// a.to($ball[0], {
-//   margin: "10px",
-//   x: 200,
-//   ease: "power2.inOut",
-//   duration: 0.5,
-// })
-
-// a.to($ball[0], {
-//   y: 200,
-//   ease: "power4.out",
-//   duration: 0.5,
-// })
-
-// a.to(
-//   $ball[1],
-//   {
-//     y: 150,
-//     scale: 10,
-//     ease: "power4.out",
-//     duration: 0.5,
-//   }
-//   //-0.3
-// )
-
-// a.to(
-//   $ball[1],
-//   {
-//     x: -20,
-//     skew: 20,
-//     duration: 2,
-//     ease: "power2.out",
-//   }
-//   //-0.3
-// )
-
-const a = psap.to($ball, {
-  y: () => 100,
-  x: () => 100,
-  duration: 1,
-  stagger: 0.1,
+const a = psap.timeline({ paused: false })
+a.to($ball[0], {
+  //  margin: "10px",
+  x: 200,
+  duration: 1.5,
   ease: "power2.inOut",
 })
+
+a.to(
+  $ball[1],
+  {
+    y: 100,
+    ease: "power3.inOut",
+    duration: 1,
+  },
+  -0.6
+)
+
+// const a = psap.to($ball, {
+//   y: () => 100,
+//   x: () => 100,
+//   duration: 1,
+//   stagger: 0.1,
+//   ease: "power2.inOut",
+// })
 
 // await a.play()
 

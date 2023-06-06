@@ -83,7 +83,7 @@ export type PropOptions = Partial<{
 type Props = Map<string, PropOptions>
 
 type API = Readonly<{
-  play: (from?: number) => Promise<any>
+  play: (from?: number, forceReplay?) => Promise<any>
   reverse: (from?: number) => Promise<any>
   resume: () => Promise<any>
   stop: () => void
@@ -295,6 +295,14 @@ const _anim = <T>(
         : ((target as HTMLElement).style[prop.usedKey] = v)
     }
 
+    const initPosition = () => {
+      setValueOn(
+        prop._isTransform
+          ? buildTransformChain(target, props, "from")
+          : prop.from.value + prop.from.unit
+      )
+    }
+
     // Return interpol instance for current key
     // prettier-ignore
     const itp = new Interpol({
@@ -311,15 +319,14 @@ const _anim = <T>(
       ticker,
       debug: o.debug,
       beforeStart: () => {
-        if (prop._hasExplicitFrom || o.paused) {
-          setValueOn(prop._isTransform ? buildTransformChain(target,props, "from") : prop.from.value + prop.from.unit)
-        }
+        if (prop._hasExplicitFrom || o.paused) initPosition()
         if (isLast) o.beforeStart?.()
       },
       onUpdate: ({ value, time, progress }) => {
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
+        itp.__prop = prop
         setValueOn(prop._isTransform ? buildTransformChain(target,props, "update") : value + prop.to.unit)
         if (isLast) o.onUpdate?.(props)
       },
@@ -330,14 +337,13 @@ const _anim = <T>(
       }
     })
     // assign refresh method to interpol instance
-    itp.refresh = () => {
+    itp.__refresh = () => {
       for (let el of ["to", "from", "duration"]) {
         prop[el].value = compute(prop[el]._value) ?? 0
         itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
       }
     }
-
-    itp.prop = prop
+    itp.__initPosition = initPosition
     return itp
   })
 
@@ -350,15 +356,16 @@ const _anim = <T>(
  *
  *
  */
-const returnAPI = (anims): API => {
+const returnAPI = (el): API => {
   return Object.freeze({
-    play: (from) => Promise.all(anims.map((e) => e.play(from))),
-    reverse: (from) => Promise.all(anims.map((e) => e.reverse(from))),
-    resume: () => Promise.all(anims.map((e) => e.resume())),
-    stop: () => anims.forEach((e) => e.stop()),
-    pause: () => anims.forEach((e) => e.pause()),
-    refresh: () => anims.forEach((e) => e.refresh()),
-    _props: anims.map((e) => e.prop),
+    play: (from, forceReplay) => Promise.all(el.map((e) => e.play(from, forceReplay))),
+    reverse: (from) => Promise.all(el.map((e) => e.reverse(from))),
+    resume: () => Promise.all(el.map((e) => e.resume())),
+    stop: () => el.forEach((e) => e.stop()),
+    pause: () => el.forEach((e) => e.pause()),
+    refresh: () => el.forEach((e) => e.__refresh()),
+    initPosition: () => el.forEach((e) => e.__initPosition()),
+    itps: el,
   })
 }
 
