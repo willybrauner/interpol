@@ -84,7 +84,7 @@ type Props = Map<string, PropOptions>
 
 type API = Readonly<{
   play: () => Promise<any>
-  replay: () => Promise<any>
+  resume: () => Promise<any>
   reverse: () => Promise<any>
   stop: () => void
   pause: () => void
@@ -353,7 +353,7 @@ const _anim = <T>(
 const returnAPI = (anims): API => {
   return Object.freeze({
     play: () => Promise.all(anims.map((e) => e.play())),
-    replay: () => Promise.all(anims.map((e) => e.replay())),
+    resume: () => Promise.all(anims.map((e) => e.resume())),
     reverse: () => Promise.all(anims.map((e) => e.reverse())),
     stop: () => anims.forEach((e) => e.stop()),
     pause: () => anims.forEach((e) => e.pause()),
