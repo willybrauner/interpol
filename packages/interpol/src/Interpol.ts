@@ -186,7 +186,6 @@ export class Interpol {
    * @param progress
    */
   public seek(progress: number): void {
-    console.log("seek", progress)
     // calc time (time spend from the start)
     // calc progress (between 0 and 1)
     // calc value (between "from" and "to")
@@ -237,7 +236,6 @@ export class Interpol {
     // check direction end
     const isNormalDirectionEnd = !this._isReversed && this.progress === 1
     const isReverseDirectionEnd = this._isReversed && this.progress === 0
-
     // end, onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
       this.log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)

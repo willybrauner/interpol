@@ -28,7 +28,7 @@ inputProgress.onchange = () => {
   a.seek(parseFloat(inputProgress.value) / 100)
 }
 
-document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play(0.5)
+document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play(0)
 document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse(1)
 // -----------------------------------------------------------------------------
 //
@@ -52,8 +52,7 @@ a.to(
 a.to(
   $ball[0],
   {
-    top: 10,
-    left: 10,
+    y: 50,
     ease: "power1.out",
     duration: 1,
   },

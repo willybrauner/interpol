@@ -223,25 +223,19 @@ export class PsapTimeline {
    */
   private updatePsaps({ progress, time, adds, isReversed }): void {
     // exe on update with TL properties
+    //    progress = round(progress)
     this.onUpdate?.({ progress, time })
     log("onUpdate", { progress, time })
 
-    // Filter only adds who are matching with elapsed time
-    // It allows playing superposed itp in case of negative offset
-    const selected = adds.filter((add) =>
-      !isReversed
-        ? add.startPositionInTl <= time && time < add.endPositionInTl
-        : add.startPositionInTl < time && time <= add.endPositionInTl
-    )
-    log("selected", selected)
-
     // Seek all selected psaps
-    for (let i = 0; i < selected.length; i++) {
-      for (let j = 0; j < selected[i].psaps.length; j++) {
-        const psap = selected[i].psaps[j]
-        const progress = (time - selected[i].startPositionInTl) / psap.itps[0].duration
-        log("seek", { progress })
-        psap.seek(progress)
+    for (let i = 0; i < adds.length; i++) {
+      if (adds[i].startPositionInTl <= time && time <= adds[i].endPositionInTl) {
+        for (let j = 0; j < adds[i].psaps.length; j++) {
+          const psap = adds[i].psaps[j]
+          const progress = (time - adds[i].startPositionInTl) / psap.itps[0].duration
+          log("seek", { progress })
+          psap.seek(progress)
+        }
       }
     }
   }
