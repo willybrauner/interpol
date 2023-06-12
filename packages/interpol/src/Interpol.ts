@@ -33,18 +33,15 @@ export class Interpol {
   public get isReversed() {
     return this._isReversed
   }
-
   protected _isPlaying = false
   public get isPlaying() {
     return this._isPlaying
   }
   protected _isPause = false
-
   public inTl = false
 
   __refresh
   __prop
-  __initPosition
 
   constructor({
     from = 0,
@@ -90,10 +87,7 @@ export class Interpol {
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
-    if (this._isPlaying && !allowReplay) {
-      console.log("allowReplay is false")
-      return
-    }
+    if (this._isPlaying && !allowReplay) return
 
     // If is playing reverse, juste return the state
     if (this._isPlaying && this._isReversed) {
@@ -127,7 +121,9 @@ export class Interpol {
     return this.onCompleteDeferred.promise
   }
 
-  public async reverse(from: number = 1): Promise<any> {
+  public async reverse(from: number = 1, allowReplay = true): Promise<any> {
+    if (this._isPlaying && !allowReplay) return
+
     // If is playing normal direction, change to reverse and return
     if (this._isPlaying && !this._isReversed) {
       this._isReversed = true
@@ -185,6 +181,26 @@ export class Interpol {
     if (!this.inTl) this.ticker.stop()
   }
 
+  /**
+   * Seek to a specific progress (between 0 and 1)
+   * @param progress
+   */
+  public seek(progress: number): void {
+    console.log("seek", progress)
+    // calc time (time spend from the start)
+    // calc progress (between 0 and 1)
+    // calc value (between "from" and "to")
+    this.progress = clamp(0, progress, 1)
+    this.time = clamp(0, this._duration * this.progress, this._duration)
+    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
+    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
+    log("onUpdate", {
+      value: this.value,
+      time: this.time,
+      progress: this.progress,
+    })
+  }
+
   protected handleTickerUpdate = async ({ delta }) => {
     // Specific case if duration is 0
     // execute onComplete and return
@@ -202,23 +218,15 @@ export class Interpol {
     // delta sign depend of reverse state
     delta = this._isReversed ? -delta : delta
 
-    // select easing function
-    const easeFn = this._isReversed && this.reverseEase ? this.reverseEase : this.ease
-
     // calc time (time spend from the start)
     // calc progress (between 0 and 1)
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + delta)
     this.progress = clamp(0, round(this.time / this._duration), 1)
-    this.value = this._from + (this._to - this._from) * easeFn(this.progress)
+    this.value = this._from + (this._to - this._from) * this.getEaseFn()(this.progress)
     this.value = round(this.value, 1000)
-
     // Pass value, time and progress
-    this.onUpdate?.({
-      value: this.value,
-      time: this.time,
-      progress: this.progress,
-    })
+    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
 
     this.log("onUpdate", {
       value: this.value,
@@ -236,17 +244,20 @@ export class Interpol {
       // uniformize vars
       this.value = this._to
       this.time = this._duration
-      // Call current interpol onComplete method
-      this.onComplete?.({
-        value: this.value,
-        time: this.time,
-        progress: this.progress,
-      })
+      this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
 
       // stop after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()
     }
+  }
+
+  /**
+   * Reverse depend of ease
+   * @protected
+   */
+  protected getEaseFn(): (t: number) => number {
+    return this._isReversed && this.reverseEase ? this.reverseEase : this.ease
   }
 
   /**

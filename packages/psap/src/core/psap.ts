@@ -83,8 +83,8 @@ export type PropOptions = Partial<{
 type Props = Map<string, PropOptions>
 
 type API = Readonly<{
-  play: (from?: number, forceReplay?) => Promise<any>
-  reverse: (from?: number) => Promise<any>
+  play: (from?: number, allowReplay?: boolean) => Promise<any>
+  reverse: (from?: number, allowReplay?: boolean) => Promise<any>
   resume: () => Promise<any>
   stop: () => void
   pause: () => void
@@ -130,10 +130,11 @@ const _anim = <T>(
   isLastAnim: boolean,
   inTl: boolean,
   fromKeys: Options<T>,
-  toKeys: Options<T>
+  toKeys: Options<T>,
+  ticker
 ) => {
   // Create a common ticker for all interpolations
-  const ticker = new Ticker()
+  ticker = ticker || new Ticker()
 
   // Props Map will contain all props to animate, it will be our main reference
   const props: Props = new Map<string, PropOptions>()
@@ -295,14 +296,6 @@ const _anim = <T>(
         : ((target as HTMLElement).style[prop.usedKey] = v)
     }
 
-    const initPosition = () => {
-      setValueOn(
-        prop._isTransform
-          ? buildTransformChain(target, props, "from")
-          : prop.from.value + prop.from.unit
-      )
-    }
-
     // Return interpol instance for current key
     // prettier-ignore
     const itp = new Interpol({
@@ -319,7 +312,13 @@ const _anim = <T>(
       ticker,
       debug: o.debug,
       beforeStart: () => {
-        if (prop._hasExplicitFrom || o.paused) initPosition()
+        if (prop._hasExplicitFrom || o.paused) {
+          setValueOn(
+            prop._isTransform
+              ? buildTransformChain(target, props, "from")
+              : prop.from.value + prop.from.unit
+          )
+        }
         if (isLast) o.beforeStart?.()
       },
       onUpdate: ({ value, time, progress }) => {
@@ -336,6 +335,7 @@ const _anim = <T>(
         if (isLast) o.onComplete?.(props)
       }
     })
+    itp.inTl = inTl
     // assign refresh method to interpol instance
     itp.__refresh = () => {
       for (let el of ["to", "from", "duration"]) {
@@ -343,11 +343,10 @@ const _anim = <T>(
         itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
       }
     }
-    itp.__initPosition = initPosition
     return itp
   })
 
-  // _anim return (multiple itps)
+  // _anim returns (multiple itps)
   return returnAPI(itps)
 }
 
@@ -358,13 +357,13 @@ const _anim = <T>(
  */
 const returnAPI = (el): API => {
   return Object.freeze({
-    play: (from, forceReplay) => Promise.all(el.map((e) => e.play(from, forceReplay))),
-    reverse: (from) => Promise.all(el.map((e) => e.reverse(from))),
-    resume: () => Promise.all(el.map((e) => e.resume())),
+    play: (from, allowReplay) => Promise.all(el.map((e) => e.play(from, allowReplay))),
+    reverse: (from, allowReplay) => Promise.all(el.map((e) => e.reverse(from, allowReplay))),
+    resume: () => el.forEach((e) => e.resume()),
     stop: () => el.forEach((e) => e.stop()),
     pause: () => el.forEach((e) => e.pause()),
+    seek: (p) => el.forEach((e) => e.seek(p)),
     refresh: () => el.forEach((e) => e.__refresh()),
-    initPosition: () => el.forEach((e) => e.__initPosition()),
     itps: el,
   })
 }
@@ -375,9 +374,9 @@ const fTarget = <T extends Target>(t: T): T[] => {
   else return [t]
 }
 // return one anim per target
-export const computeAnims = <T extends Target>(target: T, from, to, inTl = false) =>
+export const computeAnims = <T extends Target>(target: T, from, to, inTl = false, ticker?) =>
   fTarget<T>(target).map((trg, index) =>
-    _anim<T>(trg, index, isLast(index, fTarget(target)), inTl, from, to)
+    _anim<T>(trg, index, isLast(index, fTarget(target)), inTl, from, to, ticker)
   )
 
 const isNodeList = ($el): boolean =>

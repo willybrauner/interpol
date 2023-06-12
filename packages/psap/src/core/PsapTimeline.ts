@@ -88,13 +88,17 @@ export class PsapTimeline {
    */
   public to<T extends Target>(targets: T, to: Options<any>, offsetPosition: number = 0) {
     to = { ...to, _type: "to" }
-    const psap = computeAnims(targets, undefined, to, true)
+    const psap = computeAnims(targets, undefined, to, true, this.ticker)
     this.add(psap, to?.duration, offsetPosition)
-    if (!this.paused) this.play()
+    if (!this.paused) {
+      // hack needed because we need to waiting all psap register if this is an autoplay
+      setTimeout(() => this.play(), 0)
+    }
     return this
   }
 
   public async play(from: number = 0): Promise<any> {
+    log("------- PLAY")
     this.playFrom = from
     // If is playing reverse, juste return the state
     if (this.isPlaying && this._isReversed) {
@@ -114,7 +118,7 @@ export class PsapTimeline {
     this._isPlaying = true
     this._isPause = false
 
-    this.executeOnAllPsaps((e) => e.initPosition())
+    this.executeOnAllPsaps((e) => e.seek(0))
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
@@ -141,6 +145,7 @@ export class PsapTimeline {
     this._isPause = false
 
     // start ticker only if is single Interpol, not TL
+    this.executeOnAllPsaps((e) => e.seek(1))
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     // create new onComplete deferred Promise and return it
@@ -157,6 +162,15 @@ export class PsapTimeline {
     this.ticker.pause()
   }
 
+  public resume(): void {
+    if (!this._isPause) return
+    this._isPause = false
+    this._isPlaying = true
+    this.executeOnAllPsaps((e) => e.resume())
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+    this.ticker.play()
+  }
+
   public stop() {
     log("stop")
     this.progress = 0
@@ -169,68 +183,74 @@ export class PsapTimeline {
     this.ticker.stop()
   }
 
+  public seek(progress: number): void {
+    this.progress = clamp(0, progress, 1)
+    this.time = clamp(0, this.tlDuration * this.progress, this.tlDuration)
+    this.updatePsaps({
+      progress: this.progress,
+      time: this.time,
+      adds: this.adds,
+      isReversed: this._isReversed,
+    })
+  }
+
   handleTickerUpdate = ({ delta }) => {
     if (!this.ticker.isRunning) return
-
     // delta sign depend of reverse state
-    delta = this._isReversed ? -delta : delta
-
-    // clamp elapse time with full duration
-    this.time = clamp(0, this.tlDuration, this.time + delta)
+    this.time = clamp(0, this.tlDuration, this.time + (this._isReversed ? -delta : delta))
     this.progress = clamp(0, round(this.time / this.tlDuration), 1)
 
-    // exe on update with TL properties
-    this.onUpdate?.({ progress: this.progress, time: this.time })
-    log("onUpdate", { progress: this.progress, time: this.time })
+    this.updatePsaps({
+      progress: this.progress,
+      time: this.time,
+      adds: this.adds,
+      isReversed: this._isReversed,
+    })
 
-    // Filter only adds who are matching with elapsed time
-    // It allows playing superposed itp in case of negative offset
-    const filtered = this.adds.filter((e) =>
-      !this._isReversed
-        ? e.startPositionInTl <= this.time && this.time < e.endPositionInTl
-        : e.startPositionInTl < this.time && this.time <= e.endPositionInTl
-    )
-
-    log("filtered", filtered)
-    for (let i = 0; i < filtered.length; i++) {
-      filtered[i].psaps.forEach((e) => {
-        //if (e._isPlaying) return
-        log(e)
-        this._isReversed ? e.reverse(1, false) : e.play(0, false)
-      })
-    }
-
-    // Iterate through the animations
-    // for (let i = 0; i < this.adds.length; i++) {
-    //   const { psap, startPositionInTl, endPositionInTl, isLastOfTl } = this.adds[i];
-    //
-    //   // Check if the animation should be played/reversed
-    //   if (
-    //     (!this._isReversed && startPositionInTl <= this.time && this.time < endPositionInTl) ||
-    //     (this._isReversed && startPositionInTl < this.time && this.time <= endPositionInTl)
-    //   ) {
-    //     // If it's the first animation or the previous animation is not playing/reversing, play/reverse the current animation
-    //     if (i === 0 || !this.adds[i - 1].psap.some(e => e.isPlaying)) {
-    //       psap.forEach((e) => {
-    //         this._isReversed ? e.reverse() : e.play();
-    //       });
-    //     }
-    //   } else if (isLastOfTl) {
-    //     // If the animation is the last one and it's not in the current time range, stop it
-    //     psap.forEach((e) => {
-    //       e.stop();
-    //     });
-    //   }
-    // }
-
-    if (this.time >= this.tlDuration) {
-      this.onComplete?.({ time: this.time, progress: this.progress })
+    if (
+      (!this._isReversed && this.time >= this.tlDuration) ||
+      (this._isReversed && this.time <= 0)
+    ) {
       // Stop and reset after onComplete
+      this.onComplete?.({ time: this.time, progress: this.progress })
       this.onCompleteDeferred.resolve()
       this.stop()
     }
   }
 
+  /**
+   * Update psaps
+   */
+  private updatePsaps({ progress, time, adds, isReversed }): void {
+    // exe on update with TL properties
+    this.onUpdate?.({ progress, time })
+    log("onUpdate", { progress, time })
+
+    // Filter only adds who are matching with elapsed time
+    // It allows playing superposed itp in case of negative offset
+    const selected = adds.filter((add) =>
+      !isReversed
+        ? add.startPositionInTl <= time && time < add.endPositionInTl
+        : add.startPositionInTl < time && time <= add.endPositionInTl
+    )
+    log("selected", selected)
+
+    // Seek all selected psaps
+    for (let i = 0; i < selected.length; i++) {
+      for (let j = 0; j < selected[i].psaps.length; j++) {
+        const psap = selected[i].psaps[j]
+        const progress = (time - selected[i].startPositionInTl) / psap.itps[0].duration
+        log("seek", { progress })
+        psap.seek(progress)
+      }
+    }
+  }
+
+  /**
+   * exe API function on all psaps
+   * @param cb
+   * @private
+   */
   private executeOnAllPsaps(cb: (e) => void): void {
     for (let i = 0; i < this.adds.length; i++)
       for (let j = 0; j < this.adds[i].psaps.length; j++) {

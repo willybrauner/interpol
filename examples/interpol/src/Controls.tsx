@@ -1,5 +1,5 @@
 import css from "./Controls.module.less"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Interpol } from "@psap/interpol"
 import { Ease } from "./App"
 export const Controls = ({
@@ -11,6 +11,12 @@ export const Controls = ({
   instance: Interpol
   dispatchEase: (ease) => void
 }) => {
+  const [progress, setProgress] = useState("0")
+
+  useEffect(() => {
+    instance?.seek(parseFloat(progress) / 100)
+  }, [progress])
+
   return (
     <div className={[css.root, className].join(" ")}>
       <div className={css.wrapper}>
@@ -36,6 +42,11 @@ export const Controls = ({
             </option>
           ))}
         </select>
+        <input
+          value={progress}
+          type={"number"}
+          onChange={(e) => setProgress(e.target.value || "0")}
+        />
       </div>
     </div>
   )
