@@ -29,7 +29,7 @@ inputProgress.onchange = () => {
 }
 
 document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play(0.5)
-document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse()
+document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse(1)
 // -----------------------------------------------------------------------------
 //
 const a = psap.timeline({ paused: false })
