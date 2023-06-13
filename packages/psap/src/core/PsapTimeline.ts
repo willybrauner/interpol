@@ -16,8 +16,8 @@ interface IAdd {
 
 export interface PsapTimelineConstruct {
   paused: boolean
-  onUpdate: ({ time, progress }) => void
-  onComplete: ({ time, progress }) => void
+  onUpdate: ({ time, progress }: { time: number; progress: number }) => void
+  onComplete: ({ time, progress }: { time: number; progress: number }) => void
 }
 
 /**
@@ -90,15 +90,13 @@ export class PsapTimeline {
     to = { ...to, _type: "to" }
     const psap = computeAnims(targets, undefined, to, true, this.ticker)
     this.add(psap, to?.duration, offsetPosition)
-    if (!this.paused) {
-      // hack needed because we need to waiting all psap register if this is an autoplay
-      setTimeout(() => this.play(), 0)
-    }
+    // hack needed because we need to waiting all psap register if this is an autoplay
+    if (!this.paused) setTimeout(() => this.play(), 0)
     return this
   }
 
   public async play(from: number = 0): Promise<any> {
-    log("------- PLAY")
+    log("play")
     this.playFrom = from
     // If is playing reverse, juste return the state
     if (this.isPlaying && this._isReversed) {
@@ -111,7 +109,6 @@ export class PsapTimeline {
       return await this.play(from)
     }
 
-    log("tl play")
     this.time = this.tlDuration * from
     this.progress = from
     this._isReversed = false
@@ -126,6 +123,7 @@ export class PsapTimeline {
   }
 
   public async reverse(from: number = 1): Promise<any> {
+    log("reverse")
     this.reverseFrom = from
     // If is playing normal direction, change to reverse and return
     if (this.isPlaying && !this._isReversed) {
@@ -186,12 +184,7 @@ export class PsapTimeline {
   public seek(progress: number): void {
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this.tlDuration * this.progress, this.tlDuration)
-    this.updatePsaps({
-      progress: this.progress,
-      time: this.time,
-      adds: this.adds,
-      isReversed: this._isReversed,
-    })
+    this.updatePsaps({ progress: this.progress, time: this.time, adds: this.adds })
   }
 
   handleTickerUpdate = ({ delta }) => {
@@ -199,13 +192,7 @@ export class PsapTimeline {
     // delta sign depend of reverse state
     this.time = clamp(0, this.tlDuration, this.time + (this._isReversed ? -delta : delta))
     this.progress = clamp(0, round(this.time / this.tlDuration), 1)
-
-    this.updatePsaps({
-      progress: this.progress,
-      time: this.time,
-      adds: this.adds,
-      isReversed: this._isReversed,
-    })
+    this.updatePsaps({ progress: this.progress, time: this.time, adds: this.adds })
 
     if (
       (!this._isReversed && this.time >= this.tlDuration) ||
@@ -221,7 +208,7 @@ export class PsapTimeline {
   /**
    * Update psaps
    */
-  private updatePsaps({ progress, time, adds, isReversed }): void {
+  private updatePsaps({ progress, time, adds }): void {
     // exe on update with TL properties
     //    progress = round(progress)
     this.onUpdate?.({ progress, time })
@@ -229,14 +216,12 @@ export class PsapTimeline {
 
     // Seek all selected psaps
     for (let i = 0; i < adds.length; i++) {
-      if (adds[i].startPositionInTl <= time && time <= adds[i].endPositionInTl) {
-        for (let j = 0; j < adds[i].psaps.length; j++) {
-          const psap = adds[i].psaps[j]
-          console.log("psap.itps[0].duration",psap)
-          const progress = (time - adds[i].startPositionInTl) / psap.itps[0].duration
-          log("seek", { progress })
-          psap.seek(progress)
-        }
+      for (let j = 0; j < adds[i].psaps.length; j++) {
+        const psap = adds[i].psaps[j]
+        console.log("psap.itps[0].duration", psap)
+        const progress = clamp(0, (time - adds[i].startPositionInTl) / psap.itps[0].duration, 1)
+        log("seek", { i, progress })
+        psap.seek(progress)
       }
     }
   }
