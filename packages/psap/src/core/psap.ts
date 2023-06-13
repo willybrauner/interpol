@@ -342,29 +342,37 @@ const _anim = <T>(
         prop[el].value = compute(prop[el]._value) ?? 0
         itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
       }
+      itp.refreshComputedValues()
     }
     return itp
   })
 
-  // _anim returns (multiple itps)
-  return returnAPI(itps)
+  // _anim return (multiple itps)
+  return {
+    itps,
+    play: (from, allowReplay) => Promise.all(itps.map((itp) => itp.play(from, allowReplay))),
+    reverse: (from, allowReplay) => Promise.all(itps.map((itp) => itp.reverse(from, allowReplay))),
+    resume: () => itps.forEach((itp) => itp.resume()),
+    stop: () => itps.forEach((itp) => itp.stop()),
+    pause: () => itps.forEach((itp) => itp.pause()),
+    seek: (p) => itps.forEach((itp) => itp.seek(p)),
+    refresh: () => itps.forEach((itp) => itp.__refresh()),
+  }
 }
 
 /**
- * Final
- *
- *
+ * One psap API
  */
-const returnAPI = (el): API => {
+// prettier-ignore
+const psapAPI = (psaps): API => {
   return Object.freeze({
-    play: (from, allowReplay) => Promise.all(el.map((e) => e.play(from, allowReplay))),
-    reverse: (from, allowReplay) => Promise.all(el.map((e) => e.reverse(from, allowReplay))),
-    resume: () => el.forEach((e) => e.resume()),
-    stop: () => el.forEach((e) => e.stop()),
-    pause: () => el.forEach((e) => e.pause()),
-    seek: (p) => el.forEach((e) => e.seek(p)),
-    refresh: () => el.forEach((e) => e.__refresh()),
-    itps: el,
+    play: (from, allowReplay) => Promise.all(psaps.map((psap) => psap.play(from, allowReplay))),
+    reverse: (from, allowReplay) => Promise.all(psaps.map((psap) => psap.reverse(from, allowReplay))),
+    resume: () => psaps.forEach((psap) => psap.resume()),
+    stop: () => psaps.forEach((psap) => psap.stop()),
+    pause: () => psaps.forEach((psap) => psap.pause()),
+    seek: (p) => psaps.forEach((psap) => psap.seek(p)),
+    refresh: () => psaps.forEach((psap) => psap.refresh()),
   })
 }
 
@@ -389,19 +397,19 @@ const isLast = (i: number, t: any[]): boolean => i === t.length - 1
 const psap: Psap = {
   set: (target, to) => {
     to = { ...to, _type: "set" }
-    return returnAPI(computeAnims(target, undefined, to))
+    return psapAPI(computeAnims(target, undefined, to))
   },
   to: (target, to) => {
     to = { ...to, _type: "to" }
-    return returnAPI(computeAnims(target, undefined, to))
+    return psapAPI(computeAnims(target, undefined, to))
   },
   from: (target, from) => {
     from = { ...from, _type: "from" }
-    return returnAPI(computeAnims(target, from, undefined))
+    return psapAPI(computeAnims(target, from, undefined))
   },
   fromTo: (target, from, to) => {
     to = { ...to, _type: "fromTo" }
-    return returnAPI(computeAnims(target, from, to))
+    return psapAPI(computeAnims(target, from, to))
   },
   timeline: (params = {}): PsapTimeline => {
     return new PsapTimeline(params)

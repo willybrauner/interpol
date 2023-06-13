@@ -232,6 +232,7 @@ export class PsapTimeline {
       if (adds[i].startPositionInTl <= time && time <= adds[i].endPositionInTl) {
         for (let j = 0; j < adds[i].psaps.length; j++) {
           const psap = adds[i].psaps[j]
+          console.log("psap.itps[0].duration",psap)
           const progress = (time - adds[i].startPositionInTl) / psap.itps[0].duration
           log("seek", { progress })
           psap.seek(progress)

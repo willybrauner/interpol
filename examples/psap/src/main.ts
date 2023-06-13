@@ -31,7 +31,7 @@ inputProgress.onchange = () => {
 document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play(0)
 document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse(1)
 // -----------------------------------------------------------------------------
-//
+
 const a = psap.timeline({ paused: false })
 a.to($ball[0], {
   //  margin: "10px",
@@ -59,24 +59,9 @@ a.to(
   -0.6
 )
 
-// for (let el of Array.from($ball))
-// {
-//   a.to(
-//     el,
-//     {
-//       y: ()=> randomRange(-100, 100),
-//       x: ()=> randomRange(-100, 100),
-//       ease: "power3.inOut",
-//       duration: 1,
-//     },
-//     -.9
-//
-//   )
-// }
-
 // const a = psap.to($ball, {
-//   y: () => 100,
-//   x: () => 100,
+//   y: () =>  randomRange(-200, 200),
+//   x: () =>  randomRange(-200, 200),
 //   duration: 1,
 //   ease: "power2.inOut",
 // })
