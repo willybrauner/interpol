@@ -198,6 +198,17 @@ export class Interpol {
       time: this.time,
       progress: this.progress,
     })
+
+    log('this.progress',this.progress)
+
+     // end, onComplete
+     if (this.progress === 1) {
+      log("progress = 1, execute onComplete()")
+       // uniformize vars
+       this.value = this._to
+       this.time = this._duration
+       this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
+     }
   }
 
   protected handleTickerUpdate = async ({ delta }) => {

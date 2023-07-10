@@ -33,30 +33,26 @@ document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse(
 // -----------------------------------------------------------------------------
 
 const a = psap.timeline({ paused: false })
-a.to($ball[0], {
-  //  margin: "10px",
-  x: 200,
-  duration: 1.5,
-  ease: "power2.inOut",
-})
+// a.to($ball[0], {
+//   //  margin: "10px",
+//   x: 200,
+//   duration: 1.5,
+//   //ease: "power2.inOut",
+// })
 
 a.to(
   $ball[1],
   {
     y: 100,
-    ease: "power3.inOut",
     duration: 1,
   },
-  -0.6
 )
 a.to(
-  $ball[0],
+  $ball[1],
   {
     y: 50,
-    ease: "power1.out",
     duration: 1,
   },
-  -0.6
 )
 
 // const a = psap.to($ball, {

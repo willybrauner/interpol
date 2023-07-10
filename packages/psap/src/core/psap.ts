@@ -167,9 +167,10 @@ const _anim = <T>(
     }
   }
 
+  // Prepare transform props
+  // .......................
+
   const prepareTransformProps = () => {
-    // Prepare transform props
-    // .......................
     // If keys contains valid transform keys
     if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
       // Get all transform fn from CSS (translate, rotate...)
@@ -235,55 +236,65 @@ const _anim = <T>(
 
     log("-----------------------------------------------------------------------")
 
-    // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
-    let cssValue: string = prop._isObject
-      ? null
-      : getCssValue(target as HTMLElement, prop, o.proxyWindow)
-    // Number value without unit -> 10 (or 0)
-    const cssValueN: number = parseFloat(cssValue) || 0
-    // Css value Unit -> "px"
-    const cssValueUnit: string = prop._isObject ? null : getUnit(cssValue, prop)
-    log({ cssValue, cssValueN, cssValueUnit })
+    const calcProp = () => 
+    {
 
-    // Case we have one object: "from"
-    if (o._type === "from") {
-      prop._hasExplicitFrom = true
-      prop.from.unit = getUnit(vTo, prop) || cssValueUnit
-      prop.from.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
-      prop.to.unit = cssValueUnit
-      prop.to.value = cssValueN
+            // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
+        let cssValue: string = prop._isObject
+        ? null
+        : getCssValue(target as HTMLElement, prop, o.proxyWindow)
+
+        log('cssValue',cssValue)
+      // Number value without unit -> 10 (or 0)
+      const cssValueN: number = parseFloat(cssValue) || 0
+      // Css value Unit -> "px"
+      const cssValueUnit: string = prop._isObject ? null : getUnit(cssValue, prop)
+      log({ cssValue, cssValueN, cssValueUnit })
+
+      // Case we have one object: "from"
+      if (o._type === "from") {
+        prop._hasExplicitFrom = true
+        prop.from.unit = getUnit(vTo, prop) || cssValueUnit
+        prop.from.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
+        prop.to.unit = cssValueUnit
+        prop.to.value = cssValueN
+      }
+
+      // Case we have two objects: "fromTo"
+      else if (o._type === "fromTo") {
+        prop._hasExplicitFrom = true
+        prop.to.unit = getUnit(vTo, prop) || cssValueUnit
+        prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
+        prop.from.unit = prop.to.unit
+        prop.from.value = convertValueToUnitValue(
+          target as HTMLElement,
+          parseFloat(vFrom) && !isNaN(parseFloat(vFrom)) ? parseFloat(vFrom) : cssValueN,
+          getUnit(vFrom, prop) || cssValueUnit,
+          prop.to.unit,
+          o.proxyWindow,
+          o.proxyDocument
+        )
+      }
+      // Case we have one object: "to" or "set"
+      else {
+        prop.to.unit = getUnit(vTo, prop) || cssValueUnit
+        prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
+        prop.from.unit = cssValueUnit
+        prop.from.value = convertValueToUnitValue(
+          target as HTMLElement,
+          cssValueN,
+          prop.from.unit,
+          prop.to.unit,
+          o.proxyWindow,
+          o.proxyDocument
+        )
+      }
+
     }
 
-    // Case we have two objects: "fromTo"
-    else if (o._type === "fromTo") {
-      prop._hasExplicitFrom = true
-      prop.to.unit = getUnit(vTo, prop) || cssValueUnit
-      prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
-      prop.from.unit = prop.to.unit
-      prop.from.value = convertValueToUnitValue(
-        target as HTMLElement,
-        parseFloat(vFrom) && !isNaN(parseFloat(vFrom)) ? parseFloat(vFrom) : cssValueN,
-        getUnit(vFrom, prop) || cssValueUnit,
-        prop.to.unit,
-        o.proxyWindow,
-        o.proxyDocument
-      )
-    }
-    // Case we have one object: "to" or "set"
-    else {
-      prop.to.unit = getUnit(vTo, prop) || cssValueUnit
-      prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
-      prop.from.unit = cssValueUnit
-      prop.from.value = convertValueToUnitValue(
-        target as HTMLElement,
-        cssValueN,
-        prop.from.unit,
-        prop.to.unit,
-        o.proxyWindow,
-        o.proxyDocument
-      )
-    }
 
+    calcProp()
+  
     log("prop", prop)
 
     // prepare interpol ease
@@ -330,6 +341,9 @@ const _anim = <T>(
         if (isLast) o.onUpdate?.(props)
       },
       onComplete: () => {
+        calcProp()
+        itp.from = prop.from.value
+        log('itp.from',itp.from)
         const dir = itp.isReversed ? "from" : "to"
         setValueOn(prop._isTransform ? buildTransformChain(target,props, dir) : prop[dir].value + prop[dir].unit)
         if (isLast) o.onComplete?.(props)
@@ -338,6 +352,7 @@ const _anim = <T>(
     itp.inTl = inTl
     // assign refresh method to interpol instance
     itp.__refresh = () => {
+      calcProp()
       for (let el of ["to", "from", "duration"]) {
         prop[el].value = compute(prop[el]._value) ?? 0
         itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
