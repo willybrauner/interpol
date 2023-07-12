@@ -129,6 +129,7 @@ export class Interpol {
       this._isReversed = true
       return
     }
+
     // If is playing reverse, restart reverse
     if (this._isPlaying && this._isReversed) {
       this.stop()
@@ -185,6 +186,9 @@ export class Interpol {
    * Seek to a specific progress (between 0 and 1)
    * @param progress
    */
+
+  public resetSeekOnComplete = true
+
   public seek(progress: number): void {
     // calc time (time spend from the start)
     // calc progress (between 0 and 1)
@@ -192,23 +196,19 @@ export class Interpol {
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this._duration * this.progress, this._duration)
     this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
-    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
-    log("onUpdate", {
-      value: this.value,
-      time: this.time,
-      progress: this.progress,
-    })
 
-    log('this.progress',this.progress)
-
-     // end, onComplete
-     if (this.progress === 1) {
+    if (this.progress === 0) return
+    if (this.progress === 1 && this.resetSeekOnComplete) {
       log("progress = 1, execute onComplete()")
-       // uniformize vars
-       this.value = this._to
-       this.time = this._duration
-       this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
-     }
+      this.value = this._to
+      this.time = this._duration
+      this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
+      this.resetSeekOnComplete = false
+      return
+    }
+
+    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
+    log("onUpdate", { value: this.value, time: this.time, progress: this.progress })
   }
 
   protected handleTickerUpdate = async ({ delta }) => {
@@ -249,7 +249,7 @@ export class Interpol {
     const isReverseDirectionEnd = this._isReversed && this.progress === 0
     // end, onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
-      this.log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
+      log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
       this.value = this._to
       this.time = this._duration

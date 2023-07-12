@@ -234,12 +234,13 @@ const _anim = <T>(
       else prop.transformFn = key
     }
 
-    log("-----------------------------------------------------------------------")
+    
 
     const calcProp = () => 
     {
+      log("-----------------------------------------------------------------------")
 
-            // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
+        // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
         let cssValue: string = prop._isObject
         ? null
         : getCssValue(target as HTMLElement, prop, o.proxyWindow)
@@ -290,12 +291,14 @@ const _anim = <T>(
         )
       }
 
+      log("prop", prop)
+
     }
 
 
     calcProp()
   
-    log("prop", prop)
+    
 
     // prepare interpol ease
     const chooseEase = (ease) => (typeof ease === "string" ? easeAdaptor(ease as EaseName) : ease)
@@ -341,11 +344,13 @@ const _anim = <T>(
         if (isLast) o.onUpdate?.(props)
       },
       onComplete: () => {
-        calcProp()
-        itp.from = prop.from.value
         log('itp.from',itp.from)
         const dir = itp.isReversed ? "from" : "to"
         setValueOn(prop._isTransform ? buildTransformChain(target,props, dir) : prop[dir].value + prop[dir].unit)
+
+        calcProp()
+        // itp.from = prop.from.value
+
         if (isLast) o.onComplete?.(props)
       }
     })

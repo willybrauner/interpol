@@ -115,7 +115,10 @@ export class PsapTimeline {
     this._isPlaying = true
     this._isPause = false
 
-    this.executeOnAllPsaps((e) => e.seek(0))
+    this.executeOnAllPsaps((e) => {
+      e.itps.map((itp) => itp.resetSeekOnComplete = true)
+      e.seek(0)
+    })
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
@@ -210,9 +213,8 @@ export class PsapTimeline {
    */
   private updatePsaps({ progress, time, adds }): void {
     // exe on update with TL properties
-    //    progress = round(progress)
     this.onUpdate?.({ progress, time })
-    log("onUpdate", { progress, time })
+   // log("onUpdate", { progress, time })
 
     // Seek all selected psaps
     for (let i = 0; i < adds.length; i++) {
@@ -220,14 +222,14 @@ export class PsapTimeline {
       const isBefore = time < adds[i].startPositionInTl
       const isAfter = time > adds[i].endPositionInTl
       if (isBefore || isAfter) {
-        continue
+       // continue
       } 
 
       for (let j = 0; j < adds[i].psaps.length; j++) {
         const psap = adds[i].psaps[j]
         const progress = clamp(0, (time - adds[i].startPositionInTl) / psap.itps[0].duration, 1)
         log("seek", { i, progress })
-        psap.seek(progress)
+         psap.seek(progress)
       }
     }
   }
