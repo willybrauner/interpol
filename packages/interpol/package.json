@@ -1,6 +1,6 @@
 {
   "name": "@wbe/interpol",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "files": [
     "dist"
@@ -11,7 +11,7 @@
   "types": "./dist/interpol.d.ts",
   "repository": {
     "type": "git",
-    "url": "git://github.com/willybrauner/psap.git"
+    "url": "git://github.com/willybrauner/interpol.git"
   },
   "keywords": [
     "interpol",

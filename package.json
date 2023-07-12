@@ -1,13 +1,13 @@
 {
-  "name": "psap",
+  "name": "@wbe/interpol-root",
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git://github.com/willybrauner/psap.git"
+    "url": "git://github.com/willybrauner/interpol.git"
   },
   "keywords": [
-    "psap",
     "interpol",
     "interpolation",
     "animation",
@@ -40,11 +40,6 @@
     "printWidth": 100
   },
   "size-limit": [
-    {
-      "name": "@wbe/psap",
-      "path": "packages/psap/dist/psap.js",
-      "limit": "6 KB"
-    },
     {
       "name": "@wbe/interpol",
       "path": "packages/interpol/dist/interpol.js",

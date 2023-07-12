@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["interpol-example", "psap-example", "timeline-example"]
+  "ignore": ["interpol-example", "interpol-basic", "interpol-timeline"]
 }

@@ -1,9 +1,10 @@
 {
   "buildCommand": "build",
-  "packages": ["./"],
+  "packages": ["./packages/*"],
   "sandboxes": [
-    "/examples/psap",
-    "/examples/interpol"
+    "/examples/interpol",
+    "/examples/interpol-basic",
+    "/examples/interpol-timeline"
   ],
-  "node": "16"
+  "node": "18"
 }
