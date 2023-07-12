@@ -1,6 +1,6 @@
 import { IInterpolConstruct, IUpdateParams } from "./core/types"
 import debug from "@wbe/debug"
-import { Ticker, deferredPromise, clamp, round, compute } from "@psap/utils"
+import { Ticker, deferredPromise, clamp, round, compute } from "./core"
 
 const log = debug("interpol:Interpol")
 
@@ -25,6 +25,7 @@ export class Interpol {
   public time = 0
   public value = 0
   public debugEnable: boolean
+ 
   // internal
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>
@@ -39,9 +40,6 @@ export class Interpol {
   }
   protected _isPause = false
   public inTl = false
-
-  __refresh
-  __prop
 
   constructor({
     from = 0,
@@ -88,18 +86,14 @@ export class Interpol {
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
     if (this._isPlaying && !allowReplay) return
-
-    // If is playing reverse, juste return the state
     if (this._isPlaying && this._isReversed) {
       this._isReversed = false
       return
     }
-
     if (this._isPlaying) {
       this.stop()
       return await this.play(from)
     }
-
     this.value = this._to * from
     this.time = this._duration * from
     this.progress = from
@@ -186,19 +180,18 @@ export class Interpol {
    * Seek to a specific progress (between 0 and 1)
    * @param progress
    */
-
   public resetSeekOnComplete = true
 
   public seek(progress: number): void {
-    // calc time (time spend from the start)
     // calc progress (between 0 and 1)
+    // calc time (time spend from the start)
     // calc value (between "from" and "to")
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this._duration * this.progress, this._duration)
     this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
 
     if (this.progress === 0) return
-    if (this.progress === 1 && this.resetSeekOnComplete) {
+    if (this.progress === 1) {
       log("progress = 1, execute onComplete()")
       this.value = this._to
       this.time = this._duration
@@ -218,7 +211,6 @@ export class Interpol {
       const obj = { value: this._to, time: this._duration, progress: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
-      this.log("this._duration <= 0, return", this._duration <= 0)
       // stop after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()

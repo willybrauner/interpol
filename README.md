@@ -8,8 +8,8 @@
 
 | Package                                       | Version                                                                                                    | Size |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |------|
-| [@psap/psap](packages/psap/README.md)         | [![version](https://badge.fury.io/js/%40psap%2Fpsap.svg)](https://badge.fury.io/js/%40psap%2Fpsap)         | x    |
-| [@psap/interpol](packages/interpol/README.md) | [![version](https://badge.fury.io/js/%40psap%2Finterpol.svg)](https://badge.fury.io/js/%40psap%2Finterpol) | x |
+| [@wbe/psap](packages/psap/README.md)         | [![version](https://badge.fury.io/js/%40psap%2Fpsap.svg)](https://badge.fury.io/js/%40psap%2Fpsap)         | x    |
+| [@wbe/interpol](packages/interpol/README.md) | [![version](https://badge.fury.io/js/%40psap%2Finterpol.svg)](https://badge.fury.io/js/%40psap%2Finterpol) | x |
 
 ## Why
 
@@ -21,7 +21,7 @@ witch provides (almost) the same global API (tween, timeline, easing, ...) but n
 Install this package with npm:
 
 ```shell
-$ npm i @psap/psap
+$ npm i @wbe/psap
 ```
 
 ## Workflow

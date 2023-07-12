@@ -11,7 +11,7 @@ on... anything!
 ## Install
 
 ```shell
-$ npm i @psap/interpol
+$ npm i @wbe/interpol
 ```
 
 ## Show me some code

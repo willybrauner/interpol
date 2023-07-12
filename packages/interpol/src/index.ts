@@ -1,4 +1,5 @@
 export { Interpol } from "./Interpol"
 export { Timeline } from "./Timeline"
-export { Ticker } from "@psap/utils"
+export { Ticker } from "./core"
 export type { IInterpolConstruct, IUpdateParams } from "./core/types"
+export { Power1, Power2, Power3, Power4, Expo } from "./core/ease"

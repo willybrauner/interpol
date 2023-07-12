@@ -2,11 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <meta http-equiv="x-ua-compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>interpol</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="src/main.tsx"></script>
+    <div id="root">
+      <div class="App">
+        <div class="Controls">
+          <button class="play">play</button>
+          <button class="reverse">reverse</button>
+          <button class="pause">pause</button>
+          <button class="resume">resume</button>
+          <button class="stop">stop</button>
+          <button class="refresh">refresh</button>
+          <input class="progress" value="0" type="number"/>
+        </div>
+        <div class="wrapper">
+          <div class="ball"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <script type="module" src="src/main.ts"></script>
   </body>
 </html>

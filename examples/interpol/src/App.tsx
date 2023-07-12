@@ -1,6 +1,6 @@
 import css from "./App.module.less"
 import React, { useEffect, useRef, useState } from "react"
-import { Interpol } from "@psap/interpol"
+import { Interpol } from "@wbe/interpol"
 import { Controls } from "./Controls"
 import { Params } from "./Params"
 import { useWindowSize } from "../libs/useWindowSize"
@@ -36,7 +36,7 @@ export function App() {
         translateX(${x}px)
         translateY(${y}px) 
         translateZ(0)
-        `
+        ` 
       },
     })
     setInstance(itp)

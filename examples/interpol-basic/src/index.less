@@ -1,0 +1,39 @@
+@import (reference) "../libs/ratio.less";
+
+:root {
+  --color-gray: #454545;
+  --color-black-1: #313131;
+  --color-black: #171717;
+  --color-blue: #646cff;
+  --color-white: #fff;
+}
+
+html {
+  .propertyViewport(--font-size, 1, 2);
+  font-size: var(--font-size);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-size: 16rem;
+  min-width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  position: fixed;
+}
+
+.ball {
+  position: absolute;
+  width: 50rem;
+  height: 50rem;
+  border-radius: 50%;
+  background-color: red;
+}
