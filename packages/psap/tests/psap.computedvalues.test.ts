@@ -10,6 +10,7 @@ describe.concurrent("computed values", () => {
         psap[type]($el, {
           top: () => 10 * 2 + "rem",
           ...proxy,
+          duration: 0.2,
           onComplete: () => {
             expect($el.style.top).toBe(result)
             resolve()
@@ -29,6 +30,7 @@ describe.concurrent("computed values", () => {
             top: () => -20 * 30,
           },
           {
+            duration: 0.2,
             top: () => 100 * 2,
             ...proxy,
             onComplete: () => {
@@ -47,6 +49,7 @@ describe.concurrent("computed values", () => {
       const [first, second] = [10, 100]
       let isFirst = true
       const anim = psap.to($el, {
+        duration: 0.2,
         top: () => (isFirst ? first : second),
         ...proxy,
       })

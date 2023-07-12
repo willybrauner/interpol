@@ -9,12 +9,12 @@ describe.concurrent("Interpol reverse", () => {
     "should reverse the interpolation",
     async () => {
       const onComplete = vi.fn()
-      let updateValues
+      const onUpdate = vi.fn()
       return new Promise(async (resolve: any) => {
         const itp = new Interpol({
           to: 10,
           duration: 1000,
-          onUpdate: (e) => (updateValues = e),
+          onUpdate,
           onComplete,
         })
         expect(itp.isReversed).toBe(false)
@@ -23,9 +23,7 @@ describe.concurrent("Interpol reverse", () => {
         expect(itp.isReversed).toBe(true)
         await wait(1000)
         expect(onComplete).toHaveBeenCalledTimes(1)
-        expect(updateValues.value).toBeCloseTo(0, 100)
-        expect(updateValues.time).toBeCloseTo(0, 100)
-        expect(updateValues.progress).toBeCloseTo(0, 100)
+        expect(onUpdate.mock.lastCall[0]).toEqual({ value: 0, time: 0, progress: 0 })
         resolve()
       })
     },

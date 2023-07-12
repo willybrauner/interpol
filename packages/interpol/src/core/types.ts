@@ -1,4 +1,4 @@
-import { Ticker } from "./Ticker"
+import { Ticker } from "@psap/utils"
 
 export interface IUpdateParams {
   value: number

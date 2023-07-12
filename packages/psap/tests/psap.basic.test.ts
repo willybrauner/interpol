@@ -115,7 +115,7 @@ describe.concurrent(
           onComplete: () => {
             expect($el.style.left).toBe("0px")
             expect($el.style.width).toBe("0px")
-            expect($el.style.transform).toBe("translateX(0px) translateY(0px)")
+            expect($el.style.transform).toBe("translateX(0px) translateZ(0px) translateY(0px)")
             resolve()
           },
         })
@@ -133,7 +133,7 @@ describe.concurrent(
           onComplete: () => {
             expect($el.style.left).toBe("10px")
             expect($el.style.width).toBe("10rem")
-            expect($el.style.transform).toBe("translateX(10px) translateY(10rem)")
+            expect($el.style.transform).toBe("translateX(10px) translateY(10rem) translateZ(0px)")
             resolve()
           },
         })

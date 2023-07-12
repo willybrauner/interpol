@@ -1,9 +1,7 @@
 import { Interpol } from "./Interpol"
-import { Ticker } from "./core/Ticker"
-import { deferredPromise } from "./core/deferredPromise"
+import { Ticker, deferredPromise, round, clamp } from "@psap/utils"
 import { IInterpolConstruct } from "./core/types"
-import { clamp } from "./core/clamp"
-import { round } from "./core/round"
+
 import debug from "@wbe/debug"
 const log = debug("interpol:Timeline")
 
@@ -91,7 +89,6 @@ export class Timeline {
       isLastOfTl: true,
     })
     this.log("adds", this.adds)
-
     return this
   }
 
@@ -115,7 +112,7 @@ export class Timeline {
 
     this.log("play")
     this.playing = true
-    this._isPause = true
+    this._isPause = false
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     if (createNewFullCompletePromise) this.onCompleteDeferred = deferredPromise()
@@ -195,7 +192,8 @@ export class Timeline {
     // reverse instead of play because, reverse return play() with direction
     for (let i = 0; i < filtered.length; i++) {
       const instance = filtered[i].interpol
-      instance.reverse(this._isReversed)
+      // todo
+      instance.reverse()
     }
 
     // stop at the end

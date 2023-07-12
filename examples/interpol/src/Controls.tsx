@@ -1,5 +1,5 @@
 import css from "./Controls.module.less"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Interpol } from "@psap/interpol"
 import { Ease } from "./App"
 export const Controls = ({
@@ -11,14 +11,25 @@ export const Controls = ({
   instance: Interpol
   dispatchEase: (ease) => void
 }) => {
+  const [progress, setProgress] = useState("0")
+
+  useEffect(() => {
+    instance?.seek(parseFloat(progress) / 100)
+  }, [progress])
+
   return (
     <div className={[css.root, className].join(" ")}>
       <div className={css.wrapper}>
+        {/* prettier-ignore */}
         <div className={css.buttons}>
-          {["play", "reverse", "pause", "stop", "replay"].map((e, i) => (
-            <button className={css.button} onClick={() => instance[e]()} key={i} children={e} />
-          ))}
+          <button className={css.button} onClick={() => instance.play(0)} children={"play 0"} />
+          <button className={css.button} onClick={() => instance.play(0.5)} children={"play .5"} />
+          <button className={css.button} onClick={() => instance.reverse(1)} children={"reverse 1"} />
+          <button className={css.button} onClick={() => instance.reverse(0.5)} children={"reverse .5"} />
         </div>
+        <button className={css.button} onClick={() => instance.resume()} children={"resume"} />
+        <button className={css.button} onClick={() => instance.pause()} children={"pause"} />
+        <button className={css.button} onClick={() => instance.stop()} children={"stop"} />
 
         <select
           className={css.easeSelect}
@@ -31,6 +42,11 @@ export const Controls = ({
             </option>
           ))}
         </select>
+        <input
+          value={progress}
+          type={"number"}
+          onChange={(e) => setProgress(e.target.value || "0")}
+        />
       </div>
     </div>
   )

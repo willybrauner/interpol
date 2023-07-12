@@ -1,23 +1,21 @@
 {
-  "name": "@psap/interpol",
+  "name": "@psap/utils",
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "files": [
     "dist"
   ],
   "sideEffects": false,
-  "main": "./dist/interpol.cjs",
-  "module": "./dist/interpol.js",
-  "types": "./dist/interpol.d.ts",
+  "main": "./dist/utils.cjs",
+  "module": "./dist/utils.js",
+  "types": "./dist/utils.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/psap.git"
   },
   "keywords": [
-    "interpol",
-    "interpolation",
-    "animation",
-    "timeline"
+    "utils"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -25,8 +23,7 @@
     "build:watch": "tsup --watch --sourcemap"
   },
   "dependencies": {
-    "@wbe/debug": "^1.1.0",
-    "@psap/utils": "workspace:*"
+    "@wbe/debug": "^1.1.0"
   },
   "devDependencies": {
     "tsup": "^6.7.0",

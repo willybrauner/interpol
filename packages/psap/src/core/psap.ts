@@ -1,47 +1,56 @@
 import debug from "@wbe/debug"
-import { Ticker, Interpol, IInterpolConstruct } from "@psap/interpol"
+import { Interpol, Ticker, IInterpolConstruct } from "@psap/interpol"
+import { isSSR, compute } from "@psap/utils"
 import { getUnit } from "./getUnit"
 import { convertValueToUnitValue } from "./convertValueToUnitValue"
 import { buildTransformChain } from "./buildTransformChain"
 import { getCssValue } from "./getCssValue"
 import { convertMatrix } from "./convertMatrix"
 import { isMatrix } from "./isMatrix"
-import { compute } from "@psap/interpol"
 import { easeAdaptor, EaseName } from "../utils/ease"
-
+import { PsapTimeline, PsapTimelineConstruct } from "./PsapTimeline"
 const log = debug(`psap:psap`)
-
-/**
- * To move
- */
-const isSSR = () => typeof window === "undefined"
 
 /**
  * Constants
  *
  *
  */
-// prettier-ignore
-export const DEG_UNIT_FN = ["rotate", "rotateX", "rotateY", "rotateZ", "skew", "skewX", "skewY"] as const
 export const RAD_UNIT_FN = ["perspective"] as const
 export const PX_UNIT_FN = ["translateX", "translateY", "translateZ"] as const
 export const NO_UNIT_FN = ["scale", "scaleX", "scaleY", "scaleZ"] as const
-// prettier-ignore
-export const VALID_TRANSFORMS = ["x", "y", "z", ...PX_UNIT_FN, ...DEG_UNIT_FN, ...RAD_UNIT_FN, ...NO_UNIT_FN] as const
+export const DEG_UNIT_FN = [
+  "rotate",
+  "rotateX",
+  "rotateY",
+  "rotateZ",
+  "skew",
+  "skewX",
+  "skewY",
+] as const
+export const VALID_TRANSFORMS = [
+  "x",
+  "y",
+  "z",
+  ...PX_UNIT_FN,
+  ...DEG_UNIT_FN,
+  ...RAD_UNIT_FN,
+  ...NO_UNIT_FN,
+] as const
 
 /**
  * Types
  *
  *
  */
-type CSSProps = Record<
+export type CSSProps = Record<
   keyof CSSStyleDeclaration | (typeof VALID_TRANSFORMS)[number],
   number | (() => number) | string | (() => string)
 >
 
 type AnimType = "to" | "from" | "fromTo" | "set"
 
-interface OptionsWithoutProps
+export interface OptionsWithoutProps
   extends Omit<
     IInterpolConstruct,
     "reverseEase" | "ease" | "from" | "to" | "onUpdate" | "onComplete"
@@ -56,9 +65,10 @@ interface OptionsWithoutProps
   _type: AnimType
 }
 
-type Options<T> = (Partial<OptionsWithoutProps> & Partial<CSSProps>) | T
+export type Options<T = any> = (Partial<OptionsWithoutProps> & Partial<CSSProps>) | T
 
 export type PropOptions = Partial<{
+  target
   usedKey: string
   update: { value: number; time: number; progress: number }
   duration: { value: number; _value: number | (() => number) }
@@ -73,15 +83,15 @@ export type PropOptions = Partial<{
 type Props = Map<string, PropOptions>
 
 type API = Readonly<{
-  play: () => Promise<any>
-  replay: () => Promise<any>
-  reverse: () => Promise<any>
+  play: (from?: number, allowReplay?: boolean) => Promise<any>
+  reverse: (from?: number, allowReplay?: boolean) => Promise<any>
+  resume: () => Promise<any>
   stop: () => void
   pause: () => void
   refresh: () => void
 }>
 
-type Target =
+export type Target =
   | Element
   | HTMLElement
   | Node
@@ -106,6 +116,7 @@ type Psap = {
   to: <T extends Target>(target: T, to: Options<T>) => API
   from: <T extends Target>(target: T, from: Options<T>) => API
   fromTo: <T extends Target>(target: T, from: Partial<CSSProps>, to: Options<T>) => API
+  timeline: (params?: Partial<PsapTimelineConstruct>) => PsapTimeline
 }
 
 /**
@@ -117,11 +128,13 @@ const _anim = <T>(
   target: T,
   index: number,
   isLastAnim: boolean,
+  inTl: boolean,
   fromKeys: Options<T>,
-  toKeys: Options<T>
+  toKeys: Options<T>,
+  ticker
 ) => {
   // Create a common ticker for all interpolations
-  const ticker = new Ticker()
+  ticker = ticker || new Ticker()
 
   // Props Map will contain all props to animate, it will be our main reference
   const props: Props = new Map<string, PropOptions>()
@@ -156,31 +169,35 @@ const _anim = <T>(
 
   // Prepare transform props
   // .......................
-  // If keys contains valid transform keys
-  if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
-    // Get all transform fn from CSS (translate, rotate...)
-    const transformFn =
-      (target as HTMLElement)?.style.transform ??
-      o.proxyWindow.getComputedStyle(target).getPropertyValue("transform")
 
-    if (transformFn && transformFn !== "none") {
-      const trans = isMatrix(transformFn) ? convertMatrix(transformFn) : transformFn
-      // Filter empty values and already defined keys
-      // and add them to keys in order to be kept in the loop
-      for (const transformFn in trans) {
-        if (trans[transformFn] === "" || keys[transformFn]) {
-          delete trans[transformFn]
-        } else {
-          const cssValue: string = getCssValue(
-            target as HTMLElement,
-            { usedKey: "transform", transformFn },
-            o.proxyWindow
-          )
-          keys = { ...{ [transformFn]: cssValue }, ...keys }
+  const prepareTransformProps = () => {
+    // If keys contains valid transform keys
+    if (Object.keys(keys).some((key) => VALID_TRANSFORMS.includes(key as any))) {
+      // Get all transform fn from CSS (translate, rotate...)
+      const transformFn =
+        (target as HTMLElement)?.style.transform ??
+        o.proxyWindow.getComputedStyle(target).getPropertyValue("transform")
+
+      if (transformFn && transformFn !== "none") {
+        const trans = isMatrix(transformFn) ? convertMatrix(transformFn) : transformFn
+        // Filter empty values and already defined keys
+        // and add them to keys in order to be kept in the loop
+        for (const transformFn in trans) {
+          if (trans[transformFn] === "" || keys[transformFn]) {
+            delete trans[transformFn]
+          } else {
+            const cssValue: string = getCssValue(
+              target as HTMLElement,
+              { usedKey: "transform", transformFn },
+              o.proxyWindow
+            )
+            keys = { ...{ [transformFn]: cssValue }, ...keys }
+          }
         }
       }
     }
   }
+  prepareTransformProps()
 
   // Start loop of prop keys \o\
   // ...........................
@@ -191,6 +208,7 @@ const _anim = <T>(
 
     // Set the known information in the main "props" Map
     props.set(key, {
+      target,
       usedKey: key,
       duration: { value: undefined, _value: o.duration },
       from: { value: undefined, _value: fromKeys?.[key], unit: undefined },
@@ -216,58 +234,71 @@ const _anim = <T>(
       else prop.transformFn = key
     }
 
-    log("-----------------------------------------------------------------------")
+    
 
-    // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
-    let cssValue: string = prop._isObject
-      ? null
-      : getCssValue(target as HTMLElement, prop, o.proxyWindow)
-    // Number value without unit -> 10 (or 0)
-    const cssValueN: number = parseFloat(cssValue) || 0
-    // Css value Unit -> "px"
-    const cssValueUnit: string = prop._isObject ? null : getUnit(cssValue, prop)
-    log({ cssValue, cssValueN, cssValueUnit })
+    const calcProp = () => 
+    {
+      log("-----------------------------------------------------------------------")
 
-    // Case we have one object: "from"
-    if (o._type === "from") {
-      prop._hasExplicitFrom = true
-      prop.from.unit = getUnit(vTo, prop) || cssValueUnit
-      prop.from.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
-      prop.to.unit = cssValueUnit
-      prop.to.value = cssValueN
+        // Value from css ex: transform: translateX(10px) -> "10px" | marginLeft: "1px" -> "1px"
+        let cssValue: string = prop._isObject
+        ? null
+        : getCssValue(target as HTMLElement, prop, o.proxyWindow)
+
+        log('cssValue',cssValue)
+      // Number value without unit -> 10 (or 0)
+      const cssValueN: number = parseFloat(cssValue) || 0
+      // Css value Unit -> "px"
+      const cssValueUnit: string = prop._isObject ? null : getUnit(cssValue, prop)
+      log({ cssValue, cssValueN, cssValueUnit })
+
+      // Case we have one object: "from"
+      if (o._type === "from") {
+        prop._hasExplicitFrom = true
+        prop.from.unit = getUnit(vTo, prop) || cssValueUnit
+        prop.from.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
+        prop.to.unit = cssValueUnit
+        prop.to.value = cssValueN
+      }
+
+      // Case we have two objects: "fromTo"
+      else if (o._type === "fromTo") {
+        prop._hasExplicitFrom = true
+        prop.to.unit = getUnit(vTo, prop) || cssValueUnit
+        prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
+        prop.from.unit = prop.to.unit
+        prop.from.value = convertValueToUnitValue(
+          target as HTMLElement,
+          parseFloat(vFrom) && !isNaN(parseFloat(vFrom)) ? parseFloat(vFrom) : cssValueN,
+          getUnit(vFrom, prop) || cssValueUnit,
+          prop.to.unit,
+          o.proxyWindow,
+          o.proxyDocument
+        )
+      }
+      // Case we have one object: "to" or "set"
+      else {
+        prop.to.unit = getUnit(vTo, prop) || cssValueUnit
+        prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
+        prop.from.unit = cssValueUnit
+        prop.from.value = convertValueToUnitValue(
+          target as HTMLElement,
+          cssValueN,
+          prop.from.unit,
+          prop.to.unit,
+          o.proxyWindow,
+          o.proxyDocument
+        )
+      }
+
+      log("prop", prop)
+
     }
 
-    // Case we have two objects: "fromTo"
-    else if (o._type === "fromTo") {
-      prop._hasExplicitFrom = true
-      prop.to.unit = getUnit(vTo, prop) || cssValueUnit
-      prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
-      prop.from.unit = prop.to.unit
-      prop.from.value = convertValueToUnitValue(
-        target as HTMLElement,
-        parseFloat(vFrom) && !isNaN(parseFloat(vFrom)) ? parseFloat(vFrom) : cssValueN,
-        getUnit(vFrom, prop) || cssValueUnit,
-        prop.to.unit,
-        o.proxyWindow,
-        o.proxyDocument
-      )
-    }
-    // Case we have one object: "to" or "set"
-    else {
-      prop.to.unit = getUnit(vTo, prop) || cssValueUnit
-      prop.to.value = parseFloat(vTo) && !isNaN(parseFloat(vTo)) ? parseFloat(vTo) : cssValueN
-      prop.from.unit = cssValueUnit
-      prop.from.value = convertValueToUnitValue(
-        target as HTMLElement,
-        cssValueN,
-        prop.from.unit,
-        prop.to.unit,
-        o.proxyWindow,
-        o.proxyDocument
-      )
-    }
 
-    log("prop", prop)
+    calcProp()
+  
+    
 
     // prepare interpol ease
     const chooseEase = (ease) => (typeof ease === "string" ? easeAdaptor(ease as EaseName) : ease)
@@ -296,7 +327,11 @@ const _anim = <T>(
       debug: o.debug,
       beforeStart: () => {
         if (prop._hasExplicitFrom || o.paused) {
-          setValueOn(prop._isTransform ? buildTransformChain(props, "from") : prop.from.value + prop.from.unit)
+          setValueOn(
+            prop._isTransform
+              ? buildTransformChain(target, props, "from")
+              : prop.from.value + prop.from.unit
+          )
         }
         if (isLast) o.beforeStart?.()
       },
@@ -304,43 +339,60 @@ const _anim = <T>(
         prop.update.value = value
         prop.update.time = time
         prop.update.progress = progress
-        setValueOn(prop._isTransform ? buildTransformChain(props, "update") : value + prop.to.unit)
+        itp.__prop = prop
+        setValueOn(prop._isTransform ? buildTransformChain(target,props, "update") : value + prop.to.unit)
         if (isLast) o.onUpdate?.(props)
       },
       onComplete: () => {
+        log('itp.from',itp.from)
         const dir = itp.isReversed ? "from" : "to"
-        setValueOn(prop._isTransform ? buildTransformChain(props, dir) : prop[dir].value + prop[dir].unit)
+        setValueOn(prop._isTransform ? buildTransformChain(target,props, dir) : prop[dir].value + prop[dir].unit)
+
+        calcProp()
+        // itp.from = prop.from.value
+
         if (isLast) o.onComplete?.(props)
       }
     })
+    itp.inTl = inTl
     // assign refresh method to interpol instance
-    itp.refresh = () => {
+    itp.__refresh = () => {
+      calcProp()
       for (let el of ["to", "from", "duration"]) {
         prop[el].value = compute(prop[el]._value) ?? 0
         itp[el] = prop[el].value * (el === "duration" ? 1000 : 1)
       }
+      itp.refreshComputedValues()
     }
-
     return itp
   })
 
   // _anim return (multiple itps)
-  return returnAPI(itps)
+  return {
+    itps,
+    play: (from, allowReplay) => Promise.all(itps.map((itp) => itp.play(from, allowReplay))),
+    reverse: (from, allowReplay) => Promise.all(itps.map((itp) => itp.reverse(from, allowReplay))),
+    resume: () => itps.forEach((itp) => itp.resume()),
+    stop: () => itps.forEach((itp) => itp.stop()),
+    pause: () => itps.forEach((itp) => itp.pause()),
+    seek: (p) => itps.forEach((itp) => itp.seek(p)),
+    refresh: () => itps.forEach((itp) => itp.__refresh()),
+  }
 }
 
 /**
- * Final
- *
- *
+ * One psap API
  */
-const returnAPI = (anims): API => {
+// prettier-ignore
+const psapAPI = (psaps): API => {
   return Object.freeze({
-    play: () => Promise.all(anims.map((e) => e.play())),
-    replay: () => Promise.all(anims.map((e) => e.replay())),
-    reverse: () => Promise.all(anims.map((e) => e.reverse())),
-    stop: () => anims.forEach((e) => e.stop()),
-    pause: () => anims.forEach((e) => e.pause()),
-    refresh: () => anims.forEach((e) => e.refresh()),
+    play: (from, allowReplay) => Promise.all(psaps.map((psap) => psap.play(from, allowReplay))),
+    reverse: (from, allowReplay) => Promise.all(psaps.map((psap) => psap.reverse(from, allowReplay))),
+    resume: () => psaps.forEach((psap) => psap.resume()),
+    stop: () => psaps.forEach((psap) => psap.stop()),
+    pause: () => psaps.forEach((psap) => psap.pause()),
+    seek: (p) => psaps.forEach((psap) => psap.seek(p)),
+    refresh: () => psaps.forEach((psap) => psap.refresh()),
   })
 }
 
@@ -350,9 +402,9 @@ const fTarget = <T extends Target>(t: T): T[] => {
   else return [t]
 }
 // return one anim per target
-const anims = <T extends Target>(target: T, from, to) =>
+export const computeAnims = <T extends Target>(target: T, from, to, inTl = false, ticker?) =>
   fTarget<T>(target).map((trg, index) =>
-    _anim<T>(trg, index, isLast(index, fTarget(target)), from, to)
+    _anim<T>(trg, index, isLast(index, fTarget(target)), inTl, from, to, ticker)
   )
 
 const isNodeList = ($el): boolean =>
@@ -365,19 +417,22 @@ const isLast = (i: number, t: any[]): boolean => i === t.length - 1
 const psap: Psap = {
   set: (target, to) => {
     to = { ...to, _type: "set" }
-    return returnAPI(anims(target, undefined, to))
+    return psapAPI(computeAnims(target, undefined, to))
   },
   to: (target, to) => {
     to = { ...to, _type: "to" }
-    return returnAPI(anims(target, undefined, to))
+    return psapAPI(computeAnims(target, undefined, to))
   },
   from: (target, from) => {
     from = { ...from, _type: "from" }
-    return returnAPI(anims(target, from, undefined))
+    return psapAPI(computeAnims(target, from, undefined))
   },
   fromTo: (target, from, to) => {
     to = { ...to, _type: "fromTo" }
-    return returnAPI(anims(target, from, to))
+    return psapAPI(computeAnims(target, from, to))
+  },
+  timeline: (params = {}): PsapTimeline => {
+    return new PsapTimeline(params)
   },
 }
 

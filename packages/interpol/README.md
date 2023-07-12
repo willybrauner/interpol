@@ -174,8 +174,8 @@ const itp = new Interpol({
 })
 
 // Play the interpol
-// play(): Promise<any>
-itp.play().then(() => {
+// play(from:number): Promise<any>
+itp.play(0).then(() => {
   // itp complete
 })
 
@@ -186,13 +186,13 @@ itp.pause()
 // Stop the interpol, will reset time, delta and progress.
 itp.stop()
 
-// Replay from start the interpol.
-// replay(): void
-itp.replay()
+// Resumes playing without altering direction (forward or reversed).
+// resume(): void
+itp.resume()
 
 // Reverse and play the interpol
-// reverse(): Promise<any>
-itp.reverse().then(() => {
+// reverse(from:number): Promise<any>
+itp.reverse(1).then(() => {
   // itp complete
 })
 

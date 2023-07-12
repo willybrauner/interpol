@@ -1,5 +1,3 @@
-import { expect } from "vitest"
-
 type EaseFn = (t: number) => number
 type Power = Record<string, EaseFn>
 

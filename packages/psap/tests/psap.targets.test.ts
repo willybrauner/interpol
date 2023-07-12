@@ -22,11 +22,6 @@ describe.concurrent("multiple targets", () => {
       resolve()
     }))
 
-  // afterEach(() => {
-  //   beforeStartMock.mockClear()
-  //   onCompleteMock.mockClear()
-  // })
-
   it("should anim multiple targets on psap.to", () =>
     new Promise(async (resolve: any) => {
       const { proxy, $el, $el2 } = getDocument()
@@ -102,7 +97,7 @@ describe.concurrent("multiple targets", () => {
             onCompleteMock()
             const expected = ($el) => {
               expect($el.style.left).toBe("0px")
-              expect($el.style.transform).toBe("translateX(-10px)")
+              expect($el.style.transform).toBe("translateX(-10px) translateZ(0px)")
             }
             expected($el)
             expected($el2)

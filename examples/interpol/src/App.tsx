@@ -26,6 +26,7 @@ export function App() {
       to: () => window.innerHeight - ballSize,
       duration: 1000,
       ease: Ease[ease],
+      debug: true,
       paused: true,
       onUpdate: ({ value, time, progress }) => {
         setParams({ value, time, progress })
@@ -62,7 +63,6 @@ export function App() {
     </div>
   )
 }
-
 
 // prettier-ignore
 export const Ease = {

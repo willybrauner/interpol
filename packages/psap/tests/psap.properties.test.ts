@@ -49,7 +49,12 @@ describe.concurrent("anim specific CSS Properties", () => {
             [prop]: to,
             ...proxy,
             onComplete: () => {
-              expect($el.style.transform).toBe(`${prop}(${to}${unit})`)
+              const result = `${prop}(${to}${unit})`
+              if (prop === "translateZ") {
+                expect($el.style.transform).toBe(result)
+              } else {
+                expect($el.style.transform).toBe(`${result} translateZ(0px)`)
+              }
               isLast && resolve()
             },
           })
@@ -78,7 +83,11 @@ describe.concurrent("anim specific CSS Properties", () => {
           [getAdapter(prop)]: to,
           ...proxy,
           onComplete: () => {
-            expect($el.style.transform).toBe(`${prop}(${to}px)`)
+            if (prop === "translateZ") {
+              expect($el.style.transform).toBe(`${prop}(${to}px)`)
+            } else {
+              expect($el.style.transform).toBe(`${prop}(${to}px) translateZ(0px)`)
+            }
             isLast && resolve()
           },
         })
@@ -117,7 +126,7 @@ describe.concurrent("anim specific CSS Properties", () => {
         duration: 0,
         ...proxy,
         onComplete: () => {
-          expect($el.style.transform).toBe("translateX(10px) scale(10)")
+          expect($el.style.transform).toBe("translateX(10px) scale(10) translateZ(0px)")
           expect($el.style.left).toBe("10rem")
           resolve()
         },
@@ -132,7 +141,7 @@ describe.concurrent("anim specific CSS Properties", () => {
         scale: 10,
         ...proxy,
         onComplete: () => {
-          expect($el.style.transform).toBe("scale(1)")
+          expect($el.style.transform).toBe("scale(1) translateZ(0px)")
           resolve()
         },
       })

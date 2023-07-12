@@ -15,36 +15,65 @@ for (let i = 0; i < 1; i++) {
   const $clone = el.cloneNode(true)
   $wrapper.appendChild($clone)
 }
+const $button = document.querySelector(".button")
 const $ball = document.querySelectorAll(".ball")
 
-;["play", "reverse", "replay", "pause", "stop", "refresh"].forEach(
+;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => a[name]())
 )
 
+const inputProgress = document.querySelector<HTMLInputElement>(".progress")
+inputProgress.onchange = () => {
+  console.log("e", parseFloat(inputProgress.value) / 100)
+  a.seek(parseFloat(inputProgress.value) / 100)
+}
+
+document.querySelector<HTMLButtonElement>(`.play`).onclick = () => a.play(0)
+document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => a.reverse(1)
 // -----------------------------------------------------------------------------
 
-// const a = gsap.to(
-//   $ball,
-//   {
-//     x: 100,
-//   //  y: () => randomRange(-200, 200),
-//     duration: 1,
-//    // stagger: 0.01,
-//     ease: "power2.in",
-//   }
-// )
+const a = psap.timeline({ paused: false })
+// a.to($ball[0], {
+//   //  margin: "10px",
+//   x: 200,
+//   duration: 1.5,
+//   //ease: "power2.inOut",
+// })
 
-const obj = { coucou: 0 }
-
-const a = psap.to(obj, {
-  coucou: 100,
-  onUpdate: () => {
-    console.log(obj.coucou)
+a.to(
+  $ball[1],
+  {
+    y: 100,
+    duration: 1,
   },
-  //  y: () => randomRange(-200, 200),
-  duration: 1,
-  //    stagger: 0.01,
-})
+)
+a.to(
+  $ball[1],
+  {
+    y: 50,
+    duration: 1,
+  },
+)
+
+// const a = psap.to($ball, {
+//   y: () =>  randomRange(-200, 200),
+//   x: () =>  randomRange(-200, 200),
+//   duration: 1,
+//   ease: "power2.inOut",
+// })
+
+// await a.play()
+
+// const obj = { coucou: 0 }
+// const a = psap.to(obj, {
+//   coucou: 100,
+//   onUpdate: () => {
+//     console.log(obj.coucou)
+//   },
+//   //  y: () => randomRange(-200, 200),
+//   duration: 1,
+//   //    stagger: 0.01,
+// })
 
 // anime({
 //   targets: '.css-transforms-demo .el',

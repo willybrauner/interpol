@@ -3,8 +3,7 @@
   "packages": ["./"],
   "sandboxes": [
     "/examples/psap",
-    "/examples/interpol",
-    "/examples/timeline"
+    "/examples/interpol"
   ],
   "node": "16"
 }

@@ -1,10 +1,6 @@
 import { IInterpolConstruct, IUpdateParams } from "./core/types"
 import debug from "@wbe/debug"
-import { Ticker } from "./core/Ticker"
-import { deferredPromise } from "./core/deferredPromise"
-import { clamp } from "./core/clamp"
-import { round } from "./core/round"
-import { compute } from "./core/compute"
+import { Ticker, deferredPromise, clamp, round, compute } from "@psap/utils"
 
 const log = debug("interpol:Interpol")
 
@@ -37,14 +33,15 @@ export class Interpol {
   public get isReversed() {
     return this._isReversed
   }
-
   protected _isPlaying = false
   public get isPlaying() {
     return this._isPlaying
   }
   protected _isPause = false
-
   public inTl = false
+
+  __refresh
+  __prop
 
   constructor({
     from = 0,
@@ -74,6 +71,9 @@ export class Interpol {
     this.ticker = ticker
     this.ticker.debugEnable = debug
 
+    // compute values
+    this.refreshComputedValues()
+
     // start!
     this.beforeStart?.()
     if (!this.paused) this.play()
@@ -86,46 +86,69 @@ export class Interpol {
     this._duration = compute(duration)
   }
 
-  // helpers for refresh method assignments
-  public refresh = () => {}
+  public async play(from: number = 0, allowReplay = true): Promise<any> {
+    if (this._isPlaying && !allowReplay) return
 
-  public async play(): Promise<any> {
-    await this._play()
-  }
-  protected _play(createNewCompletePromise = true, isReversedState: boolean = false) {
-    if (this._isPlaying) {
-      if (!this.inTl) {
-        this._isReversed = isReversedState
-      }
-      // recreate deferred promise to avoid multi callback
-      // this one need to be called once even if play() is called multi times
-      if (createNewCompletePromise) this.onCompleteDeferred = deferredPromise()
-      return this.onCompleteDeferred.promise
+    // If is playing reverse, juste return the state
+    if (this._isPlaying && this._isReversed) {
+      this._isReversed = false
+      return
     }
+
+    if (this._isPlaying) {
+      this.stop()
+      return await this.play(from)
+    }
+
+    this.value = this._to * from
+    this.time = this._duration * from
+    this.progress = from
+    this._isReversed = false
     this._isPlaying = true
     this._isPause = false
 
-    // Refresh values before play
-    this.refreshComputedValues()
-
-    // Delay is set only on first play.
+    // Delay is set only on first play
     // If this play is trigger before onComplete, we don't wait again
-    const d = this.time > 0 && !this._isReversed ? 0 : this.delay
-    this.timeout = setTimeout(() => {
-      // start ticker only if is single Interpol, not TL
-      if (!this.inTl) this.ticker.play()
-      this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
-    }, d)
-
-    // create new onComplete deferred Promise and return it
-    if (createNewCompletePromise) this.onCompleteDeferred = deferredPromise()
+    // start ticker only if is single Interpol, not TL
+    this.timeout = setTimeout(
+      () => {
+        if (!this.inTl) this.ticker.play()
+        this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+      },
+      this.time > 0 ? 0 : this.delay
+    )
+    this.onCompleteDeferred = deferredPromise()
     return this.onCompleteDeferred.promise
   }
 
-  public async replay(): Promise<any> {
+  public async reverse(from: number = 1, allowReplay = true): Promise<any> {
+    if (this._isPlaying && !allowReplay) return
+
+    // If is playing normal direction, change to reverse and return
+    if (this._isPlaying && !this._isReversed) {
+      this._isReversed = true
+      return
+    }
+
+    // If is playing reverse, restart reverse
+    if (this._isPlaying && this._isReversed) {
+      this.stop()
+      return await this.reverse(from)
+    }
+
+    this.value = this._to * from
+    this.time = this._duration * from
+    this.progress = from
+    this._isReversed = true
     this._isPlaying = true
-    this.stop()
-    await this.play()
+    this._isPause = false
+
+    // start ticker only if is single Interpol, not TL
+    if (!this.inTl) this.ticker.play()
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+    // create new onComplete deferred Promise and return it
+    this.onCompleteDeferred = deferredPromise()
+    return this.onCompleteDeferred.promise
   }
 
   public pause(): void {
@@ -133,6 +156,14 @@ export class Interpol {
     this._isPlaying = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
+  }
+
+  public resume(): void {
+    if (!this._isPause) return
+    this._isPause = false
+    this._isPlaying = true
+    this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
+    if (!this.inTl) this.ticker.play()
   }
 
   public stop(): void {
@@ -151,15 +182,33 @@ export class Interpol {
     if (!this.inTl) this.ticker.stop()
   }
 
-  public reverse(r?: boolean) {
-    this._isReversed = r ?? !this._isReversed
-    // if has been stopped
-    if (!this.isPlaying && !this._isPause) {
-      this.value = this._isReversed ? this._to : 0
-      this.time = this._isReversed ? this._duration : 0
-      this.progress = this._isReversed ? 1 : 0
+  /**
+   * Seek to a specific progress (between 0 and 1)
+   * @param progress
+   */
+
+  public resetSeekOnComplete = true
+
+  public seek(progress: number): void {
+    // calc time (time spend from the start)
+    // calc progress (between 0 and 1)
+    // calc value (between "from" and "to")
+    this.progress = clamp(0, progress, 1)
+    this.time = clamp(0, this._duration * this.progress, this._duration)
+    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
+
+    if (this.progress === 0) return
+    if (this.progress === 1 && this.resetSeekOnComplete) {
+      log("progress = 1, execute onComplete()")
+      this.value = this._to
+      this.time = this._duration
+      this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
+      this.resetSeekOnComplete = false
+      return
     }
-    return this._play(true, this._isReversed)
+
+    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
+    log("onUpdate", { value: this.value, time: this.time, progress: this.progress })
   }
 
   protected handleTickerUpdate = async ({ delta }) => {
@@ -179,23 +228,15 @@ export class Interpol {
     // delta sign depend of reverse state
     delta = this._isReversed ? -delta : delta
 
-    // select easing function
-    const easeFn = this._isReversed && this.reverseEase ? this.reverseEase : this.ease
-
     // calc time (time spend from the start)
     // calc progress (between 0 and 1)
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + delta)
     this.progress = clamp(0, round(this.time / this._duration), 1)
-    this.value = this._from + (this._to - this._from) * easeFn(this.progress)
+    this.value = this._from + (this._to - this._from) * this.getEaseFn()(this.progress)
     this.value = round(this.value, 1000)
-
     // Pass value, time and progress
-    this.onUpdate?.({
-      value: this.value,
-      time: this.time,
-      progress: this.progress,
-    })
+    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
 
     this.log("onUpdate", {
       value: this.value,
@@ -206,24 +247,26 @@ export class Interpol {
     // check direction end
     const isNormalDirectionEnd = !this._isReversed && this.progress === 1
     const isReverseDirectionEnd = this._isReversed && this.progress === 0
-
     // end, onComplete
     if (isNormalDirectionEnd || isReverseDirectionEnd) {
-      this.log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
+      log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
       // uniformize vars
       this.value = this._to
       this.time = this._duration
-      // Call current interpol onComplete method
-      this.onComplete?.({
-        value: this.value,
-        time: this.time,
-        progress: this.progress,
-      })
+      this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
 
       // stop after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()
     }
+  }
+
+  /**
+   * Reverse depend of ease
+   * @protected
+   */
+  protected getEaseFn(): (t: number) => number {
+    return this._isReversed && this.reverseEase ? this.reverseEase : this.ease
   }
 
   /**
