@@ -19,6 +19,7 @@ describe.concurrent("Timeline stop", () => {
             expect(time).toBe(timelineDuration)
             expect(progress).toBe(1)
             onCompleteMock()
+            onCompleteMock.mockClear()
           },
         })
 
@@ -32,12 +33,19 @@ describe.concurrent("Timeline stop", () => {
           )
         }
 
+
+        // play and stop at 50% of the timeline
         tl.play()
         await wait(timelineDuration * 0.5)
         tl.stop()
+
+        // have been reset after stop
         expect(tl.time).toBe(0)
         expect(tl.progress).toBe(0)
+
+        // OnComplete should not have been called
         expect(onCompleteMock).toHaveBeenCalledTimes(0)
+
         resolve()
       })
 

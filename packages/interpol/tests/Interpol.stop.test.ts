@@ -10,7 +10,7 @@ describe.concurrent("Interpol stop", () => {
       const itp = new Interpol({
         to: 1000,
         duration: 1000,
-        onComplete: () => mock(),
+        onComplete: mock,
       })
 
       // play, value are changed
