@@ -5,7 +5,7 @@ describe.concurrent("Timeline play", () => {
   it("Timeline should add Interpol's and play properly", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
-      const tl = new Timeline({ onComplete })
+      const tl = new Timeline({ onComplete, paused: true })
       // accept instance
       tl.add(new Interpol({ to: 100 }))
       // accept object
@@ -20,7 +20,7 @@ describe.concurrent("Timeline play", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
       const promiseResolve = vi.fn()
-      const tl = new Timeline({ onComplete })
+      const tl = new Timeline({ onComplete, paused: true })
       for (let i = 0; i < 3; i++) {
         tl.add({ to: 100, duration: 100 })
       }

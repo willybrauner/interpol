@@ -206,6 +206,7 @@ export class Timeline {
     this.updateAdds({ progress: this.progress, time: this.time, adds: this.adds })
 
     if ((!this._isReversed && this.progress === 1) || (this._isReversed && this.progress === 0)) {
+      //console.log('this.time',this.time)
       this.onComplete?.({ time: this.time, progress: this.progress })
       this.onCompleteDeferred.resolve()
       this.stop()
@@ -215,8 +216,9 @@ export class Timeline {
   private updateAdds({ progress, time, adds }): void {
     this.onUpdate?.({ progress, time })
     this.executeOnAllAdds((add) => {
-      const p = clamp(0, (time - add.startPositionInTl) / add.interpol._duration, 1)
-      add.interpol.seek(p)
+      add.interpol.seek(
+        clamp(0, (time - add.startPositionInTl) / add.interpol._duration, 1)
+      )
     })
   }
 
