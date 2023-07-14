@@ -58,7 +58,6 @@ export class Timeline {
     this.debugEnable = debug
     this.ticker = ticker
     this.paused = paused
-    this.ticker.debugEnable = debug
     this.tlId = ++TL_ID
   }
 
@@ -123,11 +122,6 @@ export class Timeline {
     this._isPlaying = true
     this._isPause = false
 
-    this.executeOnAllAdds((e: IAdd) => {
-      e.interpol.resetSeekOnComplete = true
-      e.interpol.seek(0)
-    })
-
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     this.onCompleteDeferred = deferredPromise()
@@ -153,11 +147,6 @@ export class Timeline {
     this._isReversed = true
     this._isPlaying = true
     this._isPause = false
-
-    this.executeOnAllAdds((e) => {
-      e.interpol.resetSeekOnComplete = true
-      e.interpol.seek(1)
-    })
 
     this.ticker.play()
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
@@ -215,10 +204,12 @@ export class Timeline {
     }
   }
 
-  private updateAdds({ progress, time, adds }): void {
+  protected updateAdds({ progress, time, adds }): void {
     this.onUpdate?.({ progress, time })
     this.executeOnAllAdds((add) => {
-      add.interpol.seek(clamp(0, (time - add.startPositionInTl) / add.interpol._duration, 1))
+      add.interpol.seek(
+        (time - add.startPositionInTl) / add.interpol._duration
+      )
     })
   }
 
@@ -226,7 +217,7 @@ export class Timeline {
    * exe API function on all adds
    * @param cb
    */
-  private executeOnAllAdds(cb: (add: IAdd) => void): void {
+  protected executeOnAllAdds(cb: (add: IAdd) => void): void {
     for (let i = 0; i < this.adds.length; i++) cb(this.adds[i])
   }
 

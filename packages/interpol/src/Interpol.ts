@@ -184,74 +184,43 @@ export class Interpol {
    * Seek to a specific progress (between 0 and 1)
    * @param progress
    */
-  public resetSeekOnComplete = true
-
   public seek(progress: number): void {
-    // calc progress (between 0 and 1)
-    // calc time (time spend from the start)
-    // calc value (between "from" and "to")
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this._duration * this.progress, this._duration)
     this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
-
-    if (this.progress === 0) return
-    if (this.progress === 1) {
-      log("progress = 1, execute onComplete()")
-      this.value = this._to
-      this.time = this._duration
-      this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
-      this.resetSeekOnComplete = false
-      return
-    }
-
     this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
-    log("onUpdate", { value: this.value, time: this.time, progress: this.progress })
+    this.log("seek onUpdate", { v: this.value, t: this.time, p: this.progress })
+    // onComplete?
   }
 
-  protected handleTickerUpdate = async ({ delta }) => {
-    // Specific case if duration is 0
-    // execute onComplete and return
+  protected handleTickerUpdate = async ({ delta }): Promise<any> => {
+    // Specific case if duration is 0, execute onComplete and return
     if (this._duration <= 0) {
       const obj = { value: this._to, time: this._duration, progress: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
-      // stop after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()
       return
     }
 
-    // delta sign depend of reverse state
-    delta = this._isReversed ? -delta : delta
-
     // calc time (time spend from the start)
     // calc progress (between 0 and 1)
     // calc value (between "from" and "to")
-    this.time = clamp(0, this._duration, this.time + delta)
+    this.time = clamp(0, this._duration, this.time + (this._isReversed ? -delta : delta))
     this.progress = clamp(0, round(this.time / this._duration), 1)
-    this.value = this._from + (this._to - this._from) * this.getEaseFn()(this.progress)
-    this.value = round(this.value, 1000)
+    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
+
     // Pass value, time and progress
     this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
+    this.log("onUpdate", { v: this.value, t: this.time, p: this.progress })
 
-    this.log("onUpdate", {
-      value: this.value,
-      time: this.time,
-      progress: this.progress,
-    })
-
-    // check direction end
-    const isNormalDirectionEnd = !this._isReversed && this.progress === 1
-    const isReverseDirectionEnd = this._isReversed && this.progress === 0
-    // end, onComplete
-    if (isNormalDirectionEnd || isReverseDirectionEnd) {
-      log(`progress = ${isNormalDirectionEnd ? 1 : 0}, execute onComplete()`)
-      // uniformize vars
+    // On complete
+    if ((!this._isReversed && this.progress === 1) || (this._isReversed && this.progress === 0)) {
+      this.log(`handleTickerUpdate onComplete !`)
       this.value = this._to
       this.time = this._duration
       this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
-
-      // stop after onComplete
       this.onCompleteDeferred.resolve()
       this.stop()
     }
