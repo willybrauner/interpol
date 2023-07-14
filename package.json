@@ -1,5 +1,5 @@
 {
-  "name": "@wbe/interpol-root",
+  "name": "interpol",
   "private": true,
   "version": "0.0.0",
   "type": "module",
