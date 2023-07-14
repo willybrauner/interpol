@@ -1,6 +1,10 @@
 import { IInterpolConstruct, IUpdateParams } from "./core/types"
 import debug from "@wbe/debug"
-import { Ticker, deferredPromise, clamp, round, compute } from "./core"
+import { Ticker } from "./core/Ticker"
+import { deferredPromise } from "./core/deferredPromise"
+import { clamp } from "./core/clamp"
+import { round } from "./core/round"
+import { compute } from "./core/compute"
 
 const log = debug("interpol:Interpol")
 
@@ -25,7 +29,7 @@ export class Interpol {
   public time = 0
   public value = 0
   public debugEnable: boolean
- 
+
   // internal
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>

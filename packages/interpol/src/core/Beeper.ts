@@ -9,11 +9,9 @@ type TBeeper<S = any> = {
 
 /**
  * Beeper
- * @param initialState
  */
-export function Beeper<S = any>(initialState: S = null): TBeeper<S> {
+export function Beeper<S = any>(): TBeeper<S> {
   let listeners: TListeners<S> = []
-  let currentState: S = initialState
   return {
     off: (handler: THandler<S>) => {
       listeners = listeners.filter((e) => e !== handler)
@@ -22,7 +20,6 @@ export function Beeper<S = any>(initialState: S = null): TBeeper<S> {
       listeners.push(handler)
     },
     dispatch: (state: S) => {
-      currentState = state
       return listeners.map((e: THandler<S>) => e(state))
     }
   }
