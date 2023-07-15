@@ -26,10 +26,10 @@ export const Controls = ({
           <button className={css.button} onClick={() => instance.play(0.5)} children={"play .5"} />
           <button className={css.button} onClick={() => instance.reverse(1)} children={"reverse 1"} />
           <button className={css.button} onClick={() => instance.reverse(0.5)} children={"reverse .5"} />
+          <button className={css.button} onClick={() => instance.pause()} children={"pause"} />
+          <button className={css.button} onClick={() => instance.resume()} children={"resume"} />
+          <button className={css.button} onClick={() => instance.stop()} children={"stop"} />
         </div>
-        <button className={css.button} onClick={() => instance.resume()} children={"resume"} />
-        <button className={css.button} onClick={() => instance.pause()} children={"pause"} />
-        <button className={css.button} onClick={() => instance.stop()} children={"stop"} />
 
         <select
           className={css.easeSelect}
@@ -42,6 +42,7 @@ export const Controls = ({
             </option>
           ))}
         </select>
+        <br />
         <input
           value={progress}
           type={"number"}

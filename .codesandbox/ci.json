@@ -2,8 +2,8 @@
   "buildCommand": "build",
   "packages": ["./packages/*"],
   "sandboxes": [
-    "/examples/interpol",
     "/examples/interpol-basic",
+    "/examples/interpol-ease",
     "/examples/interpol-timeline"
   ],
   "node": "18"
