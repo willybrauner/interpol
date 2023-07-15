@@ -51,8 +51,10 @@ describe.concurrent("Interpol stress test", () => {
     let inputs = new Array(500)
       .fill(null)
       .map((_) => {
-        const fromTo = randomRange(-10000, 10000, 2)
-        return interpolParamsGenerator({ to: fromTo, from: fromTo })
+        return interpolParamsGenerator({ 
+          to: randomRange(-10000, 10000, 2), 
+          from: randomRange(-10000, 10000, 2), 
+         })
       })
       .sort((a, b) => a.duration - b.duration)
     return new Promise((resolve: any) => {
