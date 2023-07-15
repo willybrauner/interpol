@@ -1,12 +1,8 @@
 {
-  "name": "@wbe/interpol",
-  "private": false,
-  "version": "0.1.0",
+  "name": "interpol",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/index.cjs",
-  "module": "./dist/index.module.js",
-  "unpkg": "./dist/index.umd.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/interpol.git"
@@ -15,33 +11,39 @@
     "interpol",
     "interpolation",
     "animation",
-    "timeline"
+    "timeline",
+    "dom"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && microbundle --jsx React.createElement",
-    "build:watch": "microbundle watch --no-sourcemap --format esm --jsx React.createElement",
-    "dev:interpol-basic": "pnpm --filter ./examples/interpol-basic run dev",
-    "dev:timeline-basic": "pnpm --filter ./examples/timeline-basic run dev",
+    "build": "turbo run build",
+    "build:watch": "turbo run build -- --watch",
+    "dev": "turbo run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
+    "size": "size-limit",
     "pre-publish": "npm run build && npm run test"
   },
-  "dependencies": {
-    "@wbe/debug": "^1.1.0"
-  },
   "devDependencies": {
-    "microbundle": "^0.15.1",
-    "prettier": "^2.8.4",
-    "typescript": "^4.9.5",
-    "vite": "^4.1.1",
-    "vitest": "^0.28.5"
+    "@changesets/cli": "^2.26.1",
+    "@size-limit/preset-small-lib": "^8.2.4",
+    "@types/node": "^20.1.0",
+    "prettier": "^2.8.8",
+    "size-limit": "^8.2.4",
+    "turbo": "^1.9.9",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.5",
+    "vitest": "^0.31.0"
   },
   "prettier": {
     "semi": false,
     "printWidth": 100
-  }
+  },
+  "size-limit": [
+    {
+      "name": "@wbe/interpol",
+      "path": "packages/interpol/dist/interpol.js",
+      "limit": "4 KB"
+    }
+  ]
 }

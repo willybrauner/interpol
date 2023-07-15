@@ -1,0 +1,36 @@
+{
+  "name": "@wbe/interpol",
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "main": "./dist/interpol.cjs",
+  "module": "./dist/interpol.js",
+  "types": "./dist/interpol.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/willybrauner/interpol.git"
+  },
+  "keywords": [
+    "interpol",
+    "interpolation",
+    "animation",
+    "timeline"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsup",
+    "build:watch": "tsup --watch --sourcemap"
+  },
+  "dependencies": {
+    "@wbe/debug": "^1.1.0"
+  },
+  "devDependencies": {
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.0",
+    "vite": "^4.3.5"
+  }
+}

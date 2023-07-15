@@ -1,18 +1,12 @@
 <h1 align="center" style="text-align:center">Interpol 👮🏽‍</h1>
 <p align="center">
-    <img alt="logo" src="logo.jpg">
+    <img alt="logo" src="./packages/interpol/logo.jpg">
 </p>
 
 interpol library interpolates value between two points.
 This is the lowest level of animate machine.
-Interpol is not a DOM API, it provides a real time progress of the interpolation that can be use or bind
+Interpol is not a DOM API, it provides real time progress of the interpolation that can be use or bind
 on... anything!
-
-## Why
-
-I've been using gsap for a long time, but often don't need all the features provided.
-Interpol is low level, it can be used as in most cases for only ~= 3k gzip.
-However, the API voluntarily takes over (in part) the gsap API for easier adoption for gsap users like me.
 
 ## Install
 
@@ -180,8 +174,8 @@ const itp = new Interpol({
 })
 
 // Play the interpol
-// play(): Promise<any>
-itp.play().then(() => {
+// play(from:number): Promise<any>
+itp.play(0).then(() => {
   // itp complete
 })
 
@@ -192,13 +186,13 @@ itp.pause()
 // Stop the interpol, will reset time, delta and progress.
 itp.stop()
 
-// Replay from start the interpol.
-// replay(): void
-itp.replay()
+// Resumes playing without altering direction (forward or reversed).
+// resume(): void
+itp.resume()
 
 // Reverse and play the interpol
-// reverse(): Promise<any>
-itp.reverse().then(() => {
+// reverse(from:number): Promise<any>
+itp.reverse(1).then(() => {
   // itp complete
 })
 
@@ -286,14 +280,13 @@ tl.reverse().then(() => {
 pnpm i
 
 # build and watch lib changes
-npm run build:watch
+pnpm run build:watch
 
 # start tests and watch
-npm run test:watch
+pnpm run test:watch
 
 # start dev server on selected example
-npm run dev:interpol-basic
-npm run dev:timeline-basic
+pnpm run dev
 ```
 
 ## Credits
@@ -302,3 +295,7 @@ npm run dev:timeline-basic
 - [animate](https://github.com/SolalDR/animate/)
 - [animini](https://github.com/dbismut/animini)
 - [signal](https://github.com/zouloux/signal)
+
+## License
+
+See the LICENSE file for license rights and limitations (MIT).
