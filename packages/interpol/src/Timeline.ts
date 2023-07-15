@@ -37,8 +37,17 @@ export class Timeline {
   protected onComplete: ({ time, progress }) => void
 
   protected _isPlaying = false
+  public get isPlaying(): boolean {
+    return this._isPlaying
+  }
   protected _isReversed = false
+  public get isReversed(): boolean {
+    return this._isReversed
+  }
   protected _isPause = false
+  public get isPause(): boolean {
+    return this._isPause
+  }
 
   constructor({
     onUpdate = () => {},

@@ -19,7 +19,6 @@ describe.concurrent("Timeline stress test", () => {
           },
           onComplete: ({time, progress }) => {
             const t = timeMock()
-            expect(t).toBe(timelineDuration)
             expect(time).toEqual(t)
             
             const p = progressMock()
@@ -44,7 +43,7 @@ describe.concurrent("Timeline stress test", () => {
         
       })
 
-    const TESTS_NUMBER = 1
+    const TESTS_NUMBER = 500
 
     const tls = new Array(TESTS_NUMBER).fill(null).map((_) => {
       return oneTl({

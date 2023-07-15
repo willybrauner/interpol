@@ -4,28 +4,40 @@ import { wait } from "./utils/wait"
 
 describe.concurrent("Timeline reverse", () => {
   it("should reverse timeline properly", () => {
-    let t, a
+    const timeMock = vi.fn(() => 0)
+    const progressMock = vi.fn(() => 0)
+    const onCompleteMock = vi.fn()
+
     return new Promise(async (resolve: any) => {
-      const onComplete = vi.fn()
       const tl = new Timeline({
         paused: true,
         onUpdate: ({ time, progress }) => {
-          t = time
-          a = progress
+          timeMock.mockReturnValue(time)
+          progressMock.mockReturnValue(progress)
         },
-        onComplete,
+        onComplete: ({ time, progress }) => {
+          onCompleteMock()
+
+          if (!tl.isReversed) {
+            expect(timeMock()).toBe(200)
+            expect(progressMock()).toBe(1)
+          } else {
+            expect(timeMock()).toBe(0)
+            expect(progressMock()).toBe(0)
+          }
+        },
       })
       // accept instance
-      tl.add({ to: 1000 })
-      tl.add({ to: 1000 })
+      tl.add({ to: 1000, duration: 100 })
+      tl.add({ to: 1000, duration: 100 })
+
       await tl.play()
-      await wait(300)
-      tl.reverse().then(() => {
-        expect(t).toBe(0)
-        expect(a).toBe(0)
-        resolve()
-      })
-      expect(onComplete).toBeCalledTimes(1)
+      await tl.reverse()
+      await tl.play()
+      await tl.reverse()
+      
+      expect(onCompleteMock).toBeCalledTimes(4)
+      resolve()
     })
   })
 })
