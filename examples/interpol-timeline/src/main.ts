@@ -24,7 +24,7 @@ let y = 200
 const tl = new Timeline({ 
   debug: true, 
   paused: true,
-  onComplete: ()=> console.log(`tl complete reverse ? ${tl._isReversed}`) })
+  onComplete: ()=> console.log(`tl complete reverse ? ${tl.isReversed}`) })
 .add({
   from: 0,
   to: 200,
@@ -34,6 +34,7 @@ const tl = new Timeline({
     x = value
     y = value
     $el.style.transform = `translate3d(${x}px, ${y}px, 0px)`
+    console.log("itp 0 onUpdate", value)
   },
   // doesn't work 
   onComplete: (e) => {
@@ -46,9 +47,25 @@ const tl = new Timeline({
   duration: 500,
   ease: Power1.out,
   onUpdate: ({ value, time, progress }) => {
-    $el.style.transform = `translate3d(${x + value}px, ${y}px, 0px)`
+    let currX = value + x
+    $el.style.transform = `translate3d(${currX}px, ${y}px, 0px)`
   },
   onComplete: (e) => {
     console.log("itp 2 onComplete",e)
   }
 })
+
+.add({
+  from: 0,
+  to: 100,
+  duration: 500,
+  ease: Power1.in,
+  onUpdate: ({ value, time, progress }) => {
+    $el.style.transform = `translate3d(${x + 100}px, ${y+value}px, 0px)`
+  },
+  onComplete: (e) => {
+    console.log("itp 3 onComplete",e)
+  }
+})
+
+

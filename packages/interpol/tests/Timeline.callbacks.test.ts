@@ -23,7 +23,6 @@ describe.concurrent("Timeline play", () => {
     })
   })
 
-
   it("Timeline should execute Timeline onComplete once", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()

@@ -186,25 +186,26 @@ export class Interpol {
    */
   #completed = false;
   public seek(progress: number): void {
-    this.progress = clamp(0, progress, 1)
-    this.time = clamp(0, this._duration * this.progress, this._duration)
-    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
-
-    if ((this.progress !== 0 && this.progress !== 1) && !this.#completed) {
+    const prevP = this.progress;
+    this.progress = clamp(0, progress, 1);
+    this.time = clamp(0, this._duration * this.progress, this._duration);
+    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000);
+  
+    if (prevP !== this.progress) {
       this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress });
-      this.log("seek onUpdate", { v: this.value, t: this.time, p: this.progress })
+      this.log("seek onUpdate", { v: this.value, t: this.time, p: this.progress });
     }
+  
     if (this.progress === 1) {
       if (!this.#completed) {
         this.log('seek onComplete');
         this.onComplete?.({ value: this.value, time: this.time, progress: this.progress });
         this.#completed = true;
       }
-    } else {
+    } else if (this.progress === 0) {
       this.#completed = false;
     }
-  }
-
+  }  
 
   protected handleTickerUpdate = async ({ delta }): Promise<any> => {
     // Specific case if duration is 0, execute onComplete and return
