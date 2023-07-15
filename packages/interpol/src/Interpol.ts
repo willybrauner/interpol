@@ -184,14 +184,27 @@ export class Interpol {
    * Seek to a specific progress (between 0 and 1)
    * @param progress
    */
+  #completed = false;
   public seek(progress: number): void {
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this._duration * this.progress, this._duration)
     this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
-    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
-    this.log("seek onUpdate", { v: this.value, t: this.time, p: this.progress })
-    // onComplete?
+
+    if ((this.progress !== 0 && this.progress !== 1) && !this.#completed) {
+      this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress });
+      this.log("seek onUpdate", { v: this.value, t: this.time, p: this.progress })
+    }
+    if (this.progress === 1) {
+      if (!this.#completed) {
+        this.log('seek onComplete');
+        this.onComplete?.({ value: this.value, time: this.time, progress: this.progress });
+        this.#completed = true;
+      }
+    } else {
+      this.#completed = false;
+    }
   }
+
 
   protected handleTickerUpdate = async ({ delta }): Promise<any> => {
     // Specific case if duration is 0, execute onComplete and return
@@ -215,7 +228,7 @@ export class Interpol {
     this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
     this.log("onUpdate", { v: this.value, t: this.time, p: this.progress })
 
-    // On complete
+    // on complete
     if ((!this._isReversed && this.progress === 1) || (this._isReversed && this.progress === 0)) {
       this.log(`handleTickerUpdate onComplete !`)
       this.value = this._to

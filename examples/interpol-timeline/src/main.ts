@@ -35,6 +35,7 @@ const tl = new Timeline({
     y = value
     $el.style.transform = `translate3d(${x}px, ${y}px, 0px)`
   },
+  // doesn't work 
   onComplete: (e) => {
     console.log("itp 1 onComplete",e)
   }
