@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.2.1
+
+### Patch Changes
+
+- ddb504f: Update Timeline constructor & Interpol method in README
+
 ## 0.2.0
 
 ### Minor Changes
