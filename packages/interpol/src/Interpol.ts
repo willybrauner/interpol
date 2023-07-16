@@ -1,4 +1,10 @@
-import { IInterpolConstruct, IUpdateParams } from "./core/types"
+import {
+  FormattedProp,
+  FormattedProps,
+  IInterpolConstruct,
+  IUpdateParams,
+  Props
+} from "./core/types"
 import debug from "@wbe/debug"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
@@ -7,14 +13,10 @@ import { round } from "./core/round"
 import { compute } from "./core/compute"
 
 const log = debug("interpol:Interpol")
-
 let ID = 0
 
-export class Interpol {
-  public from: number | (() => number)
-  public _from: number
-  public to: number | (() => number)
-  public _to: number
+  export class Interpol {
+  public props: FormattedProps
   public duration: number | (() => number)
   public _duration: number
   public ease: (t: number) => number
@@ -22,19 +24,18 @@ export class Interpol {
   public paused: boolean
   public delay: number
   public beforeStart: () => void
-  public onUpdate: (e: IUpdateParams) => void
-  public onComplete: (e: IUpdateParams) => void
+  public onUpdate: (e) => void
+  public onComplete: (e) => void
   public ticker: Ticker
   public progress = 0
   public time = 0
   public value = 0
   public debugEnable: boolean
-
-  // internal
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>
   protected onCompleteDeferred = deferredPromise()
   protected _isReversed = false
+  public inTl = false
   public get isReversed() {
     return this._isReversed
   }
@@ -42,12 +43,13 @@ export class Interpol {
   public get isPlaying() {
     return this._isPlaying
   }
-  protected _isPause = false
-  public inTl = false
+  protected _isPaused = false
+  public get isPaused() {
+    return this._isPaused
+  }
 
   constructor({
-    from = 0,
-    to = 1000,
+    props,
     duration = 1000,
     ease = (t) => t,
     reverseEase,
@@ -59,8 +61,7 @@ export class Interpol {
     debug = false,
     ticker = new Ticker(),
   }: IInterpolConstruct) {
-    this.from = from
-    this.to = to
+    this.props = this.prepareProps(props)
     this.duration = duration
     this.paused = paused
     this.ease = ease
@@ -71,9 +72,6 @@ export class Interpol {
     this.onComplete = onComplete
     this.debugEnable = debug
     this.ticker = ticker
-    this.ticker.debugEnable = debug
-
-    // compute values
     this.refreshComputedValues()
 
     // start!
@@ -81,11 +79,13 @@ export class Interpol {
     if (!this.paused) this.play()
   }
 
-  // Compute if values are functions
-  public refreshComputedValues(to = this.to, from = this.from, duration = this.duration): void {
-    this._to = compute(to)
-    this._from = compute(from)
-    this._duration = compute(duration)
+  // Compute if values were functions
+  public refreshComputedValues(): void {
+    this._duration = compute(this.duration)
+    this.onEachProps((prop) => {
+      prop._from = compute(prop.from)
+      prop._to = compute(prop.to)
+    })
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -98,12 +98,14 @@ export class Interpol {
       this.stop()
       return await this.play(from)
     }
-    this.value = this._to * from
+
+    this.onEachProps((prop) => (prop.value = prop._to * from))
     this.time = this._duration * from
     this.progress = from
+
     this._isReversed = false
     this._isPlaying = true
-    this._isPause = false
+    this._isPaused = false
 
     // Delay is set only on first play
     // If this play is trigger before onComplete, we don't wait again
@@ -134,12 +136,12 @@ export class Interpol {
       return await this.reverse(from)
     }
 
-    this.value = this._to * from
+    this.onEachProps((prop) => (prop.value = prop._to * from))
     this.time = this._duration * from
     this.progress = from
     this._isReversed = true
     this._isPlaying = true
-    this._isPause = false
+    this._isPaused = false
 
     // start ticker only if is single Interpol, not TL
     if (!this.inTl) this.ticker.play()
@@ -150,15 +152,15 @@ export class Interpol {
   }
 
   public pause(): void {
-    this._isPause = true
+    this._isPaused = true
     this._isPlaying = false
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.pause()
   }
 
   public resume(): void {
-    if (!this._isPause) return
-    this._isPause = false
+    if (!this._isPaused) return
+    this._isPaused = false
     this._isPlaying = true
     this.ticker.onUpdateEmitter.on(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.play()
@@ -174,7 +176,7 @@ export class Interpol {
       this._isReversed = false
     }
     this._isPlaying = false
-    this._isPause = false
+    this._isPaused = false
     clearTimeout(this.timeout)
     this.ticker.onUpdateEmitter.off(this.handleTickerUpdate)
     if (!this.inTl) this.ticker.stop()
@@ -182,35 +184,40 @@ export class Interpol {
 
   /**
    * Seek to a specific progress (between 0 and 1)
-   * @param progress
    */
-  #completed = false;
+  #completed = false
   public seek(progress: number): void {
-    const prevP = this.progress;
-    this.progress = clamp(0, progress, 1);
-    this.time = clamp(0, this._duration * this.progress, this._duration);
-    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000);
-  
+    const prevP = this.progress
+    this.progress = clamp(0, progress, 1)
+    this.time = clamp(0, this._duration * this.progress, this._duration)
+    const ease = this.getEaseFn()(this.progress)
+    this.onEachProps(
+      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * ease, 1000))
+    )
+    // get props value only
+    const props = this.getPropsValue(this.props)
+
     if (prevP !== this.progress) {
-      this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress });
-      this.log("seek onUpdate", { v: this.value, t: this.time, p: this.progress });
+      this.onUpdate?.({ props: props, time: this.time, progress: this.progress })
+      this.log("seek onUpdate", { v: props, t: this.time, p: this.progress })
     }
-  
+
     if (this.progress === 1) {
       if (!this.#completed) {
-        this.log('seek onComplete');
-        this.onComplete?.({ value: this.value, time: this.time, progress: this.progress });
-        this.#completed = true;
+        this.log("seek onComplete")
+        this.onComplete?.({ props: props, time: this.time, progress: this.progress })
+        this.#completed = true
       }
     } else if (this.progress === 0) {
-      this.#completed = false;
+      this.#completed = false
     }
-  }  
+  }
 
   protected handleTickerUpdate = async ({ delta }): Promise<any> => {
     // Specific case if duration is 0, execute onComplete and return
     if (this._duration <= 0) {
-      const obj = { value: this._to, time: this._duration, progress: 1 }
+      this.onEachProps((prop) => (prop.value = prop._to))
+      const obj = { props: this.getPropsValue(this.props), time: this._duration, progress: 1 }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
       this.onCompleteDeferred.resolve()
@@ -223,29 +230,52 @@ export class Interpol {
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + (this._isReversed ? -delta : delta))
     this.progress = clamp(0, round(this.time / this._duration), 1)
-    this.value = round(this._from + (this._to - this._from) * this.getEaseFn()(this.progress), 1000)
+    const ease = this.getEaseFn()(this.progress)
+    this.onEachProps(
+      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * ease, 1000))
+    )
+    const props = this.getPropsValue(this.props)
 
     // Pass value, time and progress
-    this.onUpdate?.({ value: this.value, time: this.time, progress: this.progress })
-    this.log("onUpdate", { v: this.value, t: this.time, p: this.progress })
+    this.onUpdate?.({ props, time: this.time, progress: this.progress })
+    this.log("onUpdate", { props, t: this.time, p: this.progress })
 
     // on complete
     if ((!this._isReversed && this.progress === 1) || (this._isReversed && this.progress === 0)) {
       this.log(`handleTickerUpdate onComplete !`)
-      this.value = this._to
-      this.time = this._duration
-      this.onComplete?.({ value: this.value, time: this.time, progress: this.progress })
+      this.onComplete?.({ props: props, time: this.time, progress: this.progress })
       this.onCompleteDeferred.resolve()
       this.stop()
     }
   }
 
-  /**
-   * Reverse depend of ease
-   * @protected
-   */
   protected getEaseFn(): (t: number) => number {
     return this._isReversed && this.reverseEase ? this.reverseEase : this.ease
+  }
+
+  protected onEachProps(fn: (prop: FormattedProp) => void): void {
+    for (const key of Object.keys(this.props)) fn(this.props[key])
+  }
+
+  protected getPropsValue(props: FormattedProps): Record<string, number> {
+    return Object.keys(props).reduce((acc, key) => {
+      acc[key] = props[key].value
+      return acc
+    }, {})
+  }
+
+  protected prepareProps(props: Props): FormattedProps {
+    return Object.keys(props).reduce((acc, key) => {
+      const p = props[key]
+      acc[key] = {
+        from: p[0],
+        _from: null,
+        to: p[1],
+        _to: null,
+        value: null,
+      }
+      return acc
+    }, {})
   }
 
   /**

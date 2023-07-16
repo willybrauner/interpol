@@ -15,12 +15,14 @@ document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => itp.revers
 
 const $el = document.querySelector<HTMLElement>(".ball")
 const itp = new Interpol({
-  from: 0,
-  to: 200,
+  props: {
+    x: [-10, 200],
+    y: [0, 50],
+  },
+  //  debug: true,
   duration: 2000,
-  debug: true,
   ease: Power3.inOut,
-  onUpdate: ({ value, time, progress }) => {
-    $el.style.transform = `translate3d(${value}px, ${value}px, ${value}px)`
+  onUpdate: ({ props, time, progress }) => {
+    // $el.style.transform = `translate3d(${props.x}px, ${props.y}px, 0px)`
   },
 })

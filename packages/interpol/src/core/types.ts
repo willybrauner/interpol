@@ -1,14 +1,30 @@
 import { Ticker } from "./Ticker"
 
-export interface IUpdateParams {
+export type Value = number | (() => number)
+
+// Props params
+export type Props = Record<string, [Value, Value]>
+
+// Props object formatted in Map
+export type FormattedProp = {
+  from: Value
+  _from: number
+  to: Value
+  _to: number
   value: number
+}
+export type FormattedProps = Record<string, FormattedProp>
+
+
+// CB params
+export interface IUpdateParams<K extends keyof Props> {
+  props: Record<K, [number, number]>
   time: number
   progress: number
 }
 
 export interface IInterpolConstruct {
-  from?: number | (() => number)
-  to?: number | (() => number)
+  props?: Props
   duration?: number | (() => number)
   ease?: (t: number) => number
   reverseEase?: (t: number) => number
@@ -16,8 +32,7 @@ export interface IInterpolConstruct {
   delay?: number
   debug?: boolean
   beforeStart?: () => void
-  onUpdate?: ({ value, time, progress }: IUpdateParams) => void
-  onComplete?: ({ value, time, progress }: IUpdateParams) => void
-  onRepeatComplete?: ({ value, time, progress }: IUpdateParams) => void
+  onUpdate?: ({ props, time, progress }: IUpdateParams<keyof Props>) => void
+  onComplete?: ({ props, time, progress }: IUpdateParams<keyof Props>) => void
   ticker?: Ticker
 }
