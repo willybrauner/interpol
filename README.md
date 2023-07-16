@@ -168,37 +168,35 @@ const itp = new Interpol({
   paused: true, // disable autoplay
   from: 0,
   to: 100,
-  beforeStart: () => {},
-  onUpdate: ({ value, time, progress }) => {},
-  onComplete: ({ value, time, progress }) => {},
 })
 
 // Play the interpol
-// play(from:number): Promise<any>
-itp.play(0).then(() => {
-  // itp complete
-})
+// play(from: number = 0): Promise<any>
+itp.play()
+
+// Reverse and play the interpol
+// reverse(from: number = 1): Promise<any>
+itp.reverse()
 
 // Pause the interpol
 // pause(): void
 itp.pause()
 
-// Stop the interpol, will reset time, delta and progress.
-itp.stop()
-
 // Resumes playing without altering direction (forward or reversed).
 // resume(): void
 itp.resume()
 
-// Reverse and play the interpol
-// reverse(from:number): Promise<any>
-itp.reverse(1).then(() => {
-  // itp complete
-})
+// Stop the interpol, will reset time, delta and progress.
+itp.stop()
 
 // Compute 'from' 'to' and 'duration' values if there are functions
 // refreshComputedValues(): void
 itp.refreshComputedValues()
+
+// Seek to a specific time
+// seek(progress: number): void
+// progress: number between 0 and 1
+itp.seek(0.5)
 ```
 
 ### Timeline constructor
@@ -217,6 +215,14 @@ interface ITimelineConstruct {
   // exe in your console `localStorage.debug = "interpol:Timeline"`
   // default: `false`
   debug?: boolean
+
+  // Pass a Ticker instance with custom params
+  // default: `new Ticker()`
+  ticker: Ticker
+
+  // disable timeline autoplay
+  // default: `false`
+  paused: boolean
 }
 ```
 
@@ -248,29 +254,29 @@ tl.add(
 )
 
 // start the timeline
-// Timeline don't have autoplay
-// play(): Promise<any>
-tl.play().then(() => {
-  // tl complete
-})
+// play(from: number = 0): Promise<any>
+tl.play()
 
-// paused the timeline
+// reverse and play the timeline
+// reverse(from: number = 1): Promise<any>
+tl.reverse()
+
+// paused the timeline, will keep time, delta and progress.
 // pause(): void
 tl.pause()
 
-// stop
+// resume the timeline after pause.
+// resume(): void
+tl.resume()
+
+// stop the timeline, will reset time, delta and progress.
 // stop(): void
 tl.stop()
 
-// restart the timeline
-// replay(): void
-tl.replay()
-
-// reverse and play the timeline
-// reverse(): Promise<any>
-tl.reverse().then(() => {
-  // tl complete
-})
+// seek to a specific time
+// seek(progress: number): void
+// progress is a number between 0 and 1
+tl.seek(0.5)
 ```
 
 ## Dev examples

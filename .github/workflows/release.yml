@@ -8,7 +8,8 @@ on:
       - '.changeset/**'
       - '.github/workflows/release.yml'
 env:
-  HUSKY: 0 # Bypass husky commit hook for CI
+  # Bypass husky commit hook for CI
+  HUSKY: 0
 jobs:
   version:
     timeout-minutes: 8
@@ -29,12 +30,14 @@ jobs:
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
+          restore-  keys: |
             ${{ runner.os }}-
 
       - uses: pnpm/action-setup@v2
         with:
           version: 8.3.1
+          run_install: |
+            args: [--filter "@wbe/*"]          
 
       - name: Copy README file to interpol package
         uses: canastro/copy-file-action@master
@@ -50,7 +53,6 @@ jobs:
       - name: Create versions PR & prepare publish
         id: changesets
         uses: changesets/action@v1
-        # if: github.ref == 'refs/heads/main'
         with:
           version: pnpm ci:version
           publish: pnpm ci:publish
@@ -58,7 +60,5 @@ jobs:
           commit: 'chore(deploy): Release'
           title: 'chore(deploy): Release'
         env:
-          # npm publish token required for publishing. Set this in secrets
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # automatically available in actions
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
