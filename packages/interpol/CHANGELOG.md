@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.2.2
+
+### Patch Changes
+
+- ea978dc: Make examples private to avoid publish on npm"
+
 ## 0.2.1
 
 ### Patch Changes
