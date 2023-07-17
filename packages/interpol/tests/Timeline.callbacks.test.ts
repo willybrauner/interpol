@@ -7,12 +7,12 @@ describe.concurrent("Timeline play", () => {
       const onComplete1 = vi.fn()
       const onComplete2 = vi.fn()
       const tl = new Timeline({ paused: true })
-      tl.add({ 
-        to: 100,
+      tl.add({
+        props: { v: [0, 100] },
         onComplete: onComplete1,
       })
-      tl.add({ 
-        to: 100,
+      tl.add({
+        props: { v: [0, 100] },
         onComplete: onComplete2,
       })
 
@@ -26,21 +26,21 @@ describe.concurrent("Timeline play", () => {
   it("Timeline should execute Timeline onComplete once", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
-      
+
       const tl = new Timeline({ paused: true, onComplete })
-      tl.add({ 
-        to: 100,
+      tl.add({
+        props: { v: [0, 100] },
       })
-      tl.add({ 
-        to: 100,
+      tl.add({
+        props: { v: [0, 100] },
       })
 
       await tl.play()
       expect(onComplete).toHaveBeenCalledTimes(1)
-      
+
       await tl.reverse()
       expect(onComplete).toHaveBeenCalledTimes(2)
       resolve()
     })
-   })
+  })
 })

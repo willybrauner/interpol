@@ -3,17 +3,15 @@ import { randomRange } from "./utils/randomRange"
 import { Interpol } from "../src"
 import { wait } from "./utils/wait"
 
-
 describe.concurrent("Interpol refresh", () => {
   it("should compute 'from' 'to' and 'duration' if there are functions", async () => {
     return new Promise(async (resolve: any) => {
       const itp = new Interpol({
-        from: () => randomRange(-100, 100),
-        to: () => randomRange(-100, 100),
+        props: { v: [() => randomRange(-100, 100), () => randomRange(-100, 100)] },
         duration: () => randomRange(-200, 200),
       })
-      expect(typeof itp._to).toBe("number")
-      expect(typeof itp._from).toBe("number")
+      expect(typeof itp.props.v._to).toBe("number")
+      expect(typeof itp.props.v._from).toBe("number")
       expect(typeof itp._duration).toBe("number")
       resolve()
     })
@@ -24,13 +22,17 @@ describe.concurrent("Interpol refresh", () => {
       const mockTo = vi.fn()
       const mockFrom = vi.fn()
       const itp = new Interpol({
-        from: () => {
-          mockFrom()
-          return randomRange(-100, 100)
-        },
-        to: () => {
-          mockTo()
-          return randomRange(-100, 100)
+        props: {
+          v: [
+            () => {
+              mockFrom()
+              return randomRange(-100, 100)
+            },
+            () => {
+              mockTo()
+              return randomRange(-100, 100)
+            },
+          ],
         },
         duration: () => 1000,
       })

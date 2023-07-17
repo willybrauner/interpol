@@ -1,11 +1,10 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 
-describe.concurrent("Interpol play", () => {
+describe.concurrent("Interpol basic", () => {
   it("should auto play by default", async () => {
     const itp = new Interpol({
-      from: 5,
-      to: 100,
+      props: { v: [5, 100] },
       duration: 100,
       onUpdate: () => {
         expect(itp.isPlaying).toBe(true)
@@ -23,8 +22,7 @@ describe.concurrent("Interpol play", () => {
   it("should not auto play if paused is set", async () => {
     const mock = vi.fn()
     const itp = new Interpol({
-      from: 5,
-      to: 100,
+      props: { v: [5, 100] },
       duration: 100,
       paused: true,
       onUpdate: () => mock(),
@@ -37,36 +35,41 @@ describe.concurrent("Interpol play", () => {
     }, itp._duration)
   })
 
-  it("play should return a resolved promise when complete", async () => {
-    return new Promise(async (resolve: any) => {
-      const mock = vi.fn()
-      const itp = new Interpol({
-        to: 100,
-        duration: 100,
-        paused: true,
-        onComplete: () => mock(),
-      })
-      await itp.play()
-      expect(itp.isPlaying).toBe(false)
-      expect(mock).toBeCalledTimes(1)
-      resolve()
-    })
-  })
-
   it("play should play with duration 0", async () => {
     const mock = vi.fn()
     return new Promise((resolve: any) => {
       new Interpol({
-        to: 1000,
+        props: { v: [0, 1000] },
         duration: 0,
         onUpdate: () => {
           mock()
           expect(mock).toBeCalledTimes(1)
         },
-        onComplete: ({ value, time, progress }) => {
+        onComplete: ({ time }) => {
           mock()
           expect(mock).toBeCalledTimes(2)
           expect(time).toBe(0)
+          resolve()
+        },
+      })
+    })
+  })
+
+  it("should support multiple props", async () => {
+    return new Promise((resolve: any) => {
+      new Interpol({
+        props: {
+          foo: [0, 1000],
+          bar: [-30, 60],
+        },
+        duration: 0,
+        onUpdate: ({ props }) => {
+          expect(props.foo).toBeDefined()
+          expect(props.bar).toBeDefined()
+        },
+        onComplete: ({ props }) => {
+          expect(props.foo).toBeDefined()
+          expect(props.bar).toBeDefined()
           resolve()
         },
       })

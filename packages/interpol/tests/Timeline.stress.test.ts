@@ -1,5 +1,5 @@
 import { it, expect, vi, describe } from "vitest"
-import { Interpol, Timeline } from "../src"
+import { Timeline } from "../src"
 import { randomRange } from "./utils/randomRange"
 
 describe.concurrent("Timeline stress test", () => {
@@ -17,14 +17,14 @@ describe.concurrent("Timeline stress test", () => {
             timeMock.mockReturnValue(time)
             progressMock.mockReturnValue(progress)
           },
-          onComplete: ({time, progress }) => {
+          onComplete: ({ time, progress }) => {
             const t = timeMock()
             expect(time).toEqual(t)
-            
+
             const p = progressMock()
             expect(p).toBe(1)
             expect(progress).toEqual(p)
-            
+
             timeMock.mockClear()
             progressMock.mockClear()
           },
@@ -33,14 +33,12 @@ describe.concurrent("Timeline stress test", () => {
         // Add interpol to the TL
         for (let i = 0; i < itpNumber; i++) {
           tl.add({
-            from: randomRange(-100, 100),
-            to: randomRange(-100, 100),
+            props: { v: [randomRange(-100, 100), randomRange(-100, 100)] },
             duration: itpDuration,
           })
         }
 
         tl.play().then(resolve)
-        
       })
 
     const TESTS_NUMBER = 500
