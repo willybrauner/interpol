@@ -25,7 +25,7 @@ export interface IUpdateParams<K extends keyof Props> {
 }
 
 export interface IInterpolConstruct {
-  props?: Props
+  props: Props
   duration?: number | (() => number)
   ease?: (t: number) => number
   reverseEase?: (t: number) => number
