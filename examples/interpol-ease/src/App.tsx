@@ -21,22 +21,24 @@ export function App() {
   useEffect(() => {
     if (!$ball.current) return
     const ballSize = $ball.current?.offsetWidth
+
     const itp = new Interpol({
-      from: 0,
-      to: () => window.innerHeight - ballSize,
+      props: {
+        value: [0, () => window.innerHeight - ballSize],
+      },
       duration: 1000,
       ease: Ease[ease],
       debug: true,
       paused: true,
-      onUpdate: ({ value, time, progress }) => {
-        setParams({ value, time, progress })
+      onUpdate: ({ props, time, progress }) => {
+        setParams({ value: props.value, time, progress })
         const x = progress * (window.innerWidth - ballSize)
-        const y = -value
+        const y = -props.value
         $ball.current.style.transform = `
         translateX(${x}px)
         translateY(${y}px) 
         translateZ(0)
-        ` 
+        `
       },
     })
     setInstance(itp)

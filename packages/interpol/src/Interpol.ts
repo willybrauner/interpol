@@ -1,21 +1,14 @@
-import {
-  FormattedProp,
-  FormattedProps,
-  IInterpolConstruct,
-  IUpdateParams,
-  Props
-} from "./core/types"
+import { FormattedProp, FormattedProps, IInterpolConstruct, Props, PropsValue } from "./core/types"
 import debug from "@wbe/debug"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import { compute } from "./core/compute"
-
 const log = debug("interpol:Interpol")
 let ID = 0
 
-  export class Interpol {
+export class Interpol {
   public props: FormattedProps
   public duration: number | (() => number)
   public _duration: number
@@ -29,7 +22,6 @@ let ID = 0
   public ticker: Ticker
   public progress = 0
   public time = 0
-  public value = 0
   public debugEnable: boolean
   public readonly id = ++ID
   protected timeout: ReturnType<typeof setTimeout>
@@ -48,6 +40,8 @@ let ID = 0
     return this._isPaused
   }
 
+  protected propsValue: PropsValue
+
   constructor({
     props,
     duration = 1000,
@@ -62,6 +56,7 @@ let ID = 0
     ticker = new Ticker(),
   }: IInterpolConstruct) {
     this.props = this.prepareProps(props)
+    this.propsValue = this.createPropsParamObj(this.props)
     this.duration = duration
     this.paused = paused
     this.ease = ease
@@ -168,7 +163,7 @@ let ID = 0
 
   public stop(): void {
     if (!this.inTl || (this.inTl && this._isReversed)) {
-      this.value = 0
+      this.onEachProps((prop) => (prop.value = prop._from))
       this.time = 0
       this.progress = 0
     }
@@ -190,22 +185,19 @@ let ID = 0
     const prevP = this.progress
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this._duration * this.progress, this._duration)
-    const ease = this.getEaseFn()(this.progress)
-    this.onEachProps(
-      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * ease, 1000))
-    )
+    this.muteEachPropsValue(this.progress)
     // get props value only
-    const props = this.getPropsValue(this.props)
+    this.propsValue = this.assignPropsValue(this.propsValue, this.props)
 
     if (prevP !== this.progress) {
-      this.onUpdate?.({ props: props, time: this.time, progress: this.progress })
-      this.log("seek onUpdate", { v: props, t: this.time, p: this.progress })
+      this.onUpdate?.({ props: this.propsValue, time: this.time, progress: this.progress })
+      this.log("seek onUpdate", { v: this.propsValue, t: this.time, p: this.progress })
     }
 
     if (this.progress === 1) {
       if (!this.#completed) {
         this.log("seek onComplete")
-        this.onComplete?.({ props: props, time: this.time, progress: this.progress })
+        this.onComplete?.({ props: this.propsValue, time: this.time, progress: this.progress })
         this.#completed = true
       }
     } else if (this.progress === 0) {
@@ -217,7 +209,11 @@ let ID = 0
     // Specific case if duration is 0, execute onComplete and return
     if (this._duration <= 0) {
       this.onEachProps((prop) => (prop.value = prop._to))
-      const obj = { props: this.getPropsValue(this.props), time: this._duration, progress: 1 }
+      const obj = {
+        props: this.assignPropsValue(this.propsValue, this.props),
+        time: this._duration,
+        progress: 1,
+      }
       this.onUpdate?.(obj)
       this.onComplete?.(obj)
       this.onCompleteDeferred.resolve()
@@ -230,40 +226,44 @@ let ID = 0
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + (this._isReversed ? -delta : delta))
     this.progress = clamp(0, round(this.time / this._duration), 1)
-    const ease = this.getEaseFn()(this.progress)
-    this.onEachProps(
-      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * ease, 1000))
-    )
-    const props = this.getPropsValue(this.props)
+    this.muteEachPropsValue(this.progress)
+
+    this.propsValue = this.assignPropsValue(this.propsValue, this.props)
 
     // Pass value, time and progress
-    this.onUpdate?.({ props, time: this.time, progress: this.progress })
-    this.log("onUpdate", { props, t: this.time, p: this.progress })
+    this.onUpdate?.({ props: this.propsValue, time: this.time, progress: this.progress })
+    this.log("onUpdate", { props: this.propsValue, t: this.time, p: this.progress })
 
     // on complete
     if ((!this._isReversed && this.progress === 1) || (this._isReversed && this.progress === 0)) {
-      this.log(`handleTickerUpdate onComplete !`)
-      this.onComplete?.({ props: props, time: this.time, progress: this.progress })
+      this.log(`handleTickerUpdate onComplete!`)
+      this.onComplete?.({ props: this.propsValue, time: this.time, progress: this.progress })
       this.onCompleteDeferred.resolve()
       this.stop()
     }
   }
 
-  protected getEaseFn(): (t: number) => number {
-    return this._isReversed && this.reverseEase ? this.reverseEase : this.ease
-  }
-
+  /**
+   * Utility function to execute a callback on each props
+   */
   protected onEachProps(fn: (prop: FormattedProp) => void): void {
     for (const key of Object.keys(this.props)) fn(this.props[key])
   }
 
-  protected getPropsValue(props: FormattedProps): Record<string, number> {
-    return Object.keys(props).reduce((acc, key) => {
-      acc[key] = props[key].value
-      return acc
-    }, {})
+  /**
+   * Mute each props value key
+   */
+  protected muteEachPropsValue(progress): void {
+    const ease =
+      this._isReversed && this.reverseEase ? this.reverseEase(progress) : this.ease(progress)
+    this.onEachProps(
+      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * ease, 1000))
+    )
   }
 
+  /**
+   * Prepare internal props object
+   */
   protected prepareProps(props: Props): FormattedProps {
     return Object.keys(props).reduce((acc, key) => {
       const p = props[key]
@@ -276,6 +276,28 @@ let ID = 0
       }
       return acc
     }, {})
+  }
+
+  /**
+   * Create an object with props keys
+   * in order to keep the same reference on each frame
+   */
+  protected createPropsParamObj(fProps: FormattedProps): PropsValue {
+    return Object.keys(fProps).reduce((acc, key) => {
+      acc[key] = null
+      return acc
+    }, {})
+  }
+
+  /**
+   * Assign props.value to propsValue object
+   * in order to keep the same reference on each frame
+   */
+  protected assignPropsValue(propsValue: PropsValue, props: FormattedProps): PropsValue {
+    for (const key of Object.keys(propsValue)) {
+      propsValue[key] = props[key].value
+    }
+    return this.propsValue
   }
 
   /**

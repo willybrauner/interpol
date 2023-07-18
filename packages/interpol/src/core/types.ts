@@ -15,6 +15,7 @@ export type FormattedProp = {
 }
 export type FormattedProps = Record<string, FormattedProp>
 
+export type PropsValue = Record<string, number>
 
 // CB params
 export interface IUpdateParams<K extends keyof Props> {
