@@ -45,7 +45,7 @@
     {
       "name": "@wbe/interpol",
       "path": "packages/interpol/dist/interpol.js",
-      "limit": "4 KB"
+      "limit": "3 KB"
     }
   ]
 }
