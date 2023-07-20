@@ -1,5 +1,5 @@
 import { Interpol } from "./Interpol"
-import { IInterpolConstruct } from "./core/types"
+import { IInterpolConstruct, Props } from "./core/types"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -73,9 +73,12 @@ export class Timeline {
   /**
    * Add a new interpol obj or instance in Timeline
    */
-  public add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline {
+  public add<K extends keyof Props>(
+    interpol: Interpol | IInterpolConstruct<K>,
+    offsetPosition: number = 0
+  ): Timeline {
     // Create Interpol instance or not
-    const itp = interpol instanceof Interpol ? interpol : new Interpol(interpol)
+    const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
     // Stop first to avoid, if "paused: false" is set, to run play() method
     itp.stop()
     // compute from to and duration
@@ -216,9 +219,7 @@ export class Timeline {
   protected updateAdds({ progress, time, adds }): void {
     this.onUpdate?.({ progress, time })
     this.executeOnAllAdds((add) => {
-      add.interpol.seek(
-        (time - add.startPositionInTl) / add.interpol._duration
-      )
+      add.interpol.seek((time - add.startPositionInTl) / add.interpol._duration)
     })
   }
 

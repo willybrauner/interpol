@@ -1,4 +1,4 @@
-import { Power1, Timeline } from "@wbe/interpol"
+import { Power1, Timeline, Interpol } from "@wbe/interpol"
 import "./index.less"
 ;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]())
@@ -16,59 +16,100 @@ inputSlider.oninput = () => {
 document.querySelector<HTMLButtonElement>(`.play`).onclick = () => tl.play()
 document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => tl.reverse()
 
-const $el = document.querySelector<HTMLElement>(".ball")
+const ball = document.querySelector<HTMLElement>(".ball")
 
-let x = 200
-let y = 200
+/**
+ * Utils
+ *
+ *
+ *
+ */
 
-const tl = new Timeline({
+type Axis = [number, string?] | number
+type Axis3d = [Axis, Axis, Axis]
+const t3d = (dX: Axis = [0, "px"], dY: Axis = [0, "px"], dZ: Axis = [0, "px"]) => {
+  //  const initial: Axis3d = [dX, dY, dZ]
+  const current: Axis3d = [dX, dY, dZ]
+  const toString = (c: Axis3d) => {
+    return `translate3d(${c.reduce(
+      (acc, axis, i) => acc + `${axis[0]}${axis[1]}` + (i !== c.length - 1 ? ", " : ""),
+      ""
+    )})`
+  }
+  return toString(current)
+
+  // return {
+  //   set: ({ x = current[0], y = current[1], z = current[2] }: { x?: Axis; y?: Axis; z?: Axis }) => {
+  //     current[0][0] = x?.[0] ?? x ?? 0
+  //     current[0][1] = x?.[1] || "px"
+  //     current[1][0] = y?.[0] ?? y ?? 0
+  //     current[1][1] = y?.[1] || "px"
+  //     current[2][0] = z?.[0] ?? z ?? 0
+  //     current[2][1] = z?.[1] || "px"
+  //     return toString(current)
+  //   },
+  //   get: () => toString(current),
+  //   reset: () => (current = initial),
+  // }
+}
+
+/**
+ *
+ * Example
+ *
+ *
+ */
+const ballTranslate3d = t3d()
+
+const tl: Timeline = new Timeline({
   debug: true,
   paused: true,
   onComplete: () => console.log(`tl complete reverse ? ${tl.isReversed}`),
 })
-  .add({
-    props: {
-      x: [0, 200],
-      y: [0, 200],
-    },
-    duration: 500,
-    ease: Power1.in,
-    onUpdate: ({ props }) => {
-      x = props.x
-      y = props.y
-      $el.style.transform = `translate3d(${x}px, ${y}px, 0px)`
-      console.log("itp 0 onUpdate", x, y)
-    },
-    // doesn't work
-    onComplete: (e) => {
-      console.log("itp 1 onComplete", e)
-    },
-  })
-  .add({
-    props: {
-      x: [0, 100],
-    },
-    duration: 500,
-    ease: Power1.out,
-    onUpdate: ({ props }) => {
-      let currX = props.x + x
-      $el.style.transform = `translate3d(${currX}px, ${y}px, 0px)`
-    },
-    onComplete: (e) => {
-      console.log("itp 2 onComplete", e)
-    },
-  })
 
-  .add({
-    props: {
-      x: [0, 100],
-    },
-    duration: 500,
-    ease: Power1.in,
-    onUpdate: ({ props }) => {
-      $el.style.transform = `translate3d(${x + 100}px, ${y + props.x}px, 0px)`
-    },
-    onComplete: (e) => {
-      console.log("itp 3 onComplete", e)
-    },
-  })
+const itp = new Interpol<"y" | "x">({
+  props: {
+    x: [0, 200],
+    y: [0, 200],
+  },
+  duration: 500,
+  ease: Power1.in,
+  onUpdate: ({ props: { x, y } }) => {
+    ball.style.transform = `translate3d(${x}px, ${y}px, 0)`
+  },
+
+  onComplete: (e) => {
+    console.log("itp 1 onComplete", e)
+  },
+})
+
+tl.add(itp)
+
+tl.add({
+  props: {
+    x: [200, 100],
+    y: [200, 300],
+  },
+  duration: 500,
+  ease: Power1.out,
+  onUpdate: ({ props: { x, y } }) => {
+    ball.style.transform = `translate3d(${x}px, ${y}px, 0)`
+  },
+  onComplete: (e) => {
+    console.log("itp 2 onComplete", e)
+  },
+})
+
+// .add({
+//   props: {
+//     y: [0, 100],
+//   },
+//   duration: 500,
+//   ease: Power1.in,
+//   onUpdate: ({ props }) => {
+//     $el.style.transform = ballTranslate3d.set({ y: 200 + props.y })
+//   },
+//   onComplete: (e) => {
+//     console.log("itp 3 onComplete", e)
+//   },
+// })

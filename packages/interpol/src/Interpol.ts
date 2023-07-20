@@ -1,4 +1,10 @@
-import { FormattedProp, FormattedProps, IInterpolConstruct, Props, PropsValue } from "./core/types"
+import {
+  FormattedProp,
+  FormattedProps,
+  IInterpolConstruct,
+  Props,
+  ParamPropsValue,
+} from "./core/types"
 import debug from "@wbe/debug"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
@@ -8,8 +14,8 @@ import { compute } from "./core/compute"
 const log = debug("interpol:Interpol")
 let ID = 0
 
-export class Interpol {
-  public props: FormattedProps
+export class Interpol<K extends keyof Props = keyof Props> {
+  public props: FormattedProps<K>
   public duration: number | (() => number)
   public _duration: number
   public ease: (t: number) => number
@@ -40,7 +46,7 @@ export class Interpol {
     return this._isPaused
   }
 
-  protected propsValue: PropsValue
+  public propsValue: ParamPropsValue<K>
 
   constructor({
     props,
@@ -54,9 +60,9 @@ export class Interpol {
     onComplete,
     debug = false,
     ticker = new Ticker(),
-  }: IInterpolConstruct) {
-    this.props = this.prepareProps(props)
-    this.propsValue = this.createPropsParamObj(this.props)
+  }: IInterpolConstruct<K>) {
+    this.props = this.prepareProps<K>(props)
+    this.propsValue = this.createPropsParamObj<K>(this.props)
     this.duration = duration
     this.paused = paused
     this.ease = ease
@@ -185,9 +191,9 @@ export class Interpol {
     const prevP = this.progress
     this.progress = clamp(0, progress, 1)
     this.time = clamp(0, this._duration * this.progress, this._duration)
-    this.muteEachPropsValue(this.progress)
+    this.interpolate(this.progress)
     // get props value only
-    this.propsValue = this.assignPropsValue(this.propsValue, this.props)
+    this.propsValue = this.assignPropsValue<K>(this.propsValue, this.props)
 
     if (prevP !== this.progress) {
       this.onUpdate?.({ props: this.propsValue, time: this.time, progress: this.progress })
@@ -210,7 +216,7 @@ export class Interpol {
     if (this._duration <= 0) {
       this.onEachProps((prop) => (prop.value = prop._to))
       const obj = {
-        props: this.assignPropsValue(this.propsValue, this.props),
+        props: this.assignPropsValue<K>(this.propsValue, this.props),
         time: this._duration,
         progress: 1,
       }
@@ -226,9 +232,9 @@ export class Interpol {
     // calc value (between "from" and "to")
     this.time = clamp(0, this._duration, this.time + (this._isReversed ? -delta : delta))
     this.progress = clamp(0, round(this.time / this._duration), 1)
-    this.muteEachPropsValue(this.progress)
+    this.interpolate(this.progress)
 
-    this.propsValue = this.assignPropsValue(this.propsValue, this.props)
+    this.propsValue = this.assignPropsValue<K>(this.propsValue, this.props)
 
     // Pass value, time and progress
     this.onUpdate?.({ props: this.propsValue, time: this.time, progress: this.progress })
@@ -253,7 +259,7 @@ export class Interpol {
   /**
    * Mute each props value key
    */
-  protected muteEachPropsValue(progress): void {
+  protected interpolate(progress): void {
     const ease =
       this._isReversed && this.reverseEase ? this.reverseEase(progress) : this.ease(progress)
     this.onEachProps(
@@ -264,10 +270,10 @@ export class Interpol {
   /**
    * Prepare internal props object
    */
-  protected prepareProps(props: Props): FormattedProps {
-    return Object.keys(props).reduce((acc, key) => {
-      const p = props[key]
-      acc[key] = {
+  protected prepareProps<K extends keyof Props>(props: Props): FormattedProps<K> {
+    return Object.keys(props).reduce((acc, key: K) => {
+      const p = props[key as K]
+      acc[key as K] = {
         from: p[0],
         _from: null,
         to: p[1],
@@ -275,27 +281,32 @@ export class Interpol {
         value: null,
       }
       return acc
-    }, {})
+    }, {} as FormattedProps<K>)
   }
 
   /**
    * Create an object with props keys
    * in order to keep the same reference on each frame
    */
-  protected createPropsParamObj(fProps: FormattedProps): PropsValue {
-    return Object.keys(fProps).reduce((acc, key) => {
-      acc[key] = null
+  protected createPropsParamObj<K extends keyof Props>(
+    fProps: FormattedProps<K>
+  ): ParamPropsValue<K> {
+    return Object.keys(fProps).reduce((acc, key: K) => {
+      acc[key as K] = null
       return acc
-    }, {})
+    }, {} as ParamPropsValue<K>)
   }
 
   /**
    * Assign props.value to propsValue object
    * in order to keep the same reference on each frame
    */
-  protected assignPropsValue(propsValue: PropsValue, props: FormattedProps): PropsValue {
+  protected assignPropsValue<P extends K>(
+    propsValue: ParamPropsValue<P>,
+    props: FormattedProps<P>
+  ): ParamPropsValue<P> {
     for (const key of Object.keys(propsValue)) {
-      propsValue[key] = props[key].value
+      propsValue[key as P] = props[key as P].value
     }
     return this.propsValue
   }

@@ -13,19 +13,21 @@ export type FormattedProp = {
   _to: number
   value: number
 }
-export type FormattedProps = Record<string, FormattedProp>
+// List of props formatted
+export type FormattedProps<K extends keyof Props = string> = Record<K, FormattedProp>
 
-export type PropsValue = Record<string, number>
+// Props value pass by param to handlers
+export type ParamPropsValue<K extends keyof Props = string> = Record<K, number>
 
-// CB params
+// cb params
 export interface IUpdateParams<K extends keyof Props> {
-  props: Record<K, [number, number]>
-  time: number
-  progress: number
+  props?: ParamPropsValue<K>
+  time?: number
+  progress?: number
 }
 
-export interface IInterpolConstruct {
-  props: Props
+export interface IInterpolConstruct<K extends keyof Props> {
+  props: Record<K, [Value, Value]>
   duration?: number | (() => number)
   ease?: (t: number) => number
   reverseEase?: (t: number) => number
@@ -33,7 +35,7 @@ export interface IInterpolConstruct {
   delay?: number
   debug?: boolean
   beforeStart?: () => void
-  onUpdate?: ({ props, time, progress }: IUpdateParams<keyof Props>) => void
-  onComplete?: ({ props, time, progress }: IUpdateParams<keyof Props>) => void
+  onUpdate?: (params: IUpdateParams<K>) => void
+  onComplete?: (params: IUpdateParams<K>) => void
   ticker?: Ticker
 }
