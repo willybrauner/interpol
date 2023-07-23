@@ -100,16 +100,17 @@ tl.add({
   },
 })
 
-// .add({
-//   props: {
-//     y: [0, 100],
-//   },
-//   duration: 500,
-//   ease: Power1.in,
-//   onUpdate: ({ props }) => {
-//     $el.style.transform = ballTranslate3d.set({ y: 200 + props.y })
-//   },
-//   onComplete: (e) => {
-//     console.log("itp 3 onComplete", e)
-//   },
-// })
+tl.add({
+  props: {
+    x: [100, 0],
+    y: [300, 0],
+  },
+  duration: 500,
+  ease: Power1.out,
+  onUpdate: ({ props: { x, y } }) => {
+    ball.style.transform = `translate3d(${x}px, ${y}px, 0)`
+  },
+  onComplete: (e) => {
+    console.log("itp 3 onComplete", e)
+  },
+})
