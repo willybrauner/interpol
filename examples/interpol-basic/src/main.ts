@@ -16,10 +16,8 @@ const itp = new Interpol({
     y: [0, 50],
   },
   duration: 1000,
-  ease: "power3.in",
+  ease: "power3.out",
   onUpdate: ({ props }) => {
     $el.style.transform = `translate3d(${props.x}px, ${props.y}px, 0px)`
   },
 })
-
-console.log("itp", itp)

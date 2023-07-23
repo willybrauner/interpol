@@ -325,8 +325,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Choose ease function
    * Can be a string or a function
-   * @param e
-   * @private
+   * @param e ease name or function
+   * @returns ease function
    */
   #chooseEase(e): EaseFn {
     return typeof e === "string" ? easeAdaptor(e as EaseName) : (e as EaseFn)
