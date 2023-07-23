@@ -1,4 +1,5 @@
 import { Ticker } from "./Ticker"
+import { EaseName } from "./ease"
 
 export type Value = number | (() => number)
 
@@ -29,8 +30,8 @@ export interface IUpdateParams<K extends keyof Props> {
 export interface IInterpolConstruct<K extends keyof Props> {
   props: Record<K, [Value, Value]>
   duration?: number | (() => number)
-  ease?: (t: number) => number
-  reverseEase?: (t: number) => number
+  ease?: EaseName | ((t: number) => number)
+  reverseEase?: EaseName | ((t: number) => number)
   paused?: boolean
   delay?: number
   debug?: boolean

@@ -1,4 +1,4 @@
-import { Interpol, Power3 } from "@wbe/interpol"
+import { Interpol } from "@wbe/interpol"
 import "./index.less"
 ;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => itp[name]())
@@ -15,10 +15,9 @@ const itp = new Interpol({
     x: [-10, 200],
     y: [0, 50],
   },
-  //  debug: true,
-  duration: 2000,
-  ease: Power3.inOut,
-  onUpdate: ({ props, time, progress }) => {
+  duration: 1000,
+  ease: "power3.in",
+  onUpdate: ({ props }) => {
     $el.style.transform = `translate3d(${props.x}px, ${props.y}px, 0px)`
   },
 })

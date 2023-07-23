@@ -1,4 +1,4 @@
-type EaseFn = (t: number) => number
+export type EaseFn = (t: number) => number
 type Power = Record<string, EaseFn>
 
 // Power1: Quad
@@ -53,7 +53,6 @@ export type EaseName = `${EaseType}.${EaseDirection}` | "Linear" | "linear" | "n
 
 export const easeAdaptor = (ease: EaseName): EaseFn => {
   let [type, direction] = ease.split(".") as [EaseType, EaseDirection]
-
   // if first letter is lowercase, capitalize it
   if (type[0] === type[0].toLowerCase()) {
     type = (type[0].toUpperCase() + type.slice(1)) as EaseType
