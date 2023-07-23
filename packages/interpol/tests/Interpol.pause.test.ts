@@ -8,7 +8,7 @@ describe.concurrent("Interpol pause", () => {
     let savedTime = vi.fn(() => 0)
     return new Promise(async (resolve: any) => {
       const itp = new Interpol({
-        to: 1000,
+        props: { x: [0, 1000] },
         duration: 1000,
         paused: true,
         onUpdate: mock,

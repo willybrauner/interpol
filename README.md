@@ -22,36 +22,31 @@ Single Interpol:
 import { Interpol } from "@wbe/interpol"
 
 const itp = new Interpol({
-  from: 0,
-  to: 100,
+  props: {
+    value: [0, 100],
+  },
   duration: 1000,
-  onUpdate: ({ time, value, progress }) => {},
+  onUpdate: ({ props, time, progress }) => {},
   onComplete: () => {},
 })
 ```
 
 [interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-basic-9n9u54)
 
-Chain interpols with Timeline:
+Chain interpol instancies with Timeline:
 
 ```js
 import { Interpol, Timeline } from "@wbe/interpol"
 
 const itp1 = new Interpol({
-  from: 0,
-  to: 100,
+  props: { value: [0, 100] },
   duration: 1000,
-  onUpdate: ({ time, value, progress }) => {
-    // ...
-  },
+  onUpdate: ({ props, time, progress }) => {},
 })
 const itp2 = new Interpol({
-  from: 0,
-  to: 500,
-  duration: 7000,
-  onUpdate: ({ time, value, progress }) => {
-    // ...
-  },
+  props: { value: [0, 100] },
+  duration: 500,
+  onUpdate: ({ props, time, progress }) => {},
 })
 
 const tl = new Timeline()
@@ -67,11 +62,11 @@ Advanced timeline:
 import { Timeline } from "@wbe/interpol"
 
 const tl = new Timeline({
-  onUpdate: ({ time, value, progress }) => {
+  onUpdate: ({ value, time, progress }) => {
     // global timeline update
   },
   onComplete: () => {
-    // timeline is complete!
+    // timeline is complete
   },
   // enable @wbe/debug on this timeline by adding `localStorage.debug = "interpol:*"`
   // in your browser's console
@@ -80,30 +75,31 @@ const tl = new Timeline({
 
 // `add` method can recieve an interpol object without creat an interpol instance
 tl.add({
-  from: 0,
-  to: 100,
+  props: { value: [0, 100] },
   duration: 1000,
-  onUpdate: ({ time, value, progress }) => {
-    // here is current interpol update
-  },
+  onUpdate: ({ props, time, progress }) => {},
 })
 tl.add(
   {
-    from: -100,
-    to: 100,
+    props: { value: [0, 100] },
     duration: 500,
-    onUpdate: ({ time, value, progress }) => {
-      // current interpol update
-    },
+    onUpdate: ({ props, time, progress }) => {},
   },
   // set a negatif offsetDuration
   -100
 )
-
-tl.play()
 ```
 
 [timeline codesandbox](https://codesandbox.io/s/timeline-basic-forked-w9cy9c)
+
+## Real world example
+
+Interpol as been first created to be used for animation.
+TODO
+
+```js
+TODO
+```
 
 ## API
 
@@ -111,13 +107,9 @@ tl.play()
 
 ```ts
 interface IInterpolConstruct {
-  // Start interpolation value
-  // default: `0`
-  from?: number | (() => number)
-
-  // End interpolation value
+  // props are an interpol list object
   // default: /
-  to?: number | (() => number)
+  props: Record<string, [number | (() => number), number | (() => number)]>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second
@@ -166,8 +158,7 @@ import { Interpol } from "./Interpol"
 
 const itp = new Interpol({
   paused: true, // disable autoplay
-  from: 0,
-  to: 100,
+  props: { value: [0, 100] },
 })
 
 // Play the interpol
@@ -187,6 +178,7 @@ itp.pause()
 itp.resume()
 
 // Stop the interpol, will reset time, delta and progress.
+// stop(): void
 itp.stop()
 
 // Compute 'from' 'to' and 'duration' values if there are functions
@@ -231,22 +223,15 @@ interface ITimelineConstruct {
 ```ts
 import { Timeline } from "./Interpol"
 
-const tl = new Timeline({
-  onUpdate: () => {},
-  onComplete: () => {},
-  onRepeatComplete: () => {},
-})
+const tl = new Timeline()
 
 // Add new Interpol object param
 // or Interpol instance
 // add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline
 tl.add(
   {
-    from: 10,
-    to: 1000,
-    onUpdate: ({ value, time, progress }) => {
-      // ...
-    },
+    props: { value: [-100, 100] },
+    onUpdate: ({ value, time, progress }) => {},
   },
   // offset duration
   // this one will start the current interpol 100ms before the last interpol end.

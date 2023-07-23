@@ -1,6 +1,5 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
-import { wait } from "./utils/wait"
 
 describe.concurrent("Timeline reverse", () => {
   it("should reverse timeline properly", () => {
@@ -28,14 +27,14 @@ describe.concurrent("Timeline reverse", () => {
         },
       })
       // accept instance
-      tl.add({ to: 1000, duration: 100 })
-      tl.add({ to: 1000, duration: 100 })
+      tl.add({ props: { v: [0, 1000] }, duration: 100 })
+      tl.add({ props: { v: [0, 1000] }, duration: 100 })
 
       await tl.play()
       await tl.reverse()
       await tl.play()
       await tl.reverse()
-      
+
       expect(onCompleteMock).toBeCalledTimes(4)
       resolve()
     })

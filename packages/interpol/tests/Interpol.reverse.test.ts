@@ -12,7 +12,7 @@ describe.concurrent("Interpol reverse", () => {
       const onUpdate = vi.fn()
       return new Promise(async (resolve: any) => {
         const itp = new Interpol({
-          to: 10,
+          props: { v: [0, 10] },
           duration: 1000,
           onUpdate,
           onComplete,

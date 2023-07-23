@@ -26,13 +26,11 @@ describe.concurrent("Timeline stop", () => {
         for (let i = 0; i < itpNumber; i++) {
           tl.add(
             new Interpol({
-              from: randomRange(-10000, 10000),
-              to: randomRange(-10000, 10000),
+              props: { v: [randomRange(-10000, 10000), randomRange(-10000, 10000)] },
               duration: itpDuration,
             })
           )
         }
-
 
         // play and stop at 50% of the timeline
         tl.play()

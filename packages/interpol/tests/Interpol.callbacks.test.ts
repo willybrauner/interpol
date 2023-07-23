@@ -7,7 +7,7 @@ describe.concurrent("Interpol beforeStart", () => {
       new Promise(async (resolve: any) => {
         const beforeStart = vi.fn()
         const itp = new Interpol({
-          to: 100,
+          props: { x: [0, 100] },
           duration: 500,
           paused,
           beforeStart,
@@ -21,5 +21,21 @@ describe.concurrent("Interpol beforeStart", () => {
     // play with paused = true
     // play with paused = false
     return Promise.all([pms(true), pms(false)])
+  })
+})
+
+it("should return a resolved promise when complete", async () => {
+  return new Promise(async (resolve: any) => {
+    const mock = vi.fn()
+    const itp = new Interpol({
+      props: { v: [0, 100] },
+      duration: 100,
+      paused: true,
+      onComplete: () => mock(),
+    })
+    await itp.play()
+    expect(itp.isPlaying).toBe(false)
+    expect(mock).toBeCalledTimes(1)
+    resolve()
   })
 })
