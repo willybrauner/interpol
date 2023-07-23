@@ -144,11 +144,11 @@ interface IInterpolConstruct {
 
   // Interpol easing function
   // default: `t => t` (lineal easing)
-  ease?: (t: number) => number
+  ease?: EaseName | ((t: number) => number)
 
   // Overwrite easing function on reverse
   // default: /
-  reverseEase?: (t: number) => number
+  reverseEase?: EaseName | ((t: number) => number)
 
   // Make interpol paused at start (not autoplay)
   // default: `false`
