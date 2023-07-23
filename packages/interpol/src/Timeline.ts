@@ -50,8 +50,8 @@ export class Timeline {
   #ticker: Ticker
   #tlDuration: number = 0
   #debugEnable: boolean
-  #onUpdate: ({ time, progress }) => void
-  #onComplete: ({ time, progress }) => void
+  #onUpdate: (time: number, progress: number) => void
+  #onComplete: (time: number, progress: number) => void
 
   constructor({
     onUpdate = noop,
@@ -60,8 +60,8 @@ export class Timeline {
     ticker = new Ticker(),
     paused = false,
   }: {
-    onUpdate?: ({ time, progress }) => void
-    onComplete?: ({ time, progress }) => void
+    onUpdate?: (time: number, progress: number) => void
+    onComplete?: (time: number, progress: number) => void
     debug?: boolean
     ticker?: Ticker
     paused?: boolean
@@ -202,7 +202,7 @@ export class Timeline {
   public seek(progress: number): void {
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds({ progress: this.#progress, time: this.#time })
+    this.#updateAdds(this.#progress, this.#time)
   }
 
   /**
@@ -218,10 +218,10 @@ export class Timeline {
     if (!this.#ticker.isRunning) return
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds({ progress: this.#progress, time: this.#time })
+    this.#updateAdds(this.#progress, this.#time)
 
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
-      this.#onComplete({ time: this.#time, progress: this.#progress })
+      this.#onComplete(this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
@@ -232,10 +232,9 @@ export class Timeline {
    * Main update function witch seek all adds on there relative position in TL
    * @param progress
    * @param time
-   * @param adds
    */
-  #updateAdds({ progress, time }): void {
-    this.#onUpdate({ progress, time })
+  #updateAdds(progress: number, time: number): void {
+    this.#onUpdate(progress, time)
     this.#onAllAdds((add) => {
       add.itp.seek((time - add.startPos) / add.itp.duration)
     })

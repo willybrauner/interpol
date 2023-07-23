@@ -36,7 +36,7 @@ export interface IInterpolConstruct<K extends keyof Props> {
   delay?: number
   debug?: boolean
   beforeStart?: () => void
-  onUpdate?: (params: IUpdateParams<K>) => void
-  onComplete?: (params: IUpdateParams<K>) => void
+  onUpdate?: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
+  onComplete?: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
   ticker?: Ticker
 }

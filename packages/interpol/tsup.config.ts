@@ -1,5 +1,5 @@
 import { defineConfig } from "tsup"
-import { Ticker } from "./src"
+import { spawn } from "child_process"
 
 export default defineConfig({
   entry: { interpol: "src/index.ts" },
@@ -16,21 +16,11 @@ export default defineConfig({
     mangle: {
       properties: {
         regex: /^(#.+)$/,
-        // reserved: [
-        //   "key",
-        //   "props",
-        //   "duration",
-        //   "ease",
-        //   "reverseEase",
-        //   "paused",
-        //   "delay",
-        //   "beforeStart",
-        //   "onUpdate",
-        //   "onComplete",
-        //   "debug",
-        //   "ticker",
-        // ],
       },
     },
+  },
+  async onSuccess() {
+    const process = spawn("npx", ["size-limit"], { shell: true })
+    process.stdout.on("data", (data) => console.log(data.toString()))
   },
 })

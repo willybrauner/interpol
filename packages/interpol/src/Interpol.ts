@@ -59,8 +59,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #ease: EaseFn
   #revEase: EaseFn
   #beforeStart: () => void
-  #onUpdate: (e) => void
-  #onComplete: (e) => void
+  #onUpdate: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
+  #onComplete: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
 
@@ -210,14 +210,14 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
 
     if (prevP !== this.#progress) {
-      this.#onUpdate({ props: this.#propsValue, time: this.#time, progress: this.#progress })
+      this.#onUpdate(this.#propsValue, this.#time, this.#progress)
       this.#log("seek onUpdate", { v: this.#propsValue, t: this.#time, p: this.#progress })
     }
 
     if (this.#progress === 1) {
       if (!this.#completed) {
         this.#log("seek onComplete")
-        this.#onComplete({ props: this.#propsValue, time: this.#time, progress: this.#progress })
+        this.#onComplete(this.#propsValue, this.#time, this.#progress)
         this.#completed = true
       }
     } else if (this.#progress === 0) {
@@ -234,8 +234,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
         time: this.#_duration,
         progress: 1,
       }
-      this.#onUpdate?.(obj)
-      this.#onComplete?.(obj)
+      this.#onUpdate?.(obj.props, obj.time, obj.progress)
+      this.#onComplete?.(obj.props, obj.time, obj.progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
       return
@@ -251,13 +251,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
 
     // Pass value, time and progress
-    this.#onUpdate?.({ props: this.#propsValue, time: this.#time, progress: this.#progress })
+    this.#onUpdate?.(this.#propsValue, this.#time, this.#progress)
     this.#log("onUpdate", { props: this.#propsValue, t: this.#time, p: this.#progress })
 
     // on complete
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
       this.#log(`handleTickerUpdate onComplete!`)
-      this.#onComplete?.({ props: this.#propsValue, time: this.#time, progress: this.#progress })
+      this.#onComplete?.(this.#propsValue, this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
