@@ -1,5 +1,27 @@
 # @wbe/interpol
 
+## 0.4.0
+
+### Minor Changes
+
+- e291182: Accept ease as "GSAP like" string name.
+
+  ["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
+
+  ```js
+  import { Interpol, Power3 } from "@wbe/interpol"
+
+  // as typed string
+  new Interpol({
+    ease: "power3.out",
+  })
+
+  // or, import the object
+  new Interpol({
+    ease: Power3.out,
+  })
+  ```
+
 ## 0.3.0
 
 ### Minor Changes
