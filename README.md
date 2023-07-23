@@ -32,7 +32,7 @@ const itp = new Interpol({
 ```
 
 [interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-basic-9n9u54)
-
+ 
 Chain interpol instancies with Timeline:
 
 ```js
@@ -101,6 +101,32 @@ TODO
 TODO
 ```
 
+## Easing
+
+`ease` & `reversedEase` functions are used to interpolate the progress value. the default one is `(t) => t`.
+
+```js
+new Interpol({
+  ease: (t) => 1 - Math.pow(1 - t, 4),
+})
+```
+
+["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
+
+```js
+import { Interpol, Power3 } from "@wbe/interpol"
+
+// as typed string
+new Interpol({
+  ease: "power3.out",
+})
+
+// or, import the object
+new Interpol({
+  ease: Power3.out,
+})
+```
+
 ## API
 
 ### interpol constructor
@@ -118,11 +144,11 @@ interface IInterpolConstruct {
 
   // Interpol easing function
   // default: `t => t` (lineal easing)
-  ease?: (t: number) => number
+  ease?: EaseName | ((t: number) => number)
 
   // Overwrite easing function on reverse
   // default: /
-  reverseEase?: (t: number) => number
+  reverseEase?: EaseName | ((t: number) => number)
 
   // Make interpol paused at start (not autoplay)
   // default: `false`
@@ -137,7 +163,7 @@ interface IInterpolConstruct {
   // default: `false`
   debug?: boolean
 
-  // Called before start
+  // Called when interpol is ready to play
   // default: /
   beforeStart?: () => void
 

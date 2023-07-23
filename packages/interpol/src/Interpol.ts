@@ -13,6 +13,7 @@ import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import { compute } from "./core/compute"
 import { noop } from "./core/noop"
+import { easeAdaptor, EaseFn, EaseName } from "./core/ease"
 const log = debug("interpol:Interpol")
 
 let ID = 0
@@ -55,8 +56,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
   #propsValue: ParamPropsValue<K>
   #delay: number
-  #ease: (t: number) => number
-  #reverseEase: (t: number) => number
+  #ease: EaseFn
+  #revEase: EaseFn
   #beforeStart: () => void
   #onUpdate: (e) => void
   #onComplete: (e) => void
@@ -66,8 +67,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
   constructor({
     props = null,
     duration = 1000,
-    ease = (t) => t,
-    reverseEase,
+    ease = "linear",
+    reverseEase = ease,
     paused = false,
     delay = 0,
     beforeStart = noop,
@@ -80,17 +81,17 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValue = this.#createPropsParamObj<K>(this.#props)
     this.#duration = duration
     this.#isPaused = paused
-    this.#ease = ease
-    this.#reverseEase = reverseEase
     this.#delay = delay
     this.#beforeStart = beforeStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.debugEnable = debug
     this.ticker = ticker
-    this.refreshComputedValues()
+    this.#ease = this.#chooseEase(ease)
+    this.#revEase = this.#chooseEase(reverseEase)
 
     // start!
+    this.refreshComputedValues()
     this.#beforeStart?.()
     if (!this.#isPaused) this.play()
   }
@@ -273,10 +274,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Mute each props value key
    */
   #interpolate(progress): void {
-    const ease =
-      this.#isReversed && this.#reverseEase ? this.#reverseEase(progress) : this.#ease(progress)
+    const ease = this.#isReversed && this.#revEase ? this.#revEase(progress) : this.#ease(progress)
     this.#onEachProps(
-      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * ease, 1000))
+      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * (ease as number), 1000))
     )
   }
 
@@ -320,6 +320,16 @@ export class Interpol<K extends keyof Props = keyof Props> {
       propsValue[key as P] = props[key as P].value
     }
     return this.#propsValue
+  }
+
+  /**
+   * Choose ease function
+   * Can be a string or a function
+   * @param e ease name or function
+   * @returns ease function
+   */
+  #chooseEase(e): EaseFn {
+    return typeof e === "string" ? easeAdaptor(e as EaseName) : (e as EaseFn)
   }
 
   /**
