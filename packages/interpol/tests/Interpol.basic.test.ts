@@ -32,7 +32,7 @@ describe.concurrent("Interpol basic", () => {
     setTimeout(() => {
       expect(itp.progress).toBe(0)
       expect(mock).toHaveBeenCalledTimes(0)
-    }, itp._duration)
+    }, itp.duration)
   })
 
   it("play should play with duration 0", async () => {

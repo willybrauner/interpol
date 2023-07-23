@@ -9,10 +9,6 @@ inputProgress.onchange = () => {
   console.log("e", parseFloat(inputProgress.value) / 100)
   itp.seek(parseFloat(inputProgress.value) / 100)
 }
-
-document.querySelector<HTMLButtonElement>(`.play`).onclick = () => itp.play(0)
-document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => itp.reverse(1)
-
 const $el = document.querySelector<HTMLElement>(".ball")
 const itp = new Interpol({
   props: {
@@ -26,3 +22,5 @@ const itp = new Interpol({
     $el.style.transform = `translate3d(${props.x}px, ${props.y}px, 0px)`
   },
 })
+
+console.log("itp", itp)

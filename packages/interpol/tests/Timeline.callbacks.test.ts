@@ -1,5 +1,6 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Timeline play", () => {
   it("Timeline should execute interpol's onComplete once", () => {
@@ -9,11 +10,13 @@ describe.concurrent("Timeline play", () => {
       const tl = new Timeline({ paused: true })
       tl.add({
         props: { v: [0, 100] },
-        onComplete: onComplete1,
+        duration: 100,
+        onComplete: () => onComplete1(),
       })
       tl.add({
         props: { v: [0, 100] },
-        onComplete: onComplete2,
+        duration: 100,
+        onComplete: () => onComplete2(),
       })
 
       await tl.play()
@@ -30,15 +33,18 @@ describe.concurrent("Timeline play", () => {
       const tl = new Timeline({ paused: true, onComplete })
       tl.add({
         props: { v: [0, 100] },
+        duration: 100,
       })
       tl.add({
         props: { v: [0, 100] },
+        duration: 100,
       })
 
       await tl.play()
       expect(onComplete).toHaveBeenCalledTimes(1)
 
       await tl.reverse()
+      await wait(10)
       expect(onComplete).toHaveBeenCalledTimes(2)
       resolve()
     })

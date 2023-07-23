@@ -1,4 +1,5 @@
 import { defineConfig } from "tsup"
+import { Ticker } from "./src"
 
 export default defineConfig({
   entry: { interpol: "src/index.ts" },
@@ -11,8 +12,25 @@ export default defineConfig({
   name: "interpol",
   sourcemap: true,
   terserOptions: {
+    compress: true,
     mangle: {
-      properties: true,
+      properties: {
+        regex: /^(#.+)$/,
+        // reserved: [
+        //   "key",
+        //   "props",
+        //   "duration",
+        //   "ease",
+        //   "reverseEase",
+        //   "paused",
+        //   "delay",
+        //   "beforeStart",
+        //   "onUpdate",
+        //   "onComplete",
+        //   "debug",
+        //   "ticker",
+        // ],
+      },
     },
-  }
+  },
 })

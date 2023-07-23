@@ -6,6 +6,7 @@ import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 
 import debug from "@wbe/debug"
+import { noop } from "./core/noop"
 const log = debug("interpol:Timeline")
 
 interface IAdd {
@@ -53,8 +54,8 @@ export class Timeline {
   #onComplete: ({ time, progress }) => void
 
   constructor({
-    onUpdate = () => {},
-    onComplete = () => {},
+    onUpdate = noop,
+    onComplete = noop,
     debug = false,
     ticker = new Ticker(),
     paused = false,
@@ -95,13 +96,13 @@ export class Timeline {
     // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
     // Register full TL duration
-    this.#tlDuration += itp._duration + offsetPosition
+    this.#tlDuration += itp.duration + offsetPosition
     // Get last prev of the list
     const prevAdd = this.#adds?.[this.#adds.length - 1]
     // If not, prev, this is the 1st, start position is 0 else, origin is the prev end + offset
     const startPos = prevAdd ? prevAdd.endPos + offsetPosition : 0
     // Calc end position in TL (start pos + duration of interpolation)
-    const endPos = startPos + itp._duration
+    const endPos = startPos + itp.duration
     // Update all "isLastOfTl" property
     this.#onAllAdds((add) => (add.isLastOfTl = false))
     // push new Add instance in local
@@ -140,7 +141,7 @@ export class Timeline {
     this.#isPaused = false
 
     this.#ticker.play()
-    this.#ticker.onUpdateEmitter.on(this.#handleTick)
+    this.#ticker.onTick.on(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -165,7 +166,7 @@ export class Timeline {
     this.#isPaused = false
 
     this.#ticker.play()
-    this.#ticker.onUpdateEmitter.on(this.#handleTick)
+    this.#ticker.onTick.on(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -174,7 +175,7 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = true
     this.#onAllAdds((e) => e.itp.pause())
-    this.#ticker.onUpdateEmitter.off(this.#handleTick)
+    this.#ticker.onTick.off(this.#handleTick)
     this.#ticker.pause()
   }
 
@@ -183,7 +184,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isPlaying = true
     this.#onAllAdds((e) => e.itp.resume())
-    this.#ticker.onUpdateEmitter.on(this.#handleTick)
+    this.#ticker.onTick.on(this.#handleTick)
     this.#ticker.play()
   }
 
@@ -194,7 +195,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isReversed = false
     this.#onAllAdds((e) => e.itp.stop())
-    this.#ticker.onUpdateEmitter.off(this.#handleTick)
+    this.#ticker.onTick.off(this.#handleTick)
     this.#ticker.stop()
   }
 
@@ -236,7 +237,7 @@ export class Timeline {
   #updateAdds({ progress, time }): void {
     this.#onUpdate({ progress, time })
     this.#onAllAdds((add) => {
-      add.itp.seek((time - add.startPos) / add.itp._duration)
+      add.itp.seek((time - add.startPos) / add.itp.duration)
     })
   }
 
