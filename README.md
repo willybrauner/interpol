@@ -22,7 +22,9 @@ Single Interpol:
 import { Interpol } from "@wbe/interpol"
 
 const itp = new Interpol({
-  props: { value: [0, 100] },
+  props: {
+    value: [0, 100],
+  },
   duration: 1000,
   onUpdate: ({ props, time, progress }) => {},
   onComplete: () => {},
