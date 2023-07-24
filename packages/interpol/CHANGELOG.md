@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.5.1
+
+### Patch Changes
+
+- a84ba52: Make no-optional callback params
+
 ## 0.5.0
 
 ### Minor Changes
