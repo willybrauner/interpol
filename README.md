@@ -10,8 +10,8 @@ on... anything!
 
 ## Install
 
-```shell
-$ npm i @wbe/interpol
+```shell 
+npm i @wbe/interpol
 ```
 
 ## Show me some code
