@@ -30,10 +30,10 @@ export function App() {
       ease: Ease[ease],
       debug: true,
       paused: true,
-      onUpdate: ({ props, time, progress }) => {
-        setParams({ value: props.value, time, progress })
+      onUpdate: ({ value }, time, progress) => {
+        setParams({ value: value, time, progress })
         const x = progress * (window.innerWidth - ballSize)
-        const y = -props.value
+        const y = -value
         $ball.current.style.transform = `
         translateX(${x}px)
         translateY(${y}px) 
