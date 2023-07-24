@@ -10,11 +10,11 @@ describe.concurrent("Timeline reverse", () => {
     return new Promise(async (resolve: any) => {
       const tl = new Timeline({
         paused: true,
-        onUpdate: ({ time, progress }) => {
+        onUpdate: (time, progress) => {
           timeMock.mockReturnValue(time)
           progressMock.mockReturnValue(progress)
         },
-        onComplete: ({ time, progress }) => {
+        onComplete: () => {
           onCompleteMock()
 
           if (!tl.isReversed) {
@@ -26,7 +26,7 @@ describe.concurrent("Timeline reverse", () => {
           }
         },
       })
-      // accept instance
+
       tl.add({ props: { v: [0, 1000] }, duration: 100 })
       tl.add({ props: { v: [0, 1000] }, duration: 100 })
 

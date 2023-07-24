@@ -45,7 +45,7 @@ const itp = new Interpol<"y" | "x">({
   },
   duration: 500,
   ease: Power1.in,
-  onUpdate: ({ props: { x, y } }) => {
+  onUpdate: ({ x, y }) => {
     styles(ball, {
       transform: `translate3d(${x}px, ${y}px, 0)`,
     })
@@ -65,7 +65,7 @@ tl.add({
   },
   duration: 500,
   ease: Power1.out,
-  onUpdate: ({ props: { x, y } }) => {
+  onUpdate: ({ x, y }) => {
     styles(ball, {
       transform: `translate3d(${x}px, ${y}px, 0)`,
     })
@@ -82,7 +82,7 @@ tl.add({
   },
   duration: 500,
   ease: Power1.out,
-  onUpdate: ({ props: { x, y } }) => {
+  onUpdate: ({ x, y }) => {
     styles(ball, {
       transform: `translate3d(${x}px, ${y}px, 0)`,
     })

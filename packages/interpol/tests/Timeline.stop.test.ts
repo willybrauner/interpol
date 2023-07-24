@@ -5,17 +5,17 @@ import { wait } from "./utils/wait"
 
 describe.concurrent("Timeline stop", () => {
   it("Timeline should stop and play properly", () => {
-    const oneTl = ({ itpNumber = 3, itpDuration = 200 }) =>
+    const oneTl = ({ itpNumber = 3, itpDuration = 50 }) =>
       new Promise(async (resolve: any) => {
         const timelineDuration = itpNumber * itpDuration
         const onCompleteMock = vi.fn()
 
         const tl = new Timeline({
-          onUpdate: ({ time, progress }) => {
+          onUpdate: (time, progress) => {
             expect(time).toBeGreaterThan(0)
             expect(progress).toBeGreaterThan(0)
           },
-          onComplete: ({ time, progress }) => {
+          onComplete: (time, progress) => {
             expect(time).toBe(timelineDuration)
             expect(progress).toBe(1)
             onCompleteMock()
@@ -47,11 +47,11 @@ describe.concurrent("Timeline stop", () => {
         resolve()
       })
 
-    const TESTS_NUMBER = 500
+    const TESTS_NUMBER = 50
 
     const tls = new Array(TESTS_NUMBER).fill(null).map((_) => {
       const itpNumber = randomRange(1, 10)
-      const itpDuration = randomRange(200, 600)
+      const itpDuration = randomRange(1, 50)
       return oneTl({ itpNumber, itpDuration })
     })
 

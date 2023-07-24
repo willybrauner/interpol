@@ -51,7 +51,7 @@ export type EaseType = "power1" | "power2" | "power3" | "power4" | "expo" | "Pow
 export type EaseDirection = "in" | "out" | "inOut"
 export type EaseName = `${EaseType}.${EaseDirection}` | "Linear" | "linear" | "none"
 
-export const easeAdaptor = (ease: EaseName): EaseFn => {
+export const easeAdapter = (ease: EaseName): EaseFn => {
   let [type, direction] = ease.split(".") as [EaseType, EaseDirection]
   // if first letter is lowercase, capitalize it
   if (type[0] === type[0].toLowerCase()) {

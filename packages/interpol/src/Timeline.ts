@@ -1,5 +1,5 @@
 import { Interpol } from "./Interpol"
-import { IInterpolConstruct, Props } from "./core/types"
+import { InterpolConstruct, Props, TimelineConstruct } from "./core/types"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -50,8 +50,8 @@ export class Timeline {
   #ticker: Ticker
   #tlDuration: number = 0
   #debugEnable: boolean
-  #onUpdate: ({ time, progress }) => void
-  #onComplete: ({ time, progress }) => void
+  #onUpdate: (time: number, progress: number) => void
+  #onComplete: (time: number, progress: number) => void
 
   constructor({
     onUpdate = noop,
@@ -59,13 +59,7 @@ export class Timeline {
     debug = false,
     ticker = new Ticker(),
     paused = false,
-  }: {
-    onUpdate?: ({ time, progress }) => void
-    onComplete?: ({ time, progress }) => void
-    debug?: boolean
-    ticker?: Ticker
-    paused?: boolean
-  } = {}) {
+  }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug
@@ -80,7 +74,7 @@ export class Timeline {
    * @param offsetPosition
    */
   public add<K extends keyof Props>(
-    interpol: Interpol | IInterpolConstruct<K>,
+    interpol: Interpol | InterpolConstruct<K>,
     offsetPosition: number = 0
   ): Timeline {
     // Create Interpol instance or not
@@ -202,7 +196,7 @@ export class Timeline {
   public seek(progress: number): void {
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds({ progress: this.#progress, time: this.#time })
+    this.#updateAdds(this.#time, this.#progress)
   }
 
   /**
@@ -218,10 +212,10 @@ export class Timeline {
     if (!this.#ticker.isRunning) return
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds({ progress: this.#progress, time: this.#time })
+    this.#updateAdds(this.#time, this.#progress)
 
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
-      this.#onComplete({ time: this.#time, progress: this.#progress })
+      this.#onComplete(this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
@@ -232,10 +226,9 @@ export class Timeline {
    * Main update function witch seek all adds on there relative position in TL
    * @param progress
    * @param time
-   * @param adds
    */
-  #updateAdds({ progress, time }): void {
-    this.#onUpdate({ progress, time })
+  #updateAdds(time: number, progress: number): void {
+    this.#onUpdate(time, progress)
     this.#onAllAdds((add) => {
       add.itp.seek((time - add.startPos) / add.itp.duration)
     })
