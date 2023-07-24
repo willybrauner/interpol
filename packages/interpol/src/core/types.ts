@@ -29,9 +29,9 @@ export type FormattedProp = {
  */
 
 export type CallBack<K extends keyof Props> = (
-  props?: Record<K, number>,
-  time?: number,
-  progress?: number
+  props: Record<K, number>,
+  time: number,
+  progress: number
 ) => void
 
 export interface InterpolConstruct<K extends keyof Props> {
