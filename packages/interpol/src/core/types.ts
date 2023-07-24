@@ -1,6 +1,13 @@
 import { Ticker } from "./Ticker"
 import { EaseName } from "./ease"
 
+/**
+ * Common
+ *
+ *
+ */
+
+// Value can be a number or a function that return a number
 export type Value = number | (() => number)
 
 // Props params
@@ -9,25 +16,25 @@ export type Props = Record<string, [Value, Value]>
 // Props object formatted in Map
 export type FormattedProp = {
   from: Value
-  _from: number
   to: Value
+  _from: number
   _to: number
   value: number
 }
-// List of props formatted
-export type FormattedProps<K extends keyof Props = string> = Record<K, FormattedProp>
 
-// Props value pass by param to handlers
-export type ParamPropsValue<K extends keyof Props = string> = Record<K, number>
+/**
+ * Interpol
+ *
+ *
+ */
 
-// cb params
-export interface IUpdateParams<K extends keyof Props> {
-  props?: ParamPropsValue<K>
-  time?: number
+export type CallBack<K extends keyof Props> = (
+  props?: Record<K, number>,
+  time?: number,
   progress?: number
-}
+) => void
 
-export interface IInterpolConstruct<K extends keyof Props> {
+export interface InterpolConstruct<K extends keyof Props> {
   props: Record<K, [Value, Value]>
   duration?: number | (() => number)
   ease?: EaseName | ((t: number) => number)
@@ -36,7 +43,23 @@ export interface IInterpolConstruct<K extends keyof Props> {
   delay?: number
   debug?: boolean
   beforeStart?: () => void
-  onUpdate?: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
-  onComplete?: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
+  onUpdate?: CallBack<K>
+  onComplete?: CallBack<K>
+  ticker?: Ticker
+}
+
+/**
+ * Timeline
+ *
+ *
+ */
+
+export type TimelineCallback = (time: number, progress: number) => void
+
+export interface TimelineConstruct {
+  paused?: boolean
+  debug?: boolean
+  onUpdate?: TimelineCallback
+  onComplete?: TimelineCallback
   ticker?: Ticker
 }

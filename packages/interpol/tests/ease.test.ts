@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
-  easeAdaptor,
+  easeAdapter,
   EaseName,
   Expo,
   Linear,
@@ -36,20 +36,20 @@ describe.concurrent("Ease", () => {
     // all other eases
     for (const type of types) {
       for (const direction of directions) {
-        const adaptor = easeAdaptor(`${type}.${direction}` as EaseName)
+        const adaptor = easeAdapter(`${type}.${direction}` as EaseName)
         expect(adaptor).toBe(eases[capitalizeFirstLetter(type)]?.[direction])
       }
     }
 
     // linear
     for (const type of ['linear', "Linear"]) {
-       const adaptor = easeAdaptor(`${type}` as EaseName)
+       const adaptor = easeAdapter(`${type}` as EaseName)
         expect(adaptor).toBe(Linear)
     }
   })
 
   it("adaptor should return linear easing function if name doesnt exist", () => {
-    expect(easeAdaptor("power2.oit" as any)).toBe(Linear)
-    expect(easeAdaptor("coucou" as any)).toBe(Linear)
+    expect(easeAdapter("power2.oit" as any)).toBe(Linear)
+    expect(easeAdapter("coucou" as any)).toBe(Linear)
   })
 })

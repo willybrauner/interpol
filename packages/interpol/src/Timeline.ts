@@ -1,5 +1,5 @@
 import { Interpol } from "./Interpol"
-import { IInterpolConstruct, Props } from "./core/types"
+import { InterpolConstruct, Props, TimelineConstruct } from "./core/types"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -59,13 +59,7 @@ export class Timeline {
     debug = false,
     ticker = new Ticker(),
     paused = false,
-  }: {
-    onUpdate?: (time: number, progress: number) => void
-    onComplete?: (time: number, progress: number) => void
-    debug?: boolean
-    ticker?: Ticker
-    paused?: boolean
-  } = {}) {
+  }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug
@@ -80,7 +74,7 @@ export class Timeline {
    * @param offsetPosition
    */
   public add<K extends keyof Props>(
-    interpol: Interpol | IInterpolConstruct<K>,
+    interpol: Interpol | InterpolConstruct<K>,
     offsetPosition: number = 0
   ): Timeline {
     // Create Interpol instance or not

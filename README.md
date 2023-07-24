@@ -26,13 +26,15 @@ const itp = new Interpol({
     value: [0, 100],
   },
   duration: 1000,
-  onUpdate: ({ props, time, progress }) => {},
-  onComplete: () => {},
+  onUpdate: (props, time, progress) => {
+    // Do something with `props.value`
+    // updated on each frame between 0 and 100
+  },
 })
 ```
 
 [interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-basic-9n9u54)
- 
+
 Chain interpol instancies with Timeline:
 
 ```js
@@ -41,12 +43,12 @@ import { Interpol, Timeline } from "@wbe/interpol"
 const itp1 = new Interpol({
   props: { value: [0, 100] },
   duration: 1000,
-  onUpdate: ({ props, time, progress }) => {},
+  onUpdate: (props, time, progress) => {},
 })
 const itp2 = new Interpol({
-  props: { value: [0, 100] },
+  props: { value: [-100, 100] },
   duration: 500,
-  onUpdate: ({ props, time, progress }) => {},
+  onUpdate: (props, time, progress) => {},
 })
 
 const tl = new Timeline()
@@ -62,11 +64,11 @@ Advanced timeline:
 import { Timeline } from "@wbe/interpol"
 
 const tl = new Timeline({
-  onUpdate: ({ value, time, progress }) => {
-    // global timeline update
+  onUpdate: (time, progress) => {
+    // global Timeline update
   },
   onComplete: () => {
-    // timeline is complete
+    // Timeline is complete
   },
   // enable @wbe/debug on this timeline by adding `localStorage.debug = "interpol:*"`
   // in your browser's console
@@ -77,13 +79,13 @@ const tl = new Timeline({
 tl.add({
   props: { value: [0, 100] },
   duration: 1000,
-  onUpdate: ({ props, time, progress }) => {},
+  onUpdate: (props, time, progress) => {},
 })
 tl.add(
   {
     props: { value: [0, 100] },
     duration: 500,
-    onUpdate: ({ props, time, progress }) => {},
+    onUpdate: (props, time, progress) => {},
   },
   // set a negatif offsetDuration
   -100
@@ -91,15 +93,6 @@ tl.add(
 ```
 
 [timeline codesandbox](https://codesandbox.io/s/timeline-basic-forked-w9cy9c)
-
-## Real world example
-
-Interpol as been first created to be used for animation.
-TODO
-
-```js
-TODO
-```
 
 ## Easing
 
@@ -132,10 +125,10 @@ new Interpol({
 ### interpol constructor
 
 ```ts
-interface IInterpolConstruct {
+interface IInterpolConstruct<K extends keyof Props> {
   // props are an interpol list object
   // default: /
-  props: Record<string, [number | (() => number), number | (() => number)]>
+  props: Record<K, [number | (() => number), number | (() => number)]>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second
@@ -169,11 +162,11 @@ interface IInterpolConstruct {
 
   // Called on frame update
   // default: /
-  onUpdate?: ({ value, time, progress }: IUpdateParams) => void
+  onUpdate?: (props?: Record<K, number>, time?: number, progress?: number) => void
 
   // Called when interpol is complete
   // default: /
-  onComplete?: ({ value, time, progress }: IUpdateParams) => void
+  onComplete?: (props?: Record<K, number>, time?: number, progress?: number) => void
 }
 ```
 

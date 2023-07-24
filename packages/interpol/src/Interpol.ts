@@ -1,11 +1,4 @@
-import {
-  FormattedProp,
-  FormattedProps,
-  IInterpolConstruct,
-  Props,
-  ParamPropsValue,
-  Value,
-} from "./core/types"
+import { FormattedProp, CallBack, InterpolConstruct, Props, Value } from "./core/types"
 import debug from "@wbe/debug"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
@@ -13,7 +6,7 @@ import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import { compute } from "./core/compute"
 import { noop } from "./core/noop"
-import { easeAdaptor, EaseFn, EaseName } from "./core/ease"
+import { easeAdapter, EaseFn, EaseName } from "./core/ease"
 const log = debug("interpol:Interpol")
 
 let ID = 0
@@ -49,18 +42,18 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public get isPaused() {
     return this.#isPaused
   }
-  #props: FormattedProps<K>
+  #props: Record<K, FormattedProp>
   public get props() {
     return this.#props
   }
 
-  #propsValue: ParamPropsValue<K>
+  #propsValue: Record<K, number>
   #delay: number
   #ease: EaseFn
   #revEase: EaseFn
   #beforeStart: () => void
-  #onUpdate: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
-  #onComplete: (props?: ParamPropsValue<K>, time?: number, progress?: number) => void
+  #onUpdate: CallBack<K>
+  #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
 
@@ -76,7 +69,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     onComplete = noop,
     debug = false,
     ticker = new Ticker(),
-  }: IInterpolConstruct<K>) {
+  }: InterpolConstruct<K>) {
     this.#props = this.#prepareProps<K>(props)
     this.#propsValue = this.#createPropsParamObj<K>(this.#props)
     this.#duration = duration
@@ -283,7 +276,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Prepare internal props object
    */
-  #prepareProps<K extends keyof Props>(props: Props): FormattedProps<K> {
+  #prepareProps<K extends keyof Props>(props: Props): Record<K, FormattedProp> {
     return Object.keys(props).reduce((acc, key: K) => {
       const p = props[key as K]
       acc[key as K] = {
@@ -294,18 +287,18 @@ export class Interpol<K extends keyof Props = keyof Props> {
         value: null,
       }
       return acc
-    }, {} as FormattedProps<K>)
+    }, {} as Record<K, FormattedProp>)
   }
 
   /**
    * Create an object with props keys
    * in order to keep the same reference on each frame
    */
-  #createPropsParamObj<K extends keyof Props>(fProps: FormattedProps<K>): ParamPropsValue<K> {
+  #createPropsParamObj<K extends keyof Props>(fProps: Record<K, FormattedProp>): Record<K, number> {
     return Object.keys(fProps).reduce((acc, key: K) => {
       acc[key as K] = null
       return acc
-    }, {} as ParamPropsValue<K>)
+    }, {} as Record<K, number>)
   }
 
   /**
@@ -313,9 +306,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * in order to keep the same reference on each frame
    */
   #assignPropsValue<P extends K>(
-    propsValue: ParamPropsValue<P>,
-    props: FormattedProps<P>
-  ): ParamPropsValue<P> {
+    propsValue: Record<P, number>,
+    props: Record<P, FormattedProp>
+  ): Record<P, number> {
     for (const key of Object.keys(propsValue)) {
       propsValue[key as P] = props[key as P].value
     }
@@ -329,7 +322,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * @returns ease function
    */
   #chooseEase(e): EaseFn {
-    return typeof e === "string" ? easeAdaptor(e as EaseName) : (e as EaseFn)
+    return typeof e === "string" ? easeAdapter(e as EaseName) : (e as EaseFn)
   }
 
   /**
