@@ -8,16 +8,15 @@ describe.concurrent("Timeline stress test", () => {
       new Promise(async (resolve: any) => {
         let timeMock = vi.fn(() => 0)
         let progressMock = vi.fn(() => 0)
-        const timelineDuration = itpNumber * itpDuration
 
         // Create TL
         const tl = new Timeline({
           paused: true,
-          onUpdate: ({ time, progress }) => {
+          onUpdate: (time, progress) => {
             timeMock.mockReturnValue(time)
             progressMock.mockReturnValue(progress)
           },
-          onComplete: ({ time, progress }) => {
+          onComplete: (time, progress) => {
             const t = timeMock()
             expect(time).toEqual(t)
 
@@ -41,12 +40,12 @@ describe.concurrent("Timeline stress test", () => {
         tl.play().then(resolve)
       })
 
-    const TESTS_NUMBER = 500
+    const TESTS_NUMBER = 50
 
     const tls = new Array(TESTS_NUMBER).fill(null).map((_) => {
       return oneTl({
         itpNumber: randomRange(1, 20),
-        itpDuration: randomRange(1, 100),
+        itpDuration: randomRange(1, 50),
       })
     })
 

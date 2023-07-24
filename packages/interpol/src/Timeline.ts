@@ -202,7 +202,7 @@ export class Timeline {
   public seek(progress: number): void {
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds(this.#progress, this.#time)
+    this.#updateAdds(this.#time, this.#progress)
   }
 
   /**
@@ -218,7 +218,7 @@ export class Timeline {
     if (!this.#ticker.isRunning) return
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds(this.#progress, this.#time)
+    this.#updateAdds(this.#time, this.#progress)
 
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
       this.#onComplete(this.#time, this.#progress)
@@ -233,8 +233,8 @@ export class Timeline {
    * @param progress
    * @param time
    */
-  #updateAdds(progress: number, time: number): void {
-    this.#onUpdate(progress, time)
+  #updateAdds(time: number, progress: number): void {
+    this.#onUpdate(time, progress)
     this.#onAllAdds((add) => {
       add.itp.seek((time - add.startPos) / add.itp.duration)
     })

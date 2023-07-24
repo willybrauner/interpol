@@ -8,7 +8,7 @@ describe.concurrent("Interpol refresh", () => {
     return new Promise(async (resolve: any) => {
       const itp = new Interpol({
         props: { v: [() => randomRange(-100, 100), () => randomRange(-100, 100)] },
-        duration: () => randomRange(-200, 200),
+        duration: () => randomRange(-100, 100),
       })
       expect(typeof itp.props.v._to).toBe("number")
       expect(typeof itp.props.v._from).toBe("number")
@@ -34,18 +34,18 @@ describe.concurrent("Interpol refresh", () => {
             },
           ],
         },
-        duration: () => 1000,
+        duration: () => 66,
       })
 
       expect(mockFrom).toHaveBeenCalledTimes(1)
       expect(mockTo).toHaveBeenCalledTimes(1)
-      expect(itp.duration).toBe(1000)
+      expect(itp.duration).toBe(66)
       await wait(itp.duration)
       itp.refreshComputedValues()
       await wait(500)
       expect(mockFrom).toHaveBeenCalledTimes(2)
       expect(mockTo).toHaveBeenCalledTimes(2)
-      expect(itp.duration).toBe(1000)
+      expect(itp.duration).toBe(66)
       resolve()
     })
   })

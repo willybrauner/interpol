@@ -45,7 +45,7 @@ describe.concurrent("Interpol basic", () => {
           mock()
           expect(mock).toBeCalledTimes(1)
         },
-        onComplete: ({ time }) => {
+        onComplete: (props, time) => {
           mock()
           expect(mock).toBeCalledTimes(2)
           expect(time).toBe(0)
@@ -63,11 +63,11 @@ describe.concurrent("Interpol basic", () => {
           bar: [-30, 60],
         },
         duration: 0,
-        onUpdate: ({ props }) => {
+        onUpdate: (props) => {
           expect(props.foo).toBeDefined()
           expect(props.bar).toBeDefined()
         },
-        onComplete: ({ props }) => {
+        onComplete: (props) => {
           expect(props.foo).toBeDefined()
           expect(props.bar).toBeDefined()
           resolve()

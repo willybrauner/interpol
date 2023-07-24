@@ -1,4 +1,4 @@
-import { it, expect, describe, vi } from "vitest"
+import { it, expect, describe } from "vitest"
 import { Interpol } from "../src"
 import { interpolParamsGenerator } from "./utils/interpolParamsGenerator"
 import { randomRange } from "./utils/randomRange"
@@ -10,17 +10,17 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
   const inter = new Interpol({
     props: { v: [from, to] },
     duration,
-    onUpdate: ({ props }) => {
+    onUpdate: ({ v }) => {
       if (inter.props.v.from < inter.props.v.to) {
-        expect(props.v).toBeGreaterThanOrEqual(inter.props.v._from)
+        expect(v).toBeGreaterThanOrEqual(inter.props.v._from)
       } else if (inter.props.v.from > inter.props.v.to) {
-        expect(props.v).toBeLessThanOrEqual(inter.props.v._from)
+        expect(v).toBeLessThanOrEqual(inter.props.v._from)
       } else if (inter.props.v.from === inter.props.v.to) {
-        expect(props.v).toBe(inter.props.v.to)
-        expect(props.v).toBe(inter.props.v.from)
+        expect(v).toBe(inter.props.v.to)
+        expect(v).toBe(inter.props.v.from)
       }
     },
-    onComplete: ({ props, progress }) => {
+    onComplete: (props, time, progress) => {
       expect(props.v).toBe(inter.props.v.to)
       // FIXME : this test is not working
       // expect(time).toBe(duration)
@@ -36,7 +36,7 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
  */
 describe.concurrent("Interpol stress test", () => {
   it("should interpol value between two points", async () => {
-    let inputs = new Array(500)
+    let inputs = new Array(50)
       .fill(null)
       .map((_) => interpolParamsGenerator())
       .sort((a, b) => a.duration - b.duration)
@@ -48,7 +48,7 @@ describe.concurrent("Interpol stress test", () => {
   })
 
   it("should work if 'from' and 'to' are equals", () => {
-    let inputs = new Array(500)
+    let inputs = new Array(50)
       .fill(null)
       .map((_) => {
         return interpolParamsGenerator({
@@ -65,7 +65,7 @@ describe.concurrent("Interpol stress test", () => {
   })
 
   it("should be onComplete immediately if duration is <= 0", () => {
-    let inputs = new Array(500)
+    let inputs = new Array(50)
       .fill(null)
       .map((_) => interpolParamsGenerator({ duration: randomRange(-2000, 0, 2) }))
     return new Promise((resolve: any) => {

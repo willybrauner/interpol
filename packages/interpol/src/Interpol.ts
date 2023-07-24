@@ -234,8 +234,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
         time: this.#_duration,
         progress: 1,
       }
-      this.#onUpdate?.(obj.props, obj.time, obj.progress)
-      this.#onComplete?.(obj.props, obj.time, obj.progress)
+      this.#onUpdate(obj.props, obj.time, obj.progress)
+      this.#onComplete(obj.props, obj.time, obj.progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
       return
@@ -251,13 +251,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
 
     // Pass value, time and progress
-    this.#onUpdate?.(this.#propsValue, this.#time, this.#progress)
+    this.#onUpdate(this.#propsValue, this.#time, this.#progress)
     this.#log("onUpdate", { props: this.#propsValue, t: this.#time, p: this.#progress })
 
     // on complete
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
       this.#log(`handleTickerUpdate onComplete!`)
-      this.#onComplete?.(this.#propsValue, this.#time, this.#progress)
+      this.#onComplete(this.#propsValue, this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
