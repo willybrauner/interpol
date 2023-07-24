@@ -3,6 +3,8 @@
 <img alt="npm" src="https://img.shields.io/npm/v/@wbe/interpol">
 <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/%40wbe%2Finterpol">
 <img alt="build" src="https://github.com/willybrauner/interpol/workflows/tests/badge.svg">
+</p>
+<p align="center">
 <img alt="logo" src="./packages/interpol/interpol.png">
 </p>
 
