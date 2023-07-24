@@ -43,12 +43,12 @@ import { Interpol, Timeline } from "@wbe/interpol"
 const itp1 = new Interpol({
   props: { value: [0, 100] },
   duration: 1000,
-  onUpdate: (props, time, progress) => {},
+  onUpdate: ({ value }, time, progress) => {},
 })
 const itp2 = new Interpol({
   props: { value: [-100, 100] },
   duration: 500,
-  onUpdate: (props, time, progress) => {},
+  onUpdate: ({ value }, time, progress) => {},
 })
 
 const tl = new Timeline()
@@ -64,12 +64,10 @@ Advanced timeline:
 import { Timeline } from "@wbe/interpol"
 
 const tl = new Timeline({
-  onUpdate: (time, progress) => {
-    // global Timeline update
-  },
-  onComplete: () => {
-    // Timeline is complete
-  },
+  // global Timeline update
+  onUpdate: (time, progress) => {},
+  // Timeline is complete
+  onComplete: () => {},
   // enable @wbe/debug on this timeline by adding `localStorage.debug = "interpol:*"`
   // in your browser's console
   debug: true,
@@ -77,15 +75,15 @@ const tl = new Timeline({
 
 // `add` method can recieve an interpol object without creat an interpol instance
 tl.add({
-  props: { value: [0, 100] },
+  props: { v: [0, 100] },
   duration: 1000,
-  onUpdate: (props, time, progress) => {},
+  onUpdate: ({ v }, time, progress) => {},
 })
 tl.add(
   {
-    props: { value: [0, 100] },
+    props: { v: [0, 100] },
     duration: 500,
-    onUpdate: (props, time, progress) => {},
+    onUpdate: ({ v }, time, progress) => {},
   },
   // set a negatif offsetDuration
   -100
@@ -182,11 +180,11 @@ const itp = new Interpol({
 
 // Play the interpol
 // play(from: number = 0): Promise<any>
-itp.play()
+itp.play(from)
 
 // Reverse and play the interpol
 // reverse(from: number = 1): Promise<any>
-itp.reverse()
+itp.reverse(from)
 
 // Pause the interpol
 // pause(): void
@@ -207,7 +205,7 @@ itp.refreshComputedValues()
 // Seek to a specific time
 // seek(progress: number): void
 // progress: number between 0 and 1
-itp.seek(0.5)
+itp.seek(progress)
 ```
 
 ### Timeline constructor
@@ -216,11 +214,11 @@ itp.seek(0.5)
 interface ITimelineConstruct {
   // Execute on frame update
   // default: /
-  onUpdate?: ({ time, progress }) => void
+  onUpdate?: (time: number, progress: number) => void
 
   // Execute on complete
   // default: /
-  onComplete?: ({ time, progress }) => void
+  onComplete?: (time: number, progress: number) => void
 
   // Enable @wbe/debug to get interpol instance logs
   // exe in your console `localStorage.debug = "interpol:Timeline"`
@@ -247,23 +245,15 @@ const tl = new Timeline()
 // Add new Interpol object param
 // or Interpol instance
 // add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline
-tl.add(
-  {
-    props: { value: [-100, 100] },
-    onUpdate: ({ value, time, progress }) => {},
-  },
-  // offset duration
-  // this one will start the current interpol 100ms before the last interpol end.
-  -100
-)
+tl.add(Interpol, offset)
 
 // start the timeline
 // play(from: number = 0): Promise<any>
-tl.play()
+tl.play(from)
 
 // reverse and play the timeline
 // reverse(from: number = 1): Promise<any>
-tl.reverse()
+tl.reverse(from)
 
 // paused the timeline, will keep time, delta and progress.
 // pause(): void
@@ -280,7 +270,7 @@ tl.stop()
 // seek to a specific time
 // seek(progress: number): void
 // progress is a number between 0 and 1
-tl.seek(0.5)
+tl.seek(progress)
 ```
 
 ## Dev examples
