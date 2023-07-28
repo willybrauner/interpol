@@ -1,6 +1,8 @@
 import "./index.less"
-import { Power1, Timeline, Interpol } from "@wbe/interpol"
+import { Timeline } from "@wbe/interpol"
 import { styles } from "../utils/styles"
+import { randomRange } from "../utils/randomRange"
+import { clamp } from "../utils/clamp"
 
 /**
  *
@@ -8,8 +10,6 @@ import { styles } from "../utils/styles"
  *
  *
  */
-import { randomRange } from "@wbe/interpol/tests/utils/randomRange"
-import { clamp } from "../utils/clamp"
 ;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]())
 )
