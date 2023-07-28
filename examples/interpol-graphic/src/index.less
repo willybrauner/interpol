@@ -1,19 +1,21 @@
-@import (reference) "../utils/ratio.less";
+@import (reference) "../libs/ratio.less";
 
 :root {
   --color-gray: #454545;
   --color-black-1: #313131;
-  --color-black: #171717;
-  --color-blue: #646cff;
+  --color-black: #001011;
+  --color-blue: #284a56;
   --color-white: #fff;
+  --ball-size: 30rem;
 }
 
 html {
-  .propertyViewport(--font-size, 1, 2);
+  .propertyViewport(--font-size, 1, 1);
   font-size: var(--font-size);
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-weight: 400;
   color-scheme: dark;
+  background-color: var(--color-black);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -30,12 +32,7 @@ body {
   position: fixed;
 }
 
-.ball {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 20rem;
-  height: 20rem;
-  border-radius: 50%;
-  background-color: red;
+button {
+  background-color: var(--color-blue);
+  border: none;
 }
