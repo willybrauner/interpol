@@ -34,13 +34,10 @@ const ball = document.querySelector<HTMLElement>(".ball")
  */
 const tl: Timeline = new Timeline({
   debug: true,
-  //  paused: true,
-  onComplete: () => console.log(`tl complete reverse ? ${tl.isReversed}`),
 })
 
-const win = { w: innerWidth, h: innerHeight }
-
 const calcCoords = () => {
+  const win = { w: innerWidth, h: innerHeight }
   const coords: Array<Record<string, [number, number]>> = []
   const NUM = 25
   const ballRect = ball.getBoundingClientRect()
