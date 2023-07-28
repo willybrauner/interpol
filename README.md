@@ -13,6 +13,22 @@ This is the lowest level of animate machine.
 Interpol is not a DOM API, it provides real time progress of the interpolation that can be use or bind
 on... anything!
 
+
+## Summary
+
+- [Install](#install)
+- [Show me some code](#show-me-some-code)
+  - [Interpol](#interpol)
+  - [Timeline](#timeline)
+- [Real word example](#real-word-example)
+- [Easing](#easing)
+- [API](#api)
+  - [interpol constructor](#interpol-constructor)
+  - [interpol methods](#interpol-methods)
+  - [Timeline constructor](#timeline-constructor)
+  - [Timeline methods](#timeline-methods)
+- [Dev examples](#dev-examples)
+
 ## Install
 
 ```shell
@@ -21,24 +37,30 @@ npm i @wbe/interpol
 
 ## Show me some code
 
-Single Interpol:
+### Interpol
 
 ```js
 import { Interpol } from "@wbe/interpol"
 
-const itp = new Interpol({
+new Interpol({
   props: {
-    value: [0, 100],
+    v: [0, 100],
   },
   duration: 1000,
-  onUpdate: (props, time, progress) => {
-    // Do something with `props.value`
-    // updated on each frame between 0 and 100
+  onUpdate: ({ v }, time, progress) => {
+    // do something with `v` value
   },
 })
 ```
 
-[interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-basic-9n9u54)
+In this example:
+- `v` will be interpolated between 0 and 100 during 1 second
+- `time` is the current time in millisecond
+- `progress` is the current progress between 0 and 1
+
+➡️ [Interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-ease-35mqw9?file=%2Fsrc%2FApp.tsx%3A1%2C1)
+
+### Timeline
 
 Chain interpol instancies with Timeline:
 
@@ -46,56 +68,79 @@ Chain interpol instancies with Timeline:
 import { Interpol, Timeline } from "@wbe/interpol"
 
 const itp1 = new Interpol({
-  props: { value: [0, 100] },
-  duration: 1000,
-  onUpdate: ({ value }, time, progress) => {},
+  props: {
+    v: [0, 100],
+  },
 })
 const itp2 = new Interpol({
-  props: { value: [-100, 100] },
-  duration: 500,
-  onUpdate: ({ value }, time, progress) => {},
+  props: {
+    v: [-100, 100],
+  }
 })
 
 const tl = new Timeline()
-tl.add(itp1)
-tl.add(itp2)
-
-tl.play()
+  .add(itp1)
+  .add(itp2)
 ```
 
-Advanced timeline:
+## Real word example
 
-```js
+Interpol as been built for animate DOM element too. In this case, you can use the `onUpdate` callback to update the DOM element style.
+
+```ts
 import { Timeline } from "@wbe/interpol"
 
-const tl = new Timeline({
-  // global Timeline update
-  onUpdate: (time, progress) => {},
-  // Timeline is complete
-  onComplete: () => {},
-  // enable @wbe/debug on this timeline by adding `localStorage.debug = "interpol:*"`
-  // in your browser's console
-  debug: true,
+// The DOM element we want to animate
+const element = document.querySelector("div")
+
+// Create a timeline instance
+const tl = new Timeline({ 
+  paused: true,
+  onComplete: () => {
+    tl.isReversed() 
+      ? console.log("Timeline reverse is complete") 
+      : console.log("Timeline is complete")
+  },
 })
 
-// `add` method can recieve an interpol object without creat an interpol instance
+// `add()` can recieve an Interpol object constructor
 tl.add({
-  props: { v: [0, 100] },
-  duration: 1000,
-  onUpdate: ({ v }, time, progress) => {},
-})
-tl.add(
-  {
-    props: { v: [0, 100] },
-    duration: 500,
-    onUpdate: ({ v }, time, progress) => {},
+  props: {
+    x: [-100, 100],
+    y: [-100, 100],
   },
-  // set a negatif offsetDuration
-  -100
-)
+  duration: 1000,
+  ease: t => t * (2 - t),
+  onUpdate: ({ x, y }) => {
+    element.style.transform = `translate3d(${x}px, ${y}px, 0px)`
+  },
+  onComplete: () => {
+    console.log("This interpol is complete")
+  },
+});
+
+tl.add({
+    props: {
+      width: [10, 50],
+    },
+    duration: 500,
+    ease: t => t * t,
+    onUpdate: ({ width }) => {
+        element.style.width = `${width}%`
+    },
+  },
+  // set an offset duration, 
+  // this interpol will start 100ms before the previous interpol end
+  -100)
+
+await tl.play()
+// timeline is complete
+
+await tl.reverse()
+// timeline reverse is complete
 ```
 
-[timeline codesandbox](https://codesandbox.io/s/timeline-basic-forked-w9cy9c)
+➡️ [Timeline codesandbox](https://codesandbox.io/p/sandbox/interpol-timeline-xmdvcf?file=%2Fsrc%2Fmain.ts%3A1%2C1)
 
 ## Easing
 
@@ -176,7 +221,7 @@ interface IInterpolConstruct<K extends keyof Props> {
 ### Interpol methods
 
 ```ts
-import { Interpol } from "./Interpol"
+import { Interpol } from "@wbe/Interpol"
 
 const itp = new Interpol({
   paused: true, // disable autoplay
@@ -203,7 +248,7 @@ itp.resume()
 // stop(): void
 itp.stop()
 
-// Compute 'from' 'to' and 'duration' values if there are functions
+// Compute ['from', 'to'] and 'duration' values if there are functions
 // refreshComputedValues(): void
 itp.refreshComputedValues()
 
@@ -243,7 +288,7 @@ interface ITimelineConstruct {
 ### Timeline methods
 
 ```ts
-import { Timeline } from "./Interpol"
+import { Timeline } from "@wbe/Interpol"
 
 const tl = new Timeline()
 
@@ -290,8 +335,11 @@ pnpm run build:watch
 # start tests and watch
 pnpm run test:watch
 
-# start dev server on selected example
+# start dev server for all examples
 pnpm run dev
+
+# Or run a specific example
+pnpm run dev --scope interpol-basic
 ```
 
 ## Credits
