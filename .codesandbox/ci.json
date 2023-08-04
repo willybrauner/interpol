@@ -4,6 +4,7 @@
   "sandboxes": [
     "/examples/interpol-basic",
     "/examples/interpol-ease",
+    "/examples/interpol-graphic",
     "/examples/interpol-timeline"
   ],
   "node": "18"

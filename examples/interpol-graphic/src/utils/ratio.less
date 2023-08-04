@@ -1,0 +1,189 @@
+@viewport-reference-width: 375;
+@viewport-reference-height: 667;
+@viewport-reference-desktop-width: 1400;
+@viewport-reference-desktop-height: 900;
+@breakpoint-mobile: 320px;
+@breakpoint-tablet: 768px;
+@breakpoint-laptop: 1024px;
+@breakpoint-bigLaptop: 1440px;
+@breakpoint-desktop: 1680px;
+
+/**
+Get VH value from ratio
+ */
+.ratioVW(@n1, @n2 : @viewport-reference-width) {
+  @isnumber: isnumber(@n1);
+  @returns: if((@isnumber), (@n1 / @n2) * 100vw, @n1);
+}
+
+/**
+Get VH value from ratio
+ */
+.ratioVH(@n1, @n2 : @viewport-reference-height) {
+  @isnumber: isnumber(@n1);
+
+  // fallback for old browser who don't support css --var
+  @returns: if((@isnumber), (@n1 / @n2) * 100vh, @n1);
+  // vh value relative to css --vh variable
+  @var: var(--vh, 1vh);
+  @returns: if((@isnumber), ~"calc( (@{n1} / @{n2}) * (@{var} * 100) )", @n1);
+}
+
+/**
+Get VW value for property according to value in pixels
+ */
+.propertyVW(@property, @n1, @n2 : @viewport-reference-width) {
+  @value-length-mobile: length(@n1);
+
+  & when (@value-length-mobile = 1) {
+    @{property}: .ratioVW(@n1, @n2) [ @returns];
+  }
+  & when (@value-length-mobile = 2) {
+    @{property}: .ratioVW(extract(@n1, 1), @n2) [ @returns] .ratioVW(extract(@n1, 2), @n2) [
+      @returns];
+  }
+  & when (@value-length-mobile = 3) {
+    @{property}: .ratioVW(extract(@n1, 1), @n2) [ @returns] .ratioVW(extract(@n1, 2), @n2) [
+      @returns] .ratioVW(extract(@n1, 3), @n2) [ @returns];
+  }
+  & when (@value-length-mobile = 4) {
+    @{property}: .ratioVW(extract(@n1, 1), @n2) [ @returns] .ratioVW(extract(@n1, 2), @n2) [
+      @returns] .ratioVW(extract(@n1, 3), @n2) [ @returns] .ratioVW(extract(@n1, 4), @n2) [
+      @returns];
+  }
+}
+
+/**
+Get VH value for property according to value in pixels
+ */
+.propertyVH(@property, @n1, @n2 : @viewport-reference-height, @aspect-ratio: true) {
+  @value-length-mobile: length(@n1);
+
+  & when (@value-length-mobile = 1) {
+    @{property}: .ratioVH(@n1, @n2) [ @returns];
+  }
+  & when (@value-length-mobile = 2) {
+    @{property}: .ratioVH(extract(@n1, 1), @n2) [ @returns] .ratioVH(extract(@n1, 2), @n2) [
+      @returns];
+  }
+  & when (@value-length-mobile = 3) {
+    @{property}: .ratioVH(extract(@n1, 1), @n2) [ @returns] .ratioVH(extract(@n1, 2), @n2) [
+      @returns] .ratioVH(extract(@n1, 3), @n2) [ @returns];
+  }
+  & when (@value-length-mobile = 4) {
+    @{property}: .ratioVH(extract(@n1, 1), @n2) [ @returns] .ratioVH(extract(@n1, 2), @n2) [
+      @returns] .ratioVH(extract(@n1, 3), @n2) [ @returns] .ratioVH(extract(@n1, 4), @n2) [
+      @returns];
+  }
+
+  & when (@aspect-ratio = true) {
+    // calc viewport height
+    @local-viewport-height: @viewport-reference-desktop-height + 1;
+
+    @media (max-aspect-ratio: ~"@{viewport-reference-desktop-width} / @{local-viewport-height}") {
+      .propertyVW(@property, @n1, @n2 : @viewport-reference-desktop-width);
+    }
+  }
+}
+
+/**
+Responsive Property
+*/
+.propertyViewport(
+  @property,
+  @value1,
+  @value2: @value1,
+  @breakpoint: @breakpoint-tablet,
+  @capValue: false,
+  @aspect-ratio: true
+) {
+  .propertyVW(@property, @value1, @n2 : @viewport-reference-width);
+  @media (min-width: @breakpoint) {
+    .propertyVH(@property, @value2, @n2 : @viewport-reference-desktop-height, @aspect-ratio);
+  }
+
+  & when(@capValue) {
+    @media (min-width: @breakpoint-desktop) {
+      @value2-length: length(@value2);
+
+      & when (@value2-length = 1) {
+        @{property}: .toPx(@value2) [ @returns];
+      }
+      & when (@value2-length = 2) {
+        @{property}: .toPx(extract(@value2, 1)) [ @returns] .toPx(extract(@value2, 2)) [ @returns];
+      }
+      & when (@value2-length = 3) {
+        @{property}: .toPx(extract(@value2, 1)) [ @returns] .toPx(extract(@value2, 2)) [ @returns]
+          .toPx(extract(@value2, 3)) [ @returns];
+      }
+      & when (@value2-length = 4) {
+        @{property}: .toPx(extract(@value2, 1)) [ @returns] .toPx(extract(@value2, 2)) [ @returns]
+          .toPx(extract(@value2, 3)) [ @returns] .toPx(extract(@value2, 4)) [ @returns];
+      }
+    }
+  }
+}
+
+/**
+Pixel to Rem property, mobile & desktop
+*/
+.rem(@property, @value-mobile, @value-desktop: false, @breakpoint: @breakpoint-tablet) {
+  @value-length-mobile: length(@value-mobile);
+
+  & when (@value-length-mobile = 1) {
+    @{property}: .toRem(@value-mobile) [ @returns];
+  }
+  & when (@value-length-mobile = 2) {
+    @{property}: .toRem(extract(@value-mobile, 1)) [ @returns] .toRem(extract(@value-mobile, 2)) [
+      @returns];
+  }
+  & when (@value-length-mobile = 3) {
+    @{property}: .toRem(extract(@value-mobile, 1)) [ @returns] .toRem(extract(@value-mobile, 2)) [
+      @returns] .toRem(extract(@value-mobile, 3)) [ @returns];
+  }
+  & when (@value-length-mobile = 4) {
+    @{property}: .toRem(extract(@value-mobile, 1)) [ @returns] .toRem(extract(@value-mobile, 2)) [
+      @returns] .toRem(extract(@value-mobile, 3)) [ @returns] .toRem(extract(@value-mobile, 4)) [
+      @returns];
+  }
+
+  & when (not (@value-desktop = false)) {
+    @value-length-desktop: length(@value-desktop);
+
+    @media (min-width: @breakpoint) {
+      & when (@value-length-desktop = 1) {
+        @{property}: .toRem(@value-desktop) [ @returns];
+      }
+      & when (@value-length-desktop = 2) {
+        @{property}: .toRem(extract(@value-desktop, 1)) [ @returns]
+          .toRem(extract(@value-desktop, 2)) [ @returns];
+      }
+      & when (@value-length-desktop = 3) {
+        @{property}: .toRem(extract(@value-desktop, 1)) [ @returns]
+          .toRem(extract(@value-desktop, 2)) [ @returns] .toRem(extract(@value-desktop, 3)) [
+          @returns];
+      }
+      & when (@value-length-desktop = 4) {
+        @{property}: .toRem(extract(@value-desktop, 1)) [ @returns]
+          .toRem(extract(@value-desktop, 2)) [ @returns] .toRem(extract(@value-desktop, 3)) [
+          @returns] .toRem(extract(@value-desktop, 4)) [ @returns];
+      }
+    }
+  }
+}
+
+/**
+ * Set a property size to rem from px size
+ */
+.toRem(@value) {
+  @isnumber: isnumber(@value);
+  @returns: if(isnumber(@value), unit(@value, rem), @value);
+}
+
+/**
+ * Set a property size to rem from px size
+ */
+.toPx(@value) {
+  @isnumber: isnumber(@value);
+  @returns: if(isnumber(@value), unit(@value, px), @value);
+}
