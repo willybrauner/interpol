@@ -162,16 +162,20 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public pause(): void {
     this.#isPaused = true
     this.#isPlaying = false
-    this.ticker.onTick.off(this.#handleTick)
-    if (!this.inTl) this.ticker.pause()
+    if (!this.inTl) {
+      this.ticker.onTick.off(this.#handleTick)
+      this.ticker.pause()
+    }
   }
 
   public resume(): void {
     if (!this.#isPaused) return
     this.#isPaused = false
     this.#isPlaying = true
-    this.ticker.onTick.on(this.#handleTick)
-    if (!this.inTl) this.ticker.play()
+    if (!this.inTl) {
+      this.ticker.onTick.on(this.#handleTick)
+      this.ticker.play()
+    }
   }
 
   public stop(): void {
@@ -180,14 +184,17 @@ export class Interpol<K extends keyof Props = keyof Props> {
       this.#time = 0
       this.#progress = 0
     }
-    if (!this.inTl) {
-      this.#isReversed = false
-    }
+
     this.#isPlaying = false
     this.#isPaused = false
+    this.#completed = false
     clearTimeout(this.#timeout)
-    this.ticker.onTick.off(this.#handleTick)
-    if (!this.inTl) this.ticker.stop()
+
+    if (!this.inTl) {
+      this.#isReversed = false
+      this.ticker.onTick.off(this.#handleTick)
+      this.ticker.stop()
+    }
   }
 
   /**
@@ -195,26 +202,30 @@ export class Interpol<K extends keyof Props = keyof Props> {
    */
   #completed = false
   public seek(progress: number): void {
-    const prevP = this.#progress
+    // keep previous progress before update it
+    let prevP = this.#progress
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
-    // get props value only
     this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
-
-    if (prevP !== this.#progress) {
-      this.#onUpdate(this.#propsValue, this.#time, this.#progress)
-      this.#log("seek onUpdate", { v: this.#propsValue, t: this.#time, p: this.#progress })
-    }
-
+    // if progress 1, execute onComplete
     if (this.#progress === 1) {
       if (!this.#completed) {
         this.#log("seek onComplete")
         this.#onComplete(this.#propsValue, this.#time, this.#progress)
         this.#completed = true
+        prevP = this.#progress
       }
-    } else if (this.#progress === 0) {
+    }
+    // if progress 0, reset completed flag
+    if (this.#progress === 0) {
       this.#completed = false
+      prevP = this.#progress
+    }
+    // if progress is between 0 and 1, execute onUpdate
+    if (prevP !== this.#progress) {
+      this.#onUpdate(this.#propsValue, this.#time, this.#progress)
+      this.#log("seek onUpdate", { v: this.#propsValue, t: this.#time, p: this.#progress })
     }
   }
 
