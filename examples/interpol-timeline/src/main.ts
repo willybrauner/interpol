@@ -32,6 +32,7 @@ const styles = (el: HTMLElement | null, s: Record<string, string>) => {
  *
  *
  */
+const duration = 1000
 const tl: Timeline = new Timeline({
   debug: true,
   paused: true,
@@ -43,7 +44,7 @@ const itp = new Interpol<"y" | "x">({
     x: [0, 200],
     y: [0, 200],
   },
-  duration: 500,
+  duration,
   ease: Power1.in,
   onUpdate: ({ x, y }) => {
     styles(ball, {
@@ -63,7 +64,7 @@ tl.add({
     x: [200, 100],
     y: [200, 300],
   },
-  duration: 500,
+  duration,
   ease: Power1.out,
   onUpdate: ({ x, y }) => {
     styles(ball, {
@@ -80,7 +81,7 @@ tl.add({
     x: [100, 0],
     y: [300, 0],
   },
-  duration: 500,
+  duration,
   ease: Power1.out,
   onUpdate: ({ x, y }) => {
     styles(ball, {
