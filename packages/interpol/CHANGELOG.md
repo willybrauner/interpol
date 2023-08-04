@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.5.2
+
+### Patch Changes
+
+- 7060d12: Fix timeline ticker on stop, resume and pause
+
 ## 0.5.1
 
 ### Patch Changes
