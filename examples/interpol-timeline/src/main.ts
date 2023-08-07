@@ -35,7 +35,7 @@ const styles = (el: HTMLElement | null, s: Record<string, string>) => {
  */
 const duration = 1000
 const tl: Timeline = new Timeline({
-  debug: true,
+  // debug: true,
   paused: true,
   onComplete: () => console.log(`tl complete reverse ? ${tl.isReversed}`),
 })
