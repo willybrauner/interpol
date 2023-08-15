@@ -26,6 +26,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public get time() {
     return this.#time
   }
+  #lastProgress = 0
   #progress = 0
   public get progress() {
     return this.#progress
@@ -85,7 +86,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // start!
     this.refreshComputedValues()
-    this.#beforeStart?.()
+    this.#beforeStart()
     if (!this.#isPaused) this.play()
   }
 
@@ -201,7 +202,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Seek to a specific progress (between 0 and 1)
    */
-  #lastProgress = 0
   public seek(progress: number): void {
     // keep previous progress before update it
     this.#lastProgress = this.#progress

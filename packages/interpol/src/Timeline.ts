@@ -89,16 +89,27 @@ export class Timeline {
     // Get prev add of the list
     const prevAdd = this.#adds?.[this.#adds.length - 1]
     // Calc start time If not, prev, this is the 1st, start time is 0 else, origin is the prev end + offset
-    // Calc end time in TL (start pos + duration of interpolation)
     const startTime = prevAdd ? prevAdd.time.end + offset : 0
-    const endTime = startTime + itp.duration
+
     // push new Add instance in local
     this.#adds.push({
       itp,
-      time: { start: startTime, end: endTime, offset },
-      progress: { start: null, end: null, current: 0, last: 0 },
+      time: {
+        start: startTime,
+        // Calc end time in TL (start pos + duration of interpolation)
+        end: startTime + itp.duration,
+        offset,
+      },
+      progress: {
+        start: null,
+        end: null,
+        current: 0,
+        last: 0,
+      },
     })
-    // Re Calc all progress start and end after each add register
+
+    // Re Calc all progress start and end after each add register,
+    // because we need to know the full TL duration for this calc
     this.#onAllAdds((currAdd, i) => {
       this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration
       this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration
@@ -175,7 +186,7 @@ export class Timeline {
     this.#ticker.onTick.on(this.#handleTick)
     this.#ticker.play()
   }
-  
+
   public stop(): void {
     this.#progress = 0
     this.#time = 0
