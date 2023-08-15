@@ -188,7 +188,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     this.#isPlaying = false
     this.#isPaused = false
-    this.#completed = false
     this.#lastProgress = 0
     clearTimeout(this.#timeout)
 
@@ -202,7 +201,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Seek to a specific progress (between 0 and 1)
    */
-  #completed = false
   #lastProgress = 0
   public seek(progress: number): void {
     // keep previous progress before update it
@@ -221,24 +219,21 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // if progress 1, execute onComplete
     if (this.#progress === 1) {
-      if (!this.#completed) {
-        seekUpdate()
-        this.#log("seek onComplete")
-        this.#onComplete(this.#propsValue, this.#time, this.#progress)
-        this.#completed = true
-        this.#lastProgress = this.#progress
-      }
+      seekUpdate()
+      this.#log("seek onComplete")
+      this.#onComplete(this.#propsValue, this.#time, this.#progress)
+
+      this.#lastProgress = this.#progress
     }
 
     // if progress 0, reset completed flag
-    if (this.#progress === 0) {
+    else if (this.#progress === 0) {
       seekUpdate()
-      this.#completed = false
       this.#lastProgress = this.#progress
     }
 
     // if progress is between 0 and 1, execute onUpdate
-    seekUpdate()
+    else seekUpdate()
   }
 
   #handleTick = async ({ delta }): Promise<any> => {
