@@ -2,7 +2,7 @@ import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
 import { wait } from "./utils/wait"
 
-describe.concurrent("Timeline play", () => {
+describe.concurrent("Timeline callbacks", () => {
   it("Timeline should execute interpol's onComplete once", () => {
     return new Promise(async (resolve: any) => {
       const onComplete1 = vi.fn()
