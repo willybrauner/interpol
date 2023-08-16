@@ -210,30 +210,27 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#interpolate(this.#progress)
     this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
 
-    // prettier-ignore
-    const seekUpdate = (): void => {
-      if (this.#lastProgress === this.#progress) return
+    // Always call onUpdate
+    if (this.#lastProgress !== this.#progress) {
       this.#onUpdate(this.#propsValue, this.#time, this.#progress)
-      this.#log("seek onUpdate", { props: this.#propsValue, time: this.#time, progress: this.#progress })
+      this.#log("seek onUpdate", {
+        props: this.#propsValue,
+        time: this.#time,
+        progress: this.#progress,
+      })
     }
 
     // if progress 1, execute onComplete
     if (this.#progress === 1) {
-      seekUpdate()
       this.#log("seek onComplete")
       this.#onComplete(this.#propsValue, this.#time, this.#progress)
-
       this.#lastProgress = this.#progress
     }
 
     // if progress 0, reset completed flag
-    else if (this.#progress === 0) {
-      seekUpdate()
+    if (this.#progress === 0) {
       this.#lastProgress = this.#progress
     }
-
-    // if progress is between 0 and 1, execute onUpdate
-    else seekUpdate()
   }
 
   #handleTick = async ({ delta }): Promise<any> => {
@@ -263,7 +260,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // Pass value, time and progress
     this.#onUpdate(this.#propsValue, this.#time, this.#progress)
-    this.#log("onUpdate", { props: this.#propsValue, t: this.#time, p: this.#progress })
+    this.#log("handleTickerUpdate onUpdate", {
+      props: this.#propsValue,
+      t: this.#time,
+      p: this.#progress,
+    })
 
     // on complete
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {

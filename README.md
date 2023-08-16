@@ -294,7 +294,7 @@ const tl = new Timeline()
 
 // Add new Interpol object param
 // or Interpol instance
-// add(interpol: Interpol | IInterpolConstruct, offsetPosition: number = 0): Timeline
+// add(interpol: Interpol | IInterpolConstruct, offset: number = 0): Timeline
 tl.add(Interpol, offset)
 
 // start the timeline

@@ -199,6 +199,7 @@ export class Timeline {
   }
 
   public seek(progress: number): void {
+    if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
     this.#updateAdds(this.#time, this.#progress)
