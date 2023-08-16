@@ -49,12 +49,12 @@ export class Timeline {
   #onComplete: (time: number, progress: number) => void
 
   constructor({
-                onUpdate = noop,
-                onComplete = noop,
-                debug = false,
-                ticker = new Ticker(),
-                paused = false,
-              }: TimelineConstruct = {}) {
+    onUpdate = noop,
+    onComplete = noop,
+    debug = false,
+    ticker = new Ticker(),
+    paused = false,
+  }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug

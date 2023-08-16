@@ -12,8 +12,10 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
   const getTl = () => {
     const tl = new Timeline({ paused: true })
     tl.add({
+      debug: true,
+      ease: "expo.out",
       props: {
-        x: [-innerWidth, 0],
+        x: [-100, 0],
         i: [0, 1],
       },
       beforeStart: () => {
@@ -21,23 +23,17 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
           transform: `translateX(${-100}%)`,
         })
       },
-      debug: true,
-      // ease: "expo.out",
-      onUpdate: ({ x }, time, progress) => {
+      onUpdate: ({ x }) => {
         styles(rootRef.current, {
-          transform: `translateX(${progress*100}%)`,
+          transform: `translateX(${x}%)`,
         })
       },
       onComplete: (props, time, progress) => {
-        console.log('props, time, progress',props, time, progress)
-        styles(rootRef.current, {
-          transform: `translateX(${progress*100}%)`,
-        })
-      }
+        console.log("props, time, progress", props, time, progress)
+      },
     })
     return tl
   }
-
 
   /**
    * Init
@@ -46,7 +42,6 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
   useEffect(() => {
     if (!tl.current) tl.current = getTl()
   }, [])
-
 
   /**
    * Play / Reverse
