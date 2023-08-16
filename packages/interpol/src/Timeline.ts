@@ -4,19 +4,14 @@ import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
-
 import debug from "@wbe/debug"
 import { noop } from "./core/noop"
 const log = debug("interpol:Timeline")
 
 interface IAdd {
   itp: Interpol
-  offsetPosition: number
-  startPos: number
-  endPos: number
-  isLastOfTl: boolean
-  play?: boolean
-  position?: number
+  time: { start: number; end: number; offset: number }
+  progress: { start?: number; end?: number; current: number; last: number }
 }
 
 let TL_ID = 0
@@ -71,11 +66,11 @@ export class Timeline {
   /**
    * Add a new interpol obj or instance in Timeline
    * @param interpol
-   * @param offsetPosition
+   * @param offset
    */
   public add<K extends keyof Props>(
     interpol: Interpol | InterpolConstruct<K>,
-    offsetPosition: number = 0
+    offset: number = 0
   ): Timeline {
     // Create Interpol instance or not
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
@@ -90,28 +85,38 @@ export class Timeline {
     // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
     // Register full TL duration
-    this.#tlDuration += itp.duration + offsetPosition
-    // Get last prev of the list
+    this.#tlDuration += itp.duration + offset
+    // Get prev add of the list
     const prevAdd = this.#adds?.[this.#adds.length - 1]
-    // If not, prev, this is the 1st, start position is 0 else, origin is the prev end + offset
-    const startPos = prevAdd ? prevAdd.endPos + offsetPosition : 0
-    // Calc end position in TL (start pos + duration of interpolation)
-    const endPos = startPos + itp.duration
-    // Update all "isLastOfTl" property
-    this.#onAllAdds((add) => (add.isLastOfTl = false))
+    // Calc start time If not, prev, this is the 1st, start time is 0 else, origin is the prev end + offset
+    const startTime = prevAdd ? prevAdd.time.end + offset : 0
+
     // push new Add instance in local
     this.#adds.push({
       itp,
-      startPos,
-      endPos,
-      offsetPosition,
-      isLastOfTl: true,
+      time: {
+        start: startTime,
+        // Calc end time in TL (start pos + duration of interpolation)
+        end: startTime + itp.duration,
+        offset,
+      },
+      progress: {
+        start: null,
+        end: null,
+        current: 0,
+        last: 0,
+      },
+    })
+
+    // Re Calc all progress start and end after each add register,
+    // because we need to know the full TL duration for this calc
+    this.#onAllAdds((currAdd, i) => {
+      this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration
+      this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration
     })
     this.#log("adds", this.#adds)
-
     // hack needed because we need to waiting all adds register if this is an autoplay
     if (!this.isPaused) setTimeout(() => this.play(), 0)
-
     // return the Timeline instance to chain methods
     return this
   }
@@ -194,6 +199,7 @@ export class Timeline {
   }
 
   public seek(progress: number): void {
+    if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
     this.#updateAdds(this.#time, this.#progress)
@@ -223,14 +229,30 @@ export class Timeline {
 
   /**
    * Update all adds (itps)
-   * Main update function witch seek all adds on there relative position in TL
-   * @param progress
-   * @param time
+   * Main update function witch seek all adds on there relative time in TL
+   * @param tlTime
+   * @param tlProgress
    */
-  #updateAdds(time: number, progress: number): void {
-    this.#onUpdate(time, progress)
+  #updateAdds(tlTime: number, tlProgress: number): void {
+    this.#onUpdate(tlTime, tlProgress)
+
     this.#onAllAdds((add) => {
-      add.itp.seek((time - add.startPos) / add.itp.duration)
+      // register last and current progress in current add
+      add.progress.last = add.progress.current
+      add.progress.current = (tlTime - add.time.start) / add.itp.duration
+
+      if (
+        // if current add is in progress range of TL progress
+        (add.progress.start <= tlProgress && add.progress.end >= tlProgress) ||
+        // OR, if we are on special case where last progress is smaller than 1 and current progress is 1 or more
+        // ex: last = 0.9 and current = 1.1 -> need to seek to exactly 1 (clamped by itp.seek)
+        (add.progress.last < 1 && Math.floor(add.progress.current) === 1) ||
+        // OR, if last progress is smaller than 0 and current progress is 0 or more
+        // ex: last = -0.01 and current = 0.05 -> need to seek exactly 0 (clamped by itp.seek)
+        (add.progress.current < 0 && Math.floor(add.progress.last) === 0)
+      ) {
+        add.itp.seek(add.progress.current)
+      }
     })
   }
 
@@ -238,8 +260,8 @@ export class Timeline {
    * Exe Callback function on all adds
    * @param cb
    */
-  #onAllAdds(cb: (add: IAdd) => void): void {
-    for (let i = 0; i < this.#adds.length; i++) cb(this.#adds[i])
+  #onAllAdds(cb: (add: IAdd, i?: number) => void): void {
+    for (let i = 0; i < this.#adds.length; i++) cb(this.#adds[i], i)
   }
 
   /**

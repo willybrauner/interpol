@@ -26,6 +26,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public get time() {
     return this.#time
   }
+  #lastProgress = 0
   #progress = 0
   public get progress() {
     return this.#progress
@@ -85,7 +86,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // start!
     this.refreshComputedValues()
-    this.#beforeStart?.()
+    this.#beforeStart()
     if (!this.#isPaused) this.play()
   }
 
@@ -162,6 +163,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public pause(): void {
     this.#isPaused = true
     this.#isPlaying = false
+    this.#lastProgress = 0
     if (!this.inTl) {
       this.ticker.onTick.off(this.#handleTick)
       this.ticker.pause()
@@ -187,7 +189,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     this.#isPlaying = false
     this.#isPaused = false
-    this.#completed = false
+    this.#lastProgress = 0
     clearTimeout(this.#timeout)
 
     if (!this.inTl) {
@@ -200,32 +202,35 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Seek to a specific progress (between 0 and 1)
    */
-  #completed = false
   public seek(progress: number): void {
+    if (this.#isPlaying) this.pause()
     // keep previous progress before update it
-    let prevP = this.#progress
+    this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
     this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
+
+    // Always call onUpdate
+    if (this.#lastProgress !== this.#progress) {
+      this.#onUpdate(this.#propsValue, this.#time, this.#progress)
+      this.#log("seek onUpdate", {
+        props: this.#propsValue,
+        time: this.#time,
+        progress: this.#progress,
+      })
+    }
+
     // if progress 1, execute onComplete
     if (this.#progress === 1) {
-      if (!this.#completed) {
-        this.#log("seek onComplete")
-        this.#onComplete(this.#propsValue, this.#time, this.#progress)
-        this.#completed = true
-        prevP = this.#progress
-      }
+      this.#log("seek onComplete")
+      this.#onComplete(this.#propsValue, this.#time, this.#progress)
+      this.#lastProgress = this.#progress
     }
+
     // if progress 0, reset completed flag
     if (this.#progress === 0) {
-      this.#completed = false
-      prevP = this.#progress
-    }
-    // if progress is between 0 and 1, execute onUpdate
-    if (prevP !== this.#progress) {
-      this.#onUpdate(this.#propsValue, this.#time, this.#progress)
-      this.#log("seek onUpdate", { v: this.#propsValue, t: this.#time, p: this.#progress })
+      this.#lastProgress = this.#progress
     }
   }
 
@@ -256,7 +261,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // Pass value, time and progress
     this.#onUpdate(this.#propsValue, this.#time, this.#progress)
-    this.#log("onUpdate", { props: this.#propsValue, t: this.#time, p: this.#progress })
+    this.#log("handleTickerUpdate onUpdate", {
+      props: this.#propsValue,
+      t: this.#time,
+      p: this.#progress,
+    })
 
     // on complete
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {

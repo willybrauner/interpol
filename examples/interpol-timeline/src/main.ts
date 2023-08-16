@@ -15,6 +15,7 @@ inputSlider.oninput = () => {
 document.querySelector<HTMLButtonElement>(`.play`).onclick = () => tl.play()
 document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => tl.reverse()
 const ball = document.querySelector<HTMLElement>(".ball")
+const ball2 = document.querySelector<HTMLElement>(".ball-2")
 
 /**
  * Utils
@@ -78,13 +79,13 @@ tl.add({
 
 tl.add({
   props: {
-    x: [100, 0],
-    y: [300, 0],
+    x: [0, 100],
+    y: [0, 400],
   },
   duration,
   ease: Power1.out,
   onUpdate: ({ x, y }) => {
-    styles(ball, {
+    styles(ball2, {
       transform: `translate3d(${x}px, ${y}px, 0)`,
     })
   },
