@@ -1,5 +1,12 @@
 # @wbe/interpol
 
+## 0.5.3
+
+### Patch Changes
+
+- 92b744d: - Fix timeline first frame exec onUpdate all interpol instances
+  - Pause the timeline when Timeline.seek method is called
+
 ## 0.5.2
 
 ### Patch Changes
