@@ -203,6 +203,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Seek to a specific progress (between 0 and 1)
    */
   public seek(progress: number): void {
+    if (this.#isPlaying) this.pause()
     // keep previous progress before update it
     this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
