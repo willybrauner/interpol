@@ -11,12 +11,14 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
 
   const getTl = () => {
     const tl = new Timeline({ paused: true })
+
+    const wallDuration = 700
+    // The background wall is a unique element
     tl.add({
-      debug: true,
       ease: "expo.out",
+      duration: 700,
       props: {
         x: [-100, 0],
-        i: [0, 1],
       },
       beforeStart: () => {
         styles(rootRef.current, {
@@ -28,31 +30,69 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
           transform: `translateX(${x}%)`,
         })
       },
-      onComplete: (props, time, progress) => {
-        console.log("props, time, progress", props, time, progress)
-      },
     })
+
+    // Create a stagger effect on items
+    const itemDuration = wallDuration
+    const itemDelay = 100
+    // Loop on each item
+    // and add an Interpol instance for each one
+    for (let item of itemsRef.current) {
+      tl.add(
+        {
+          duration: itemDuration,
+          ease: "expo.out",
+          props: {
+            y: [10, 0],
+            opacity: [0, 1],
+          },
+          beforeStart: (props, time, propgress) => {
+            console.log("props, time, propgress", props, time, propgress)
+            styles(item, {
+              transform: `translateY(${10}%)`,
+              opacity: 0,
+            })
+          },
+          onUpdate: ({ y, opacity }) => {
+            styles(item, {
+              transform: `translateY(${y}%)`,
+              opacity,
+            })
+          },
+        },
+        // Use the offset to create a delay between each item
+        // delay is not available on Interpol instance when using Timeline
+        // It could be complicated to implement it since we use the Interpol.seek
+        // method to move the timeline
+        -(itemDuration - itemDelay),
+      )
+    }
+
     return tl
   }
 
   /**
-   * Init
+   * Init and register the timeline in a ref
    */
   const tl = useRef(null)
   useEffect(() => {
-    if (!tl.current) tl.current = getTl()
+    tl.current = getTl()
   }, [])
 
   /**
    * Play / Reverse
+   * (not on first mount)
    */
   const isFirstMount = useRef(true)
   useEffect(() => {
+    // flag the first mount
     if (isFirstMount.current) {
       isFirstMount.current = false
       return
     }
 
+    // Here we go, play or reverse the timeline
+    // when the isOpen prop change
     if (isOpen) tl.current.play()
     else tl.current.reverse()
   }, [isOpen])
@@ -61,7 +101,12 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
     <div className={css.root} ref={rootRef}>
       <ul className={css.items}>
         {["Home", "About", "Contact"].map((item, index) => (
-          <li key={index} className={css.item} children={item} ref={(r) => (itemsRef[index] = r)} />
+          <li
+            key={index}
+            className={css.item}
+            children={item}
+            ref={(r) => (itemsRef.current[index] = r)}
+          />
         ))}
       </ul>
     </div>
