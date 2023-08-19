@@ -6,7 +6,7 @@ export function App() {
   const [menuOpen, setMenuOpen] = React.useState(false)
   return (
     <div className={css.root}>
-      <Menu className={css.menu} isOpen={menuOpen} />
+      <Menu isOpen={menuOpen} />
       <button className={css.button} onClick={() => setMenuOpen(!menuOpen)}>
         O P E N
       </button>

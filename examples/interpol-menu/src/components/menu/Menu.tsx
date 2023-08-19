@@ -2,24 +2,25 @@ import css from "./Menu.module.less"
 import React, { useEffect, useRef } from "react"
 import { Timeline } from "@wbe/interpol"
 import { styles } from "../../utils/styles"
-import { useWindowSize } from "../../utils/useWindowSize"
 
-export function Menu({ className, isOpen }: { className?: string; isOpen: boolean }) {
+export function Menu({ isOpen }: { isOpen: boolean }) {
   const rootRef = useRef(null)
   const itemsRef = useRef([])
-  const windowSize = useWindowSize()
 
   const getTl = () => {
     const tl = new Timeline({ paused: true })
 
     const wallDuration = 700
-    // The background wall is a unique element
+    // Background wall
     tl.add({
       ease: "expo.out",
       duration: 700,
       props: {
         x: [-100, 0],
       },
+      // Execute onUpdate when the Interpol instance is init
+      // Useful in this case, onUpdate will be called once, if the timeline is paused
+//      updateOnInit: true,
       beforeStart: ({ x }) => {
         styles(rootRef.current, {
           transform: `translateX(${x}%)`,
@@ -46,12 +47,7 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
             y: [10, 0],
             opacity: [0, 1],
           },
-          beforeStart: ({ y, opacity }) => {
-            styles(item, {
-              transform: `translateY(${y}%)`,
-              opacity,
-            })
-          },
+          updateOnInit: true,
           onUpdate: ({ y, opacity }) => {
             styles(item, {
               transform: `translateY(${y}%)`,

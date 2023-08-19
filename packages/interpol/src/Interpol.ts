@@ -49,6 +49,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   }
 
   #propsValue: Record<K, number>
+  #updateOnInit: boolean
   #delay: number
   #ease: EaseFn
   #revEase: EaseFn
@@ -65,6 +66,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     reverseEase = ease,
     paused = false,
     delay = 0,
+    updateOnInit = false,
     beforeStart = noop,
     onUpdate = noop,
     onComplete = noop,
@@ -73,10 +75,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
   }: InterpolConstruct<K>) {
     this.#props = this.#prepareProps<K>(props)
     this.#props = this.refreshComputedValues()
-    this.#propsValue = this.#createPropsParamObj<K>(this.#props)
+    this.#propsValue = this.#createPropsParamObjRef<K>(this.#props)
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
+    this.#updateOnInit = updateOnInit
     this.#beforeStart = beforeStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
@@ -84,7 +87,10 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.ticker = ticker
     this.#ease = this.#chooseEase(ease)
     this.#revEase = this.#chooseEase(reverseEase)
+
     this.#beforeStart(this.#propsValue, this.#time, this.#progress)
+    if (this.#updateOnInit) this.#onUpdate(this.#propsValue, this.#time, this.#progress)
+
     if (!this.#isPaused) this.play()
   }
 
@@ -313,7 +319,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Create an object with props keys
    * in order to keep the same reference on each frame
    */
-  #createPropsParamObj<K extends keyof Props>(fProps: Record<K, FormattedProp>): Record<K, number> {
+  #createPropsParamObjRef<K extends keyof Props>(
+    fProps: Record<K, FormattedProp>
+  ): Record<K, number> {
     return Object.keys(fProps).reduce((acc, key: K) => {
       acc[key as K] = fProps[key as K]._from
       return acc
