@@ -20,9 +20,9 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
       props: {
         x: [-100, 0],
       },
-      beforeStart: () => {
+      beforeStart: ({ x }) => {
         styles(rootRef.current, {
-          transform: `translateX(${-100}%)`,
+          transform: `translateX(${x}%)`,
         })
       },
       onUpdate: ({ x }) => {
@@ -46,11 +46,10 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
             y: [10, 0],
             opacity: [0, 1],
           },
-          beforeStart: (props, time, propgress) => {
-            console.log("props, time, propgress", props, time, propgress)
+          beforeStart: ({ y, opacity }) => {
             styles(item, {
-              transform: `translateY(${10}%)`,
-              opacity: 0,
+              transform: `translateY(${y}%)`,
+              opacity,
             })
           },
           onUpdate: ({ y, opacity }) => {
@@ -64,7 +63,7 @@ export function Menu({ className, isOpen }: { className?: string; isOpen: boolea
         // delay is not available on Interpol instance when using Timeline
         // It could be complicated to implement it since we use the Interpol.seek
         // method to move the timeline
-        -(itemDuration - itemDelay),
+        -(itemDuration - itemDelay)
       )
     }
 

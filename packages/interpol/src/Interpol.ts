@@ -52,7 +52,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #delay: number
   #ease: EaseFn
   #revEase: EaseFn
-  #beforeStart: () => void
+  #beforeStart: CallBack<K>
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
@@ -72,6 +72,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     ticker = new Ticker(),
   }: InterpolConstruct<K>) {
     this.#props = this.#prepareProps<K>(props)
+    this.#props = this.refreshComputedValues()
     this.#propsValue = this.#createPropsParamObj<K>(this.#props)
     this.#duration = duration
     this.#isPaused = paused
@@ -83,20 +84,18 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.ticker = ticker
     this.#ease = this.#chooseEase(ease)
     this.#revEase = this.#chooseEase(reverseEase)
-
-    // start!
-    this.refreshComputedValues()
-    this.#beforeStart()
+    this.#beforeStart(this.#propsValue, this.#time, this.#progress)
     if (!this.#isPaused) this.play()
   }
 
   // Compute if values were functions
-  public refreshComputedValues(): void {
+  public refreshComputedValues(): Record<string, FormattedProp> {
     this.#_duration = compute(this.#duration)
     this.#onEachProps((prop) => {
       prop._from = compute(prop.from)
       prop._to = compute(prop.to)
     })
+    return this.#props
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -316,7 +315,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
    */
   #createPropsParamObj<K extends keyof Props>(fProps: Record<K, FormattedProp>): Record<K, number> {
     return Object.keys(fProps).reduce((acc, key: K) => {
-      acc[key as K] = null
+      acc[key as K] = fProps[key as K]._from
       return acc
     }, {} as Record<K, number>)
   }
