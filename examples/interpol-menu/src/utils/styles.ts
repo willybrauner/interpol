@@ -34,3 +34,10 @@ export const styles = (
 
   }
 }
+
+/**
+ * Adapter for Interpol callback
+ * @param element
+ */
+export const updateStyles = (element: HTMLElement | HTMLElement[] | null) => (params) =>
+  styles(element, params)

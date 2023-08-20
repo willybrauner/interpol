@@ -1,7 +1,7 @@
 import css from "./Menu.module.less"
 import React, { useEffect, useRef } from "react"
 import { Timeline } from "@wbe/interpol"
-import { styles } from "../../utils/styles"
+import { styles, updateStyles } from "../../utils/styles"
 
 export function Menu({ isOpen }: { isOpen: boolean }) {
   const rootRef = useRef(null)
@@ -20,12 +20,16 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
         x: [-100, 0, "%"],
         opacity: [0, 1],
       },
+
+      // Use the styles function to update the DOM element
       beforeStart: ({ x, opacity }) => {
         styles(rootRef.current, { x, opacity })
       },
-      onUpdate: ({ x, opacity }) => {
-        styles(rootRef.current, { x, opacity })
-      },
+
+      // Another way to update styles
+      // use a curring function to pass the element ref.
+      // props will be automatically set on this element
+      onUpdate: updateStyles(rootRef.current),
     })
 
     // Create a stagger effect on items
