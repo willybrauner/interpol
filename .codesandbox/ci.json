@@ -5,6 +5,7 @@
     "/examples/interpol-basic",
     "/examples/interpol-ease",
     "/examples/interpol-graphic",
+    "/examples/interpol-menu",
     "/examples/interpol-timeline"
   ],
   "node": "18"
