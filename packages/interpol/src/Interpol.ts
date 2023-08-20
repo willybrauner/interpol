@@ -73,9 +73,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
     debug = false,
     ticker = new Ticker(),
   }: InterpolConstruct<K>) {
-    this.#props = this.#prepareProps<K>(props)
-    this.#props = this.refreshComputedValues()
-    this.#propsValue = this.#createPropsParamObjRef<K>(this.#props)
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
@@ -88,6 +85,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#ease = this.#chooseEase(ease)
     this.#revEase = this.#chooseEase(reverseEase)
 
+    // Prepare & compute props
+    this.#props = this.#prepareProps<K>(props)
+    this.#props = this.refreshComputedValues()
+    this.#propsValue = this.#createPropsParamObjRef<K>(this.#props)
+
+    // start
     this.#beforeStart(this.#propsValue, this.#time, this.#progress)
     if (this.#updateOnInit) this.#onUpdate(this.#propsValue, this.#time, this.#progress)
 
