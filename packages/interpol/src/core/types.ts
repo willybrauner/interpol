@@ -1,5 +1,6 @@
 import { Ticker } from "./Ticker"
 import { EaseName } from "./ease"
+import { b } from "vitest/dist/types-b7007192"
 
 /**
  * Common
@@ -40,9 +41,10 @@ export interface InterpolConstruct<K extends keyof Props> {
   ease?: EaseName | ((t: number) => number)
   reverseEase?: EaseName | ((t: number) => number)
   paused?: boolean
+  initUpdate?: boolean
   delay?: number
   debug?: boolean
-  beforeStart?: () => void
+  beforeStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
   ticker?: Ticker

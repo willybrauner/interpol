@@ -49,10 +49,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
   }
 
   #propsValue: Record<K, number>
+  #initUpdate: boolean
   #delay: number
   #ease: EaseFn
   #revEase: EaseFn
-  #beforeStart: () => void
+  #beforeStart: CallBack<K>
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
@@ -65,17 +66,17 @@ export class Interpol<K extends keyof Props = keyof Props> {
     reverseEase = ease,
     paused = false,
     delay = 0,
+    initUpdate = false,
     beforeStart = noop,
     onUpdate = noop,
     onComplete = noop,
     debug = false,
     ticker = new Ticker(),
   }: InterpolConstruct<K>) {
-    this.#props = this.#prepareProps<K>(props)
-    this.#propsValue = this.#createPropsParamObj<K>(this.#props)
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
+    this.#initUpdate = initUpdate
     this.#beforeStart = beforeStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
@@ -84,19 +85,26 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#ease = this.#chooseEase(ease)
     this.#revEase = this.#chooseEase(reverseEase)
 
-    // start!
-    this.refreshComputedValues()
-    this.#beforeStart()
+    // Prepare & compute props
+    this.#props = this.#prepareProps<K>(props)
+    this.#props = this.refreshComputedValues()
+    this.#propsValue = this.#createPropsParamObjRef<K>(this.#props)
+
+    // start
+    if (this.#initUpdate) this.#onUpdate(this.#propsValue, this.#time, this.#progress)
+    this.#beforeStart(this.#propsValue, this.#time, this.#progress)
+
     if (!this.#isPaused) this.play()
   }
 
   // Compute if values were functions
-  public refreshComputedValues(): void {
+  public refreshComputedValues(): Record<string, FormattedProp> {
     this.#_duration = compute(this.#duration)
     this.#onEachProps((prop) => {
       prop._from = compute(prop.from)
       prop._to = compute(prop.to)
     })
+    return this.#props
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -314,9 +322,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Create an object with props keys
    * in order to keep the same reference on each frame
    */
-  #createPropsParamObj<K extends keyof Props>(fProps: Record<K, FormattedProp>): Record<K, number> {
+  #createPropsParamObjRef<K extends keyof Props>(
+    fProps: Record<K, FormattedProp>
+  ): Record<K, number> {
     return Object.keys(fProps).reduce((acc, key: K) => {
-      acc[key as K] = null
+      acc[key as K] = fProps[key as K]._from
       return acc
     }, {} as Record<K, number>)
   }
