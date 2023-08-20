@@ -39,7 +39,7 @@ export class Ticker {
   // True if debug is active
   #debug: boolean
   // Store the raf
-  #raf: number
+  #raf
 
   constructor({ debug = false } = {}) {
     this.#keepElapsed = 0
