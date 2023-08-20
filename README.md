@@ -203,10 +203,10 @@ interface IInterpolConstruct<K extends keyof Props> {
   // exe in your console `localStorage.debug = "interpol:*"`
   // default: `false`
   debug?: boolean
-
+  
   // Called when interpol is ready to play
   // default: /
-  beforeStart?: () => void
+  beforeStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
 
   // Called on frame update
   // default: /
@@ -215,6 +215,11 @@ interface IInterpolConstruct<K extends keyof Props> {
   // Called when interpol is complete
   // default: /
   onComplete?: (props?: Record<K, number>, time?: number, progress?: number) => void
+
+  // Execute onUpdate method when the Interpol instance is created, just before "beforeStart"
+  // (equivalent to beforeStart)
+  // default: false
+  initUpdate?: boolean
 }
 ```
 

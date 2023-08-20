@@ -49,7 +49,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   }
 
   #propsValue: Record<K, number>
-  #updateOnInit: boolean
+  #initUpdate: boolean
   #delay: number
   #ease: EaseFn
   #revEase: EaseFn
@@ -66,7 +66,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     reverseEase = ease,
     paused = false,
     delay = 0,
-    updateOnInit = false,
+    initUpdate = false,
     beforeStart = noop,
     onUpdate = noop,
     onComplete = noop,
@@ -76,7 +76,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
-    this.#updateOnInit = updateOnInit
+    this.#initUpdate = initUpdate
     this.#beforeStart = beforeStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
@@ -91,8 +91,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValue = this.#createPropsParamObjRef<K>(this.#props)
 
     // start
+    if (this.#initUpdate) this.#onUpdate(this.#propsValue, this.#time, this.#progress)
     this.#beforeStart(this.#propsValue, this.#time, this.#progress)
-    if (this.#updateOnInit) this.#onUpdate(this.#propsValue, this.#time, this.#progress)
 
     if (!this.#isPaused) this.play()
   }

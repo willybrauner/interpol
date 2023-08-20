@@ -49,4 +49,29 @@ describe.concurrent("Timeline callbacks", () => {
       resolve()
     })
   })
+
+  it("Call onUpdate once on beforeStart if initUpdate is true", () => {
+    return new Promise(async (resolve: any) => {
+      const onUpdate = vi.fn()
+      const onUpdate2 = vi.fn()
+
+      const tl = new Timeline({ paused: true })
+      tl.add({
+        props: { v: [0, 100] },
+        duration: 100,
+        initUpdate: true,
+        onUpdate,
+      })
+      tl.add({
+        props: { v: [0, 100] },
+        duration: 100,
+        onUpdate: onUpdate2,
+      })
+
+      expect(onUpdate).toHaveBeenCalledTimes(1)
+      expect(onUpdate2).toHaveBeenCalledTimes(0)
+
+      resolve()
+    })
+  })
 })

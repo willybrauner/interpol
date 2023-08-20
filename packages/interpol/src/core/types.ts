@@ -41,7 +41,7 @@ export interface InterpolConstruct<K extends keyof Props> {
   ease?: EaseName | ((t: number) => number)
   reverseEase?: EaseName | ((t: number) => number)
   paused?: boolean
-  updateOnInit?: boolean
+  initUpdate?: boolean
   delay?: number
   debug?: boolean
   beforeStart?: CallBack<K>

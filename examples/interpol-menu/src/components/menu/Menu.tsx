@@ -18,9 +18,6 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
       props: {
         x: [-100, 0],
       },
-      // Execute onUpdate when the Interpol instance is init
-      // Useful in this case, onUpdate will be called once, if the timeline is paused
-//      updateOnInit: true,
       beforeStart: ({ x }) => {
         styles(rootRef.current, {
           transform: `translateX(${x}%)`,
@@ -47,7 +44,11 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
             y: [10, 0],
             opacity: [0, 1],
           },
-          updateOnInit: true,
+          // Equivalent to copy the onUpdate function on beforeStart
+          // "initUpdate" allows to execute "onUpdate" callback just before "beforeStart"
+          // Useful in this case, onUpdate will be called once, if the timeline is paused
+          // in order to give a position to DOM element
+          initUpdate: true,
           onUpdate: ({ y, opacity }) => {
             styles(item, {
               transform: `translateY(${y}%)`,
