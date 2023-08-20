@@ -53,6 +53,7 @@ export interface InterpolConstruct<K extends keyof Props> {
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
   ticker?: Ticker
+  el?: HTMLElement | HTMLElement[] | null
 }
 
 /**

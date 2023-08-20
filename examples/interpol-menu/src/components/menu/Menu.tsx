@@ -66,6 +66,15 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
       )
     }
 
+    tl.add({
+      el: rootRef.current,
+      duration: wallDuration,
+      ease: "expo.out",
+      props: {
+        scale: [1, 0.8],
+      },
+    })
+
     return tl
   }
 
