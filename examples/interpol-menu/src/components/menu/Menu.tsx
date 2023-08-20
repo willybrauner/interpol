@@ -13,19 +13,20 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
     const wallDuration = 700
     // Background wall
     tl.add({
+      debug: true,
       ease: "expo.out",
       duration: 700,
       props: {
-        x: [-100, 0],
+        x: [-100, 0, "%"],
       },
       beforeStart: ({ x }) => {
         styles(rootRef.current, {
-          transform: `translateX(${x}%)`,
+          transform: `translateX(${x})`,
         })
       },
       onUpdate: ({ x }) => {
         styles(rootRef.current, {
-          transform: `translateX(${x}%)`,
+          transform: `translateX(${x})`,
         })
       },
     })

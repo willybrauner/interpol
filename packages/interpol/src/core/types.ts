@@ -8,11 +8,15 @@ import { b } from "vitest/dist/types-b7007192"
  *
  */
 
+// Final Props Object returned by callbacks
+export type PropsValueObjectRef<K extends string> = Record<K, number | `${number}${Units}`>
+
 // Value can be a number or a function that return a number
 export type Value = number | (() => number)
+export type Units = "%" | "px" | "em" | "rem" | "vw" | "vh" | "pt" | string
 
 // Props params
-export type Props = Record<string, [Value, Value]>
+export type Props = Record<string, [Value, Value, Units?]>
 
 // Props object formatted in Map
 export type FormattedProp = {
@@ -21,6 +25,7 @@ export type FormattedProp = {
   _from: number
   _to: number
   value: number
+  unit: Units
 }
 
 /**
@@ -30,13 +35,13 @@ export type FormattedProp = {
  */
 
 export type CallBack<K extends keyof Props> = (
-  props: Record<K, number>,
+  props: PropsValueObjectRef<K>,
   time: number,
   progress: number
 ) => void
 
 export interface InterpolConstruct<K extends keyof Props> {
-  props: Record<K, [Value, Value]>
+  props: Record<K, [Value, Value, Units?]>
   duration?: number | (() => number)
   ease?: EaseName | ((t: number) => number)
   reverseEase?: EaseName | ((t: number) => number)

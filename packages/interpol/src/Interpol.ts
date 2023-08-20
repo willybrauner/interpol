@@ -1,4 +1,11 @@
-import { FormattedProp, CallBack, InterpolConstruct, Props, Value } from "./core/types"
+import {
+  FormattedProp,
+  CallBack,
+  InterpolConstruct,
+  Props,
+  Value,
+  PropsValueObjectRef,
+} from "./core/types"
 import debug from "@wbe/debug"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
@@ -48,7 +55,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     return this.#props
   }
 
-  #propsValue: Record<K, number>
+  #propsValueRef: PropsValueObjectRef<K>
   #initUpdate: boolean
   #delay: number
   #ease: EaseFn
@@ -88,11 +95,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // Prepare & compute props
     this.#props = this.#prepareProps<K>(props)
     this.#props = this.refreshComputedValues()
-    this.#propsValue = this.#createPropsParamObjRef<K>(this.#props)
+    this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
     // start
-    if (this.#initUpdate) this.#onUpdate(this.#propsValue, this.#time, this.#progress)
-    this.#beforeStart(this.#propsValue, this.#time, this.#progress)
+    if (this.#initUpdate) this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
+    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress)
 
     if (!this.#isPaused) this.play()
   }
@@ -217,13 +224,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
-    this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
+    this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
 
     // Always call onUpdate
     if (this.#lastProgress !== this.#progress) {
-      this.#onUpdate(this.#propsValue, this.#time, this.#progress)
+      this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
       this.#log("seek onUpdate", {
-        props: this.#propsValue,
+        props: this.#propsValueRef,
         time: this.#time,
         progress: this.#progress,
       })
@@ -232,7 +239,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // if progress 1, execute onComplete
     if (this.#progress === 1) {
       this.#log("seek onComplete")
-      this.#onComplete(this.#propsValue, this.#time, this.#progress)
+      this.#onComplete(this.#propsValueRef, this.#time, this.#progress)
       this.#lastProgress = this.#progress
     }
 
@@ -247,7 +254,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     if (this.#_duration <= 0) {
       this.#onEachProps((p) => (p.value = p._to))
       const obj = {
-        props: this.#assignPropsValue<K>(this.#propsValue, this.#props),
+        props: this.#assignPropsValue<K>(this.#propsValueRef, this.#props),
         time: this.#_duration,
         progress: 1,
       }
@@ -265,12 +272,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#progress = clamp(0, round(this.#time / this.#_duration), 1)
     this.#interpolate(this.#progress)
 
-    this.#propsValue = this.#assignPropsValue<K>(this.#propsValue, this.#props)
+    this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
 
     // Pass value, time and progress
-    this.#onUpdate(this.#propsValue, this.#time, this.#progress)
+    this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
     this.#log("handleTickerUpdate onUpdate", {
-      props: this.#propsValue,
+      props: this.#propsValueRef,
       t: this.#time,
       p: this.#progress,
     })
@@ -278,7 +285,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // on complete
     if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
       this.#log(`handleTickerUpdate onComplete!`)
-      this.#onComplete(this.#propsValue, this.#time, this.#progress)
+      this.#onComplete(this.#propsValueRef, this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
@@ -313,6 +320,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
         to: p[1],
         _to: null,
         value: null,
+        unit: p?.[2] || null,
       }
       return acc
     }, {} as Record<K, FormattedProp>)
@@ -323,26 +331,26 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * in order to keep the same reference on each frame
    */
   #createPropsParamObjRef<K extends keyof Props>(
-    fProps: Record<K, FormattedProp>
-  ): Record<K, number> {
-    return Object.keys(fProps).reduce((acc, key: K) => {
-      acc[key as K] = fProps[key as K]._from
+    props: Record<K, FormattedProp>
+  ): PropsValueObjectRef<K> {
+    return Object.keys(props).reduce((acc, key: K) => {
+      acc[key as K] = props[key]._from + props[key].unit
       return acc
-    }, {} as Record<K, number>)
+    }, {} as any)
   }
 
   /**
-   * Assign props.value to propsValue object
+   * Assign props value to propsValue object
    * in order to keep the same reference on each frame
    */
   #assignPropsValue<P extends K>(
-    propsValue: Record<P, number>,
+    propsValue: PropsValueObjectRef<K>,
     props: Record<P, FormattedProp>
-  ): Record<P, number> {
+  ): PropsValueObjectRef<P> {
     for (const key of Object.keys(propsValue)) {
-      propsValue[key as P] = props[key as P].value
+      propsValue[key as P] = props[key].value + props[key].unit
     }
-    return this.#propsValue
+    return this.#propsValueRef
   }
 
   /**
