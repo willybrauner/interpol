@@ -15,19 +15,16 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
     tl.add({
       debug: true,
       ease: "expo.out",
-      duration: 700,
+      duration: wallDuration,
       props: {
         x: [-100, 0, "%"],
+        opacity: [0, 1],
       },
-      beforeStart: ({ x }) => {
-        styles(rootRef.current, {
-          transform: `translateX(${x})`,
-        })
+      beforeStart: ({ x, opacity }) => {
+        styles(rootRef.current, { x, opacity })
       },
-      onUpdate: ({ x }) => {
-        styles(rootRef.current, {
-          transform: `translateX(${x})`,
-        })
+      onUpdate: ({ x, opacity }) => {
+        styles(rootRef.current, { x, opacity })
       },
     })
 
