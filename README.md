@@ -8,9 +8,9 @@
 <img alt="logo" src="./packages/interpol/interpol.png">
 </p>
 
-interpol library interpolates value between two points.
+interpol library interpolates values between two points.
 This is the lowest level of animate machine.
-Interpol is not a DOM API, it provides real time progress of the interpolation that can be use or bind
+Interpol is initially, not a DOM API, it provides real time progress of the interpolation that can be use or bind
 on... anything!
 
 
@@ -20,7 +20,11 @@ on... anything!
 - [Show me some code](#show-me-some-code)
   - [Interpol](#interpol)
   - [Timeline](#timeline)
-- [Real word example](#real-word-example)
+- [Interpol DOM styles](#interpol-dom-styles)
+  - [Props unit](#props-unit)
+  - [Styles helper](#styles-helper)
+  - [El property](#el-property)
+  - [Real word example](#real-word-example)
 - [Easing](#easing)
 - [API](#api)
   - [interpol constructor](#interpol-constructor)
@@ -78,14 +82,110 @@ const itp2 = new Interpol({
   }
 })
 
-const tl = new Timeline()
+new Timeline()
   .add(itp1)
   .add(itp2)
 ```
 
-## Real word example
+➡️ [Timeline codesandbox](https://codesandbox.io/p/sandbox/interpol-timeline-959q6h?file=/src/main.ts:1,1)
 
-Interpol as been built for animate DOM element too. In this case, you can use the `onUpdate` callback to update the DOM element style.
+
+## Interpol DOM styles
+
+One of the main usage of Interpol is to animate DOM styles. The API provide some helpers to simplify this usage and avoid to write the same code each time you want to animate a DOM element.
+
+ - [Props unit](#props-unit): define a unit for each props in the props array
+ - [Styles helper](#styles-helper): a core helper function to simplify the DOM manipulation
+ - [`el` property](#el-property): set the DOM element to animate directly in the constructor
+
+### Props unit
+
+One props array is able to receive a string an optional third value unit who will be associated to the interpolated value.
+
+Without the unit:
+
+```ts
+new Interpol({
+  props: {
+    top: [-100, 0],
+  },
+  onUpdate: ({ top }) => {
+    // Set manually the unit each time
+    element.style.top = `${top}px`
+  }
+}) 
+```
+
+With the unit as 3th value:
+
+```ts
+new Interpol({
+  props: {
+    // [from, to, unit]
+    top: [-100, 0, "px"],
+  },
+  onUpdate: ({ top }) => {
+    // top is value + "px" is already defined
+    element.style.top = top 
+  }
+}) 
+```
+
+
+### Styles helper
+
+This repo provide a `styles` core helper function witch simplify the DOM manipulation.
+The function use a DOM cache to associate multiple transform functions to the same DOM element at the same time.
+
+Definition:
+```ts
+declare const styles: (element: HTMLElement | HTMLElement[] | null, props: Record<string, string | number>) => void
+```
+
+Example:
+
+```ts
+import { Interpol, styles } from "./Interpol"
+
+new Interpol({
+  props: {
+    x: [-100, 0, "%"],
+    opacity: [0, 1],
+  },
+  onUpdate: ({ x, opacity }) => {
+    // use the styles helper
+    styles(element, { x, opacity })
+    // Is Equivalent to:
+    // element.style.transform = `translate3d(${x}%, 0px, 0px)`
+    // element.style.opacity = opacity
+  },
+}) 
+```
+
+### `el` property
+
+But it could be redundant to set props to element styles each time we want to animate the interpol instance. That's why, you can use the `el` property constructor to set the DOM element to animate. No need to use the `onUpdate` callback anymore. 
+
+Under the hood, the `el` property is used by `styles` helper function, inside the `onUpdate` callback, exactly like on the previous example.
+
+```ts
+new Interpol({
+  // can recieve HTMLElement or HTMLElement[]
+  el: document.querySelector("div"),
+  props: {
+    x: [-100, 0, "%"],
+    opacity: [0, 1],
+  }
+})
+```
+
+You have to be careful of some points:
+
+- props keys needs to be valid CSS properties, (except `x`, `y`, `z` who are alias for `translateX`, `translateY`, `translateZ`) 
+- props needs their appropriate unit defined
+
+
+## Real word example
 
 ```ts
 import { Timeline } from "@wbe/interpol"
@@ -105,15 +205,13 @@ const tl = new Timeline({
 
 // `add()` can recieve an Interpol object constructor
 tl.add({
+  el: element,
   props: {
-    x: [-100, 100],
-    y: [-100, 100],
+    x: [-100, 0, "%"],
+    y: [0, 100, "px"],
   },
   duration: 1000,
   ease: t => t * (2 - t),
-  onUpdate: ({ x, y }) => {
-    element.style.transform = `translate3d(${x}px, ${y}px, 0px)`
-  },
   onComplete: () => {
     console.log("This interpol is complete")
   },
@@ -135,12 +233,11 @@ tl.add({
 
 await tl.play()
 // timeline is complete
-
 await tl.reverse()
 // timeline reverse is complete
 ```
 
-➡️ [Timeline codesandbox](https://codesandbox.io/p/sandbox/interpol-timeline-xmdvcf?file=%2Fsrc%2Fmain.ts%3A1%2C1)
+
 
 ## Easing
 
@@ -175,8 +272,9 @@ new Interpol({
 ```ts
 interface IInterpolConstruct<K extends keyof Props> {
   // props are an interpol list object
+  // [from, to, unit]
   // default: /
-  props: Record<K, [number | (() => number), number | (() => number)]>
+  props: Record<K, [number | (() => number), number | (() => number), string]>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second
@@ -228,10 +326,7 @@ interface IInterpolConstruct<K extends keyof Props> {
 ```ts
 import { Interpol } from "@wbe/Interpol"
 
-const itp = new Interpol({
-  paused: true, // disable autoplay
-  props: { value: [0, 100] },
-})
+const itp = new Interpol()
 
 // Play the interpol
 // play(from: number = 0): Promise<any>
