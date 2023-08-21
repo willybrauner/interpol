@@ -1,7 +1,6 @@
 import css from "./Menu.module.less"
 import React, { useEffect, useRef } from "react"
-import { Timeline } from "@wbe/interpol"
-import { styles, updateStyles } from "../../utils/styles"
+import { Timeline, styles } from "@wbe/interpol"
 
 export function Menu({ isOpen }: { isOpen: boolean }) {
   const rootRef = useRef(null)
@@ -26,10 +25,9 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
         styles(rootRef.current, { x, opacity })
       },
 
-      // Another way to update styles
-      // use a curring function to pass the element ref.
-      // props will be automatically set on this element
-      onUpdate: updateStyles(rootRef.current),
+      onUpdate: ({ x, opacity }) => {
+        styles(rootRef.current, { x, opacity })
+      },
     })
 
     // Create a stagger effect on items
@@ -43,7 +41,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
           duration: itemDuration,
           ease: "expo.out",
           props: {
-            y: [10, 0],
+            y: [100, 0],
             opacity: [0, 1],
           },
           // Equivalent to copy the onUpdate function on beforeStart
@@ -53,7 +51,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
           initUpdate: true,
           onUpdate: ({ y, opacity }) => {
             styles(item, {
-              transform: `translateY(${y}%)`,
+              translateY: `${y}%`,
               opacity,
             })
           },
@@ -66,14 +64,17 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
       )
     }
 
-    tl.add({
-      el: rootRef.current,
-      duration: wallDuration,
-      ease: "expo.out",
-      props: {
-        scale: [1, 0.8],
+    tl.add(
+      {
+        el: rootRef.current,
+        duration: wallDuration,
+        ease: "expo.out",
+        props: {
+          scale: [1, 0.8],
+        },
       },
-    })
+      -800
+    )
 
     return tl
   }
