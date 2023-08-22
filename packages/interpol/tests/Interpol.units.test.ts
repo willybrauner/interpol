@@ -25,13 +25,12 @@ describe.concurrent("Interpol units", () => {
           },
         })
       })
-
     return Promise.all(
       ["px", "rem", "svh", "foo", "bar", "whatever-unit-string-we-want"].map((e) => test(e))
     )
   })
 
-  it("should return a number value without unit", async () => {
+  it("should return a number value if unit is not defined", async () => {
     return new Promise(async (resolve: any) => {
       const callback = ({ v }) => expect(v).toBeTypeOf("number")
 
