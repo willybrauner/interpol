@@ -29,7 +29,7 @@ export const styles = (
         transforms[key] = `${key}(${props[key]})`
       }
       // All other properties, applying directly
-      else el.style[key] = `${props[key]}`
+      else el.style[key] = props[key] && `${props[key]}`
     }
 
     // Get the string of transform properties without COORDS (x, y and z values)
@@ -39,9 +39,7 @@ export const styles = (
       .trim()
 
     // Finally Apply the join transform properties with values of COORDS
-    if (transformString !== "") {
-      el.style.transform = transformString
-    }
+    if (transformString !== "") el.style.transform = transformString
 
     // Cache the transform properties object
     TRANSFORM_CACHE.set(el, transforms)

@@ -55,4 +55,24 @@ describe.concurrent("styles DOM helpers", () => {
     styles(el, { x: 2, translateX: "222px" })
     expect(el.style.transform).toBe("translate3d(2, 0px, 0px) translateX(222px)")
   })
+
+
+  it("null should return '' as value", async () => {
+    const { el } = getDocument()
+    styles(el, { transformOrigin: "left" })
+    expect(el.style.transformOrigin).toBe("left")
+    styles(el, { transformOrigin: null })
+    expect(el.style.transformOrigin).toBe("")
+  })
+
+  it("should accept a DOM element array", async () => {
+    const { el, doc } = getDocument()
+    const el2 = doc.createElement("div")
+    const el3 = doc.createElement("div")
+    const arr = [el, el2, el3]
+    // this is wrong to set a number without unit on transform, but it's just for testing
+    styles(arr, { transformOrigin: "center" })
+    for (let el of arr) expect(el.style.transformOrigin).toBe("center")
+  })
+
 })
