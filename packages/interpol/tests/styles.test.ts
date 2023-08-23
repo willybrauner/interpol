@@ -44,12 +44,15 @@ describe.concurrent("styles DOM helpers", () => {
     // the third too
     styles(el3, { x: "10rem", y: "40%", skewX: 0.5 })
     expect(el3.style.transform).toBe("translate3d(10rem, 40%, 0px) skewX(0.5)")
+  })
 
+  it("should set props of transform CSS properties on DOM element with array", async () => {
+    const { el } = getDocument()
     // translate3d & translateX can't be used together
     // This is not right as CSS declaration
     // But we should not prevent user to do it
     // Use x y z for translate3d and translateX for translateX property
-    styles(el2, { translateX: "222px" })
-    expect(el2.style.transform).toBe("translate3d(2, 0px, 0px) translateX(222px)")
+    styles(el, { x: 2, translateX: "222px" })
+    expect(el.style.transform).toBe("translate3d(2, 0px, 0px) translateX(222px)")
   })
 })

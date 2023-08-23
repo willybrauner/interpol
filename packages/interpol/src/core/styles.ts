@@ -1,7 +1,8 @@
 const TRANSFORM_CACHE = new Map<HTMLElement, Record<string, string>>()
 const COORDS = ["x", "y", "z"]
+
 /**
- * Applying styles
+ * Applying styles on DOM element
  * @param element
  * @param props
  */
@@ -13,41 +14,36 @@ export const styles = (
   if (!Array.isArray(element)) element = [element]
 
   for (const el of element) {
+    const transforms = TRANSFORM_CACHE.get(el) || {}
+
     for (let key in props) {
-      if (!props.hasOwnProperty(key)) return
-
-      // Specific case for translate3d, if x, y, z are set
+      // Specific case for "translate3d"
+      // if x, y, z are keys
       if (COORDS.includes(key)) {
-        const value = (c) => props[c] || TRANSFORM_CACHE.get(el)?.[c] || "0px"
-
-        TRANSFORM_CACHE.set(el, {
-          ...(TRANSFORM_CACHE.get(el) || {}),
-          translate3d: `translate3d(${value("x")}, ${value("y")}, ${value("z")})`,
-          [key]: `${props[key]}`,
-        })
+        const value = (c) => props?.[c] || transforms?.[c] || "0px"
+        transforms.translate3d = `translate3d(${value("x")}, ${value("y")}, ${value("z")})`
+        transforms[key] = `${props[key]}`
       }
-
       // Other transform properties
       else if (key.match(/^(translate|rotate|scale|skew)/)) {
-        TRANSFORM_CACHE.set(el, {
-          ...(TRANSFORM_CACHE.get(el) || {}),
-          [key]: `${key}(${props[key]})`,
-        })
+        transforms[key] = `${key}(${props[key]})`
       }
-
       // All other properties, applying directly
       else el.style[key] = `${props[key]}`
     }
 
-    // Finally Apply the join transform properties
-    let transforms = TRANSFORM_CACHE.get(el)
-    if (transforms) {
-      transforms = Object.keys(transforms).reduce(
-        (a, b) => (COORDS.includes(b) ? a : { ...a, [b]: transforms[b] }),
-        {}
-      )
-      const transObj = transforms && Object.values(transforms)
-      if (transObj?.length > 0) el.style.transform = transObj.join(" ")
+    // Get the string of transform properties without COORDS (x, y and z values)
+    // ex: translate3d(0px, 11px, 0px) scale(1) rotate(1deg)
+    const transformString = Object.keys(transforms)
+      .reduce((a, b) => (COORDS.includes(b) ? a : a + transforms[b] + " "), "")
+      .trim()
+
+    // Finally Apply the join transform properties with values of COORDS
+    if (transformString !== "") {
+      el.style.transform = transformString
     }
+
+    // Cache the transform properties object
+    TRANSFORM_CACHE.set(el, transforms)
   }
 }
