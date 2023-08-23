@@ -16,8 +16,9 @@ on... anything!
 
 ## Summary
 
+- [Playground](#playground)
 - [Install](#install)
-- [Show me some code](#show-me-some-code)
+- [Basic usage](#basic-usage)
   - [Interpol](#interpol)
   - [Timeline](#timeline)
 - [Interpol DOM styles](#interpol-dom-styles)
@@ -27,11 +28,25 @@ on... anything!
   - [Real word example](#real-word-example)
 - [Easing](#easing)
 - [API](#api)
-  - [interpol constructor](#interpol-constructor)
-  - [interpol methods](#interpol-methods)
+  - [Interpol constructor](#interpol-constructor)
+  - [Interpol methods](#interpol-methods)
   - [Timeline constructor](#timeline-constructor)
   - [Timeline methods](#timeline-methods)
 - [Dev examples](#dev-examples)
+- [Credits](#credits)
+- [About](#about)
+- [License](#license)
+
+
+## Playground 🕹️
+
+The examples of this repo are available on codesandbox:
+
+- [Interpol basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-basic)
+- [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
+- [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
+- [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
+- [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
 
 ## Install
 
@@ -39,7 +54,7 @@ on... anything!
 npm i @wbe/interpol
 ```
 
-## Show me some code
+## Basic usage
 
 ### Interpol
 
@@ -61,8 +76,6 @@ In this example:
 - `v` will be interpolated between 0 and 100 during 1 second
 - `time` is the current time in millisecond
 - `progress` is the current progress between 0 and 1
-
-➡️ [Interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-ease-35mqw9?file=%2Fsrc%2FApp.tsx%3A1%2C1)
 
 ### Timeline
 
@@ -87,8 +100,11 @@ new Timeline()
   .add(itp2)
 ```
 
-➡️ [Timeline codesandbox](https://codesandbox.io/p/sandbox/interpol-timeline-959q6h?file=/src/main.ts:1,1)
-
+In this example:
+- `v` will be interpolated between 0 and 100 during 1 second
+- `time` is the current time in millisecond
+- `progress` is the current progress between 0 and 1
+- 
 
 ## Interpol DOM styles
 
@@ -440,6 +456,7 @@ pnpm run dev
 
 # Or run a specific example
 pnpm run dev --scope interpol-basic
+pnpm run dev --scope {example-name}
 ```
 
 ## Credits
@@ -448,6 +465,11 @@ pnpm run dev --scope interpol-basic
 - [animate](https://github.com/SolalDR/animate/)
 - [animini](https://github.com/dbismut/animini)
 - [signal](https://github.com/zouloux/signal)
+
+
+## About 
+
+Interpol is an open-source project created and maintained by [Willy Brauner](https://willybrauner.com).
 
 ## License
 
