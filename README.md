@@ -8,15 +8,14 @@
 <img alt="logo" src="./packages/interpol/interpol.png">
 </p>
 
-interpol library interpolates values between two points.
+Interpol library interpolates values between two points.
 This is the lowest level of animate machine.
-Interpol is initially, not a DOM API, it provides real time progress of the interpolation that can be use or bind
-on... anything!
-
+Interpol is *initially* not a DOM API, it provides real time progress of the interpolation that can be use or bind
+on... anything, for ~=3.5kB! 
 
 ## Summary
 
-- [Playground](#playground)
+- [Playground](#playground-%EF%B8%8F)
 - [Install](#install)
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
@@ -67,7 +66,7 @@ new Interpol({
   },
   duration: 1000,
   onUpdate: ({ v }, time, progress) => {
-    // do something with `v` value
+    // Do something with `v` value 
   },
 })
 ```
@@ -101,10 +100,9 @@ new Timeline()
 ```
 
 In this example:
-- `v` will be interpolated between 0 and 100 during 1 second
-- `time` is the current time in millisecond
-- `progress` is the current progress between 0 and 1
-- 
+- The timeline will start automatically
+- `itp1` will interpolate `v` value between 0 and 100 during 1 second
+- `itp2` will start when `itp1` is complete and will interpolate `v` value between -100 and 100 during 1 second
 
 ## Interpol DOM styles
 
@@ -112,7 +110,7 @@ One of the main usage of Interpol is to animate DOM styles. The API provide some
 
  - [Props unit](#props-unit): define a unit for each props in the props array
  - [Styles helper](#styles-helper): a core helper function to simplify the DOM manipulation
- - [`el` property](#el-property): set the DOM element to animate directly in the constructor
+ - [el property](#el-property): set the DOM element to animate directly in the constructor
 
 ### Props unit
 
@@ -150,8 +148,8 @@ new Interpol({
 
 ### Styles helper
 
-This repo provide a `styles` core helper function witch simplify the DOM manipulation.
-The function use a DOM cache to associate multiple transform functions to the same DOM element at the same time.
+This repository provides a `styles` helper function that simplifies DOM manipulation.
+The function uses a DOM cache to associate multiple transformation functions with the same DOM element at the same time.
 
 Definition:
 ```ts
@@ -169,8 +167,8 @@ new Interpol({
     opacity: [0, 1],
   },
   onUpdate: ({ x, opacity }) => {
-    // use the styles helper
     styles(element, { x, opacity })
+    
     // Is Equivalent to:
     // element.style.transform = `translate3d(${x}%, 0px, 0px)`
     // element.style.opacity = opacity
@@ -180,9 +178,7 @@ new Interpol({
 
 ### `el` property
 
-But it could be redundant to set props to element styles each time we want to animate the interpol instance. That's why, you can use the `el` property constructor to set the DOM element to animate. No need to use the `onUpdate` callback anymore. 
-
-Under the hood, the `el` property is used by `styles` helper function, inside the `onUpdate` callback, exactly like on the previous example.
+But it might be redundant to set props on item styles every time we want to animate the interpol instance. Therefore, you can use the `el` property constructor to define the DOM element to animate. No more using the `onUpdate` callback.
 
 ```ts
 new Interpol({
@@ -195,10 +191,12 @@ new Interpol({
 })
 ```
 
+Under the hood, the `el` property is used by the `styles` helper function, inside the `onUpdate` callback, just like in the previous example.
+
 You have to be careful of some points:
 
-- props keys needs to be valid CSS properties, (except `x`, `y`, `z` who are alias for `translateX`, `translateY`, `translateZ`) 
 - props needs their appropriate unit defined
+- props keys must be valid CSS properties, (except `x`, `y`, `z` witch are aliases for `translateX`, `translateY`, `translateZ`) 
 
 
 ## Real word example
@@ -265,7 +263,7 @@ new Interpol({
 })
 ```
 
-["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
+[GSAP like ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string or object:
 
 ```js
 import { Interpol, Power3 } from "@wbe/interpol"
