@@ -35,7 +35,8 @@
     "turbo": "^1.9.9",
     "typescript": "^5.0.4",
     "vite": "^4.3.5",
-    "vitest": "^0.31.0"
+    "vitest": "^0.31.0",
+    "jsdom": "^22.1.0"
   },
   "prettier": {
     "semi": false,
@@ -45,7 +46,7 @@
     {
       "name": "@wbe/interpol",
       "path": "packages/interpol/dist/interpol.js",
-      "limit": "3.1 KB"
+      "limit": "3.5 KB"
     }
   ]
 }

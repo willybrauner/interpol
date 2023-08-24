@@ -8,26 +8,44 @@
 <img alt="logo" src="./packages/interpol/interpol.png">
 </p>
 
-interpol library interpolates value between two points.
+Interpol library interpolates values between two points.
 This is the lowest level of animate machine.
-Interpol is not a DOM API, it provides real time progress of the interpolation that can be use or bind
-on... anything!
-
+Interpol is *initially* not a DOM API, it provides real time progress of the interpolation that can be use or bind
+on... anything, for ~=3.5kB! 
 
 ## Summary
 
+- [Playground](#playground-%EF%B8%8F)
 - [Install](#install)
-- [Show me some code](#show-me-some-code)
+- [Basic usage](#basic-usage)
   - [Interpol](#interpol)
   - [Timeline](#timeline)
-- [Real word example](#real-word-example)
+- [Interpol DOM styles](#interpol-dom-styles)
+  - [Props unit](#props-unit)
+  - [Styles helper](#styles-helper)
+  - [El property](#el-property)
+  - [Real word example](#real-word-example)
 - [Easing](#easing)
 - [API](#api)
-  - [interpol constructor](#interpol-constructor)
-  - [interpol methods](#interpol-methods)
+  - [Interpol constructor](#interpol-constructor)
+  - [Interpol methods](#interpol-methods)
   - [Timeline constructor](#timeline-constructor)
   - [Timeline methods](#timeline-methods)
 - [Dev examples](#dev-examples)
+- [Credits](#credits)
+- [About](#about)
+- [License](#license)
+
+
+## Playground 🕹️
+
+The examples of this repo are available on codesandbox:
+
+- [Interpol basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-basic)
+- [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
+- [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
+- [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
+- [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
 
 ## Install
 
@@ -35,7 +53,7 @@ on... anything!
 npm i @wbe/interpol
 ```
 
-## Show me some code
+## Basic usage
 
 ### Interpol
 
@@ -48,7 +66,7 @@ new Interpol({
   },
   duration: 1000,
   onUpdate: ({ v }, time, progress) => {
-    // do something with `v` value
+    // Do something with `v` value 
   },
 })
 ```
@@ -57,8 +75,6 @@ In this example:
 - `v` will be interpolated between 0 and 100 during 1 second
 - `time` is the current time in millisecond
 - `progress` is the current progress between 0 and 1
-
-➡️ [Interpol codesandbox](https://codesandbox.io/p/sandbox/interpol-ease-35mqw9?file=%2Fsrc%2FApp.tsx%3A1%2C1)
 
 ### Timeline
 
@@ -78,14 +94,112 @@ const itp2 = new Interpol({
   }
 })
 
-const tl = new Timeline()
+new Timeline()
   .add(itp1)
   .add(itp2)
 ```
 
-## Real word example
+In this example:
+- The timeline will start automatically
+- `itp1` will interpolate `v` value between 0 and 100 during 1 second
+- `itp2` will start when `itp1` is complete and will interpolate `v` value between -100 and 100 during 1 second
 
-Interpol as been built for animate DOM element too. In this case, you can use the `onUpdate` callback to update the DOM element style.
+## Interpol DOM styles
+
+One of the main usage of Interpol is to animate DOM styles. The API provide some helpers to simplify this usage and avoid to write the same code each time you want to animate a DOM element.
+
+ - [Props unit](#props-unit): define a unit for each props in the props array
+ - [Styles helper](#styles-helper): a core helper function to simplify the DOM manipulation
+ - [el property](#el-property): set the DOM element to animate directly in the constructor
+
+### Props unit
+
+One props array is able to receive a string an optional third value unit who will be associated to the interpolated value.
+
+Without the unit:
+
+```ts
+new Interpol({
+  props: {
+    top: [-100, 0],
+  },
+  onUpdate: ({ top }) => {
+    // Set manually the unit each time
+    element.style.top = `${top}px`
+  }
+}) 
+```
+
+With the unit as 3th value:
+
+```ts
+new Interpol({
+  props: {
+    // [from, to, unit]
+    top: [-100, 0, "px"],
+  },
+  onUpdate: ({ top }) => {
+    // top is value + "px" is already defined
+    element.style.top = top 
+  }
+}) 
+```
+
+
+### Styles helper
+
+This repository provides a `styles` helper function that simplifies DOM manipulation.
+The function uses a DOM cache to associate multiple transformation functions with the same DOM element at the same time.
+
+Definition:
+```ts
+declare const styles: (element: HTMLElement | HTMLElement[] | null, props: Record<string, string | number>) => void
+```
+
+Example:
+
+```ts
+import { Interpol, styles } from "./Interpol"
+
+new Interpol({
+  props: {
+    x: [-100, 0, "%"],
+    opacity: [0, 1],
+  },
+  onUpdate: ({ x, opacity }) => {
+    styles(element, { x, opacity })
+    
+    // Is Equivalent to:
+    // element.style.transform = `translate3d(${x}%, 0px, 0px)`
+    // element.style.opacity = opacity
+  },
+}) 
+```
+
+### `el` property
+
+But it might be redundant to set props on item styles every time we want to animate the interpol instance. Therefore, you can use the `el` property constructor to define the DOM element to animate. No more using the `onUpdate` callback.
+
+```ts
+new Interpol({
+  // can recieve HTMLElement or HTMLElement[]
+  el: document.querySelector("div"),
+  props: {
+    x: [-100, 0, "%"],
+    opacity: [0, 1],
+  }
+})
+```
+
+Under the hood, the `el` property is used by the `styles` helper function, inside the `onUpdate` callback, just like in the previous example.
+
+You have to be careful of some points:
+
+- props needs their appropriate unit defined
+- props keys must be valid CSS properties, (except `x`, `y`, `z` witch are aliases for `translateX`, `translateY`, `translateZ`) 
+
+
+## Real word example
 
 ```ts
 import { Timeline } from "@wbe/interpol"
@@ -105,15 +219,13 @@ const tl = new Timeline({
 
 // `add()` can recieve an Interpol object constructor
 tl.add({
+  el: element,
   props: {
-    x: [-100, 100],
-    y: [-100, 100],
+    x: [-100, 0, "%"],
+    y: [0, 100, "px"],
   },
   duration: 1000,
   ease: t => t * (2 - t),
-  onUpdate: ({ x, y }) => {
-    element.style.transform = `translate3d(${x}px, ${y}px, 0px)`
-  },
   onComplete: () => {
     console.log("This interpol is complete")
   },
@@ -135,12 +247,11 @@ tl.add({
 
 await tl.play()
 // timeline is complete
-
 await tl.reverse()
 // timeline reverse is complete
 ```
 
-➡️ [Timeline codesandbox](https://codesandbox.io/p/sandbox/interpol-timeline-xmdvcf?file=%2Fsrc%2Fmain.ts%3A1%2C1)
+
 
 ## Easing
 
@@ -152,7 +263,7 @@ new Interpol({
 })
 ```
 
-["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
+[GSAP like ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string or object:
 
 ```js
 import { Interpol, Power3 } from "@wbe/interpol"
@@ -175,8 +286,9 @@ new Interpol({
 ```ts
 interface IInterpolConstruct<K extends keyof Props> {
   // props are an interpol list object
+  // [from, to, unit]
   // default: /
-  props: Record<K, [number | (() => number), number | (() => number)]>
+  props: Record<K, [number | (() => number), number | (() => number), string]>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second
@@ -228,10 +340,7 @@ interface IInterpolConstruct<K extends keyof Props> {
 ```ts
 import { Interpol } from "@wbe/Interpol"
 
-const itp = new Interpol({
-  paused: true, // disable autoplay
-  props: { value: [0, 100] },
-})
+const itp = new Interpol()
 
 // Play the interpol
 // play(from: number = 0): Promise<any>
@@ -345,6 +454,7 @@ pnpm run dev
 
 # Or run a specific example
 pnpm run dev --scope interpol-basic
+pnpm run dev --scope {example-name}
 ```
 
 ## Credits
@@ -353,6 +463,11 @@ pnpm run dev --scope interpol-basic
 - [animate](https://github.com/SolalDR/animate/)
 - [animini](https://github.com/dbismut/animini)
 - [signal](https://github.com/zouloux/signal)
+
+
+## About 
+
+Interpol is an open-source project created and maintained by [Willy Brauner](https://willybrauner.com).
 
 ## License
 
