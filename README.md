@@ -45,6 +45,7 @@ The examples of this repo are available on codesandbox:
 - [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
 - [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
 - [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
+- [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
 - [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
 
 ## Install
