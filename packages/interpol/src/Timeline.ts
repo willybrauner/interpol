@@ -85,7 +85,7 @@ export class Timeline {
     // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
     // Register full TL duration
-    this.#tlDuration += itp.duration + offset
+    this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + offset)
     // Get prev add of the list
     const prevAdd = this.#adds?.[this.#adds.length - 1]
     // Calc start time If not, prev, this is the 1st, start time is 0 else, origin is the prev end + offset
