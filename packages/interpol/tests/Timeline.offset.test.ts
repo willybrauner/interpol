@@ -23,7 +23,7 @@ describe.concurrent("Timeline offset", () => {
           duration: 100,
           props: { v: [0, 100] },
         },
-        -120
+        "-=120"
       )
     })
   })
@@ -53,11 +53,80 @@ describe.concurrent("Timeline offset", () => {
       })
 
       data.forEach(({ duration, offset }) => {
-        tl.add({ duration, props: { v: [0, 1] } }, offset)
+        tl.add({ duration, props: { v: [0, 1] } }, `${offset}`)
       })
 
       await tl.play()
       resolve()
+    })
+  })
+
+  it("Timeline add offset should work with string -=", () => {
+    return new Promise(async (resolve: any) => {
+      const tl = new Timeline({
+        onComplete: (time) => {
+          expect(time).toBe(150)
+          resolve()
+        },
+      })
+      tl.add({
+        duration: 100,
+        props: { v: [0, 100] },
+      })
+      tl.add(
+        {
+          duration: 100,
+          props: { v: [0, 100] },
+        },
+        "-=50"
+      )
+    })
+  })
+  it("Timeline add offset should work with string +=", () => {
+    return new Promise(async (resolve: any) => {
+      const tl = new Timeline({
+        onComplete: (time) => {
+          expect(time).toBe(250)
+          resolve()
+        },
+      })
+      tl.add({
+        duration: 100,
+        props: { v: [0, 100] },
+      })
+      tl.add(
+        {
+          duration: 100,
+          props: { v: [0, 100] },
+        },
+        "+=50"
+      )
+    })
+  })
+
+  it("Timeline add offset should work with absolute position: offset as number", () => {
+    return new Promise(async (resolve: any) => {
+      const tl = new Timeline({
+        onComplete: (time) => {
+          expect(time).toBe(200)
+          resolve()
+        },
+      })
+        .add({
+          duration: 100,
+          props: { v: [0, 100] },
+        })
+        .add({
+          duration: 100,
+          props: { v: [0, 100] },
+        })
+        .add(
+          {
+            duration: 100,
+            props: { v: [0, 100] },
+          },
+          10
+        )
     })
   })
 })
