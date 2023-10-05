@@ -2,9 +2,6 @@
   "name": "@wbe/interpol",
   "version": "0.7.0",
   "type": "module",
-  "files": [
-    "dist"
-  ],
   "sideEffects": false,
   "main": "./dist/interpol.cjs",
   "module": "./dist/interpol.js",

@@ -104,10 +104,7 @@ export class Timeline {
     // absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset
-      // if offset is bigger than current TL duration, we need to update the TL duration
-      if (fOffset > this.#tlDuration) {
-        this.#tlDuration = Math.max(0, fOffset + itp.duration)
-      }
+      this.#tlDuration = Math.max(0, fOffset + itp.duration)
       startTime = fOffset ?? 0
     }
 

@@ -166,8 +166,8 @@ importers:
   examples/interpol-offsets:
     dependencies:
       '@wbe/interpol':
-        specifier: latest
-        version: 0.7.1
+        specifier: ^0.7.0
+        version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
         version: 18.2.0

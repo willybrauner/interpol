@@ -13,22 +13,20 @@ export function App() {
         {
           el: refs.current[i],
           duration: 1000,
-          ease: "power2.out",
+          ease: "power2.inOut",
           props: {
-            x: [0, 100, "%"],
-            y: [0, 100, "%"],
+            x: [0, innerWidth - refs.current[i].getBoundingClientRect().width, "px"],
           },
         },
-
-        // should start all add from tl start 
-        0
+        // should start all add from tl start
+        i * 40
       )
     }
   }, [])
 
   return (
     <div className={css.root}>
-      {new Array(10).fill(null).map((e, i) => (
+      {new Array(15).fill(null).map((e, i) => (
         <div key={i} className={css.ball} ref={(r) => (refs.current[i] = r)}></div>
       ))}
     </div>
