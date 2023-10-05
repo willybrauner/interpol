@@ -84,7 +84,6 @@ export class Timeline {
     itp.inTl = true
     // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
-
     // Get prev add of the list
     const prevAdd = this.#adds?.[this.#adds.length - 1]
 
@@ -92,18 +91,13 @@ export class Timeline {
     // calc offset, could be a string like
     // relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
     // absolute position {number} 100 | -100
-
     let fOffset: number
     let startTime: number
 
     // Relative position in TL
     if (typeof offset === "string") {
-      if (offset.includes("=")) fOffset = parseFloat(offset.split("=").join(""))
-      else fOffset = parseFloat(offset)
-
-      //      console.log("fOffset",fOffset)
+      fOffset = offset.includes("=") ? parseFloat(offset.split("=").join("")) : parseFloat(offset)
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
-      console.log("this.#tlDuration", this.#tlDuration)
       startTime = prevAdd ? prevAdd.time.end + fOffset : 0
     }
 
@@ -111,7 +105,9 @@ export class Timeline {
     else if (typeof offset === "number") {
       fOffset = offset
       // if offset is bigger than current TL duration, we need to update the TL duration
-      if (fOffset > this.#tlDuration) this.#tlDuration = Math.max(0, fOffset + itp.duration)
+      if (fOffset > this.#tlDuration) {
+        this.#tlDuration = Math.max(0, fOffset + itp.duration)
+      }
       startTime = fOffset ?? 0
     }
 
