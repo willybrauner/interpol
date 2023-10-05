@@ -20,8 +20,8 @@ if (inputProgress) {
 const $el = document.querySelector<HTMLElement>(".ball")
 const itp = new Interpol({
   props: {
-    x: [-10, 200],
-    y: [0, 50],
+    x: [0, innerWidth - $el!.offsetWidth*2],
+    y: [0, innerHeight - $el!.offsetHeight*2],
   },
   duration: 1000,
   ease: "power3.out",
