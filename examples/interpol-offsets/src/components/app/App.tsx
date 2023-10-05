@@ -1,9 +1,12 @@
 import css from "./App.module.less"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Timeline } from "@wbe/interpol"
+import { Controls } from "../controls/Controls"
 
 export function App() {
   const refs = useRef([])
+
+  const [instance, setInstance] = useState(null)
 
   useEffect(() => {
     const tl = new Timeline()
@@ -22,10 +25,13 @@ export function App() {
         i * 40
       )
     }
+
+    setInstance(tl)
   }, [])
 
   return (
     <div className={css.root}>
+      <Controls className={css.controls} instance={instance} />
       {new Array(15).fill(null).map((e, i) => (
         <div key={i} className={css.ball} ref={(r) => (refs.current[i] = r)}></div>
       ))}
