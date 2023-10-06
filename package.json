@@ -16,9 +16,9 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "turbo run build",
-    "build:watch": "turbo run build -- --watch",
-    "dev": "turbo run dev",
+    "build": "FORCE_COLOR=1 turbo run build",
+    "build:watch": "FORCE_COLOR=1 turbo run build -- --watch",
+    "dev": "FORCE_COLOR=1 turbo run dev",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "size": "size-limit",
@@ -27,16 +27,16 @@
     "ci:publish": "pnpm build && pnpm changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.1",
-    "@size-limit/preset-small-lib": "^8.2.4",
-    "@types/node": "^20.1.0",
+    "@changesets/cli": "^2.26.2",
+    "@size-limit/preset-small-lib": "^8.2.6",
+    "@types/node": "^20.8.2",
+    "jsdom": "^22.1.0",
     "prettier": "^2.8.8",
-    "size-limit": "^8.2.4",
-    "turbo": "^1.9.9",
-    "typescript": "^5.0.4",
-    "vite": "^4.3.5",
-    "vitest": "^0.31.0",
-    "jsdom": "^22.1.0"
+    "size-limit": "^8.2.6",
+    "turbo": "^1.10.15",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vitest": "^0.31.4"
   },
   "prettier": {
     "semi": false,
