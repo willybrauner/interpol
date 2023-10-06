@@ -31,7 +31,7 @@ export function App() {
 
         // that's the trick
         // in order to test the offset interpolation
-        // 1 & 8 balls are relative to their position in the timeline
+        // ball 1 is relative to its position in the timeline
         // other balls are absolute (relative to the beginning of the timeline)
         i === 1 ? customOffset : i * 40
       )
@@ -63,12 +63,12 @@ export function App() {
 
       <div>
         <div>offset</div>
-      <input
-        autoFocus={true}
-        value={customOffset}
-        type={"text"}
-        onChange={(e) => handleValue(e.target?.value)}
-      />
+        <input
+          autoFocus={true}
+          value={customOffset}
+          type={"text"}
+          onChange={(e) => handleValue(e.target?.value)}
+        />
       </div>
       <div className={css.container} ref={containerRef}>
         {new Array(10).fill(null).map((e, i) => (
