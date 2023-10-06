@@ -96,7 +96,7 @@ export class Timeline {
 
     // Relative position in TL
     if (typeof offset === "string") {
-      fOffset = offset.includes("=") ? parseFloat(offset.split("=").join("")) : parseFloat(offset)
+      fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset)
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : 0
     }
@@ -104,7 +104,7 @@ export class Timeline {
     // absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset
-      this.#tlDuration = Math.max(0, fOffset + itp.duration)
+      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
       startTime = fOffset ?? 0
     }
 
