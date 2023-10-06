@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.7.1
+
+### Patch Changes
+
+- 4a7b054: fix tlDuration if offset is less than previous add duration
+
 ## 0.7.0
 
 ### Minor Changes
