@@ -45,6 +45,7 @@ The examples of this repo are available on codesandbox:
 - [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
 - [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
 - [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
+- [Interpol offsets](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-offsets)
 - [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
 - [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
 
@@ -244,7 +245,7 @@ tl.add({
   },
   // set an offset duration, 
   // this interpol will start 100ms before the previous interpol end
-  -100)
+  "-=100")
 
 await tl.play()
 // timeline is complete
@@ -409,8 +410,11 @@ const tl = new Timeline()
 
 // Add new Interpol object param
 // or Interpol instance
-// add(interpol: Interpol | IInterpolConstruct, offset: number = 0): Timeline
+// add(interpol: Interpol | IInterpolConstruct, offset: number | string = "0"): Timeline
 tl.add(Interpol, offset)
+
+// offset can be relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
+// offset can be absolute (number): 0 (from the tl beginning), 100 
 
 // start the timeline
 // play(from: number = 0): Promise<any>
