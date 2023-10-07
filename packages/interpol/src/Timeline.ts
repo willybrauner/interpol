@@ -128,8 +128,8 @@ export class Timeline {
     // Re Calc all progress start and end after each add register,
     // because we need to know the full TL duration for this calc
     this.#onAllAdds((currAdd, i) => {
-      this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration
-      this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration
+      this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration || 0
+      this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
     this.#log("adds", this.#adds)
     // hack needed because we need to waiting all adds register if this is an autoplay
@@ -233,11 +233,17 @@ export class Timeline {
    */
   #handleTick = async ({ delta }): Promise<any> => {
     if (!this.#ticker.isRunning) return
+
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress)
 
-    if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
+    // prettier-ignore
+    if (
+      (!this.#isReversed && this.#progress === 1)
+      || (this.#isReversed && this.#progress === 0)
+      || this.#tlDuration === 0
+    ) {
       this.#onComplete(this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()
