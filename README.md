@@ -11,7 +11,7 @@
 Interpol library interpolates values between two points.
 This is the lowest level of animate machine.
 Interpol is *initially* not a DOM API, it provides real time progress of the interpolation that can be use or bind
-on... anything, for ~=3.5kB! 
+on... anything, for ~=3kB! 
 
 ## Summary
 
