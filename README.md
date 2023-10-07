@@ -313,8 +313,7 @@ interface IInterpolConstruct<K extends keyof Props> {
   // default: `false`
   delay?: number
 
-  // Enable @wbe/debug to get interpol instance logs
-  // exe in your console `localStorage.debug = "interpol:*"`
+  // Enable debug to get interpol logs information
   // default: `false`
   debug?: boolean
   
@@ -386,8 +385,7 @@ interface ITimelineConstruct {
   // default: /
   onComplete?: (time: number, progress: number) => void
 
-  // Enable @wbe/debug to get interpol instance logs
-  // exe in your console `localStorage.debug = "interpol:Timeline"`
+  // Enable debug to get timeline instance logs
   // default: `false`
   debug?: boolean
 
@@ -411,8 +409,8 @@ const tl = new Timeline()
 // add(interpol: Interpol | IInterpolConstruct, offset: number | string = "0"): Timeline
 // @param interpol: Interpol object or Interpol instance
 // @param offset: 
-//    - relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
-//    - absolute (number): 0 (from the tl beginning), 100
+//  - relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
+//  - absolute (number): 0 (from the tl beginning), 100
 tl.add(Interpol, offset)
 
 // start the timeline
