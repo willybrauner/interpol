@@ -1,6 +1,4 @@
 import { Beeper } from "./Beeper"
-import debug from "@wbe/debug"
-const log = debug("interpol:Ticker")
 
 type TickParams = {
   delta: number
@@ -80,15 +78,6 @@ export class Ticker {
     this.#onUpdateObject.elapsed = this.#elapsed
 
     this.onTick.dispatch(this.#onUpdateObject)
-    this.log("tick", this.#onUpdateObject)
     this.#raf = RAF(this.tick.bind(this))
-  }
-
-  /**
-   * Log util
-   * Active @wbe/debug only if debugEnable is true
-   */
-  protected log(...rest): void {
-    if (this.#debug) log(...rest)
   }
 }
