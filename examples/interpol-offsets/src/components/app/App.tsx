@@ -25,7 +25,7 @@ export function App() {
           initUpdate: true,
           ease: "power1.inOut",
           props: {
-            x: [0, () => containerRef.current.offsetWidth - curr.offsetWidth, "px"],
+            x: [0, containerRef.current.offsetWidth - curr.offsetWidth, "px"],
           },
         },
 
@@ -53,23 +53,27 @@ export function App() {
       <Controls className={css.controls} instance={instance} />
       <br />
 
-      <div>
-        <div>type</div>
-        <select onChange={(e) => setType(e.target.value)}>
-          <option value={"relative"}>relative (string)</option>
-          <option value={"absolute"}>absolute (number)</option>
-        </select>{" "}
+      <div className={css.typeOffsetContainer}>
+        <div className={css.typeContainer}>
+          <div>type</div>
+          <select onChange={(e) => setType(e.target.value)}>
+            <option value={"relative"}>relative (string)</option>
+            <option value={"absolute"}>absolute (number)</option>
+          </select>{" "}
+        </div>
+        <div className={css.offsetContainer}>
+          <div>
+            <div>{type} offset</div>
+            <input
+              autoFocus={true}
+              value={customOffset}
+              type={"text"}
+              onChange={(e) => handleValue(e.target?.value)}
+            />
+          </div>
+        </div>
       </div>
 
-      <div>
-        <div>offset</div>
-        <input
-          autoFocus={true}
-          value={customOffset}
-          type={"text"}
-          onChange={(e) => handleValue(e.target?.value)}
-        />
-      </div>
       <div className={css.container} ref={containerRef}>
         {new Array(10).fill(null).map((e, i) => (
           <div
