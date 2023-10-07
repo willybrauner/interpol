@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.8.1
+
+### Patch Changes
+
+- 002f528: Replace @wbe/debug by console.log
+
 ## 0.8.0
 
 ### Minor Changes
