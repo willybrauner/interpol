@@ -8,7 +8,6 @@ export default defineConfig({
   minify: "terser",
   dts: true,
   format: ["cjs", "esm"],
-  external: ["@wbe/debug"],
   name: "interpol",
   sourcemap: true,
   terserOptions: {

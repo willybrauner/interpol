@@ -6,7 +6,6 @@ import {
   Value,
   PropsValueObjectRef,
 } from "./core/types"
-import debug from "@wbe/debug"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -15,7 +14,6 @@ import { compute } from "./core/compute"
 import { noop } from "./core/noop"
 import { easeAdapter, EaseFn, EaseName } from "./core/ease"
 import { styles } from "./core/styles"
-const log = debug("interpol:Interpol")
 
 let ID = 0
 
@@ -374,9 +372,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
   /**
    * Log util
-   * Active @wbe/debug only if debugEnable is true
    */
-  #log(...rest): void {
-    if (this.debugEnable) log(this.ID, ...rest)
+  #log(...rest: any[]): void {
+    this.debugEnable &&
+    console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
   }
 }

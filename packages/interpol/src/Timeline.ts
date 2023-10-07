@@ -4,9 +4,7 @@ import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
-import debug from "@wbe/debug"
 import { noop } from "./core/noop"
-const log = debug("interpol:Timeline")
 
 interface IAdd {
   itp: Interpol
@@ -61,6 +59,9 @@ export class Timeline {
     this.#ticker = ticker
     this.#isPaused = paused
     this.ID = ++TL_ID
+
+    // waiting for all adds register before log
+    setTimeout(() => this.#log("adds", this.#adds), 1)
   }
 
   /**
@@ -113,7 +114,6 @@ export class Timeline {
       itp,
       time: {
         start: startTime,
-        // Calc end time in TL (start pos + duration of interpolation)
         end: startTime + itp.duration,
         offset: fOffset,
       },
@@ -131,7 +131,7 @@ export class Timeline {
       this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration || 0
       this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
-    this.#log("adds", this.#adds)
+
     // hack needed because we need to waiting all adds register if this is an autoplay
     if (!this.isPaused) setTimeout(() => this.play(), 0)
     // return the Timeline instance to chain methods
@@ -292,7 +292,7 @@ export class Timeline {
    * Active @wbe/debug only if debugEnable is true
    * @param rest
    */
-  #log(...rest): void {
-    if (this.#debugEnable) log(this.ID, ...rest)
+  #log(...rest: any[]): void {
+    this.#debugEnable && console.log(`%ctimeline`, `color: rgb(217,50,133)`, this.ID || "", ...rest)
   }
 }

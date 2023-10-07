@@ -24,9 +24,6 @@
     "build": "tsup",
     "build:watch": "tsup --watch --sourcemap"
   },
-  "dependencies": {
-    "@wbe/debug": "^1.1.0"
-  },
   "devDependencies": {
     "terser": "^5.19.2",
     "tsup": "^6.7.0",
