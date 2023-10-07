@@ -408,13 +408,12 @@ import { Timeline } from "@wbe/Interpol"
 
 const tl = new Timeline()
 
-// Add new Interpol object param
-// or Interpol instance
 // add(interpol: Interpol | IInterpolConstruct, offset: number | string = "0"): Timeline
+// @param interpol: Interpol object or Interpol instance
+// @param offset: 
+//    - relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
+//    - absolute (number): 0 (from the tl beginning), 100
 tl.add(Interpol, offset)
-
-// offset can be relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
-// offset can be absolute (number): 0 (from the tl beginning), 100 
 
 // start the timeline
 // play(from: number = 0): Promise<any>
