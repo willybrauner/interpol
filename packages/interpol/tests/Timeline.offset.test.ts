@@ -1,63 +1,148 @@
-import { it, expect, vi, describe } from "vitest"
-import { Timeline, Interpol } from "../src"
+import { it, expect, describe } from "vitest"
+import { Timeline } from "../src"
 
-describe.concurrent("Timeline offset", () => {
-  it("Timeline should return minimum the first add duration", () => {
-    return new Promise(async (resolve: any) => {
-      const tl = new Timeline({
-        onComplete: (time) => {
-          expect(time).toBe(50)
-          resolve()
-        },
-      })
-
-      // Total tl duration is 50 + 100 = 150
-      // The second add has offset -120, and should start at 30,
-      // So we expect that the TL duration is minimum 50, the first add duration
-      tl.add({
-        duration: 50,
-        props: { v: [0, 100] },
-      })
-      tl.add(
-        {
-          duration: 100,
-          props: { v: [0, 100] },
-        },
-        -120
-      )
+/**
+ * Template for testing offset
+ * @param itps
+ * @param tlDuration
+ */
+const testTemplate = (itps: [number, (number | string)?][], tlDuration: number) =>
+  new Promise(async (resolve: any) => {
+    const tl = new Timeline({
+      onComplete: (time) => {
+        // We are testing the final time / final tlDuration
+        // It depends on itps duration and offset
+        expect(time).toBe(tlDuration)
+        resolve()
+      },
     })
+    for (let [duration, offset] of itps) {
+      tl.add({ duration, props: { v: [0, 100] } }, offset)
+    }
   })
 
-  it("Timeline should return minimum the first add duration with more than 2 adds", () => {
-    return new Promise(async (resolve: any) => {
-      const data = [
-        { duration: 250, offset: 20 },
-        { duration: 20, offset: 20 },
-        { duration: 50, offset: 0 },
-        { duration: 100, offset: -20 },
-        { duration: 100, offset: 0 },
-        { duration: 300, offset: -100 },
-        { duration: 100, offset: 100 },
-        { duration: 60, offset: -30000 },
-      ]
+/**
+ * Tests
+ */
+// prettier-ignore
+describe.concurrent("Timeline.add() offset", () => {
+  it("relative offset should work with `0` (string)", () => {
+    return Promise.all([
+      testTemplate([[100], [100], [100]], 300),
+      testTemplate([[100], [100, "0"], [100, "0"]], 300),
+    ])
+  })
 
-      const tl = new Timeline({
-        paused: true,
-        onComplete: (time: number) => {
-          const totalDuration = data.reduce((acc, curr) => {
-            return Math.max(acc, acc + curr.duration + curr.offset)
-          }, 0)
-          // final time should be the total duration
-          expect(time).toBe(totalDuration)
-        },
-      })
+  it("relative offset should work with string -= or -", () => {
+    return Promise.all([
+      /**
+       0             100           200           300
+       [- itp1 (100) -]
+               [- itp2 (100) -]
+               ^
+               offset start at relative "-50" (string)
+                             ^
+                             total duration is 150
+       */
+      testTemplate([[100], [100, "-=50"]], 150),
 
-      data.forEach(({ duration, offset }) => {
-        tl.add({ duration, props: { v: [0, 1] } }, offset)
-      })
+      testTemplate([[100], [100, "-50"]], 150),
+      testTemplate([[100], [100, "-=50"], [100, "-=10"]], 240),
+      testTemplate([[100], [100, "-=50"], [100, "0"]], 250),
+    ])
+  })
 
-      await tl.play()
-      resolve()
-    })
+  it("relative offset should work with string += or +", () => {
+    return Promise.all([
+      /**
+       0             100           200           300
+       [- itp1 (100) -]
+                             [- itp2 (100) -]
+                             ^
+                             offset start at relative "+=50" (string)
+                                           ^
+                                           total duration is 250
+       */
+      testTemplate([[100], [100, "+=50"]], 250),
+      testTemplate([[100], [100, "+50"]], 250),
+      testTemplate([[100], [100, "50"]], 250),
+      testTemplate([[100], [100, "10"], [100, "50"]], 360),
+      testTemplate([[500], [100, "10"], [100, "50"], [100]], 860),
+    ])
+  })
+
+  it("relative offset should work with negative value", () => {
+    return Promise.all([
+      testTemplate([[50, "-50"]], 0),
+      testTemplate([[50, "-=50"]], 0),
+      testTemplate([[50, "-=50"],[100, "-=50"]], 50),
+      testTemplate([[50, "-=50"],[100, "-100"]], 0),
+
+      /**
+        -100         0            100           200           300
+                     [--- itp1 (150) ----]
+                     ^ offset start at relative "0" (string)
+
+                < - - - - - - - - - - - -|  (itp2 negative offset "-200")
+               [--- itp2 (150) ----]
+                                         ^ total TL duration is 150
+       */
+      testTemplate([[150, "0"],[150, "-200"]], 150),
+    ])
+  })
+
+  it("absolute offset should work with number", () => {
+    // prettier-ignore
+    return Promise.all([
+
+      // when absolute offset of the second add is 0
+      /**
+       0             100           200           300
+       [- itp1 (100) -]
+       [ ------- itp2 (200) -------- ]
+       ^
+       offset start at absolute 0 (number)
+                                     ^
+                                      total duration is 200
+       */
+      testTemplate([[100], [200, 0]], 200),
+
+
+      // when absolute offset is greater than the second add duration
+      /**
+        0             100           200           300           400
+                                                  [- itp1 (100) -]
+                                                  ^
+                                                  offset start at absolute 300 (number)
+        [ ------------- itp2 (300) -------------- ]
+        ^
+        offset start at absolute 0 (number)
+                                                                 ^
+                                                                 total duration is 400
+       */
+      testTemplate([[100, 300], [300, 0]], 400),
+      testTemplate([[100, 0], [100]], 200),
+      testTemplate([[100], [100, 0]], 100),
+      testTemplate([[100, 0], [100, 50]], 150),
+      testTemplate([[100], [200, 0], [200, 0], [200, 0], [200, 0], [200, 0]], 200),
+      testTemplate([[100, 200], [400, 0]], 400),
+    ])
+  })
+
+  it("absolute offset should work with negative number", () => {
+    return Promise.all([
+      /**
+             0            100           200           300
+       [- itp1 (100) -]
+       ^
+       offset start at absolute -50 (number)
+                     ^
+                     total duration is 50
+      */
+      testTemplate([[100, -50]], 50),
+      testTemplate([[50, -50]], 0),
+      testTemplate([[0, 0]], 0),
+      testTemplate([[150, -50]], 100),
+    ])
   })
 })

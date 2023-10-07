@@ -1,6 +1,5 @@
 import { Ticker } from "./Ticker"
 import { EaseName } from "./ease"
-import { b } from "vitest/dist/types-b7007192"
 
 /**
  * Common

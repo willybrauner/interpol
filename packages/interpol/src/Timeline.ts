@@ -66,11 +66,11 @@ export class Timeline {
   /**
    * Add a new interpol obj or instance in Timeline
    * @param interpol
-   * @param offset
+   * @param offset Default "0" is relative position in TL
    */
   public add<K extends keyof Props>(
     interpol: Interpol | InterpolConstruct<K>,
-    offset: number = 0
+    offset: number | string = "0"
   ): Timeline {
     // Create Interpol instance or not
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
@@ -84,12 +84,29 @@ export class Timeline {
     itp.inTl = true
     // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
-    // Register full TL duration
-    this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + offset)
     // Get prev add of the list
     const prevAdd = this.#adds?.[this.#adds.length - 1]
-    // Calc start time If not, prev, this is the 1st, start time is 0 else, origin is the prev end + offset
-    const startTime = prevAdd ? prevAdd.time.end + offset : 0
+
+    // Register full TL duration
+    // calc offset, could be a string like
+    // relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
+    // absolute position {number} 100 | -100
+    let fOffset: number
+    let startTime: number
+
+    // Relative position in TL
+    if (typeof offset === "string") {
+      fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset)
+      this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
+      startTime = prevAdd ? prevAdd.time.end + fOffset : 0
+    }
+
+    // absolute position in TL
+    else if (typeof offset === "number") {
+      fOffset = offset
+      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
+      startTime = fOffset ?? 0
+    }
 
     // push new Add instance in local
     this.#adds.push({
@@ -98,7 +115,7 @@ export class Timeline {
         start: startTime,
         // Calc end time in TL (start pos + duration of interpolation)
         end: startTime + itp.duration,
-        offset,
+        offset: fOffset,
       },
       progress: {
         start: null,
@@ -111,8 +128,8 @@ export class Timeline {
     // Re Calc all progress start and end after each add register,
     // because we need to know the full TL duration for this calc
     this.#onAllAdds((currAdd, i) => {
-      this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration
-      this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration
+      this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration || 0
+      this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
     this.#log("adds", this.#adds)
     // hack needed because we need to waiting all adds register if this is an autoplay
@@ -216,11 +233,17 @@ export class Timeline {
    */
   #handleTick = async ({ delta }): Promise<any> => {
     if (!this.#ticker.isRunning) return
+
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress)
 
-    if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
+    // prettier-ignore
+    if (
+      (!this.#isReversed && this.#progress === 1)
+      || (this.#isReversed && this.#progress === 0)
+      || this.#tlDuration === 0
+    ) {
       this.#onComplete(this.#time, this.#progress)
       this.#onCompleteDeferred.resolve()
       this.stop()

@@ -60,7 +60,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
         // delay is not available on Interpol instance when using Timeline
         // It could be complicated to implement it since we use the Interpol.seek
         // method to move the timeline
-        -(itemDuration - itemDelay)
+        `-=${itemDuration - itemDelay}`
       )
     }
 
@@ -73,7 +73,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
           scale: [1, 0.8],
         },
       },
-      -800
+      "-=800"
     )
 
     return tl
