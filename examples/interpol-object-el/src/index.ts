@@ -1,21 +1,20 @@
 import "./index.css"
-import { Renderer, Plane, Program, Mesh, Transform, Camera } from "ogl"
+import { Renderer, Program, Mesh, Transform, Geometry } from "ogl"
 import fragment from "./shaders/fragment.glsl?raw"
 import vertex from "./shaders/vertex.glsl?raw"
-import { Interpol } from "@wbe/interpol"
+import { Timeline } from "@wbe/interpol"
 
-main()
 async function main() {
-  const renderer = new Renderer()
+  const renderer = new Renderer({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  })
+
   const gl = renderer.gl
   document.body.appendChild(gl.canvas)
 
-  const camera = new Camera(gl)
-  camera.position.z = 2
-
   function resize() {
     renderer.setSize(window.innerWidth, window.innerHeight)
-    camera.perspective({ aspect: gl.canvas.width / gl.canvas.height })
   }
   window.addEventListener("resize", resize, false)
   resize()
@@ -31,11 +30,9 @@ async function main() {
     },
   })
 
-  const geometry = new Plane(gl, {
-    width: 1,
-    height: 1,
-    widthSegments: 32,
-    heightSegments: 32,
+  const geometry = new Geometry(gl, {
+    position: { size: 2, data: new Float32Array([-1, -1, 3, -1, -1, 3]) },
+    uv: { size: 2, data: new Float32Array([0, 0, 2, 0, 0, 2]) },
   })
 
   const mesh = new Mesh(gl, { geometry, program })
@@ -44,26 +41,34 @@ async function main() {
   requestAnimationFrame(update)
   function update() {
     requestAnimationFrame(update)
-    renderer.render({ scene, camera })
+    renderer.render({ scene })
   }
 
   /**
-   * Use object as element
+   * Animate
    */
-  const playIn = () => {
-    new Interpol({
-      el: program.uniforms.uMove,
-      props: {
-        value: [0, 1],
-      },
-      ease: "expo.out",
-      duration: 2000,
+  const tl = new Timeline({ paused: true })
 
-      // no need to use onUpdate callback
-      // onUpdate: ({ value }) => {
-      //   program.uniforms.uMove.value = value;
-      // },
-    })
+  tl.add({
+    el: program.uniforms.uMove,
+    props: {
+      value: [0, 1],
+    },
+    ease: "expo.out",
+    duration: 1000,
+
+    // no need to use onUpdate callback
+    // onUpdate: ({ value }) => {
+    //   program.uniforms.uMove.value = value;
+    // },
+  })
+
+  const loop = async () => {
+    await tl.play()
+    await tl.reverse()
+    loop()
   }
-  playIn()
+  loop()
 }
+
+main()
