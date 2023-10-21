@@ -1,3 +1,5 @@
+import { El } from "./types"
+
 const TRANSFORM_CACHE = new Map<HTMLElement, Record<string, string>>()
 const COORDS = ["x", "y", "z"]
 
@@ -6,12 +8,9 @@ const COORDS = ["x", "y", "z"]
  * @param element
  * @param props
  */
-export const styles = (
-  element: HTMLElement | HTMLElement[] | null,
-  props: Record<string, string | number>
-): void => {
+export const styles = (element: El, props: Record<string, string | number>): void => {
   if (!element) return
-  if (!Array.isArray(element)) element = [element]
+  if (!Array.isArray(element)) element = [element as HTMLElement]
 
   for (const el of element) {
     const transforms = TRANSFORM_CACHE.get(el) || {}
@@ -29,7 +28,12 @@ export const styles = (
         transforms[key] = `${key}(${props[key]})`
       }
       // All other properties, applying directly
-      else el.style[key] = props[key] && `${props[key]}`
+      else {
+        // case this is a style property
+        if (el.style) el.style[key] = props[key] && `${props[key]}`
+        // case this is a simple object
+        else el[key] = props[key]
+      }
     }
 
     // Get the string of transform properties without COORDS (x, y and z values)

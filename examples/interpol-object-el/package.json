@@ -1,0 +1,19 @@
+{
+  "name": "interpol-object-el",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "vite --host"
+  },
+  "dependencies": {
+    "@wbe/interpol": "^0.8.1",
+    "ogl": "^1.0.1",
+    "prettier": "^3.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  }
+}

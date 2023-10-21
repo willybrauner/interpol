@@ -5,6 +5,7 @@ import {
   Props,
   Value,
   PropsValueObjectRef,
+  El,
 } from "./core/types"
 import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
@@ -64,7 +65,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
-  #el: HTMLElement | HTMLElement[] | null
+  #el: El
 
   constructor({
     props = null,

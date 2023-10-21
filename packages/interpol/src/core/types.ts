@@ -39,6 +39,8 @@ export type CallBack<K extends keyof Props> = (
   progress: number
 ) => void
 
+export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
+
 export interface InterpolConstruct<K extends keyof Props> {
   props: Record<K, [Value, Value, Units?]>
   duration?: number | (() => number)
@@ -52,7 +54,7 @@ export interface InterpolConstruct<K extends keyof Props> {
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
   ticker?: Ticker
-  el?: HTMLElement | HTMLElement[] | null
+  el?: El
 }
 
 /**
