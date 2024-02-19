@@ -14,17 +14,14 @@ import { compute } from "./core/compute"
 import { noop } from "./core/noop"
 import { easeAdapter, EaseFn, EaseName } from "./core/ease"
 import { styles } from "./core/styles"
-import { isClient } from "./core/env"
-import { Ticker, tickerInstance } from "./core/Ticker"
+import { InterpolOptions } from "./options"
+import { Ticker } from "./core/Ticker"
 
 let ID = 0
-if (isClient()) {
-  window.interpol = { ticker: tickerInstance }
-}
 
 export class Interpol<K extends keyof Props = keyof Props> {
   public readonly ID = ++ID
-  public ticker = isClient() && window.interpol.ticker ? window.interpol.ticker : tickerInstance
+  public ticker: Ticker
   public inTl = false
   public debugEnable: boolean
 
@@ -73,8 +70,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
   constructor({
     props = null,
-    duration = 1000,
-    ease = "linear",
+    duration = InterpolOptions.duration,
+    ease = InterpolOptions.ease,
     reverseEase = ease,
     paused = false,
     delay = 0,
@@ -85,6 +82,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     debug = false,
     el = null,
   }: InterpolConstruct<K>) {
+    this.ticker = InterpolOptions.ticker
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
@@ -178,8 +176,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#isPaused = false
 
     // start ticker only if is single Interpol, not TL
-    //    if (!this.inTl) this.ticker.play()
-    //    if (!this.inTl) this.ticker.play()
     this.ticker.add(this.#handleTick)
     // create new onComplete deferred Promise and return it
     this.#onCompleteDeferred = deferredPromise()

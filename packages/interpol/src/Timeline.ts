@@ -1,10 +1,11 @@
 import { Interpol } from "./Interpol"
 import { InterpolConstruct, Props, TimelineConstruct } from "./core/types"
-import { Ticker, tickerInstance } from "./core/Ticker"
+import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import { noop } from "./core/noop"
+import { InterpolOptions } from "./options"
 
 interface IAdd {
   itp: Interpol
@@ -50,15 +51,14 @@ export class Timeline {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    ticker = tickerInstance,
     paused = false,
   }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug
-    this.#ticker = ticker
     this.#isPaused = paused
     this.ID = ++TL_ID
+    this.#ticker = InterpolOptions.ticker
 
     // waiting for all adds register before log
     setTimeout(() => this.#log("adds", this.#adds), 1)

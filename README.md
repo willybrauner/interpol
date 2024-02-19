@@ -287,6 +287,8 @@ new Interpol({
 ### interpol constructor
 
 ```ts
+import { EaseFn } from "./ease"
+
 interface IInterpolConstruct<K extends keyof Props> {
   // props are an interpol list object
   // [from, to, unit]
@@ -300,11 +302,11 @@ interface IInterpolConstruct<K extends keyof Props> {
 
   // Interpol easing function
   // default: `t => t` (lineal easing)
-  ease?: EaseName | ((t: number) => number)
+  ease?: EaseName | EaseFn
 
   // Overwrite easing function on reverse
   // default: /
-  reverseEase?: EaseName | ((t: number) => number)
+  reverseEase?: EaseName | EaseFn
 
   // Make interpol paused at start (not autoplay)
   // default: `false`
@@ -317,7 +319,7 @@ interface IInterpolConstruct<K extends keyof Props> {
   // Enable debug to get interpol logs information
   // default: `false`
   debug?: boolean
-  
+
   // Called when interpol is ready to play
   // default: /
   beforeStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
@@ -389,11 +391,7 @@ interface ITimelineConstruct {
   // Enable debug to get timeline instance logs
   // default: `false`
   debug?: boolean
-
-  // Pass a Ticker instance with custom params
-  // default: `new Ticker()`
-  ticker: Ticker
-
+  
   // disable timeline autoplay
   // default: `false`
   paused: boolean
