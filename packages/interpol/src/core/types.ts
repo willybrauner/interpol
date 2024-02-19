@@ -6,6 +6,11 @@ import { EaseName } from "./ease"
  *
  *
  */
+declare global {
+  interface Window {
+    interpol: { ticker: Ticker }
+  }
+}
 
 // Final Props Object returned by callbacks
 export type PropsValueObjectRef<K extends string> = Record<K, number | `${number}${Units}`>

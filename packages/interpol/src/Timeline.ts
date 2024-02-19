@@ -1,6 +1,6 @@
 import { Interpol } from "./Interpol"
 import { InterpolConstruct, Props, TimelineConstruct } from "./core/types"
-import { Ticker } from "./core/Ticker"
+import { Ticker, tickerInstance } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
@@ -50,7 +50,7 @@ export class Timeline {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    ticker = new Ticker(),
+    ticker = tickerInstance,
     paused = false,
   }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
@@ -156,8 +156,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    this.#ticker.play()
-    this.#ticker.onTick.on(this.#handleTick)
+    this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -181,8 +180,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    this.#ticker.play()
-    this.#ticker.onTick.on(this.#handleTick)
+    this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -191,8 +189,7 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = true
     this.#onAllAdds((e) => e.itp.pause())
-    this.#ticker.onTick.off(this.#handleTick)
-    this.#ticker.pause()
+    this.#ticker.remove(this.#handleTick)
   }
 
   public resume(): void {
@@ -200,8 +197,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isPlaying = true
     this.#onAllAdds((e) => e.itp.resume())
-    this.#ticker.onTick.on(this.#handleTick)
-    this.#ticker.play()
+    this.#ticker.add(this.#handleTick)
   }
 
   public stop(): void {
@@ -211,8 +207,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isReversed = false
     this.#onAllAdds((e) => e.itp.stop())
-    this.#ticker.onTick.off(this.#handleTick)
-    this.#ticker.stop()
+    this.#ticker.remove(this.#handleTick)
   }
 
   public seek(progress: number): void {

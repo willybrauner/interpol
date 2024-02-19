@@ -1,4 +1,4 @@
-import { Beeper } from "./Beeper"
+import { isServer } from "./env"
 
 type TickParams = {
   delta: number
@@ -6,43 +6,41 @@ type TickParams = {
   elapsed: number
 }
 
-// Useful trick from https://github.com/SolalDR/animate/blob/master/src/Timeline.ts
-// prettier-ignore
-export const RAF = typeof window === "undefined" ? (cb) => setTimeout(cb, 16) : requestAnimationFrame
-export const CANCEL_RAF = typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
+const requestRaf = isServer() ? (c) => setTimeout(c, 16) : requestAnimationFrame
+const cancelRaf = isServer() ? (c) => {} : cancelAnimationFrame
 
 /**
  * Ticker
  */
 export class Ticker {
-  // Check if the ticker is running
   #isRunning = false
   public get isRunning() {
     return this.#isRunning
   }
-  // Our emitter witch emit params on each frame
-  public onTick = Beeper<TickParams>()
-  // Reference object to avoid creating a new object on each frame
+  handlers: ((e: TickParams) => void)[] = []
   #onUpdateObject: TickParams = { delta: null, time: null, elapsed: null }
-  // Contain timestamp when the experience starts and will stay the same
   #start: number
-  // Contain the current timestamp and will change on each frame
   #time: number
-  // How much time was spent since the start of the experience
   #elapsed: number
-  // Keep elapsed time if ticker is paused
   #keepElapsed: number
-  // Will contain how much time was spent since the previous frame
   #delta: number
-  // True if debug is active
   #debug: boolean
-  // Store the raf
-  #raf
+  #raf: number
 
   constructor({ debug = false } = {}) {
     this.#keepElapsed = 0
     this.#debug = debug
+    this.play()
   }
+
+  public add(handler): void {
+    this.handlers.push(handler)
+  }
+
+  public remove(handler: Function): void {
+    this.handlers = this.handlers.filter((obj) => obj !== handler)
+  }
+  
 
   public play(): void {
     this.#isRunning = true
@@ -50,7 +48,7 @@ export class Ticker {
     this.#time = this.#start
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
     this.#delta = 16
-    this.#raf = RAF(this.tick.bind(this))
+    this.#raf = requestRaf(this.tick)
   }
 
   public pause(): void {
@@ -62,22 +60,25 @@ export class Ticker {
     this.#isRunning = false
     this.#keepElapsed = 0
     this.#elapsed = 0
-    CANCEL_RAF(this.#raf)
+    cancelRaf(this.#raf)
   }
 
-  protected tick(): void {
+  protected tick = (): void => {
     if (!this.#isRunning) return
-
     const now = performance.now()
     this.#delta = now - this.#time
     this.#time = now
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
-
     this.#onUpdateObject.delta = this.#delta
     this.#onUpdateObject.time = this.#time
     this.#onUpdateObject.elapsed = this.#elapsed
-
-    this.onTick.dispatch(this.#onUpdateObject)
-    this.#raf = RAF(this.tick.bind(this))
+    for (const o of this.handlers) o(this.#onUpdateObject)
+    this.#raf = requestRaf(this.tick)
   }
 }
+
+/**
+ * Ticker Instance
+ * Used by all interpol/timeline instances
+ */
+export const tickerInstance = new Ticker()
