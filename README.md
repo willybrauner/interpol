@@ -31,6 +31,9 @@ on... anything, for ~=3kB!
   - [Interpol methods](#interpol-methods)
   - [Timeline constructor](#timeline-constructor)
   - [Timeline methods](#timeline-methods)
+- [Options](#options)
+  - [Raf](#raf)
+  - [Defaults properties](#defaults-properties)
 - [Dev examples](#dev-examples)
 - [Credits](#credits)
 - [About](#about)
@@ -437,6 +440,37 @@ tl.stop()
 // progress is a number between 0 and 1
 tl.seek(progress)
 ```
+
+## Options
+
+Global option Object is available to set property for each Interpol & Timeline instance.
+
+### Raf 
+
+```ts
+import { InterpolOptions } from "@wbe/interpol"
+
+// disable internal raf to use your own raf
+InterpolOptions.ticker.disableRaf()
+const tick = (e) => {
+  // execute Ticker.raf() callback on your own raf 
+  InterpolOptions.ticker.raf(e)
+  requestAnimationFrame(tick)
+}
+requestAnimationFrame(tick)
+```
+
+### Defaults properties
+
+```ts
+import { InterpolOptions } from "@wbe/interpol"
+// Set default duration for all interpol instances
+InterpolOptions.durarion = 1000
+// Set default easing for all interpol instances
+InterpolOptions.ease = (t) => t * t
+
+```
+
 
 ## Dev examples
 
