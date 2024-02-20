@@ -7,14 +7,15 @@ import {
   PropsValueObjectRef,
   El,
 } from "./core/types"
-import { Ticker } from "./core/Ticker"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import { compute } from "./core/compute"
 import { noop } from "./core/noop"
-import { easeAdapter, EaseFn, EaseName } from "./core/ease"
+import { Ease, easeAdapter, EaseFn, EaseName } from "./core/ease"
 import { styles } from "./core/styles"
+import { InterpolOptions } from "./options"
+import { Ticker } from "./core/Ticker"
 
 let ID = 0
 
@@ -69,8 +70,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
   constructor({
     props = null,
-    duration = 1000,
-    ease = "linear",
+    duration = InterpolOptions.duration,
+    ease = InterpolOptions.ease,
     reverseEase = ease,
     paused = false,
     delay = 0,
@@ -79,9 +80,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    ticker = new Ticker(),
     el = null,
   }: InterpolConstruct<K>) {
+    this.ticker = InterpolOptions.ticker
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
@@ -97,7 +98,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
       onComplete(props, time, progress)
     }
     this.debugEnable = debug
-    this.ticker = ticker
     this.#ease = this.#chooseEase(ease)
     this.#revEase = this.#chooseEase(reverseEase)
 
@@ -147,8 +147,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // start ticker only if is single Interpol, not TL
     this.#timeout = setTimeout(
       () => {
-        if (!this.inTl) this.ticker.play()
-        this.ticker.onTick.on(this.#handleTick)
+        this.ticker.add(this.#handleTick)
       },
       this.#time > 0 ? 0 : this.#delay
     )
@@ -177,8 +176,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#isPaused = false
 
     // start ticker only if is single Interpol, not TL
-    if (!this.inTl) this.ticker.play()
-    this.ticker.onTick.on(this.#handleTick)
+    this.ticker.add(this.#handleTick)
     // create new onComplete deferred Promise and return it
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
@@ -189,8 +187,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#isPlaying = false
     this.#lastProgress = 0
     if (!this.inTl) {
-      this.ticker.onTick.off(this.#handleTick)
-      this.ticker.pause()
+      this.ticker.remove(this.#handleTick)
     }
   }
 
@@ -199,8 +196,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#isPaused = false
     this.#isPlaying = true
     if (!this.inTl) {
-      this.ticker.onTick.on(this.#handleTick)
-      this.ticker.play()
+      this.ticker.add(this.#handleTick)
     }
   }
 
@@ -218,8 +214,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     if (!this.inTl) {
       this.#isReversed = false
-      this.ticker.onTick.off(this.#handleTick)
-      this.ticker.stop()
+      this.ticker.remove(this.#handleTick)
     }
   }
 
@@ -375,7 +370,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Log util
    */
   #log(...rest: any[]): void {
-    this.debugEnable &&
-    console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
+    this.debugEnable && console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
   }
 }

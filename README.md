@@ -31,6 +31,9 @@ on... anything, for ~=3kB!
   - [Interpol methods](#interpol-methods)
   - [Timeline constructor](#timeline-constructor)
   - [Timeline methods](#timeline-methods)
+- [Options](#options)
+  - [Raf](#raf)
+  - [Defaults properties](#defaults-properties)
 - [Dev examples](#dev-examples)
 - [Credits](#credits)
 - [About](#about)
@@ -287,6 +290,8 @@ new Interpol({
 ### interpol constructor
 
 ```ts
+import { EaseFn } from "./ease"
+
 interface IInterpolConstruct<K extends keyof Props> {
   // props are an interpol list object
   // [from, to, unit]
@@ -300,11 +305,11 @@ interface IInterpolConstruct<K extends keyof Props> {
 
   // Interpol easing function
   // default: `t => t` (lineal easing)
-  ease?: EaseName | ((t: number) => number)
+  ease?: EaseName | EaseFn
 
   // Overwrite easing function on reverse
   // default: /
-  reverseEase?: EaseName | ((t: number) => number)
+  reverseEase?: EaseName | EaseFn
 
   // Make interpol paused at start (not autoplay)
   // default: `false`
@@ -317,7 +322,7 @@ interface IInterpolConstruct<K extends keyof Props> {
   // Enable debug to get interpol logs information
   // default: `false`
   debug?: boolean
-  
+
   // Called when interpol is ready to play
   // default: /
   beforeStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
@@ -389,11 +394,7 @@ interface ITimelineConstruct {
   // Enable debug to get timeline instance logs
   // default: `false`
   debug?: boolean
-
-  // Pass a Ticker instance with custom params
-  // default: `new Ticker()`
-  ticker: Ticker
-
+  
   // disable timeline autoplay
   // default: `false`
   paused: boolean
@@ -439,6 +440,37 @@ tl.stop()
 // progress is a number between 0 and 1
 tl.seek(progress)
 ```
+
+## Options
+
+Global option Object is available to set property for each Interpol & Timeline instance.
+
+### Raf 
+
+```ts
+import { InterpolOptions } from "@wbe/interpol"
+
+// disable internal raf to use your own raf
+InterpolOptions.ticker.disable()
+const tick = (e) => {
+  // execute Ticker.raf() callback on your own raf 
+  InterpolOptions.ticker.raf(e)
+  requestAnimationFrame(tick)
+}
+requestAnimationFrame(tick)
+```
+
+### Defaults properties
+
+```ts
+import { InterpolOptions } from "@wbe/interpol"
+// Set default duration for all interpol instances
+InterpolOptions.durarion = 1000
+// Set default easing for all interpol instances
+InterpolOptions.ease = (t) => t * t
+
+```
+
 
 ## Dev examples
 

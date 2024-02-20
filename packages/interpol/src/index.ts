@@ -1,3 +1,4 @@
+export { InterpolOptions } from "./options"
 export { Interpol } from "./Interpol"
 export { Timeline } from "./Timeline"
 export { Ticker } from "./core/Ticker"

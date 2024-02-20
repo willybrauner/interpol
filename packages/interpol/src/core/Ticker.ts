@@ -1,4 +1,4 @@
-import { Beeper } from "./Beeper"
+import { isServer } from "./env"
 
 type TickParams = {
   delta: number
@@ -6,42 +6,45 @@ type TickParams = {
   elapsed: number
 }
 
-// Useful trick from https://github.com/SolalDR/animate/blob/master/src/Timeline.ts
-// prettier-ignore
-export const RAF = typeof window === "undefined" ? (cb) => setTimeout(cb, 16) : requestAnimationFrame
-export const CANCEL_RAF = typeof window === "undefined" ? (cb) => {} : cancelAnimationFrame
+type Handler = (e: TickParams) => void
 
 /**
  * Ticker
  */
 export class Ticker {
-  // Check if the ticker is running
   #isRunning = false
-  public get isRunning() {
-    return this.#isRunning
-  }
-  // Our emitter witch emit params on each frame
-  public onTick = Beeper<TickParams>()
-  // Reference object to avoid creating a new object on each frame
-  #onUpdateObject: TickParams = { delta: null, time: null, elapsed: null }
-  // Contain timestamp when the experience starts and will stay the same
+  #handlers: ((e: TickParams) => void)[]
+  #onUpdateObj: TickParams
   #start: number
-  // Contain the current timestamp and will change on each frame
   #time: number
-  // How much time was spent since the start of the experience
   #elapsed: number
-  // Keep elapsed time if ticker is paused
   #keepElapsed: number
-  // Will contain how much time was spent since the previous frame
   #delta: number
-  // True if debug is active
-  #debug: boolean
-  // Store the raf
-  #raf
+  #rafId: number
+  #isServer: boolean
+  #enable: boolean
 
-  constructor({ debug = false } = {}) {
+  constructor() {
+    this.#handlers = []
+    this.#onUpdateObj = { delta: null, time: null, elapsed: null }
     this.#keepElapsed = 0
-    this.#debug = debug
+    this.#enable = true
+    this.#isServer = isServer()
+    this.#initEvents()
+    // wait a frame in case disableRaf is set to true
+    setTimeout(() => this.play(), 0)
+  }
+
+  public disable(): void {
+    this.#enable = false
+  }
+
+  public add(fn: Handler): void {
+    this.#handlers.push(fn)
+  }
+
+  public remove(fn: Handler): void {
+    this.#handlers = this.#handlers.filter((h) => h !== fn)
   }
 
   public play(): void {
@@ -50,7 +53,7 @@ export class Ticker {
     this.#time = this.#start
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
     this.#delta = 16
-    this.#raf = RAF(this.tick.bind(this))
+    if (this.#enable) this.#rafId = this.#requestRaf(this.#update)
   }
 
   public pause(): void {
@@ -62,22 +65,50 @@ export class Ticker {
     this.#isRunning = false
     this.#keepElapsed = 0
     this.#elapsed = 0
-    CANCEL_RAF(this.#raf)
+    this.#removeEvents()
+    if (this.#rafId && this.#enable) {
+      this.#cancelRaf(this.#rafId)
+      this.#rafId = null
+    }
   }
 
-  protected tick(): void {
-    if (!this.#isRunning) return
-
-    const now = performance.now()
-    this.#delta = now - this.#time
-    this.#time = now
+  public raf(t: number): void {
+    this.#delta = t - (this.#time || t)
+    this.#time = t
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
+    this.#onUpdateObj.delta = this.#delta
+    this.#onUpdateObj.time = this.#time
+    this.#onUpdateObj.elapsed = this.#elapsed
+    for (const h of this.#handlers) h(this.#onUpdateObj)
+  }
 
-    this.#onUpdateObject.delta = this.#delta
-    this.#onUpdateObject.time = this.#time
-    this.#onUpdateObject.elapsed = this.#elapsed
+  #requestRaf(callback: FrameRequestCallback): number {
+    return this.#isServer ? setTimeout(callback, 16) : requestAnimationFrame(callback)
+  }
 
-    this.onTick.dispatch(this.#onUpdateObject)
-    this.#raf = RAF(this.tick.bind(this))
+  #cancelRaf(rafId: number): void {
+    return this.#isServer ? clearTimeout(rafId) : cancelAnimationFrame(rafId)
+  }
+
+  #initEvents(): void {
+    if (!this.#isServer) {
+      document.addEventListener("visibilitychange", this.#handleVisibility)
+    }
+  }
+
+  #removeEvents(): void {
+    if (!this.#isServer) {
+      document.removeEventListener("visibilitychange", this.#handleVisibility)
+    }
+  }
+
+  #handleVisibility = (): void => {
+    document.hidden ? this.pause() : this.play()
+  }
+
+  #update = (t = performance.now()): void => {
+    if (!this.#isRunning) return
+    if (this.#enable) this.#rafId = this.#requestRaf(this.#update)
+    this.raf(t)
   }
 }

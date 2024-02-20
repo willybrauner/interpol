@@ -5,6 +5,7 @@ import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
 import { round } from "./core/round"
 import { noop } from "./core/noop"
+import { InterpolOptions } from "./options"
 
 interface IAdd {
   itp: Interpol
@@ -50,15 +51,14 @@ export class Timeline {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    ticker = new Ticker(),
     paused = false,
   }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug
-    this.#ticker = ticker
     this.#isPaused = paused
     this.ID = ++TL_ID
+    this.#ticker = InterpolOptions.ticker
 
     // waiting for all adds register before log
     setTimeout(() => this.#log("adds", this.#adds), 1)
@@ -156,8 +156,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    this.#ticker.play()
-    this.#ticker.onTick.on(this.#handleTick)
+    this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -181,8 +180,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    this.#ticker.play()
-    this.#ticker.onTick.on(this.#handleTick)
+    this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -191,8 +189,7 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = true
     this.#onAllAdds((e) => e.itp.pause())
-    this.#ticker.onTick.off(this.#handleTick)
-    this.#ticker.pause()
+    this.#ticker.remove(this.#handleTick)
   }
 
   public resume(): void {
@@ -200,8 +197,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isPlaying = true
     this.#onAllAdds((e) => e.itp.resume())
-    this.#ticker.onTick.on(this.#handleTick)
-    this.#ticker.play()
+    this.#ticker.add(this.#handleTick)
   }
 
   public stop(): void {
@@ -211,8 +207,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isReversed = false
     this.#onAllAdds((e) => e.itp.stop())
-    this.#ticker.onTick.off(this.#handleTick)
-    this.#ticker.stop()
+    this.#ticker.remove(this.#handleTick)
   }
 
   public seek(progress: number): void {
@@ -232,8 +227,6 @@ export class Timeline {
    * @private
    */
   #handleTick = async ({ delta }): Promise<any> => {
-    if (!this.#ticker.isRunning) return
-
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress)

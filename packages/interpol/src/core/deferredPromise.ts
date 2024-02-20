@@ -1,7 +1,6 @@
 export type TDeferredPromise<T = any> = {
   promise: Promise<T>
   resolve: (resolve?: T) => void
-  reject: (error?: Error | any) => void
 }
 
 /**
@@ -10,11 +9,8 @@ export type TDeferredPromise<T = any> = {
  */
 export function deferredPromise<T>(): TDeferredPromise<T> {
   const deferred: TDeferredPromise<T> | any = {}
-
-  deferred.promise = new Promise((resolve, reject) => {
+  deferred.promise = new Promise((resolve) => {
     deferred.resolve = resolve
-    deferred.reject = reject
   })
-
   return deferred
 }

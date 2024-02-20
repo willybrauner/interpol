@@ -1,5 +1,6 @@
 import { Interpol } from "@wbe/interpol"
 import "./index.less"
+import { InterpolOptions } from "@wbe/interpol"
 ;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name: any) =>
     (document.querySelector<HTMLButtonElement>(`.${name}`)!.onclick = () => {
@@ -18,14 +19,26 @@ if (inputProgress) {
 }
 
 const $el = document.querySelector<HTMLElement>(".ball")
+
 const itp = new Interpol({
+  debug: true,
   props: {
-    x: [0, innerWidth - $el!.offsetWidth*2],
-    y: [0, innerHeight - $el!.offsetHeight*2],
+    x: [0, 300],
+    y: [0, 300],
   },
   duration: 1000,
   ease: "power3.out",
-  onUpdate: ({ x, y }, time, progress) => {
+  onUpdate: ({ x, y }) => {
     $el!.style.transform = `translate3d(${x}px, ${y}px, 0px)`
   },
 })
+
+console.log(itp)
+console.log(InterpolOptions.ticker)
+InterpolOptions.ticker.disable()
+
+const tick = (e: number) => {
+  InterpolOptions.ticker.raf(e)
+  requestAnimationFrame(tick)
+}
+requestAnimationFrame(tick)
