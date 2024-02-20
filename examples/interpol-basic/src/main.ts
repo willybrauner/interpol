@@ -20,7 +20,6 @@ if (inputProgress) {
 
 const $el = document.querySelector<HTMLElement>(".ball")
 
-
 const itp = new Interpol({
   debug: true,
   props: {
@@ -33,7 +32,8 @@ const itp = new Interpol({
     $el!.style.transform = `translate3d(${x}px, ${y}px, 0px)`
   },
 })
-InterpolOptions.ticker.disableRaf()
+
+InterpolOptions.ticker.disable()
 
 const tick = (e: number) => {
   InterpolOptions.ticker.raf(e)

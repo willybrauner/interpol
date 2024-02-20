@@ -451,7 +451,7 @@ Global option Object is available to set property for each Interpol & Timeline i
 import { InterpolOptions } from "@wbe/interpol"
 
 // disable internal raf to use your own raf
-InterpolOptions.ticker.disableRaf()
+InterpolOptions.ticker.disable()
 const tick = (e) => {
   // execute Ticker.raf() callback on your own raf 
   InterpolOptions.ticker.raf(e)

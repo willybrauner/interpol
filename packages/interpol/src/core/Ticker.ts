@@ -1,4 +1,4 @@
-import { isClient, isServer } from "./env"
+import { isServer } from "./env"
 
 type TickParams = {
   delta: number
@@ -15,7 +15,7 @@ export class Ticker {
     return this.#isRunning
   }
 
-  handlers: ((e: TickParams) => void)[]
+  #handlers: ((e: TickParams) => void)[]
   #onUpdateObject: TickParams
   #start: number
   #time: number
@@ -24,52 +24,55 @@ export class Ticker {
   #delta: number
   #debug: boolean
   #rafId: number
-  #enableRaf: boolean
+  #enable: boolean
+  #isServer: boolean
 
   constructor({ debug = false } = {}) {
     this.#debug = debug
-    this.handlers = []
+    this.#handlers = []
     this.#onUpdateObject = { delta: null, time: null, elapsed: null }
     this.#keepElapsed = 0
-    this.#enableRaf = true
+    this.#enable = true
+    this.#isServer = isServer()
     this.#initEvents()
-    this.play()
+    // wait a frame in case disableRaf is set to true
+    setTimeout(() => this.play(), 0)
   }
 
   public add(handler): void {
-    this.handlers.push(handler)
+    this.#handlers.push(handler)
   }
 
   public remove(handler: Function): void {
-    this.handlers = this.handlers.filter((obj) => obj !== handler)
+    this.#handlers = this.#handlers.filter((obj) => obj !== handler)
   }
 
-  #requestRaf = () => (isServer() ? (c) => setTimeout(c, 16) : requestAnimationFrame)
-  #cancelRaf = () => (isServer() ? (c) => {} : cancelAnimationFrame)
+  public disable(): void {
+    this.#enable = false
+  }
 
-  public disableRaf(): void {
-    this.#enableRaf = false
+  #requestRaf(callback: FrameRequestCallback): number {
+    return this.#isServer ? setTimeout(callback, 16) : requestAnimationFrame(callback)
+  }
+
+  #cancelRaf(rafId: number): void {
+    return this.#isServer ? clearTimeout(rafId) : cancelAnimationFrame(rafId)
   }
 
   #initEvents(): void {
-    if (isClient()) {
-      document.addEventListener("visibilitychange", this.handleVisibilityChange)
-      document.addEventListener("pageshow", this.handlePageShow)
+    if (!this.#isServer) {
+      document.addEventListener("visibilitychange", this.#handleVisibility)
     }
   }
+
   #removeEvents(): void {
-    if (isClient()) {
-      document.removeEventListener("visibilitychange", this.handleVisibilityChange)
-      document.removeEventListener("pageshow", this.handlePageShow)
+    if (!this.#isServer) {
+      document.removeEventListener("visibilitychange", this.#handleVisibility)
     }
   }
 
-  public handleVisibilityChange = (): void => {
+  #handleVisibility = (): void => {
     document.hidden ? this.pause() : this.play()
-  }
-
-  public handlePageShow = (): void => {
-    if (!this.#isRunning) this.play()
   }
 
   public play(): void {
@@ -78,10 +81,7 @@ export class Ticker {
     this.#time = this.#start
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
     this.#delta = 16
-    // wait a frame in case disableRaf is set to true
-    setTimeout(() => {
-      if (this.#enableRaf) this.#rafId = this.#requestRaf()(this.update)
-    }, 0)
+    if (this.#enable) this.#rafId = this.#requestRaf(this.update)
   }
 
   public pause(): void {
@@ -94,25 +94,25 @@ export class Ticker {
     this.#keepElapsed = 0
     this.#elapsed = 0
     this.#removeEvents()
-    if (this.#rafId && this.#enableRaf) {
-      this.#cancelRaf()(this.#rafId)
+    if (this.#rafId && this.#enable) {
+      this.#cancelRaf(this.#rafId)
       this.#rafId = null
     }
   }
 
   protected update = (t = performance.now()): void => {
     if (!this.#isRunning) return
-    if (this.#enableRaf) this.#rafId = this.#requestRaf()(this.update)
+    if (this.#enable) this.#rafId = this.#requestRaf(this.update)
     this.raf(t)
   }
 
-  public raf(t: number) {
+  public raf(t: number): void {
     this.#delta = t - (this.#time || t)
     this.#time = t
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
     this.#onUpdateObject.delta = this.#delta
     this.#onUpdateObject.time = this.#time
     this.#onUpdateObject.elapsed = this.#elapsed
-    for (const h of this.handlers) h(this.#onUpdateObject)
+    for (const h of this.#handlers) h(this.#onUpdateObject)
   }
 }
