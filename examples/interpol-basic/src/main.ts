@@ -33,6 +33,8 @@ const itp = new Interpol({
   },
 })
 
+console.log(itp)
+console.log(InterpolOptions.ticker)
 InterpolOptions.ticker.disable()
 
 const tick = (e: number) => {

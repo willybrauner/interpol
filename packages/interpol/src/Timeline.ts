@@ -227,8 +227,6 @@ export class Timeline {
    * @private
    */
   #handleTick = async ({ delta }): Promise<any> => {
-    if (!this.#ticker.isRunning) return
-
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress)
