@@ -39,7 +39,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -70,7 +70,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -101,7 +101,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -132,7 +132,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -163,7 +163,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       ogl:
         specifier: ^1.0.1
         version: 1.0.1
@@ -182,7 +182,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -213,7 +213,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -244,7 +244,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.9.0
-        version: link:../../packages/interpol
+        version: 0.9.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1328,6 +1328,10 @@ packages:
       loupe: 2.3.6
       pretty-format: 27.5.1
     dev: true
+
+  /@wbe/interpol@0.9.0:
+    resolution: {integrity: sha512-dppeNa3WD/HZTmcJwzfe7UjqsmCNSelh8YKn4v4tXdjMxdMdozLI88sEGCquSdvcLTGpwovx3sOOSRYTVKqk5w==}
+    dev: false
 
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
