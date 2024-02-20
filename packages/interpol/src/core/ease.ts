@@ -1,6 +1,3 @@
-export type EaseFn = (t: number) => number
-type Power = Record<string, EaseFn>
-
 // Power1: Quad
 export const Power1: Power = {
   in: (t) => t * t,
@@ -50,6 +47,10 @@ export const Linear: EaseFn = (t) => t
 export type EaseType = "power1" | "power2" | "power3" | "power4" | "expo" | "Power1" | "Power2" | "Power3" | "Power4" | "Expo"
 export type EaseDirection = "in" | "out" | "inOut"
 export type EaseName = `${EaseType}.${EaseDirection}` | "Linear" | "linear" | "none"
+export type EaseFn = (t: number) => number
+export type Ease = EaseName | EaseFn
+export type Power = Record<string, EaseFn>
+
 
 export const easeAdapter = (ease: EaseName): EaseFn => {
   let [type, direction] = ease.split(".") as [EaseType, EaseDirection]

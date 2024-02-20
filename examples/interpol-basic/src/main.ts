@@ -33,7 +33,6 @@ const itp = new Interpol({
     $el!.style.transform = `translate3d(${x}px, ${y}px, 0px)`
   },
 })
-
 InterpolOptions.ticker.disableRaf()
 
 const tick = (e: number) => {

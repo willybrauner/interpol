@@ -1,5 +1,5 @@
 import { Ticker } from "./Ticker"
-import { EaseName } from "./ease"
+import { Ease } from "./ease"
 
 /**
  * Common
@@ -32,7 +32,6 @@ export type FormattedProp = {
  *
  *
  */
-
 export type CallBack<K extends keyof Props> = (
   props: PropsValueObjectRef<K>,
   time: number,
@@ -43,9 +42,9 @@ export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 export interface InterpolConstruct<K extends keyof Props> {
   props: Record<K, [Value, Value, Units?]>
-  duration?: number | (() => number)
-  ease?: EaseName | ((t: number) => number)
-  reverseEase?: EaseName | ((t: number) => number)
+  duration?: Value
+  ease?: Ease
+  reverseEase?: Ease
   paused?: boolean
   initUpdate?: boolean
   delay?: number
@@ -53,7 +52,6 @@ export interface InterpolConstruct<K extends keyof Props> {
   beforeStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
-  ticker?: Ticker
   el?: El
 }
 
