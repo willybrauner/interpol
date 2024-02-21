@@ -1,22 +1,33 @@
-import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../src"
+import { it, expect, describe, vi, beforeEach, afterEach } from "vitest"
+import { Interpol, InterpolOptions } from "../src"
+import { randomRange } from "./utils/randomRange"
 
 describe.concurrent("Interpol basic", () => {
-  it("should auto play by default", async () => {
-    const itp = new Interpol({
-      props: { v: [5, 100] },
-      duration: 100,
-      onUpdate: () => {
-        expect(itp.isPlaying).toBe(true)
-      },
-      onComplete: () => {
-        // here, isPlaying remains true, but not after promise resolve
-      },
-    })
+  const createTimer = () => {
+    let count = 0
+    setInterval(() => {
+      InterpolOptions.ticker.raf((count += 16))
+    }, 16)
+  }
 
-    itp.play().then(() => {
-      expect(itp.isPlaying).toBe(false)
-    })
+  beforeEach(() => {
+    createTimer()
+    InterpolOptions.ticker.disable()
+  })
+
+  it("should return the right time", async () => {
+    const test = (duration) => {
+      return new Interpol({
+        props: { v: [5, 100] },
+        duration,
+        onComplete: (props, time) => {
+          console.log("time", time)
+          expect(time).toBe(duration)
+        },
+      }).play()
+    }
+    const tests = new Array(100).fill(0).map((_, i) => test(randomRange(0, 2000)))
+    await Promise.all(tests)
   })
 
   it("should not auto play if paused is set", async () => {
