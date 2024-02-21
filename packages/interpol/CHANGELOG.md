@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.10.1
+
+### Patch Changes
+
+- e6932f8: Fix unstable tests
+
 ## 0.10.0
 
 ### Minor Changes
