@@ -1,6 +1,6 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
-import { wait } from "./utils/wait"
+import "./_setup"
 
 describe.concurrent("Timeline seek", () => {
   it("Timeline should execute interpol's onComplete on seek", () => {

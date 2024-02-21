@@ -1,5 +1,6 @@
 import { it, expect, describe } from "vitest"
 import { Timeline } from "../src"
+import "./_setup"
 
 /**
  * Template for testing offset

@@ -2,6 +2,7 @@ import { it, expect, describe } from "vitest"
 import { Interpol } from "../src"
 import { interpolParamsGenerator } from "./utils/interpolParamsGenerator"
 import { randomRange } from "./utils/randomRange"
+import "./_setup"
 
 /**
  * Create generic interpol tester

@@ -1,1 +1,1 @@
-export const isServer = () => typeof window > "u"
+export const isClient = () => typeof window < "u"

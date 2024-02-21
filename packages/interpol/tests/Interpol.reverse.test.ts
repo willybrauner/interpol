@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import { wait } from "./utils/wait"
+import "./_setup"
 
 const options = { timeout: 2000 }
 

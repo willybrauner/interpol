@@ -1,6 +1,7 @@
 import { it, expect, describe } from "vitest"
 import { Interpol, styles } from "../src"
 import { getDocument } from "./utils/getDocument"
+import "./_setup"
 
 describe.concurrent("styles DOM helpers", () => {
   it("should set props of basic CSS properties on DOM element", async () => {

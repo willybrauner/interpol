@@ -1,5 +1,6 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
+import "./_setup"
 
 describe.concurrent("Timeline reverse", () => {
   it("should reverse timeline properly", () => {

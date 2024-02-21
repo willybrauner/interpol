@@ -1,5 +1,6 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
+import "./_setup"
 
 describe.concurrent("Interpol units", () => {
   it("should return a string value with unit", async () => {

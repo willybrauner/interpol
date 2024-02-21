@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { wait } from "./utils/wait"
 import { Interpol } from "../src"
+import "./_setup"
 
 describe.concurrent("Interpol delay", () => {
   it("play with delay", () => {

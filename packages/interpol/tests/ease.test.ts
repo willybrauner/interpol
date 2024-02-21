@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import "./_setup"
+
 import {
   easeAdapter,
   EaseName,

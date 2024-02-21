@@ -1,5 +1,6 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline, Interpol } from "../src"
+import "./_setup"
 
 describe.concurrent("Timeline play", () => {
   it("Timeline should add Interpol's and play properly", () => {
