@@ -1,4 +1,4 @@
-import { isServer } from "./env"
+import { isClient } from "./env"
 
 type TickParams = {
   delta: number
@@ -21,7 +21,7 @@ export class Ticker {
   #keepElapsed: number
   #delta: number
   #rafId: number
-  #isServer: boolean
+  #isClient: boolean
   #enable: boolean
 
   constructor() {
@@ -29,7 +29,7 @@ export class Ticker {
     this.#onUpdateObj = { delta: null, time: null, elapsed: null }
     this.#keepElapsed = 0
     this.#enable = true
-    this.#isServer = isServer()
+    this.#isClient = isClient()
     this.#initEvents()
     // wait a frame in case disableRaf is set to true
     setTimeout(() => this.play(), 0)
@@ -53,7 +53,9 @@ export class Ticker {
     this.#time = this.#start
     this.#elapsed = this.#keepElapsed + (this.#time - this.#start)
     this.#delta = 16
-    if (this.#enable) this.#rafId = this.#requestRaf(this.#update)
+    if (this.#enable && this.#isClient) {
+      this.#rafId = requestAnimationFrame(this.#update)
+    }
   }
 
   public pause(): void {
@@ -66,8 +68,8 @@ export class Ticker {
     this.#keepElapsed = 0
     this.#elapsed = 0
     this.#removeEvents()
-    if (this.#rafId && this.#enable) {
-      this.#cancelRaf(this.#rafId)
+    if (this.#enable && this.#isClient && this.#rafId) {
+      cancelAnimationFrame(this.#rafId)
       this.#rafId = null
     }
   }
@@ -82,22 +84,14 @@ export class Ticker {
     for (const h of this.#handlers) h(this.#onUpdateObj)
   }
 
-  #requestRaf(callback: FrameRequestCallback): number {
-    return this.#isServer ? setTimeout(callback, 16) : requestAnimationFrame(callback)
-  }
-
-  #cancelRaf(rafId: number): void {
-    return this.#isServer ? clearTimeout(rafId) : cancelAnimationFrame(rafId)
-  }
-
   #initEvents(): void {
-    if (!this.#isServer) {
+    if (this.#isClient) {
       document.addEventListener("visibilitychange", this.#handleVisibility)
     }
   }
 
   #removeEvents(): void {
-    if (!this.#isServer) {
+    if (this.#isClient) {
       document.removeEventListener("visibilitychange", this.#handleVisibility)
     }
   }
@@ -108,7 +102,9 @@ export class Ticker {
 
   #update = (t = performance.now()): void => {
     if (!this.#isRunning) return
-    if (this.#enable) this.#rafId = this.#requestRaf(this.#update)
+    if (this.#enable && this.#isClient) {
+      this.#rafId = requestAnimationFrame(this.#update)
+    }
     this.raf(t)
   }
 }
