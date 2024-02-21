@@ -1,5 +1,5 @@
-import { it, expect, describe, vi, beforeEach, afterEach, beforeAll } from "vitest"
-import { Interpol, InterpolOptions } from "../src"
+import { it, expect, describe, vi } from "vitest"
+import { Interpol } from "../src"
 import { randomRange } from "./utils/randomRange"
 import "./_setup"
 
