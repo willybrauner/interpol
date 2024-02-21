@@ -1,27 +1,15 @@
-import { it, expect, describe, vi, beforeEach, afterEach } from "vitest"
+import { it, expect, describe, vi, beforeEach, afterEach, beforeAll } from "vitest"
 import { Interpol, InterpolOptions } from "../src"
 import { randomRange } from "./utils/randomRange"
+import "./_setup"
 
 describe.concurrent("Interpol basic", () => {
-  const createTimer = () => {
-    let count = 0
-    setInterval(() => {
-      InterpolOptions.ticker.raf((count += 16))
-    }, 16)
-  }
-
-  beforeEach(() => {
-    createTimer()
-    InterpolOptions.ticker.disable()
-  })
-
   it("should return the right time", async () => {
     const test = (duration) => {
       return new Interpol({
         props: { v: [5, 100] },
         duration,
         onComplete: (props, time) => {
-          console.log("time", time)
           expect(time).toBe(duration)
         },
       }).play()

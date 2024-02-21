@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { Interpol, InterpolOptions, Ticker } from "../src"
 import { wait } from "./utils/wait"
+import "./_setup"
 
 describe.concurrent("Ticker", () => {
   it("should be disable from options ", () => {

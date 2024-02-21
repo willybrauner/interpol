@@ -2,6 +2,7 @@ import { it, expect, describe, vi } from "vitest"
 import { randomRange } from "./utils/randomRange"
 import { Interpol } from "../src"
 import { wait } from "./utils/wait"
+import "./_setup"
 
 describe.concurrent("Interpol refresh", () => {
   it("should compute 'from' 'to' and 'duration' if there are functions", async () => {

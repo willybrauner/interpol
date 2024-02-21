@@ -1,6 +1,7 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
 import { randomRange } from "./utils/randomRange"
+import "./_setup"
 
 describe.concurrent("Timeline stress test", () => {
   it("should play multiple timelines properly", () => {

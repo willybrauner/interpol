@@ -1,6 +1,7 @@
 import { it, expect, describe } from "vitest"
 import { Interpol } from "../src"
 import { getDocument } from "./utils/getDocument"
+import "./_setup"
 
 describe.concurrent("Interpol DOM el", () => {
   it("should set prop key and value on DOM element", async () => {

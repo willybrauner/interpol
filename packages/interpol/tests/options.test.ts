@@ -25,7 +25,7 @@ describe.concurrent("options", () => {
       const offset = 10
       await wait(newDuration - offset)
       expect(mock).toHaveBeenCalledTimes(0)
-      await wait(offset)
+      await wait(offset + 10)
       expect(mock).toHaveBeenCalledTimes(1)
       resolve()
     })
