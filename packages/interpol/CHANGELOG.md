@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.10.2
+
+### Patch Changes
+
+- 4df356c: add npm check updates (ncu) script
+
 ## 0.10.1
 
 ### Patch Changes
@@ -18,27 +24,27 @@
   - Create `InterpolOptions` to access & set global properties
 
   ```ts
-  import { InterpolOptions } from "@wbe/interpol"
+  import { InterpolOptions } from "@wbe/interpol";
 
   // disable internal raf in order to use your own raf
-  InterpolOptions.ticker.disable()
+  InterpolOptions.ticker.disable();
   const tick = (e) => {
     // execute Ticker.raf() callback on your own raf
-    InterpolOptions.ticker.raf(e)
-    requestAnimationFrame(tick)
-  }
-  requestAnimationFrame(tick)
+    InterpolOptions.ticker.raf(e);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
   ```
 
   ### Defaults properties
 
   ```ts
-  import { InterpolOptions } from "@wbe/interpol"
+  import { InterpolOptions } from "@wbe/interpol";
 
   // Set default duration for all Interpol instances
-  InterpolOptions.duration = 1000
+  InterpolOptions.duration = 1000;
   // Set default easing for all Interpol instances
-  InterpolOptions.ease = (t) => t * t
+  InterpolOptions.ease = (t) => t * t;
   ```
 
 ## 0.9.0
@@ -56,7 +62,7 @@
         value: 0,
       },
     },
-  }
+  };
 
   // classic interpolation
   new Interpol({
@@ -64,9 +70,9 @@
       value: [0, 100],
     },
     onUpdate: ({ value }) => {
-      program.uniforms.uProgress.value = value
+      program.uniforms.uProgress.value = value;
     },
-  })
+  });
 
   // shortest interpolation with `el` object property
   new Interpol({
@@ -74,7 +80,7 @@
     props: {
       value: [0, 100],
     },
-  })
+  });
   ```
 
 ## 0.8.1
@@ -95,20 +101,20 @@
   The new relative offset should be a string, according to the GSAP API.
 
   ```ts
-  tl.add({}, "+=50")
-  tl.add({}, "+50") // same than "+=50"
-  tl.add({}, "50") // same than "+=50"
+  tl.add({}, "+=50");
+  tl.add({}, "+50"); // same than "+=50"
+  tl.add({}, "50"); // same than "+=50"
 
-  tl.add({}, "-=50")
-  tl.add({}, "-50") // same than "-=50"
+  tl.add({}, "-=50");
+  tl.add({}, "-50"); // same than "-=50"
   ```
 
   Absolute offset is a number. This is the absolute position of the `add()` in the timeline.
 
   ```ts
-  tl.add({}, 100)
-  tl.add({}, 0) // start at the debut of the timeline
-  tl.add({}, -100) // add duration - 100
+  tl.add({}, 100);
+  tl.add({}, 0); // start at the debut of the timeline
+  tl.add({}, -100); // add duration - 100
   ```
 
   - [x] adapt examples using relative offset with `number`
@@ -138,15 +144,15 @@
       top: [-100, 0, "px"],
     },
     onUpdate: ({ top }) => {
-      element.style.top = top
+      element.style.top = top;
     },
-  })
+  });
   ```
 
   - Add `styles`, a core helper function to simplify the DOM style manipulation
 
   ```ts
-  import { Interpol, styles } from "./Interpol"
+  import { Interpol, styles } from "./Interpol";
 
   new Interpol({
     props: {
@@ -154,13 +160,13 @@
       opacity: [0, 1],
     },
     onUpdate: ({ x, opacity }) => {
-      styles(element, { x, opacity })
+      styles(element, { x, opacity });
 
       // Is Equivalent to:
       // element.style.transform = `translate3d(${x}%, 0px, 0px)`
       // element.style.opacity = opacity
     },
-  })
+  });
   ```
 
   - Add `el` property to set the DOM element to animate directly in the Interpol constructor.
@@ -172,7 +178,7 @@
       x: [-100, 0, "%"],
       opacity: [0, 1],
     },
-  })
+  });
   ```
 
 ## 0.6.0
@@ -224,14 +230,14 @@
     // New params
     onUpdate: (props, time, progress) => {},
     onComplete: (props, time, progress) => {},
-  })
+  });
 
   new Timeline({
     // ...
     // new Params
     onUpdate: (time, progress) => {},
     onComplete: (time, progress) => {},
-  })
+  });
   ```
 
 ## 0.4.0
@@ -243,17 +249,17 @@
   ["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
 
   ```js
-  import { Interpol, Power3 } from "@wbe/interpol"
+  import { Interpol, Power3 } from "@wbe/interpol";
 
   // as typed string
   new Interpol({
     ease: "power3.out",
-  })
+  });
 
   // or, import the object
   new Interpol({
     ease: Power3.out,
-  })
+  });
   ```
 
 ## 0.3.0
@@ -271,7 +277,7 @@
     onUpdate: ({ props: { x, y }, time, progress }) => {
       // use x and y as needed
     },
-  })
+  });
   ```
 
   - Change all TimeLine/Interpol protected properties to #private properties
