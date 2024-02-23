@@ -38,7 +38,7 @@ importers:
   examples/interpol-basic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
@@ -69,7 +69,7 @@ importers:
   examples/interpol-ease:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
@@ -100,7 +100,7 @@ importers:
   examples/interpol-graphic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
@@ -131,7 +131,7 @@ importers:
   examples/interpol-menu:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
@@ -162,7 +162,7 @@ importers:
   examples/interpol-object-el:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       ogl:
         specifier: ^1.0.4
@@ -181,7 +181,7 @@ importers:
   examples/interpol-offsets:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
@@ -212,7 +212,7 @@ importers:
   examples/interpol-particles:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
@@ -243,7 +243,7 @@ importers:
   examples/interpol-timeline:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.10.2
+        specifier: ^0.10.3
         version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
