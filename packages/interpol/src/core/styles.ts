@@ -1,4 +1,4 @@
-import { El } from "./types"
+import { El, PropsValueObjectRef } from "./types"
 
 const TRANSFORM_CACHE = new Map<HTMLElement, Record<string, string>>()
 const COORDS = ["x", "y", "z"]
@@ -8,7 +8,7 @@ const COORDS = ["x", "y", "z"]
  * @param element
  * @param props
  */
-export const styles = (element: El, props: Record<string, string | number>): void => {
+export const styles = (element: El, props: PropsValueObjectRef<string>): void => {
   if (!element) return
   if (!Array.isArray(element)) element = [element as HTMLElement]
 
