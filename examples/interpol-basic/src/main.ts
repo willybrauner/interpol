@@ -39,7 +39,7 @@ const itp = new Interpol({
     x: [0, 300, "px"],
     y: [0, 300, "px"],
   },
-  onComplete: (props, time, progress) => {
+  onComplete: () => {
     console.log("itp onComplete")
   },
 })

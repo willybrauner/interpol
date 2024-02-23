@@ -333,9 +333,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
       (acc, key: K) => {
         const p = props[key as K]
         acc[key as K] = {
-          from: p[0],
+          from: p?.[0] ?? 0,
           _from: null,
-          to: p[1],
+          to: p?.[1] ?? p,
           _to: null,
           value: null,
           unit: p?.[2] || null,

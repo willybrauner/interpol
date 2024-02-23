@@ -15,7 +15,7 @@ export type Value = number | (() => number)
 export type Units = "%" | "px" | "em" | "rem" | "vw" | "vh" | "pt" | string
 
 // Props params
-export type Props = Record<string, [Value, Value, Units?]>
+export type Props = Record<string, Value | [Value, Value, Units?]>
 
 // Props object formatted in Map
 export type FormattedProp = {
@@ -41,7 +41,7 @@ export type CallBack<K extends keyof Props> = (
 export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 export interface InterpolConstruct<K extends keyof Props> {
-  props: Record<K, [Value, Value, Units?]>
+  props: Record<K, Value | [Value, Value, Units?]>
   duration?: Value
   ease?: Ease
   reverseEase?: Ease

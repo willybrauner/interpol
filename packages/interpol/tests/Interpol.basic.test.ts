@@ -74,4 +74,23 @@ describe.concurrent("Interpol basic", () => {
       })
     })
   })
+
+  it("should accept a single 'to' prop number", async () => {
+    return new Promise((resolve: any) => {
+      new Interpol({
+        props: {
+          x: 1000,
+        },
+        duration: 100,
+        onUpdate: ({ x }) => {
+          expect(x).toBeTypeOf("number")
+        },
+        onComplete: ({ x }) => {
+          expect(x).toBe(1000)
+          expect(x).toBeTypeOf("number")
+          resolve()
+        },
+      })
+    })
+  })
 })
