@@ -17,8 +17,8 @@ export type Units = "%" | "px" | "em" | "rem" | "vw" | "vh" | "pt" | string
 // Props params
 export type PropsValues =
   | Value
-  | [Value, Value, Units?]
-  | { from?: Value; to?: Value; unit?: Units }
+  | [Value, Value, (Units | null | undefined)?]
+  | Partial<{ from: Value; to: Value; unit: Units; ease: Ease; reverseEase: Ease }>
 export type Props<K = string> = Record<string, PropsValues>
 
 // Props object formatted in Map
@@ -29,6 +29,8 @@ export type FormattedProp = {
   _to: number
   value: number
   unit: Units
+  ease: Ease
+  reverseEase: Ease
 }
 
 /**
