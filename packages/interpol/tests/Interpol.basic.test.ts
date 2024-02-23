@@ -76,21 +76,47 @@ describe.concurrent("Interpol basic", () => {
   })
 
   it("should accept a single 'to' prop number", async () => {
-    return new Promise((resolve: any) => {
+    const test = (to, onCompleteProp, onCompleteType) =>
       new Interpol({
-        props: {
-          x: 1000,
-        },
+        props: { x: to },
         duration: 100,
         onUpdate: ({ x }) => {
-          expect(x).toBeTypeOf("number")
+          expect(x).toBeTypeOf(onCompleteType)
         },
         onComplete: ({ x }) => {
-          expect(x).toBe(1000)
-          expect(x).toBeTypeOf("number")
-          resolve()
+          expect(x).toBe(onCompleteProp)
+          expect(x).toBeTypeOf(onCompleteType)
         },
       })
-    })
+
+    return Promise.all([
+      test(0, 0, "number"),
+      test(1000, 1000, "number"),
+      test(10, 10, "number"),
+      test(null, 0, "number"),
+    ])
+  })
+
+  it("should accept a prop object", async () => {
+    const test = (from, to, unit, onCompleteProp, onCompleteType) =>
+      new Interpol({
+        props: { x: { from, to, unit } },
+        duration: 100,
+        onUpdate: ({ x }) => {
+          expect(x).toBeTypeOf(onCompleteType)
+        },
+        onComplete: ({ x }) => {
+          expect(x).toBe(onCompleteProp)
+          expect(x).toBeTypeOf(onCompleteType)
+        },
+      })
+
+    return Promise.all([
+      test(0, 1000, "px", "1000px", "string"),
+      test(-100, 100, "%", "100%", "string"),
+      test(0, 1000, null, 1000, "number"),
+      test(null, 1000, null, 1000, "number"),
+      test(null, null, null, NaN, "number"),
+    ])
   })
 })

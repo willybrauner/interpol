@@ -331,14 +331,14 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #prepareProps<K extends keyof Props>(props: Props): Record<K, FormattedProp> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
-        const p = props[key as K]
+        let p = props[key as K]
         acc[key as K] = {
-          from: p?.[0] ?? 0,
+          from: p?.[0] ?? p?.["from"] ?? 0,
           _from: null,
-          to: p?.[1] ?? p,
+          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
           _to: null,
           value: null,
-          unit: p?.[2] || null,
+          unit: p?.[2] ?? p?.["unit"] ?? null,
         }
         return acc
       },
