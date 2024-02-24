@@ -67,6 +67,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
   #el: El
+  #hasSeekCompleted = false
 
   constructor({
     props = null,
@@ -149,7 +150,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
       () => {
         this.ticker.add(this.#handleTick)
       },
-      this.#time > 0 ? 0 : this.#delay
+      this.#time > 0 ? 0 : this.#delay,
     )
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
@@ -221,8 +222,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Seek to a specific progress (between 0 and 1)
    */
-  public seek(progress: number): void {
+  public seek(progress: number, suppressEvents = true): void {
     if (this.#isPlaying) this.pause()
+
     // keep previous progress before update it
     this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
@@ -232,6 +234,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // Always call onUpdate
     if (this.#lastProgress !== this.#progress) {
+      this.#hasSeekCompleted = false
       this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
       this.#log("seek onUpdate", {
         props: this.#propsValueRef,
@@ -240,16 +243,22 @@ export class Interpol<K extends keyof Props = keyof Props> {
       })
     }
 
-    // if progress 1, execute onComplete
-    if (this.#progress === 1) {
-      this.#log("seek onComplete")
+    // if progress 1, execute onComplete only if it hasn't been called before
+    if (this.#progress === 1 && !this.#hasSeekCompleted && !suppressEvents) {
+      this.#log("seek onComplete", {
+        props: this.#propsValueRef,
+        time: this.#time,
+        progress: this.#progress,
+      })
       this.#onComplete(this.#propsValueRef, this.#time, this.#progress)
       this.#lastProgress = this.#progress
+      this.#hasSeekCompleted = true
     }
 
-    // if progress 0, reset completed flag
+    // if progress 0, reset completed flag and allow onComplete to be called again
     if (this.#progress === 0) {
       this.#lastProgress = this.#progress
+      this.#hasSeekCompleted = false
     }
   }
 
@@ -307,7 +316,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #interpolate(progress): void {
     const ease = this.#isReversed && this.#revEase ? this.#revEase(progress) : this.#ease(progress)
     this.#onEachProps(
-      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * (ease as number), 1000))
+      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * (ease as number), 1000)),
     )
   }
 
@@ -315,18 +324,21 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Prepare internal props object
    */
   #prepareProps<K extends keyof Props>(props: Props): Record<K, FormattedProp> {
-    return Object.keys(props).reduce((acc, key: K) => {
-      const p = props[key as K]
-      acc[key as K] = {
-        from: p[0],
-        _from: null,
-        to: p[1],
-        _to: null,
-        value: null,
-        unit: p?.[2] || null,
-      }
-      return acc
-    }, {} as Record<K, FormattedProp>)
+    return Object.keys(props).reduce(
+      (acc, key: K) => {
+        const p = props[key as K]
+        acc[key as K] = {
+          from: p[0],
+          _from: null,
+          to: p[1],
+          _to: null,
+          value: null,
+          unit: p?.[2] || null,
+        }
+        return acc
+      },
+      {} as Record<K, FormattedProp>,
+    )
   }
 
   /**
@@ -334,7 +346,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * in order to keep the same reference on each frame
    */
   #createPropsParamObjRef<K extends keyof Props>(
-    props: Record<K, FormattedProp>
+    props: Record<K, FormattedProp>,
   ): PropsValueObjectRef<K> {
     return Object.keys(props).reduce((acc, key: K) => {
       acc[key as K] = props[key]._from + props[key].unit
@@ -348,7 +360,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
    */
   #assignPropsValue<P extends K>(
     propsValue: PropsValueObjectRef<K>,
-    props: Record<P, FormattedProp>
+    props: Record<P, FormattedProp>,
   ): PropsValueObjectRef<P> {
     for (const key of Object.keys(propsValue)) {
       propsValue[key as P] = props[key].value + props[key].unit

@@ -374,7 +374,7 @@ itp.stop()
 itp.refreshComputedValues()
 
 // Seek to a specific time
-// seek(progress: number): void
+// seek(progress: number, suppressEvents = true): void
 // progress: number between 0 and 1
 itp.seek(progress)
 ```
@@ -436,7 +436,7 @@ tl.resume()
 tl.stop()
 
 // seek to a specific time
-// seek(progress: number): void
+// seek(progress: number, suppressEvents = true, suppressTlEvents = true): void
 // progress is a number between 0 and 1
 tl.seek(progress)
 ```
