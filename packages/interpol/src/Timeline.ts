@@ -215,6 +215,7 @@ export class Timeline {
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
     this.#updateAdds(this.#time, this.#progress)
+    if (progress === 0 || progress === 1) this.#onComplete(this.#time, this.#progress)
   }
 
   /**

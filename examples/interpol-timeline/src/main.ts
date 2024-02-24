@@ -1,7 +1,7 @@
 import { Power1, Timeline, Interpol } from "@wbe/interpol"
 import "./index.less"
 ;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
-  (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]())
+  (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
 )
 
 const inputProgress = document.querySelector<HTMLInputElement>(".progress")
@@ -37,7 +37,7 @@ const duration = 1000
 const tl: Timeline = new Timeline({
   debug: true,
   paused: true,
-  onComplete: () => console.log(`tl complete reverse ? ${tl.isReversed}`),
+  onComplete: () => console.log(`tl onComplete!`),
 })
 
 const itp = new Interpol<"y" | "x">({
@@ -92,4 +92,10 @@ tl.add({
   onComplete: (e) => {
     console.log("itp 3 onComplete", e)
   },
+})
+
+// TODO all Tl adds are not updated properly to the last frame
+window.addEventListener("resize", () => {
+  console.log("resize")
+  tl.seek(1)
 })
