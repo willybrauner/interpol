@@ -216,11 +216,7 @@ const element = document.querySelector("div")
 // Create a timeline instance
 const tl = new Timeline({ 
   paused: true,
-  onComplete: () => {
-    tl.isReversed() 
-      ? console.log("Timeline reverse is complete") 
-      : console.log("Timeline is complete")
-  },
+  onComplete: () => console.log("Timeline is complete")
 })
 
 // `add()` can recieve an Interpol object constructor
@@ -252,7 +248,7 @@ tl.add({
   "-=100")
 
 await tl.play()
-// timeline is complete
+// timeline is complete, start reverse
 await tl.reverse()
 // timeline reverse is complete
 ```

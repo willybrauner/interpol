@@ -36,7 +36,7 @@ describe.concurrent("Timeline reverse", () => {
       await tl.play()
       await tl.reverse()
 
-      expect(onCompleteMock).toBeCalledTimes(4)
+      expect(onCompleteMock).toBeCalledTimes(2)
       resolve()
     })
   })

@@ -217,7 +217,7 @@ export class Timeline {
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
     this.#updateAdds(this.#time, this.#progress, suppressEvents)
-    if ((progress === 0 || progress === 1) && !suppressTlEvents) {
+    if (progress === 1 && !suppressTlEvents) {
       this.#onComplete(this.#time, this.#progress)
     }
   }
@@ -231,17 +231,19 @@ export class Timeline {
    * @param delta
    * @private
    */
+  // prettier-ignore
   #handleTick = async ({ delta }): Promise<any> => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress, false)
-    // prettier-ignore
-    if (
-      (!this.#isReversed && this.#progress === 1)
-      || (this.#isReversed && this.#progress === 0)
-      || this.#tlDuration === 0
-    ) {
+    // on play complete
+    if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
       this.#onComplete(this.#time, this.#progress)
+      this.#onCompleteDeferred.resolve()
+      this.stop()
+    }
+    // on reverse complete
+    if ((this.#isReversed && this.#progress === 0) || this.#tlDuration === 0) {
       this.#onCompleteDeferred.resolve()
       this.stop()
     }

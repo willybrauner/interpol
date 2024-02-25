@@ -1,106 +1,76 @@
 import { Power1, Timeline, Interpol } from "@wbe/interpol"
+import { styles } from "@wbe/interpol"
 import "./index.less"
 
-//
-;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
-  (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
-)
-document.querySelector<HTMLButtonElement>(`.seek-0`).onclick = () => tl.seek(0, false, false)
-document.querySelector<HTMLButtonElement>(`.seek-05`).onclick = () => tl.seek(0.5, false, false)
-document.querySelector<HTMLButtonElement>(`.seek-1`).onclick = () => tl.seek(1, false, false)
-
-const inputProgress = document.querySelector<HTMLInputElement>(".progress")
-inputProgress.onchange = () => {
-  tl.seek(parseFloat(inputProgress.value) / 100)
-}
-const inputSlider = document.querySelector<HTMLInputElement>(".slider")
-inputSlider.oninput = () => {
-  tl.seek(parseFloat(inputSlider.value) / 100)
-}
-document.querySelector<HTMLButtonElement>(`.play`).onclick = () => tl.play()
-document.querySelector<HTMLButtonElement>(`.reverse`).onclick = () => tl.reverse()
+/**
+ * Query
+ */
 const ball = document.querySelector<HTMLElement>(".ball")
 const ball2 = document.querySelector<HTMLElement>(".ball-2")
 
-/**
- * Utils
- *
- *
- *
- */
-const styles = (el: HTMLElement | null, s: Record<string, string>) => {
-  for (let key in s) if (s.hasOwnProperty(key)) el.style[key] = s[key]
-}
+const seek0 = document.querySelector<HTMLButtonElement>(".seek-0")
+const seek05 = document.querySelector<HTMLButtonElement>(".seek-05")
+const seek1 = document.querySelector<HTMLButtonElement>(".seek-1")
+
+const inputProgress = document.querySelector<HTMLInputElement>(".progress")
+const inputSlider = document.querySelector<HTMLInputElement>(".slider")
 
 /**
- *
- * Example
- *
- *
+ * Events
  */
-const duration = 1000
+;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
+  (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
+)
+seek0.onclick = () => tl.seek(0, false, false)
+seek05.onclick = () => tl.seek(0.5, false, false)
+seek1.onclick = () => tl.seek(1, false, false)
+
+inputProgress.onchange = () => tl.seek(parseFloat(inputProgress.value) / 100, false, false)
+inputSlider.oninput = () => tl.seek(parseFloat(inputSlider.value) / 100, false, false)
+
+window.addEventListener("resize", () => tl.seek(1))
+
+/**
+ * Timeline
+ */
 const tl: Timeline = new Timeline({
   debug: true,
-  paused: true,
-  onComplete: () => console.log(`tl onComplete!`),
+  onComplete: (time, progress) => console.log(`tl onComplete!`),
 })
 
-const itp = new Interpol<"y" | "x">({
+const itp = new Interpol({
+  el: ball,
   props: {
-    x: [0, 200],
-    y: [0, 200],
+    x: [0, 200, "px"],
+    y: [0, 200, "px"],
   },
-  duration,
   ease: Power1.in,
-  onUpdate: ({ x, y }) => {
-    styles(ball, {
-      transform: `translate3d(${x}px, ${y}px, 0)`,
-    })
-  },
-
   onComplete: (e) => {
     console.log("itp 1 onComplete", e)
   },
 })
-
 tl.add(itp)
 
 tl.add({
+  el: ball,
   props: {
-    x: [200, 100],
-    y: [200, 300],
+    x: [200, 100, "px"],
+    y: [200, 300, "px"],
   },
-  duration,
   ease: Power1.out,
-  onUpdate: ({ x, y }) => {
-    styles(ball, {
-      transform: `translate3d(${x}px, ${y}px, 0)`,
-    })
-  },
   onComplete: (e) => {
     console.log("itp 2 onComplete", e)
   },
 })
 
 tl.add({
+  el: ball2,
   props: {
-    x: [0, 100],
-    y: [0, 400],
+    x: [0, 100, "px"],
+    y: [0, 400, "px"],
   },
-  duration,
   ease: Power1.out,
-  onUpdate: ({ x, y }) => {
-    styles(ball2, {
-      transform: `translate3d(${x}px, ${y}px, 0)`,
-    })
-  },
   onComplete: (e) => {
     console.log("itp 3 onComplete", e)
   },
-})
-
-// TODO all Tl adds are not updated properly to the last frame
-window.addEventListener("resize", () => {
-  console.log("resize")
-  tl.seek(1)
 })

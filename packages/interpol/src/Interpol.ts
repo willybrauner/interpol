@@ -294,10 +294,15 @@ export class Interpol<K extends keyof Props = keyof Props> {
       p: this.#progress,
     })
 
-    // on complete
-    if ((!this.#isReversed && this.#progress === 1) || (this.#isReversed && this.#progress === 0)) {
+    // on play complete
+    if (!this.#isReversed && this.#progress === 1) {
       this.#log(`handleTick onComplete!`)
       this.#onComplete(this.#propsValueRef, this.#time, this.#progress)
+      this.#onCompleteDeferred.resolve()
+      this.stop()
+    }
+    // on reverse complete
+    if (this.#isReversed && this.#progress === 0) {
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
