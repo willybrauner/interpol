@@ -5,9 +5,9 @@ import "./index.less"
 ;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
 )
-document.querySelector<HTMLButtonElement>(`.seek-0`).onclick = () => tl.seek(0)
-document.querySelector<HTMLButtonElement>(`.seek-05`).onclick = () => tl.seek(0.5, false)
-document.querySelector<HTMLButtonElement>(`.seek-1`).onclick = () => tl.seek(1, false)
+document.querySelector<HTMLButtonElement>(`.seek-0`).onclick = () => tl.seek(0, false, false)
+document.querySelector<HTMLButtonElement>(`.seek-05`).onclick = () => tl.seek(0.5, false, false)
+document.querySelector<HTMLButtonElement>(`.seek-1`).onclick = () => tl.seek(1, false, false)
 
 const inputProgress = document.querySelector<HTMLInputElement>(".progress")
 inputProgress.onchange = () => {

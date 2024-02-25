@@ -6,8 +6,11 @@ import { InterpolOptions } from "@wbe/interpol"
     (document.querySelector<HTMLButtonElement>(`.${name}`)!.onclick = () => {
       // @ts-ignore
       itp[name]()
-    })
+    }),
 )
+document.querySelector<HTMLButtonElement>(`.seek-0`)!.onclick = () => itp.seek(0, false)
+document.querySelector<HTMLButtonElement>(`.seek-05`)!.onclick = () => itp.seek(0.5, false)
+document.querySelector<HTMLButtonElement>(`.seek-1`)!.onclick = () => itp.seek(1, false)
 
 const inputProgress = document.querySelector<HTMLInputElement>(".progress")
 
@@ -27,14 +30,14 @@ const itp = new Interpol({
     y: [0, 300],
   },
   duration: 1000,
-  ease: "power3.out",
+  ease: "linear",
   onUpdate: ({ x, y }) => {
     $el!.style.transform = `translate3d(${x}px, ${y}px, 0px)`
   },
 })
 
-console.log(itp)
-console.log(InterpolOptions.ticker)
+console.log("itp", itp)
+console.log("InterpolOptions.ticker", InterpolOptions.ticker)
 InterpolOptions.ticker.disable()
 
 const tick = (e: number) => {
