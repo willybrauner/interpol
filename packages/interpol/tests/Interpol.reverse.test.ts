@@ -23,7 +23,7 @@ describe.concurrent("Interpol reverse", () => {
         itp.reverse()
         expect(itp.isReversed).toBe(true)
         await wait(1000)
-        expect(onComplete).toHaveBeenCalledTimes(1)
+        expect(onComplete).toHaveBeenCalledTimes(0)
         resolve()
       })
     },

@@ -46,6 +46,8 @@ export class Timeline {
   #debugEnable: boolean
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
+  #lastTlProgress = 0
+  #reverseLoop = false
 
   constructor({
     onUpdate = noop,
@@ -71,7 +73,7 @@ export class Timeline {
    */
   public add<K extends keyof Props>(
     interpol: Interpol | InterpolConstruct<K>,
-    offset: number | string = "0"
+    offset: number | string = "0",
   ): Timeline {
     // Create Interpol instance or not
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
@@ -210,11 +212,14 @@ export class Timeline {
     this.#ticker.remove(this.#handleTick)
   }
 
-  public seek(progress: number): void {
+  public seek(progress: number, suppressEvents = true, suppressTlEvents = true): void {
     if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds(this.#time, this.#progress)
+    this.#updateAdds(this.#time, this.#progress, suppressEvents)
+    if (progress === 1 && !suppressTlEvents) {
+      this.#onComplete(this.#time, this.#progress)
+    }
   }
 
   /**
@@ -226,18 +231,19 @@ export class Timeline {
    * @param delta
    * @private
    */
+  // prettier-ignore
   #handleTick = async ({ delta }): Promise<any> => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds(this.#time, this.#progress)
-
-    // prettier-ignore
-    if (
-      (!this.#isReversed && this.#progress === 1)
-      || (this.#isReversed && this.#progress === 0)
-      || this.#tlDuration === 0
-    ) {
+    this.#updateAdds(this.#time, this.#progress, false)
+    // on play complete
+    if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
       this.#onComplete(this.#time, this.#progress)
+      this.#onCompleteDeferred.resolve()
+      this.stop()
+    }
+    // on reverse complete
+    if ((this.#isReversed && this.#progress === 0) || this.#tlDuration === 0) {
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
@@ -248,36 +254,37 @@ export class Timeline {
    * Main update function witch seek all adds on there relative time in TL
    * @param tlTime
    * @param tlProgress
+   * @param suppressEvents
    */
-  #updateAdds(tlTime: number, tlProgress: number): void {
+  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true): void {
+    // Determine if the Adds loop should be reversed
+    if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
+    if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
+    this.#lastTlProgress = tlProgress
+
+    // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
 
+    // Then seek all itps
     this.#onAllAdds((add) => {
-      // register last and current progress in current add
+      // Register last and current progress in current add
       add.progress.last = add.progress.current
       add.progress.current = (tlTime - add.time.start) / add.itp.duration
-
-      if (
-        // if current add is in progress range of TL progress
-        (add.progress.start <= tlProgress && add.progress.end >= tlProgress) ||
-        // OR, if we are on special case where last progress is smaller than 1 and current progress is 1 or more
-        // ex: last = 0.9 and current = 1.1 -> need to seek to exactly 1 (clamped by itp.seek)
-        (add.progress.last < 1 && Math.floor(add.progress.current) === 1) ||
-        // OR, if last progress is smaller than 0 and current progress is 0 or more
-        // ex: last = -0.01 and current = 0.05 -> need to seek exactly 0 (clamped by itp.seek)
-        (add.progress.current < 0 && Math.floor(add.progress.last) === 0)
-      ) {
-        add.itp.seek(add.progress.current)
-      }
-    })
+      add.itp.seek(add.progress.current, suppressEvents)
+    }, this.#reverseLoop)
   }
 
   /**
    * Exe Callback function on all adds
-   * @param cb
+   * Need to call from 0 to x or x to 0, depends on reversed state
+   * @param {(add: IAdd, i?: number) => void} cb
+   * @param {boolean} reverse Call from X to 0 index
    */
-  #onAllAdds(cb: (add: IAdd, i?: number) => void): void {
-    for (let i = 0; i < this.#adds.length; i++) cb(this.#adds[i], i)
+  #onAllAdds(cb: (add: IAdd, i?: number) => void, reverse = false): void {
+    const startIndex = reverse ? this.#adds.length - 1 : 0
+    const endIndex = reverse ? -1 : this.#adds.length
+    const step = reverse ? -1 : 1
+    for (let i = startIndex; i !== endIndex; i += step) cb(this.#adds[i], i)
   }
 
   /**
