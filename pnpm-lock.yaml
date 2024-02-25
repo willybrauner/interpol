@@ -39,7 +39,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -70,7 +70,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -101,7 +101,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -132,7 +132,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -163,7 +163,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       ogl:
         specifier: ^1.0.4
         version: 1.0.4
@@ -182,7 +182,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -213,7 +213,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -244,7 +244,7 @@ importers:
     dependencies:
       '@wbe/interpol':
         specifier: ^0.10.3
-        version: link:../../packages/interpol
+        version: 0.10.3
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -1293,6 +1293,10 @@ packages:
       loupe: 2.3.7
       pretty-format: 29.7.0
     dev: true
+
+  /@wbe/interpol@0.10.3:
+    resolution: {integrity: sha512-qAehCu5919e8/0itpUDFKrWMPYyySDQBKfDjDkIwrtpohCZ8al+QaJZJnc6hrvajOPCQ9Fw/YxsiuhBjq9jNSw==}
+    dev: false
 
   /acorn-walk@8.3.2:
     resolution: {integrity: sha512-cjkyv4OtNCIeqhHrfS81QWXoCBPExR/J62oyEqepVw8WaQeSqpW2uhuLPh1m9eWhDuOo/jUXVTlifvesOWp/4A==}
