@@ -8,7 +8,7 @@
     "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "^0.10.3",
+    "@wbe/interpol": "^0.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
