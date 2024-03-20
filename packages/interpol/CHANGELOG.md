@@ -1,5 +1,23 @@
 # @wbe/interpol
 
+## 0.12.1
+
+### Patch Changes
+
+- 89dcd3d: Remove ease string with capitalize first letter
+
+  Remove this ease string:
+
+  ```ts
+  "Power1" | "Power2" | "Power3" | "Power4" | "Expo" | "Linear";
+  ```
+
+  Prefer using these one:
+
+  ```ts
+  "power1" | "power2" | "power3" | "power4" | "expo" | "linear";
+  ```
+
 ## 0.12.0
 
 ### Minor Changes
