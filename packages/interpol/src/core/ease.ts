@@ -44,13 +44,12 @@ export const Linear: EaseFn = (t) => t
  * Adaptor for gsap ease functions as string
  */
 // prettier-ignore
-export type EaseType = "power1" | "power2" | "power3" | "power4" | "expo" | "Power1" | "Power2" | "Power3" | "Power4" | "Expo"
+export type EaseType = "power1" | "power2" | "power3" | "power4" | "expo"
 export type EaseDirection = "in" | "out" | "inOut"
-export type EaseName = `${EaseType}.${EaseDirection}` | "Linear" | "linear" | "none"
+export type EaseName = `${EaseType}.${EaseDirection}` | "linear" | "none"
 export type EaseFn = (t: number) => number
 export type Ease = EaseName | EaseFn
 export type Power = Record<string, EaseFn>
-
 
 export const easeAdapter = (ease: EaseName): EaseFn => {
   let [type, direction] = ease.split(".") as [EaseType, EaseDirection]

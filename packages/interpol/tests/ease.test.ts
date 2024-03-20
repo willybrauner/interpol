@@ -13,18 +13,7 @@ import {
 } from "../src/core/ease"
 
 const eases = { Power1, Power2, Power3, Power4, Expo }
-const types = [
-  "power1",
-  "power2",
-  "power3",
-  "power4",
-  "expo",
-  "Power1",
-  "Power2",
-  "Power3",
-  "Power4",
-  "Expo",
-]
+const types = ["power1", "power2", "power3", "power4", "expo"]
 
 describe.concurrent("Ease", () => {
   // prettier-ignore
@@ -44,10 +33,9 @@ describe.concurrent("Ease", () => {
     }
 
     // linear
-    for (const type of ['linear', "Linear"]) {
-       const adaptor = easeAdapter(`${type}` as EaseName)
-        expect(adaptor).toBe(Linear)
-    }
+    const adaptor = easeAdapter(`linear` as EaseName)
+    expect(adaptor).toBe(Linear)
+    
   })
 
   it("adaptor should return linear easing function if name doesnt exist", () => {
