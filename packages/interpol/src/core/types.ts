@@ -55,7 +55,7 @@ export interface InterpolConstruct<K extends keyof Props> {
   initUpdate?: boolean
   delay?: number
   debug?: boolean
-  beforeStart?: CallBack<K>
+  onStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
   el?: El

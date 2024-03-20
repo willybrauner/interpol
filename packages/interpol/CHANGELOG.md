@@ -143,7 +143,7 @@
   ## TODO in other PRs
 
   - create `onReverseComplete`
-  - exec beforeStart() too
+  - exec onStart() too
 
 ## 0.10.3
 
@@ -376,13 +376,13 @@
 
 ### Minor Changes
 
-- 1d38bab: Improve beforeStart callback:
+- 1d38bab: Improve onStart callback:
 
-  - `beforeStart` get same params than `onUpdate` and `onComplete`:
+  - `onStart` get same params than `onUpdate` and `onComplete`:
     ```ts
-       beforeStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
+       onStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
     ```
-  - A new properties `initUpdate` (boolean) as been added on as Interpol instance property. It allows to execute "onUpdate" callback just before `beforeStart`. Useful in this case, onUpdate will be called once, if the timeline is paused in order to give a position to DOM element.
+  - A new properties `initUpdate` (boolean) as been added on as Interpol instance property. It allows to execute "onUpdate" callback just before `onStart`. Useful in this case, onUpdate will be called once, if the timeline is paused in order to give a position to DOM element.
 
   New "Menu" example:
 

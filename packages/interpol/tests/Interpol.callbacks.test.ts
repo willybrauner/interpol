@@ -3,19 +3,19 @@ import { Interpol } from "../src"
 import "./_setup"
 
 describe.concurrent("Interpol callbacks", () => {
-  it("should execute beforeStart before the play", async () => {
+  it("should execute onStart before the play", async () => {
     const pms = (paused: boolean) =>
       new Promise(async (resolve: any) => {
-        const beforeStart = vi.fn()
+        const onStart = vi.fn()
         const itp = new Interpol({
           props: { x: [0, 100] },
           duration: 500,
           paused,
-          beforeStart,
+          onStart,
         })
-        expect(beforeStart).toHaveBeenCalledTimes(1)
+        expect(onStart).toHaveBeenCalledTimes(1)
         await itp.play()
-        expect(beforeStart).toHaveBeenCalledTimes(1)
+        expect(onStart).toHaveBeenCalledTimes(1)
         resolve()
       })
 
@@ -40,7 +40,7 @@ describe.concurrent("Interpol callbacks", () => {
     })
   })
 
-  it("Call onUpdate once on beforeStart if initUpdate is true", () => {
+  it("Call onUpdate once on onStart if initUpdate is true", () => {
     const test = (initUpdate: boolean) =>
       new Promise(async (resolve: any) => {
         const onUpdate = vi.fn()
