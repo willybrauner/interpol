@@ -23,8 +23,6 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
     },
     onComplete: (props, time, progress) => {
       expect(props.v).toBe(inter.props.v.to)
-      // FIXME : this test is not working
-      // expect(time).toBe(duration)
       expect(progress).toBe(1)
       if (isLast) resolve()
     },

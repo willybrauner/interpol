@@ -20,6 +20,9 @@ on... anything, for ~=3kB!
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
   - [Timeline](#timeline)
+- [Props](#props)
+  - [Props types](#props-types)
+  - [Computed prop values](#computed-prop-values)
 - [Interpol DOM styles](#interpol-dom-styles)
   - [Props unit](#props-unit)
   - [Styles helper](#styles-helper)
@@ -63,6 +66,8 @@ npm i @wbe/interpol
 
 ### Interpol
 
+`Interpol` instance usage:
+
 ```js
 import { Interpol } from "@wbe/interpol"
 
@@ -71,44 +76,119 @@ new Interpol({
     v: [0, 100],
   },
   duration: 1000,
+  ease: (t) => t,
   onUpdate: ({ v }, time, progress) => {
-    // Do something with `v` value 
+    // On each frame, get updated `v` value between 0 and 100
   },
+  onComplete: ({ v }, time, progress) => {
+    // Interpol is complete
+  }
 })
 ```
 
 In this example:
+- The Interpol will start automatically;
 - `v` will be interpolated between 0 and 100 during 1 second
 - `time` is the current time in millisecond
 - `progress` is the current progress between 0 and 1
 
 ### Timeline
 
-Chain interpol instancies with Timeline:
+Chaining interpol instancies with `Timeline`:
 
 ```js
 import { Interpol, Timeline } from "@wbe/interpol"
 
-const itp1 = new Interpol({
-  props: {
-    v: [0, 100],
-  },
+const tl = new Timeline({ 
+    onUpdate: (time, progress) => {
+      // Timeline is updating
+    },
+    onComplete: (time, progress) => {
+      // Timeline is complete
+    }
 })
-const itp2 = new Interpol({
+
+// Set an Interpol instance object constructor directly
+tl.add({
   props: {
-    v: [-100, 100],
+    x: [0, 100],
+  },
+  onComplete: ({ x }, time, progress) => {
+    // itp 1 is complete
   }
 })
 
-new Timeline()
-  .add(itp1)
-  .add(itp2)
+// Or add interpol instance to the timeline
+const itp = new Interpol({
+  props: {
+    x: [100, 50],
+  },
+  duration: 500,
+  onComplete: ({ x }, time, progress) => {
+    // itp 2 is complete
+  }
+})
+tl.add(itp)
 ```
 
 In this example:
-- The timeline will start automatically
-- `itp1` will interpolate `v` value between 0 and 100 during 1 second
-- `itp2` will start when `itp1` is complete and will interpolate `v` value between -100 and 100 during 1 second
+- The timeline will start automatically;
+- Interpol 1, will interpolate `x` value between 0 and 100 during 1 second;
+- Interpol 2, will start when Interpol 1 is complete and will interpolate `x` value between 100 and 50 during 0.5 second.
+
+
+## Props
+
+### Props types
+
+For more flexibility, there is three ways to define a single `prop`:
+
+```ts
+new Interpol({
+  props: {
+    // 1. a simple number, implicite from is `0` 
+    // to use only when `from` is `0`
+    x: 100,
+   
+    // 2. an array 
+    // [from, to, unit?]
+    x: [0, 100],
+  
+    // 3. an object with explicite `from` and `to` properties
+    // { from?, to, unit?, ease?, reverseEase? }
+    x: { from: 0, to: 100 },
+  }
+})
+```
+
+### Computed prop values
+
+`from` and `to` can be a number or a function that return a number.
+Three ways to define a `to` computed value on the same `prop` model: 
+
+```ts
+new Interpol({
+  props: {
+    // 1. number
+    x: () => Math.random(),
+
+    // 2. array
+    x: [0, () => Math.random()],
+ 
+    // 3. object
+    x: { from: 0, to: () => Math.random() }
+  },
+})
+```
+
+In order to refresh computed values, you can use the `refreshComputedValues` method:
+
+```ts
+const itp = new Interpol({
+  // ...
+})
+itp.refreshComputedValues()
+```
 
 ## Interpol DOM styles
 

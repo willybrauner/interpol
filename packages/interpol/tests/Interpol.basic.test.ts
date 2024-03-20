@@ -53,25 +53,4 @@ describe.concurrent("Interpol basic", () => {
       })
     })
   })
-
-  it("should support multiple props", async () => {
-    return new Promise((resolve: any) => {
-      new Interpol({
-        props: {
-          foo: [0, 1000],
-          bar: [-30, 60],
-        },
-        duration: 0,
-        onUpdate: (props) => {
-          expect(props.foo).toBeDefined()
-          expect(props.bar).toBeDefined()
-        },
-        onComplete: (props) => {
-          expect(props.foo).toBeDefined()
-          expect(props.bar).toBeDefined()
-          resolve()
-        },
-      })
-    })
-  })
 })

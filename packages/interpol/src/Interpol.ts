@@ -59,8 +59,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #propsValueRef: PropsValueObjectRef<K>
   #initUpdate: boolean
   #delay: number
-  #ease: EaseFn
-  #revEase: EaseFn
+  #ease: Ease
+  #reverseEase: Ease
   #beforeStart: CallBack<K>
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
@@ -99,8 +99,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
       onComplete(props, time, progress)
     }
     this.debugEnable = debug
-    this.#ease = this.#chooseEase(ease)
-    this.#revEase = this.#chooseEase(reverseEase)
+    this.#ease = ease
+    this.#reverseEase = reverseEase
 
     // Prepare & compute props
     this.#props = this.#prepareProps<K>(props)
@@ -319,9 +319,16 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * Mute each props value key
    */
   #interpolate(progress): void {
-    const ease = this.#isReversed && this.#revEase ? this.#revEase(progress) : this.#ease(progress)
+    // select ease
+    const selectEase = (prop) =>
+      this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
+    // update prop.value
     this.#onEachProps(
-      (prop) => (prop.value = round(prop._from + (prop._to - prop._from) * (ease as number), 1000)),
+      (prop) =>
+        (prop.value = round(
+          prop._from + (prop._to - prop._from) * selectEase(prop)(progress),
+          1000,
+        )),
     )
   }
 
@@ -331,14 +338,16 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #prepareProps<K extends keyof Props>(props: Props): Record<K, FormattedProp> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
-        const p = props[key as K]
+        let p = props[key as K]
         acc[key as K] = {
-          from: p[0],
+          from: p?.[0] ?? p?.["from"] ?? 0,
           _from: null,
-          to: p[1],
+          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
           _to: null,
           value: null,
-          unit: p?.[2] || null,
+          unit: p?.[2] ?? p?.["unit"] ?? null,
+          ease: this.#chooseEase(p?.["ease"] || this.#ease),
+          reverseEase: this.#chooseEase(p?.["reverseEase"] || p?.["ease"] || this.#reverseEase),
         }
         return acc
       },
@@ -379,8 +388,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * @param e ease name or function
    * @returns ease function
    */
-  #chooseEase(e): EaseFn {
-    return typeof e === "string" ? easeAdapter(e as EaseName) : (e as EaseFn)
+  #chooseEase(e: Ease): EaseFn {
+    return e != null ? (typeof e === "string" ? easeAdapter(e as EaseName) : (e as EaseFn)) : null
   }
 
   /**
