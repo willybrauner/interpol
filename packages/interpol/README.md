@@ -147,7 +147,7 @@ interface IInterpolConstruct {
 
   // Called before start
   // default: /
-  beforeStart?: () => void
+  onStart?: () => void
 
   // Called on frame update
   // default: /
