@@ -4,6 +4,7 @@
   "sandboxes": [
     "/examples/interpol-basic",
     "/examples/interpol-colors",
+    "/examples/interpol-dom-ondrag",
     "/examples/interpol-ease",
     "/examples/interpol-graphic",
     "/examples/interpol-menu",
