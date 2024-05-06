@@ -371,8 +371,10 @@ new Interpol({
 import { EaseFn } from "./ease"
 
 interface IInterpolConstruct<K extends keyof Props> {
-  // props are an interpol list object
-  // [from, to, unit]
+  // props are an interpol list object, 3 definition types 
+  // 1. to
+  // 2. [from, to, unit]
+  // 3. { from, to, unit, ease }
   // default: /
   props: Record<K, [number | (() => number), number | (() => number), string]>
 
@@ -413,10 +415,9 @@ interface IInterpolConstruct<K extends keyof Props> {
   // default: /
   onComplete?: (props?: Record<K, number>, time?: number, progress?: number) => void
 
-  // Execute onUpdate method when the Interpol instance is created, just before "beforeStart"
-  // (equivalent to beforeStart)
+  // Execute onUpdate method when the Interpol instance is create
   // default: false
-  initUpdate?: boolean
+  immediateRender?: boolean
 }
 ```
 

@@ -45,10 +45,10 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
             opacity: [0, 1],
           },
           // Equivalent to copy the onUpdate function on beforeStart
-          // "initUpdate" allows to execute "onUpdate" callback just before "beforeStart"
+          // "immediateRender" allows to execute "onUpdate" callback just before "beforeStart"
           // Useful in this case, onUpdate will be called once, if the timeline is paused
           // in order to give a position to DOM element
-          initUpdate: true,
+          immediateRender: true,
           onUpdate: ({ y, opacity }) => {
             styles(item, {
               translateY: `${y}%`,

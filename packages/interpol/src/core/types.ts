@@ -52,7 +52,7 @@ export interface InterpolConstruct<K extends keyof Props> {
   ease?: Ease
   reverseEase?: Ease
   paused?: boolean
-  initUpdate?: boolean
+  immediateRender?: boolean
   delay?: number
   debug?: boolean
   beforeStart?: CallBack<K>
