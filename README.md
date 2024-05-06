@@ -413,10 +413,9 @@ interface IInterpolConstruct<K extends keyof Props> {
   // default: /
   onComplete?: (props?: Record<K, number>, time?: number, progress?: number) => void
 
-  // Execute onUpdate method when the Interpol instance is created, just before "beforeStart"
-  // (equivalent to beforeStart)
+  // Execute onUpdate method when the Interpol instance is create
   // default: false
-  initUpdate?: boolean
+  immediateRender?: boolean
 }
 ```
 

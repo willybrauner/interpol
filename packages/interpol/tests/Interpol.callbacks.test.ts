@@ -40,18 +40,18 @@ describe.concurrent("Interpol callbacks", () => {
     })
   })
 
-  it("Call onUpdate once on beforeStart if initUpdate is true", () => {
-    const test = (initUpdate: boolean) =>
+  it("Call onUpdate once on beforeStart if immediateRender is true", () => {
+    const test = (immediateRender: boolean) =>
       new Promise(async (resolve: any) => {
         const onUpdate = vi.fn()
         new Interpol({
           paused: true,
           props: { v: [0, 100] },
           duration: 100,
-          initUpdate,
+          immediateRender,
           onUpdate,
         })
-        expect(onUpdate).toHaveBeenCalledTimes(initUpdate ? 1 : 0)
+        expect(onUpdate).toHaveBeenCalledTimes(immediateRender ? 1 : 0)
         resolve()
       })
     return Promise.all([test(true), test(false)])

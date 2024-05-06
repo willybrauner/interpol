@@ -23,8 +23,7 @@ describe.concurrent("Interpol DOM el", () => {
           y: [-200, 100, "px"],
         },
         duration: 100,
-        // init update callback before start
-        initUpdate: true,
+        immediateRender: true,
         // so beforeStart opacity is already set on div
         beforeStart: callback,
         onUpdate: callback,

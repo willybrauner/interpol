@@ -22,7 +22,7 @@ export function App() {
         {
           el: curr,
           duration: 1000,
-          initUpdate: true,
+          immediateRender: true,
           ease: "power1.inOut",
           props: {
             x: [0, containerRef.current.offsetWidth - curr.offsetWidth, "px"],
