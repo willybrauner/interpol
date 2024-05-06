@@ -21,7 +21,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
       },
 
       // Use the styles function to update the DOM element
-      beforeStart: ({ x, opacity }) => {
+      onStart: ({ x, opacity }) => {
         styles(rootRef.current, { x, opacity })
       },
 
@@ -44,8 +44,8 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
             y: [100, 0],
             opacity: [0, 1],
           },
-          // Equivalent to copy the onUpdate function on beforeStart
-          // "initUpdate" allows to execute "onUpdate" callback just before "beforeStart"
+          // Equivalent to copy the onUpdate function on onStart
+          // "initUpdate" allows to execute "onUpdate" callback just before "onStart"
           // Useful in this case, onUpdate will be called once, if the timeline is paused
           // in order to give a position to DOM element
           initUpdate: true,

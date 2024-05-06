@@ -61,7 +61,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #delay: number
   #ease: Ease
   #reverseEase: Ease
-  #beforeStart: CallBack<K>
+  #onStart: CallBack<K>
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
@@ -77,7 +77,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     paused = false,
     delay = 0,
     initUpdate = false,
-    beforeStart = noop,
+    onStart = noop,
     onUpdate = noop,
     onComplete = noop,
     debug = false,
@@ -88,7 +88,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#isPaused = paused
     this.#delay = delay
     this.#initUpdate = initUpdate
-    this.#beforeStart = beforeStart
+    this.#onStart = onStart
     this.#el = el
     this.#onUpdate = (props, time, progress) => {
       styles(this.#el, props)
@@ -109,7 +109,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // start
     if (this.#initUpdate) this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
-    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress)
+    this.#onStart(this.#propsValueRef, this.#time, this.#progress)
 
     if (!this.#isPaused) this.play()
   }

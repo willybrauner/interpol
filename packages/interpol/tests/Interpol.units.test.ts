@@ -14,7 +14,7 @@ describe.concurrent("Interpol units", () => {
         new Interpol({
           props: { v: [5, 100, unit] },
           duration: 100,
-          beforeStart: ({ v }) => {
+          onStart: ({ v }) => {
             callback({ v })
             expect(v).toBe(5 + unit)
           },
@@ -38,7 +38,7 @@ describe.concurrent("Interpol units", () => {
       new Interpol({
         props: { v: [5, 100] },
         duration: 100,
-        beforeStart: callback,
+        onStart: callback,
         onUpdate: callback,
         onComplete: resolve,
       })

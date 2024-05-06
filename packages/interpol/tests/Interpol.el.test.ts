@@ -25,8 +25,8 @@ describe.concurrent("Interpol DOM el", () => {
         duration: 100,
         // init update callback before start
         initUpdate: true,
-        // so beforeStart opacity is already set on div
-        beforeStart: callback,
+        // so onStart opacity is already set on div
+        onStart: callback,
         onUpdate: callback,
         onComplete: callback,
       })
@@ -49,7 +49,7 @@ describe.concurrent("Interpol DOM el", () => {
           props: {
             value: [program.uniform.uProgress.value, 100],
           },
-          beforeStart: callback,
+          onStart: callback,
           onUpdate: callback,
           onComplete: callback,
         })
@@ -70,7 +70,7 @@ describe.concurrent("Interpol DOM el", () => {
           props: {
             v: [program.v, 1000],
           },
-          beforeStart: callback,
+          onStart: callback,
           onUpdate: callback,
           onComplete: callback,
         })
