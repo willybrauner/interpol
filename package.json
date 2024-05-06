@@ -49,5 +49,8 @@
       "path": "packages/interpol/dist/interpol.js",
       "limit": "3.5 KB"
     }
-  ]
+  ],
+  "dependencies": {
+    "@wbe/interpol": "^0.13.0"
+  }
 }

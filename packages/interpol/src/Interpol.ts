@@ -228,6 +228,17 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // keep previous progress before update it
     this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
+
+    // if the progress change from 0 to another value, refresh computed values
+    if (
+      (this.#progress !== 0 && this.#lastProgress === 0)
+      || (this.#progress !== 1 && this.#lastProgress === 1)
+    ) {
+      // console.log("refreshComputedValues")
+      this.#props = this.refreshComputedValues()
+      this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
+    }
+
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
     this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
@@ -260,6 +271,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
       this.#lastProgress = this.#progress
       this.#hasSeekCompleted = false
     }
+
   }
 
   #handleTick = async ({ delta }): Promise<any> => {
