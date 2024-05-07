@@ -32,7 +32,7 @@ Get VH value from ratio
 /**
 Get VW value for property according to value in pixels
  */
-.propertyVW(@property, @n1, @n2 : @viewport-reference-width) {
+.propertyVW(@prop, @n1, @n2 : @viewport-reference-width) {
   @value-length-mobile: length(@n1);
 
   & when (@value-length-mobile = 1) {
@@ -56,7 +56,7 @@ Get VW value for property according to value in pixels
 /**
 Get VH value for property according to value in pixels
  */
-.propertyVH(@property, @n1, @n2 : @viewport-reference-height, @aspect-ratio: true) {
+.propertyVH(@prop, @n1, @n2 : @viewport-reference-height, @aspect-ratio: true) {
   @value-length-mobile: length(@n1);
 
   & when (@value-length-mobile = 1) {
@@ -81,7 +81,7 @@ Get VH value for property according to value in pixels
     @local-viewport-height: @viewport-reference-desktop-height + 1;
 
     @media (max-aspect-ratio: ~"@{viewport-reference-desktop-width} / @{local-viewport-height}") {
-      .propertyVW(@property, @n1, @n2 : @viewport-reference-desktop-width);
+      .propertyVW(@prop, @n1, @n2 : @viewport-reference-desktop-width);
     }
   }
 }
@@ -90,16 +90,16 @@ Get VH value for property according to value in pixels
 Responsive Property
 */
 .propertyViewport(
-  @property,
+  @prop,
   @value1,
   @value2: @value1,
   @breakpoint: @breakpoint-tablet,
   @capValue: false,
   @aspect-ratio: true
 ) {
-  .propertyVW(@property, @value1, @n2 : @viewport-reference-width);
+  .propertyVW(@prop, @value1, @n2 : @viewport-reference-width);
   @media (min-width: @breakpoint) {
-    .propertyVH(@property, @value2, @n2 : @viewport-reference-desktop-height, @aspect-ratio);
+    .propertyVH(@prop, @value2, @n2 : @viewport-reference-desktop-height, @aspect-ratio);
   }
 
   & when(@capValue) {
@@ -127,7 +127,7 @@ Responsive Property
 /**
 Pixel to Rem property, mobile & desktop
 */
-.rem(@property, @value-mobile, @value-desktop: false, @breakpoint: @breakpoint-tablet) {
+.rem(@prop, @value-mobile, @value-desktop: false, @breakpoint: @breakpoint-tablet) {
   @value-length-mobile: length(@value-mobile);
 
   & when (@value-length-mobile = 1) {
