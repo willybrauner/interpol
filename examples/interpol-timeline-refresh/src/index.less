@@ -1,5 +1,3 @@
-@import (reference) "../libs/ratio.less";
-
 :root {
   --color-gray: #454545;
   --color-black-1: #313131;
@@ -9,7 +7,6 @@
 }
 
 html {
-  .propertyViewport(--font-size, 1, 2);
   font-size: var(--font-size);
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-weight: 400;
@@ -24,16 +21,16 @@ html {
 body {
   margin: 0;
   font-size: 16rem;
-  min-width: 100vw;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   position: fixed;
 }
 
 .ball {
   position: absolute;
-  width: 50rem;
-  height: 50rem;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
   background-color: red;
 }
