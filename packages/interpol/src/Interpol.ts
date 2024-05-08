@@ -185,7 +185,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public pause(): void {
     this.#isPaused = true
     this.#isPlaying = false
-    this.#lastProgress = 0
+    //    this.#lastProgress = 0
     if (!this.inTl) {
       this.ticker.remove(this.#handleTick)
     }
@@ -204,12 +204,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
     if (!this.inTl || (this.inTl && this.#isReversed)) {
       this.#onEachProps((prop) => (prop.value = prop._from))
       this.#time = 0
+      this.#lastProgress = this.#progress
       this.#progress = 0
     }
 
     this.#isPlaying = false
     this.#isPaused = false
-    this.#lastProgress = 0
     clearTimeout(this.#timeout)
 
     if (!this.inTl) {
@@ -224,9 +224,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public seek(progress: number, suppressEvents = true): void {
     if (this.#isPlaying) this.pause()
 
-    // keep previous progress before update it
-    this.#lastProgress = this.#progress
-    this.#progress = clamp(0, progress, 1)
+    // keep previous progress before update it, only if new progress is different than the last registered
+    // ex: if progress is 0.5 and this.progress is 0.5, don't update lastProgress in order to keep this.lastProgress and this.progress
+    // different, and allow onUpdate to be called even if we seek(.5) multiple times in a row
+    if (this.#progress !== progress) {
+      this.#lastProgress = this.#progress
+      this.#progress = clamp(0, progress, 1)
+    }
 
     // if this is the first progress in range (between 0 & 1), refresh computed values
     if (
@@ -236,11 +240,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
       this.refreshComputedValues()
     }
 
+    // Update values
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
     this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
 
-    // Always call onUpdate
+    // if last & current progress are differents, execute onUpdate
     if (this.#lastProgress !== this.#progress) {
       this.#hasSeekCompleted = false
       this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)

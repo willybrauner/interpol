@@ -1,0 +1,37 @@
+
+
+html {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-size: 16rem;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+}
+
+.wall {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: red;
+}
+
+.button {
+  position: fixed;
+  background-color: white;
+  padding: 1rem;
+  margin: 1rem;
+  font-size: 2rem;
+  color: black;
+}
