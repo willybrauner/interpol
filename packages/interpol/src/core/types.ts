@@ -1,3 +1,4 @@
+import { Interpol } from "../Interpol"
 import { Ticker } from "./Ticker"
 import { Ease } from "./ease"
 
@@ -42,6 +43,7 @@ export type CallBack<K extends keyof Props> = (
   props: PropsValueObjectRef<K>,
   time: number,
   progress: number,
+  instance: Interpol<K>
 ) => void
 
 export type El = HTMLElement | HTMLElement[] | Record<any, number> | null

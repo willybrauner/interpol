@@ -90,13 +90,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#immediateRender = immediateRender
     this.#beforeStart = beforeStart
     this.#el = el
-    this.#onUpdate = (props, time, progress) => {
+    this.#onUpdate = (props, time, progress, instance) => {
       styles(this.#el, props)
-      onUpdate(props, time, progress)
+      onUpdate(props, time, progress, instance)
     }
-    this.#onComplete = (props, time, progress) => {
+    this.#onComplete = (props, time, progress, instance) => {
       styles(this.#el, props)
-      onComplete(props, time, progress)
+      onComplete(props, time, progress, instance)
     }
     this.debugEnable = debug
     this.#ease = ease
@@ -108,8 +108,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
     // start
-    if (this.#immediateRender) this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
-    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress)
+    if (this.#immediateRender) this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
+    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress, this)
 
     if (!this.#isPaused) this.play()
   }
@@ -243,7 +243,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // Always call onUpdate
     if (this.#lastProgress !== this.#progress) {
       this.#hasSeekCompleted = false
-      this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
+      this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
       this.#log("seek onUpdate", {
         props: this.#propsValueRef,
         time: this.#time,
@@ -258,7 +258,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
         time: this.#time,
         progress: this.#progress,
       })
-      this.#onComplete(this.#propsValueRef, this.#time, this.#progress)
+      this.#onComplete(this.#propsValueRef, this.#time, this.#progress, this)
       this.#lastProgress = this.#progress
       this.#hasSeekCompleted = true
     }
@@ -279,8 +279,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
         time: this.#_duration,
         progress: 1,
       }
-      this.#onUpdate(obj.props, obj.time, obj.progress)
-      this.#onComplete(obj.props, obj.time, obj.progress)
+      this.#onUpdate(obj.props, obj.time, obj.progress, this)
+      this.#onComplete(obj.props, obj.time, obj.progress, this)
       this.#onCompleteDeferred.resolve()
       this.stop()
       return
@@ -295,7 +295,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
 
     // Pass value, time and progress
-    this.#onUpdate(this.#propsValueRef, this.#time, this.#progress)
+    this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
     this.#log("handleTick onUpdate", {
       props: this.#propsValueRef,
       t: this.#time,
@@ -305,7 +305,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // on play complete
     if (!this.#isReversed && this.#progress === 1) {
       this.#log(`handleTick onComplete!`)
-      this.#onComplete(this.#propsValueRef, this.#time, this.#progress)
+      this.#onComplete(this.#propsValueRef, this.#time, this.#progress, this)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
