@@ -10,8 +10,8 @@
 
 Interpol library interpolates values between two points.
 This is the lowest level of animate machine.
-Interpol is *initially* not a DOM API, it provides real time progress of the interpolation that can be use or bind
-on... anything, for ~=3kB! 
+Interpol is _initially_ not a DOM API, it provides real time progress of the interpolation that can be use or bind
+on... anything, for ~=3kB!
 
 ## Summary
 
@@ -41,7 +41,6 @@ on... anything, for ~=3kB!
 - [Credits](#credits)
 - [About](#about)
 - [License](#license)
-
 
 ## Playground 🕹️
 
@@ -84,11 +83,12 @@ new Interpol({
   },
   onComplete: ({ v }, time, progress) => {
     // Interpol is complete
-  }
+  },
 })
 ```
 
 In this example:
+
 - The Interpol will start automatically;
 - `v` will be interpolated between 0 and 100 during 1 second
 - `time` is the current time in millisecond
@@ -101,13 +101,13 @@ Chaining interpol instancies with `Timeline`:
 ```js
 import { Interpol, Timeline } from "@wbe/interpol"
 
-const tl = new Timeline({ 
-    onUpdate: (time, progress) => {
-      // Timeline is updating
-    },
-    onComplete: (time, progress) => {
-      // Timeline is complete
-    }
+const tl = new Timeline({
+  onUpdate: (time, progress) => {
+    // Timeline is updating
+  },
+  onComplete: (time, progress) => {
+    // Timeline is complete
+  },
 })
 
 // Set an Interpol instance object constructor directly
@@ -117,7 +117,7 @@ tl.add({
   },
   onComplete: ({ x }, time, progress) => {
     // itp 1 is complete
-  }
+  },
 })
 
 // Or add interpol instance to the timeline
@@ -128,16 +128,16 @@ const itp = new Interpol({
   duration: 500,
   onComplete: ({ x }, time, progress) => {
     // itp 2 is complete
-  }
+  },
 })
 tl.add(itp)
 ```
 
 In this example:
+
 - The timeline will start automatically;
 - Interpol 1, will interpolate `x` value between 0 and 100 during 1 second;
 - Interpol 2, will start when Interpol 1 is complete and will interpolate `x` value between 100 and 50 during 0.5 second.
-
 
 ## Props
 
@@ -148,25 +148,25 @@ For more flexibility, there is three ways to define a single `prop`:
 ```ts
 new Interpol({
   props: {
-    // 1. a simple number, implicite from is `0` 
+    // 1. a simple number, implicite from is `0`
     // to use only when `from` is `0`
     x: 100,
-   
-    // 2. an array 
+
+    // 2. an array
     // [from, to, unit?]
     x: [0, 100],
-  
+
     // 3. an object with explicite `from` and `to` properties
     // { from?, to, unit?, ease?, reverseEase? }
     x: { from: 0, to: 100 },
-  }
+  },
 })
 ```
 
 ### Computed prop values
 
 `from` and `to` can be a number or a function that return a number.
-Three ways to define a `to` computed value on the same `prop` model: 
+Three ways to define a `to` computed value on the same `prop` model:
 
 ```ts
 new Interpol({
@@ -176,9 +176,9 @@ new Interpol({
 
     // 2. array
     x: [0, () => Math.random()],
- 
+
     // 3. object
-    x: { from: 0, to: () => Math.random() }
+    x: { from: 0, to: () => Math.random() },
   },
 })
 ```
@@ -196,9 +196,9 @@ itp.refreshComputedValues()
 
 One of the main usage of Interpol is to animate DOM styles. The API provide some helpers to simplify this usage and avoid to write the same code each time you want to animate a DOM element.
 
- - [Props unit](#props-unit): define a unit for each props in the props array
- - [Styles helper](#styles-helper): a core helper function to simplify the DOM manipulation
- - [el property](#el-property): set the DOM element to animate directly in the constructor
+- [Props unit](#props-unit): define a unit for each props in the props array
+- [Styles helper](#styles-helper): a core helper function to simplify the DOM manipulation
+- [el property](#el-property): set the DOM element to animate directly in the constructor
 
 ### Props unit
 
@@ -214,8 +214,8 @@ new Interpol({
   onUpdate: ({ top }) => {
     // Set manually the unit each time
     element.style.top = `${top}px`
-  }
-}) 
+  },
+})
 ```
 
 With the unit as 3th value:
@@ -228,11 +228,10 @@ new Interpol({
   },
   onUpdate: ({ top }) => {
     // top is value + "px" is already defined
-    element.style.top = top 
-  }
-}) 
+    element.style.top = top
+  },
+})
 ```
-
 
 ### Styles helper
 
@@ -240,8 +239,12 @@ This repository provides a `styles` helper function that simplifies DOM manipula
 The function uses a DOM cache to associate multiple transformation functions with the same DOM element at the same time.
 
 Definition:
+
 ```ts
-declare const styles: (element: HTMLElement | HTMLElement[] | null, props: Record<string, string | number>) => void
+declare const styles: (
+  element: HTMLElement | HTMLElement[] | null,
+  props: Record<string, string | number>,
+) => void
 ```
 
 Example:
@@ -256,12 +259,12 @@ new Interpol({
   },
   onUpdate: ({ x, opacity }) => {
     styles(element, { x, opacity })
-    
+
     // Is Equivalent to:
     // element.style.transform = `translate3d(${x}%, 0px, 0px)`
     // element.style.opacity = opacity
   },
-}) 
+})
 ```
 
 ### `el` property
@@ -275,7 +278,7 @@ new Interpol({
   props: {
     x: [-100, 0, "%"],
     opacity: [0, 1],
-  }
+  },
 })
 ```
 
@@ -284,8 +287,7 @@ Under the hood, the `el` property is used by the `styles` helper function, insid
 You have to be careful of some points:
 
 - props needs their appropriate unit defined
-- props keys must be valid CSS properties, (except `x`, `y`, `z` witch are aliases for `translateX`, `translateY`, `translateZ`) 
-
+- props keys must be valid CSS properties, (except `x`, `y`, `z` witch are aliases for `translateX`, `translateY`, `translateZ`)
 
 ## Real word example
 
@@ -296,9 +298,9 @@ import { Timeline } from "@wbe/interpol"
 const element = document.querySelector("div")
 
 // Create a timeline instance
-const tl = new Timeline({ 
+const tl = new Timeline({
   paused: true,
-  onComplete: () => console.log("Timeline is complete")
+  onComplete: () => console.log("Timeline is complete"),
 })
 
 // `add()` can recieve an Interpol object constructor
@@ -309,33 +311,33 @@ tl.add({
     y: [0, 100, "px"],
   },
   duration: 1000,
-  ease: t => t * (2 - t),
+  ease: (t) => t * (2 - t),
   onComplete: () => {
     console.log("This interpol is complete")
   },
-});
+})
 
-tl.add({
+tl.add(
+  {
     props: {
       width: [10, 50],
     },
     duration: 500,
-    ease: t => t * t,
+    ease: (t) => t * t,
     onUpdate: ({ width }) => {
-        element.style.width = `${width}%`
+      element.style.width = `${width}%`
     },
   },
-  // set an offset duration, 
+  // set an offset duration,
   // this interpol will start 100ms before the previous interpol end
-  "-=100")
+  "-=100",
+)
 
 await tl.play()
 // timeline is complete, start reverse
 await tl.reverse()
 // timeline reverse is complete
 ```
-
-
 
 ## Easing
 
@@ -371,7 +373,7 @@ new Interpol({
 import { EaseFn } from "./ease"
 
 interface IInterpolConstruct<K extends keyof Props> {
-  // props are an interpol list object, 3 definition types 
+  // props are an interpol list object, 3 definition types
   // 1. to
   // 2. [from, to, unit]
   // 3. { from, to, unit, ease }
@@ -405,15 +407,30 @@ interface IInterpolConstruct<K extends keyof Props> {
 
   // Called when interpol is ready to play
   // default: /
-  beforeStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
+  beforeStart?: (
+    props: Record<K, number>,
+    time: number,
+    progress: number,
+    instance: Interpol,
+  ) => void
 
   // Called on frame update
   // default: /
-  onUpdate?: (props?: Record<K, number>, time?: number, progress?: number) => void
+  onUpdate?: (
+    props: Record<K, number>,
+    time: number,
+    progress: number,
+    instance: Interpol,
+  ) => void
 
   // Called when interpol is complete
   // default: /
-  onComplete?: (props?: Record<K, number>, time?: number, progress?: number) => void
+  onComplete?: (
+    props: Record<K, number>,
+    time: number,
+    progress: number,
+    instance: Interpol,
+  ) => void
 
   // Execute onUpdate method when the Interpol instance is create
   // default: false
@@ -473,7 +490,7 @@ interface ITimelineConstruct {
   // Enable debug to get timeline instance logs
   // default: `false`
   debug?: boolean
-  
+
   // disable timeline autoplay
   // default: `false`
   paused: boolean
@@ -489,7 +506,7 @@ const tl = new Timeline()
 
 // add(interpol: Interpol | IInterpolConstruct, offset: number | string = "0"): Timeline
 // @param interpol: Interpol object or Interpol instance
-// @param offset: 
+// @param offset:
 //  - relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
 //  - absolute (number): 0 (from the tl beginning), 100
 tl.add(Interpol, offset)
@@ -524,7 +541,7 @@ tl.seek(progress)
 
 Global option Object is available to set property for each Interpol & Timeline instance.
 
-### Raf 
+### Raf
 
 ```ts
 import { InterpolOptions } from "@wbe/interpol"
@@ -532,7 +549,7 @@ import { InterpolOptions } from "@wbe/interpol"
 // disable internal raf to use your own raf
 InterpolOptions.ticker.disable()
 const tick = (e) => {
-  // execute Ticker.raf() callback on your own raf 
+  // execute Ticker.raf() callback on your own raf
   InterpolOptions.ticker.raf(e)
   requestAnimationFrame(tick)
 }
@@ -547,9 +564,7 @@ import { InterpolOptions } from "@wbe/interpol"
 InterpolOptions.durarion = 1000
 // Set default easing for all interpol instances
 InterpolOptions.ease = (t) => t * t
-
 ```
-
 
 ## Dev examples
 
@@ -578,8 +593,7 @@ pnpm run dev --scope {example-name}
 - [animini](https://github.com/dbismut/animini)
 - [signal](https://github.com/zouloux/signal)
 
-
-## About 
+## About
 
 Interpol is an open-source project created and maintained by [Willy Brauner](https://willybrauner.com).
 
