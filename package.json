@@ -18,7 +18,7 @@
     "clean": "rm -rf dist",
     "build": "FORCE_COLOR=1 turbo run build",
     "build:watch": "FORCE_COLOR=1 turbo run build -- --watch",
-    "dev": "FORCE_COLOR=1 turbo run dev",
+    "dev": "FORCE_COLOR=1 turbo run dev --concurrency 20",
     "test:watch": "vitest --reporter verbose",
     "test": "vitest run",
     "size": "size-limit",
@@ -34,7 +34,7 @@
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
     "size-limit": "^11.0.2",
-    "turbo": "^1.12.4",
+    "turbo": "^1.13.3",
     "typescript": "^5.3.3",
     "vite": "^5.1.4",
     "vitest": "^1.3.1"
