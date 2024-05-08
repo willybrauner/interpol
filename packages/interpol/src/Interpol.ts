@@ -104,7 +104,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // Prepare & compute props
     this.#props = this.#prepareProps<K>(props)
-    this.#props = this.refreshComputedValues()
+    this.refreshComputedValues()
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
     // start
@@ -115,13 +115,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
   }
 
   // Compute if values were functions
-  public refreshComputedValues(): Record<string, FormattedProp> {
+  public refreshComputedValues(): void {
     this.#_duration = compute(this.#duration)
     this.#onEachProps((prop) => {
       prop._from = compute(prop.from)
       prop._to = compute(prop.to)
     })
-    return this.#props
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -229,14 +228,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
 
-    // if the progress change from 0 to another value, refresh computed values
+    // if this is the first progress in range (between 0 & 1), refresh computed values
     if (
-      (this.#progress !== 0 && this.#lastProgress === 0)
-      || (this.#progress !== 1 && this.#lastProgress === 1)
+      (this.#progress !== 0 && this.#lastProgress === 0) ||
+      (this.#progress !== 1 && this.#lastProgress === 1)
     ) {
-      // console.log("refreshComputedValues")
-      this.#props = this.refreshComputedValues()
-      this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
+      this.refreshComputedValues()
     }
 
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
@@ -271,7 +268,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
       this.#lastProgress = this.#progress
       this.#hasSeekCompleted = false
     }
-
   }
 
   #handleTick = async ({ delta }): Promise<any> => {
