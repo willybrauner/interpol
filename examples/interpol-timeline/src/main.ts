@@ -1,5 +1,4 @@
 import { Power1, Timeline, Interpol } from "@wbe/interpol"
-import { styles } from "@wbe/interpol"
 import "./index.less"
 
 /**
