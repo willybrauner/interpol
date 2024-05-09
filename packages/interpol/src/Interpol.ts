@@ -184,7 +184,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public pause(): void {
     this.#isPaused = true
     this.#isPlaying = false
-    //    this.#lastProgress = 0
     if (!this.inTl) {
       this.ticker.remove(this.#handleTick)
     }

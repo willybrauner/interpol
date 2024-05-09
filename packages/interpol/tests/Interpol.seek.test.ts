@@ -1,5 +1,5 @@
 import { it, expect, vi, describe } from "vitest"
-import { Interpol, Timeline } from "../src"
+import { Interpol } from "../src"
 import "./_setup"
 import { wait } from "./utils/wait"
 

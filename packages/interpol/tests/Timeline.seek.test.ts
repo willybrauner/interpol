@@ -30,13 +30,11 @@ describe.concurrent("Timeline seek", () => {
       const mockAdd2 = vi.fn()
       const tl = new Timeline()
       tl.add({
-        debug: true,
         props: { v: [0, 1000] },
         duration: 1000,
         onUpdate: ({ v }) => mockAdd1(v),
       })
       tl.add({
-        debug: true,
         props: { v: [1000, 2000] },
         duration: 1000,
         onUpdate: ({ v }) => mockAdd2(v),

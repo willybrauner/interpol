@@ -465,7 +465,7 @@ itp.resume()
 // stop(): void
 itp.stop()
 
-// Compute ['from', 'to'] and 'duration' values if there are functions
+// Compute 'from', 'to' and 'duration' values if there are functions
 // refreshComputedValues(): void
 itp.refreshComputedValues()
 
@@ -491,7 +491,7 @@ interface ITimelineConstruct {
   // default: `false`
   debug?: boolean
 
-  // disable timeline autoplay
+  // Disable timeline autoplay
   // default: `false`
   paused: boolean
 }
@@ -530,6 +530,9 @@ tl.resume()
 // stop the timeline, will reset time, delta and progress.
 // stop(): void
 tl.stop()
+
+// compute 'from', 'to' and 'duration' values on each adds if there are functions
+refreshComputedValues(): void
 
 // seek to a specific time
 // seek(progress: number, suppressEvents = true, suppressTlEvents = true): void
