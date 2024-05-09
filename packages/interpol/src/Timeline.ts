@@ -222,6 +222,10 @@ export class Timeline {
     }
   }
 
+  public refreshComputedValues(): void {
+    this.#onAllAdds((e) => e.itp.refreshComputedValues())
+  }
+
   /**
    * Handle Tick
    * On each tick

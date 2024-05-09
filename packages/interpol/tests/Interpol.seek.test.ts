@@ -11,7 +11,7 @@ describe.concurrent("Interpol seek", () => {
         duration: 1000,
         onUpdate: ({ v }) => mock(v),
       })
-      for (let v of [0.25, 0.5, 0.75, 1]) {
+      for (let v of [0.25, 0.5, 0.75, 1, 1, 1, .2, .2, 0, 0]) {
         // seek will pause the interpol, that's why the test is instant
         itp.seek(v)
         expect(mock).toHaveBeenCalledWith(100 * v)

@@ -313,8 +313,8 @@ importers:
   examples/interpol-timeline:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: workspace:*
+        version: link:../../packages/interpol
       react:
         specifier: ^18.2.0
         version: 18.2.0

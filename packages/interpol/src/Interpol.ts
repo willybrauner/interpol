@@ -137,7 +137,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#onEachProps((prop) => (prop.value = prop._to * from))
     this.#time = this.#_duration * from
     this.#progress = from
-
     this.#isReversed = false
     this.#isPlaying = true
     this.#isPaused = false
@@ -224,13 +223,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public seek(progress: number, suppressEvents = true): void {
     if (this.#isPlaying) this.pause()
 
-    // keep previous progress before update it, only if new progress is different than the last registered
-    // ex: if progress is 0.5 and this.progress is 0.5, don't update lastProgress in order to keep this.lastProgress and this.progress
-    // different, and allow onUpdate to be called even if we seek(.5) multiple times in a row
-    if (this.#progress !== progress) {
-      this.#lastProgress = this.#progress
-      this.#progress = clamp(0, progress, 1)
-    }
+    // keep previous progress before update it
+    this.#lastProgress = this.#progress
+    this.#progress = clamp(0, progress, 1)
 
     // if this is the first progress in range (between 0 & 1), refresh computed values
     if (
@@ -240,16 +235,17 @@ export class Interpol<K extends keyof Props = keyof Props> {
       this.refreshComputedValues()
     }
 
-    // Update values
+    // Update time, interpolate and assign props value
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
     this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
 
-    // if last & current progress are differents, execute onUpdate
-    if (this.#lastProgress !== this.#progress) {
-      this.#hasSeekCompleted = false
+    // if last & current progress are differents,
+    // Or if progress param is the same this.progress, execute onUpdate
+    if (this.#lastProgress !== this.#progress || progress === this.#progress) {
+      if (this.#lastProgress !== this.#progress) this.#hasSeekCompleted = false
       this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
-      this.#log("seek onUpdate", {
+      this.#log(`seek onUpdate`, {
         props: this.#propsValueRef,
         time: this.#time,
         progress: this.#progress,
@@ -258,14 +254,14 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // if progress 1, execute onComplete only if it hasn't been called before
     if (this.#progress === 1 && !this.#hasSeekCompleted && !suppressEvents) {
-      this.#log("seek onComplete", {
+      this.#onComplete(this.#propsValueRef, this.#time, this.#progress, this)
+      this.#lastProgress = this.#progress
+      this.#hasSeekCompleted = true
+      this.#log(`seek onComplete`, {
         props: this.#propsValueRef,
         time: this.#time,
         progress: this.#progress,
       })
-      this.#onComplete(this.#propsValueRef, this.#time, this.#progress, this)
-      this.#lastProgress = this.#progress
-      this.#hasSeekCompleted = true
     }
 
     // if progress 0, reset completed flag and allow onComplete to be called again
