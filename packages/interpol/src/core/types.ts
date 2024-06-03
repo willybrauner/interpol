@@ -49,7 +49,7 @@ export type CallBack<K extends keyof Props> = (
 export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 export interface InterpolConstruct<K extends keyof Props> {
-  props: Props<K>
+  props?: Props<K>
   duration?: Value
   ease?: Ease
   reverseEase?: Ease
