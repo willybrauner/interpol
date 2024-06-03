@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>interpol</title>
+  </head>
+  <body>
+    <div id="root">
+      <div class="App">
+        <div class="Controls">
+          <button class="play">play</button>
+          <button class="reverse">reverse</button>
+          <button class="pause">pause</button>
+          <button class="resume">resume</button>
+          <button class="stop">stop</button>
+          <button class="refresh">refresh</button>
+          <button class="seek-0">seek 0</button>
+          <button class="seek-05">seek .5</button>
+          <button class="seek-1">seek 1</button>
+          <input class="progress" value="0" type="number" />
+          <input class="slider" type="range" min="0" max="100" value="0" />
+        </div>
+        <div class="wrapper">
+          <div class="ball"></div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="src/main.ts"></script>
+  </body>
+</html>
