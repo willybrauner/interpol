@@ -28,21 +28,22 @@
     "ci:publish": "pnpm build && pnpm changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
-    "@size-limit/preset-small-lib": "^11.0.2",
-    "@types/node": "^20.11.19",
-    "jsdom": "^24.0.0",
-    "prettier": "^3.2.5",
-    "size-limit": "^11.0.2",
-    "turbo": "^1.13.3",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.4",
-    "vitest": "^1.3.1"
+    "@changesets/cli": "^2.27.7",
+    "@size-limit/preset-small-lib": "^11.1.4",
+    "@types/node": "^22.1.0",
+    "jsdom": "^24.1.1",
+    "prettier": "^3.3.3",
+    "size-limit": "^11.1.4",
+    "turbo": "^2.0.12",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
   },
   "prettier": {
     "semi": false,
     "printWidth": 100
   },
+  "packageManager": "pnpm@8.15.4",
   "size-limit": [
     {
       "name": "@wbe/interpol",
