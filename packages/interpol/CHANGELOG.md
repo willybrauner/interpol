@@ -1,5 +1,14 @@
 # @wbe/interpol
 
+## 0.15.1
+
+### Patch Changes
+
+- 481f5e6: add exports types
+
+  - To export the correct `cjs` and `esm` builds, add the exports field in `package.json`.
+  - bump all dependencies to their last version
+
 ## 0.15.0
 
 ### Minor Changes
@@ -24,21 +33,21 @@
         unit: "px",
       },
     },
-  });
+  })
 
-  let isVisible = false;
+  let isVisible = false
   button?.addEventListener("click", () => {
-    isVisible = !isVisible;
-    isVisible ? itp.play() : itp.reverse();
-  });
+    isVisible = !isVisible
+    isVisible ? itp.play() : itp.reverse()
+  })
 
   window.addEventListener("resize", () => {
     // the position depends on innerWidth, so we have to re computed this prop value
-    itp.refreshComputedValues();
+    itp.refreshComputedValues()
     // seek to progress `0`
-    itp.seek(0);
-    isVisible = false;
-  });
+    itp.seek(0)
+    isVisible = false
+  })
   ```
 
   <video src="https://github.com/willybrauner/interpol/assets/7604357/9535a489-7b01-4a9f-8e02-2edc45927aa4"></video>
@@ -48,8 +57,8 @@
   Add `refreshComputedValues()` method on `Timeline` instance. It will refresh computed values of each adds.
 
   ```ts
-  const tl = new Timeline();
-  tl.refreshComputedValues();
+  const tl = new Timeline()
+  tl.refreshComputedValues()
   ```
 
 ## 0.14.0
@@ -61,7 +70,7 @@
   Goal of this PR is to update an external variable on the first add() onUpdate and reused it as "from" of the second add(). It will work if "from" of the second add() is a computed value. Behind the scene, we re-execute refreshComputedValues() juste before the add() starts.
 
   ```ts
-  let EXTERNAL_X = 0;
+  let EXTERNAL_X = 0
 
   tl.add({
     ease: "power3.in",
@@ -70,9 +79,9 @@
     },
     onUpdate: ({ x }) => {
       // Mute the external value
-      EXTERNAL_X = x;
+      EXTERNAL_X = x
     },
-  });
+  })
   tl.add({
     props: {
       // Use the updated external value as computed value
@@ -81,7 +90,7 @@
     onUpdate: ({ x }) => {
       // x will be interpolated from 100 to 50
     },
-  });
+  })
   ```
 
   In order to test this new functionality, the full Interpol Instance is now exposed from each Interpol Callbacks. It allows you to access additional properties like props computeds etc.
@@ -94,7 +103,7 @@
     onUpdate: ({ x }, time, progress, instance) => {
       // instance is available
     },
-  });
+  })
   ```
 
 ## 0.13.0
@@ -112,9 +121,9 @@
       x: [0, 1],
     },
     onUpdate: ({ x }) => {
-      element.style = x + "px";
+      element.style = x + "px"
     },
-  });
+  })
   ```
 
 ## 0.12.1
@@ -126,13 +135,13 @@
   Remove this ease string:
 
   ```ts
-  "Power1" | "Power2" | "Power3" | "Power4" | "Expo" | "Linear";
+  ;"Power1" | "Power2" | "Power3" | "Power4" | "Expo" | "Linear"
   ```
 
   Prefer using these one:
 
   ```ts
-  "power1" | "power2" | "power3" | "power4" | "expo" | "linear";
+  ;"power1" | "power2" | "power3" | "power4" | "expo" | "linear"
   ```
 
 ## 0.12.0
@@ -148,7 +157,7 @@
     props: {
       x: 1000, // is equivalent to [0, 1000]
     },
-  });
+  })
   ```
 
   - Props accept object instead of [from, to] `array`.
@@ -162,7 +171,7 @@
         unit: "px",
       }, // is equivalent to [0, 1000, "px"]
     },
-  });
+  })
   ```
 
   - Props object accept `ease` & `reverseEase` for a specific prop.
@@ -178,7 +187,7 @@
         reverseEase: "power2.inOut",
       },
     },
-  });
+  })
   ```
 
 ## 0.11.0
@@ -198,9 +207,9 @@
     paused: true,
     // wasn't called with seek method
     onComplete: () => console.log(`tl onComplete!`),
-  });
+  })
 
-  tl.seek(1);
+  tl.seek(1)
   ```
 
   after:
@@ -210,10 +219,10 @@
     paused: true,
     // Is executed on seek(1) is suppressTlEvents is false
     onComplete: () => console.log(`tl onComplete!`),
-  });
+  })
 
-  tl.seek(0, true, false);
-  tl.seek(1, true, false);
+  tl.seek(0, true, false)
+  tl.seek(1, true, false)
   ```
 
   ## Timeline suppressEvents & suppressTlEvents
@@ -227,13 +236,13 @@
   - only execute the timeline event callbacks:
 
   ```ts
-  tl.seek(0.5, true, false);
+  tl.seek(0.5, true, false)
   ```
 
   - only execute "Timeline adds" `onComplete` callbacks :
 
   ```ts
-  tl.seek(0.5, false, true);
+  tl.seek(0.5, false, true)
   ```
 
   `suppressEvents` params as been copied from gsap API. On the other hand, `suppressTlEvents` doesn't exist in GSAP.
@@ -274,14 +283,14 @@
     onUpdate: ({ x }) => {
       // in this case "x" is a number, because no unit is set.
     },
-  });
+  })
 
   new Interpol({
     props: { x: [0, 100, "px"] },
     onUpdate: ({ x }) => {
       // in this case "x" is a string, because unit is set.
     },
-  });
+  })
   ```
 
   The problem solved, is to make more permissive the prop type in order to set more easily as `number` or `string`.
@@ -292,9 +301,9 @@
   new Interpol({
     props: { x: [0, 100] },
     onUpdate: ({ x }) => {
-      const a: number = x; // TS error because number | string is not compatible to number
+      const a: number = x // TS error because number | string is not compatible to number
     },
-  });
+  })
   ```
 
   After:
@@ -303,9 +312,9 @@
   new Interpol({
     props: { x: [0, 100] },
     onUpdate: ({ x }) => {
-      const a: number = x; // No error
+      const a: number = x // No error
     },
-  });
+  })
   ```
 
 ## 0.10.2
@@ -332,27 +341,27 @@
   - Create `InterpolOptions` to access & set global properties
 
   ```ts
-  import { InterpolOptions } from "@wbe/interpol";
+  import { InterpolOptions } from "@wbe/interpol"
 
   // disable internal raf in order to use your own raf
-  InterpolOptions.ticker.disable();
+  InterpolOptions.ticker.disable()
   const tick = (e) => {
     // execute Ticker.raf() callback on your own raf
-    InterpolOptions.ticker.raf(e);
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
+    InterpolOptions.ticker.raf(e)
+    requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
   ```
 
   ### Defaults properties
 
   ```ts
-  import { InterpolOptions } from "@wbe/interpol";
+  import { InterpolOptions } from "@wbe/interpol"
 
   // Set default duration for all Interpol instances
-  InterpolOptions.duration = 1000;
+  InterpolOptions.duration = 1000
   // Set default easing for all Interpol instances
-  InterpolOptions.ease = (t) => t * t;
+  InterpolOptions.ease = (t) => t * t
   ```
 
 ## 0.9.0
@@ -370,7 +379,7 @@
         value: 0,
       },
     },
-  };
+  }
 
   // classic interpolation
   new Interpol({
@@ -378,9 +387,9 @@
       value: [0, 100],
     },
     onUpdate: ({ value }) => {
-      program.uniforms.uProgress.value = value;
+      program.uniforms.uProgress.value = value
     },
-  });
+  })
 
   // shortest interpolation with `el` object property
   new Interpol({
@@ -388,7 +397,7 @@
     props: {
       value: [0, 100],
     },
-  });
+  })
   ```
 
 ## 0.8.1
@@ -409,20 +418,20 @@
   The new relative offset should be a string, according to the GSAP API.
 
   ```ts
-  tl.add({}, "+=50");
-  tl.add({}, "+50"); // same than "+=50"
-  tl.add({}, "50"); // same than "+=50"
+  tl.add({}, "+=50")
+  tl.add({}, "+50") // same than "+=50"
+  tl.add({}, "50") // same than "+=50"
 
-  tl.add({}, "-=50");
-  tl.add({}, "-50"); // same than "-=50"
+  tl.add({}, "-=50")
+  tl.add({}, "-50") // same than "-=50"
   ```
 
   Absolute offset is a number. This is the absolute position of the `add()` in the timeline.
 
   ```ts
-  tl.add({}, 100);
-  tl.add({}, 0); // start at the debut of the timeline
-  tl.add({}, -100); // add duration - 100
+  tl.add({}, 100)
+  tl.add({}, 0) // start at the debut of the timeline
+  tl.add({}, -100) // add duration - 100
   ```
 
   - [x] adapt examples using relative offset with `number`
@@ -452,15 +461,15 @@
       top: [-100, 0, "px"],
     },
     onUpdate: ({ top }) => {
-      element.style.top = top;
+      element.style.top = top
     },
-  });
+  })
   ```
 
   - Add `styles`, a core helper function to simplify the DOM style manipulation
 
   ```ts
-  import { Interpol, styles } from "./Interpol";
+  import { Interpol, styles } from "./Interpol"
 
   new Interpol({
     props: {
@@ -468,13 +477,13 @@
       opacity: [0, 1],
     },
     onUpdate: ({ x, opacity }) => {
-      styles(element, { x, opacity });
+      styles(element, { x, opacity })
 
       // Is Equivalent to:
       // element.style.transform = `translate3d(${x}%, 0px, 0px)`
       // element.style.opacity = opacity
     },
-  });
+  })
   ```
 
   - Add `el` property to set the DOM element to animate directly in the Interpol constructor.
@@ -486,7 +495,7 @@
       x: [-100, 0, "%"],
       opacity: [0, 1],
     },
-  });
+  })
   ```
 
 ## 0.6.0
@@ -538,14 +547,14 @@
     // New params
     onUpdate: (props, time, progress) => {},
     onComplete: (props, time, progress) => {},
-  });
+  })
 
   new Timeline({
     // ...
     // new Params
     onUpdate: (time, progress) => {},
     onComplete: (time, progress) => {},
-  });
+  })
   ```
 
 ## 0.4.0
@@ -557,17 +566,17 @@
   ["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
 
   ```js
-  import { Interpol, Power3 } from "@wbe/interpol";
+  import { Interpol, Power3 } from "@wbe/interpol"
 
   // as typed string
   new Interpol({
     ease: "power3.out",
-  });
+  })
 
   // or, import the object
   new Interpol({
     ease: Power3.out,
-  });
+  })
   ```
 
 ## 0.3.0
@@ -585,7 +594,7 @@
     onUpdate: ({ props: { x, y }, time, progress }) => {
       // use x and y as needed
     },
-  });
+  })
   ```
 
   - Change all TimeLine/Interpol protected properties to #private properties
