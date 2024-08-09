@@ -6,7 +6,7 @@
     "dist"
   ],
   "sideEffects": false,
-  "main": "./dist/interpol.cjs",
+  "main": "./dist/interpol.js",
   "module": "./dist/interpol.js",
   "types": "./dist/interpol.d.ts",
   "repository": {
@@ -17,7 +17,9 @@
     "interpol",
     "interpolation",
     "animation",
-    "timeline"
+    "anim",
+    "timeline",
+    "motion"
   ],
   "scripts": {
     "clean": "rm -rf dist",
