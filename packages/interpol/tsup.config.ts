@@ -7,7 +7,7 @@ export default defineConfig({
   clean: true,
   minify: "terser",
   dts: true,
-  format: ["esm"],
+  format: ["cjs", "esm"],
   name: "interpol",
   sourcemap: true,
   terserOptions: {

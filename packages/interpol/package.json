@@ -2,11 +2,17 @@
   "name": "@wbe/interpol",
   "version": "0.15.0",
   "type": "module",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
-  "sideEffects": false,
-  "main": "./dist/interpol.js",
+  "exports": {
+    ".": {
+      "import": "./dist/interpol.js",
+      "require": "./dist/interpol.cjs"
+    }
+  },
+  "main": "./dist/interpol.cjs",
   "module": "./dist/interpol.js",
   "types": "./dist/interpol.d.ts",
   "repository": {

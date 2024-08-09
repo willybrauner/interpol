@@ -1,8 +1,8 @@
 ---
-"@wbe/interpol": minor
+"@wbe/interpol": patch
 ---
 
-remove cjs build
+add exports types
 
-- remove `cjs` type build, keep only `esm`.
+- To export the correct `cjs` and `esm` builds, add the exports field in `package.json`.
 - bump all dependencies to their last version
