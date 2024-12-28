@@ -13,7 +13,7 @@ type Handler = (e: TickParams) => void
  */
 export class Ticker {
   #isRunning = false
-  #handlers: { handler: (e: TickParams) => void; rank: number }[]
+  #handlers: { handler: Handler; rank: number }[]
   #onUpdateObj: TickParams
   #start: number
   #time: number
@@ -39,13 +39,13 @@ export class Ticker {
     this.#enable = false
   }
 
-  public add(handler: (e: TickParams) => void, rank: number = 0): () => void {
+  public add(handler: Handler, rank: number = 0): () => void {
     this.#handlers.push({ handler, rank })
     this.#handlers.sort((a, b) => a.rank - b.rank)
     return () => this.remove(handler)
   }
 
-  public remove(handler: (e: TickParams) => void): void {
+  public remove(handler: Handler): void {
     this.#handlers = this.#handlers.filter((obj) => obj.handler !== handler)
   }
 
