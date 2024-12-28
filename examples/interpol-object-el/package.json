@@ -9,11 +9,11 @@
   },
   "dependencies": {
     "@wbe/interpol": "^0.15.1",
-    "ogl": "^1.0.8",
-    "prettier": "^3.3.3"
+    "ogl": "^1.0.9",
+    "prettier": "^3.4.2"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "vite": "^5.4.0"
+    "typescript": "^5.7.2",
+    "vite": "^6.0.6"
   }
 }

@@ -11,8 +11,8 @@
     "@wbe/interpol": "workspace:*"
   },
   "devDependencies": {
-    "less": "^4.2.0",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.0"
+    "less": "^4.2.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.6"
   }
 }
