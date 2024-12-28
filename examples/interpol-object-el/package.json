@@ -8,7 +8,7 @@
     "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "^0.15.1",
+    "@wbe/interpol": "^0.16.0",
     "ogl": "^1.0.9",
     "prettier": "^3.4.2"
   },
