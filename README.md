@@ -15,7 +15,8 @@ on... anything, for ~=3kB!
 
 ## Summary
 
-- [Playground](#playground-%EF%B8%8F)
+- [Summary](#summary)
+- [Playground 🕹️](#playground-️)
 - [Install](#install)
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
@@ -26,16 +27,18 @@ on... anything, for ~=3kB!
 - [Interpol DOM styles](#interpol-dom-styles)
   - [Props unit](#props-unit)
   - [Styles helper](#styles-helper)
-  - [El property](#el-property)
-  - [Real word example](#real-word-example)
+  - [`el` property](#el-property)
+- [Real word example](#real-word-example)
 - [Easing](#easing)
 - [API](#api)
-  - [Interpol constructor](#interpol-constructor)
+  - [interpol constructor](#interpol-constructor)
   - [Interpol methods](#interpol-methods)
   - [Timeline constructor](#timeline-constructor)
   - [Timeline methods](#timeline-methods)
 - [Options](#options)
-  - [Raf](#raf)
+  - [Ticker](#ticker)
+    - [Disable internal raf](#disable-internal-raf)
+    - [Use the internal Ticker instance globally](#use-the-internal-ticker-instance-globally)
   - [Defaults properties](#defaults-properties)
 - [Dev examples](#dev-examples)
 - [Credits](#credits)
@@ -416,12 +419,7 @@ interface IInterpolConstruct<K extends keyof Props> {
 
   // Called on frame update
   // default: /
-  onUpdate?: (
-    props: Record<K, number>,
-    time: number,
-    progress: number,
-    instance: Interpol,
-  ) => void
+  onUpdate?: (props: Record<K, number>, time: number, progress: number, instance: Interpol) => void
 
   // Called when interpol is complete
   // default: /
@@ -544,7 +542,11 @@ tl.seek(progress)
 
 Global option Object is available to set property for each Interpol & Timeline instance.
 
-### Raf
+### Ticker
+
+#### Disable internal raf
+
+It's possible to disable the internal raf and use your own raf callback if needed.
 
 ```ts
 import { InterpolOptions } from "@wbe/interpol"
@@ -557,6 +559,21 @@ const tick = (e) => {
   requestAnimationFrame(tick)
 }
 requestAnimationFrame(tick)
+```
+
+#### Use the internal Ticker instance globally
+
+The internal Ticker instance is available for a global application use. You can add your own raf callback to the Ticker instance and choose the rank of the callback handler.
+
+```ts
+import { InterpolOptions } from "@wbe/interpol"
+
+// Set a new raf callback to the Ticker instance
+const tickHandler = (t) => console.log(t)
+const rank = 1
+InterpolOptions.ticker.add(tickHandler, rank)
+// ...
+InterpolOptions.ticker.remove(tick)
 ```
 
 ### Defaults properties
