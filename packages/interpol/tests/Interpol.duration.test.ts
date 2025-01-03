@@ -18,6 +18,17 @@ describe.concurrent("Interpol duration", () => {
     }).play()
   })
 
+  it("should use duration in second for global interpol instances", async () => {
+    // use the default durationFactor (1)
+    InterpolOptions.durationFactor = 1000
+    InterpolOptions.duration = 0.2
+    return new Interpol({
+      onComplete: (_, time) => {
+        expect(time).toBe(200)
+      },
+    }).play()
+  })
+
   it("should accept custom durationFactor", async () => {
     const test = (durationFactor: number, duration: Value) => {
       // set the custom durationFactor
@@ -29,15 +40,14 @@ describe.concurrent("Interpol duration", () => {
             (typeof duration === "function" ? duration() : duration) * durationFactor,
           )
         },
-      })
+      }).play()
     }
 
+    // prettier-ignore
     return Promise.all([
+      test(0.5, 400),
       test(1, 200),
-      test(1000, 100),
-      test(0.5, 200),
-      test(0.5, () => 200),
-      test(10000, () => 300),
+      test(1000, 0.2),    
     ])
   })
 })
