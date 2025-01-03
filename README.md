@@ -76,9 +76,7 @@ npm i @wbe/interpol
 import { Interpol } from "@wbe/interpol"
 
 new Interpol({
-  props: {
-    v: [0, 100],
-  },
+  v: [0, 100],
   duration: 1000,
   ease: (t) => t,
   onUpdate: ({ v }, time, progress) => {
@@ -115,9 +113,7 @@ const tl = new Timeline({
 
 // Set an Interpol instance object constructor directly
 tl.add({
-  props: {
-    x: [0, 100],
-  },
+  x: [0, 100],
   onComplete: ({ x }, time, progress) => {
     // itp 1 is complete
   },
@@ -125,9 +121,7 @@ tl.add({
 
 // Or add interpol instance to the timeline
 const itp = new Interpol({
-  props: {
-    x: [100, 50],
-  },
+  x: [100, 50],
   duration: 500,
   onComplete: ({ x }, time, progress) => {
     // itp 2 is complete
@@ -150,19 +144,17 @@ For more flexibility, there is three ways to define a single `prop`:
 
 ```ts
 new Interpol({
-  props: {
-    // 1. a simple number, implicite from is `0`
-    // to use only when `from` is `0`
-    x: 100,
+  // 1. a simple number, implicite from is `0`
+  // to use only when `from` is `0`
+  x: 100,
 
-    // 2. an array
-    // [from, to, unit?]
-    x: [0, 100],
+  // 2. an array
+  // [from, to, unit?]
+  x: [0, 100],
 
-    // 3. an object with explicite `from` and `to` properties
-    // { from?, to, unit?, ease?, reverseEase? }
-    x: { from: 0, to: 100 },
-  },
+  // 3. an object with explicite `from` and `to` properties
+  // { from?, to, unit?, ease?, reverseEase? }
+  x: { from: 0, to: 100 },
 })
 ```
 
@@ -173,16 +165,14 @@ Three ways to define a `to` computed value on the same `prop` model:
 
 ```ts
 new Interpol({
-  props: {
-    // 1. number
-    x: () => Math.random(),
+  // 1. number
+  x: () => Math.random(),
 
-    // 2. array
-    x: [0, () => Math.random()],
+  // 2. array
+  x: [0, () => Math.random()],
 
-    // 3. object
-    x: { from: 0, to: () => Math.random() },
-  },
+  // 3. object
+  x: { from: 0, to: () => Math.random() },
 })
 ```
 
@@ -211,9 +201,7 @@ Without the unit:
 
 ```ts
 new Interpol({
-  props: {
-    top: [-100, 0],
-  },
+  top: [-100, 0],
   onUpdate: ({ top }) => {
     // Set manually the unit each time
     element.style.top = `${top}px`
@@ -225,10 +213,8 @@ With the unit as 3th value:
 
 ```ts
 new Interpol({
-  props: {
-    // [from, to, unit]
-    top: [-100, 0, "px"],
-  },
+  // [from, to, unit]
+  top: [-100, 0, "px"],
   onUpdate: ({ top }) => {
     // top is value + "px" is already defined
     element.style.top = top
@@ -256,10 +242,8 @@ Example:
 import { Interpol, styles } from "./Interpol"
 
 new Interpol({
-  props: {
-    x: [-100, 0, "%"],
-    opacity: [0, 1],
-  },
+  x: [-100, 0, "%"],
+  opacity: [0, 1],
   onUpdate: ({ x, opacity }) => {
     styles(element, { x, opacity })
 
@@ -278,10 +262,8 @@ But it might be redundant to set props on item styles every time we want to anim
 new Interpol({
   // can recieve HTMLElement or HTMLElement[]
   el: document.querySelector("div"),
-  props: {
-    x: [-100, 0, "%"],
-    opacity: [0, 1],
-  },
+  x: [-100, 0, "%"],
+  opacity: [0, 1],
 })
 ```
 
@@ -309,10 +291,8 @@ const tl = new Timeline({
 // `add()` can recieve an Interpol object constructor
 tl.add({
   el: element,
-  props: {
-    x: [-100, 0, "%"],
-    y: [0, 100, "px"],
-  },
+  x: [-100, 0, "%"],
+  y: [0, 100, "px"],
   duration: 1000,
   ease: (t) => t * (2 - t),
   onComplete: () => {
@@ -322,9 +302,7 @@ tl.add({
 
 tl.add(
   {
-    props: {
-      width: [10, 50],
-    },
+    width: [10, 50],
     duration: 500,
     ease: (t) => t * t,
     onUpdate: ({ width }) => {
@@ -374,14 +352,23 @@ new Interpol({
 
 ```ts
 import { EaseFn } from "./ease"
+type Value = number | (() => number)
+
+// the props value type can be a single number, an array or an object
+export type PropsValues =
+  // 1. to
+  | Value
+  // 2. [from, to, unit]
+  | [Value, Value, (Units | null | undefined)?]
+  // 3. { from, to, unit, ease }
+  | Partial<{ from: Value; to: Value; unit: Units; ease: Ease; reverseEase: Ease }>
 
 interface IInterpolConstruct<K extends keyof Props> {
-  // props are an interpol list object, 3 definition types
-  // 1. to
-  // 2. [from, to, unit]
-  // 3. { from, to, unit, ease }
+  // inline props are an interpol list object, 3 definition types
   // default: /
-  props: Record<K, [number | (() => number), number | (() => number), string]>
+  [x: string]: PropsValues
+  // or props object wrapper (old way kept for backward compatibility)
+  props?: Record<string, PropsValues>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second

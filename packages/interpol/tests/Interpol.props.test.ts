@@ -1,4 +1,4 @@
-import { it, expect, describe, vi } from "vitest"
+import { it, expect, describe } from "vitest"
 import { Interpol } from "../src"
 import "./_setup"
 
@@ -77,5 +77,57 @@ describe.concurrent("Interpol props", () => {
       test(10, 10, "number"),
       test(null, 0, "number"),
     ])
+  })
+
+  it("should accept inline props", async () => {
+    return new Interpol({
+      duration: 100,
+      x: 100,
+      y: -100,
+      top: [0, 100],
+      left: [-100, 100, "px"],
+      onComplete: ({ x, y, top, left, right, marginRight }) => {
+        expect(x).toBe(100)
+        expect(y).toBe(-100)
+        expect(top).toBe(100)
+        expect(left).toBe("100px")
+      },
+    }).play()
+  })
+
+  it("should accept props object AND inline props together for backward compatibility", async () => {
+    return new Interpol({
+      duration: 100,
+      // object props
+      props: {
+        x: 100,
+        y: -100,
+        // top key will be overrided by inline props
+        top: -2000,
+      },
+      // inline props
+      top: [0, 100],
+      left: [-100, 100, "px"],
+
+      onComplete: ({ x, y, top, left, right }) => {
+        expect(x).toBe(100)
+        expect(y).toBe(-100)
+        expect(top).toBe(100)
+        expect(left).toBe("100px")
+        expect(right).toBe(undefined)
+      },
+    }).play()
+  })
+
+  it("Should works without props object and without inline props", async () => {
+    return new Interpol({
+      duration: 100,
+      onUpdate: (props, time, progress) => {
+        expect(props).toEqual({})
+      },
+      onComplete: (props, time, progress) => {
+        expect(props).toEqual({})
+      },
+    }).play()
   })
 })

@@ -33,23 +33,25 @@ inputProgress!.onchange = () => itp.seek(parseFloat(inputProgress!.value) / 100,
 inputSlider!.oninput = () => itp.seek(parseFloat(inputSlider!.value) / 100, false)
 
 const itp = new Interpol({
-  // debug: true,
+  // declare a props object
   props: {
     x: { from: 0, to: 100, ease: "power3.out" },
     y: { from: 0, to: 500, ease: "power1.in" },
     opacity: [0.5, 1],
   },
-  onUpdate: ({ x, y, opacity }) => {
+  // declare inline props outside the props object
+  top: [0, 100],
+  left: [-100, 100],
+
+  onUpdate: ({ x, y, opacity, top }) => {
     ball!.style.transform = `translate3d(${x}px, ${y}px, 0px)`
     ball!.style.opacity = opacity
   },
-  onComplete: () => {
-    console.log("itp onComplete")
+  onComplete: (props) => {
+    console.log("itp onComplete", props)
   },
 })
 
-console.log("itp", itp)
-console.log("InterpolOptions.ticker", InterpolOptions.ticker)
 InterpolOptions.ticker.disable()
 
 const tick = (e: number) => {

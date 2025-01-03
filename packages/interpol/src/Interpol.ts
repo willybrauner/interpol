@@ -82,6 +82,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     onComplete = noop,
     debug = false,
     el = null,
+    ...inlineProps
   }: InterpolConstruct<K>) {
     this.ticker = InterpolOptions.ticker
     this.#duration = duration
@@ -103,7 +104,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#reverseEase = reverseEase
 
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>(props)
+    this.#props = this.#prepareProps<K>({ ...(props || {}), ...(inlineProps as Props<K>) })
     this.refreshComputedValues()
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
