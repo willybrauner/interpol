@@ -567,8 +567,10 @@ InterpolOptions.ticker.remove(tick)
 
 ```ts
 import { InterpolOptions } from "@wbe/interpol"
+// Set default duration factor for all interpol instances, 1 is millisecond / 1000 is second
+InterpolOptions.durationFacror = 1
 // Set default duration for all interpol instances
-InterpolOptions.durarion = 1000
+InterpolOptions.duration = 1000
 // Set default easing for all interpol instances
 InterpolOptions.ease = (t) => t * t
 ```

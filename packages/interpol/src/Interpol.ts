@@ -117,7 +117,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
   // Compute if values were functions
   public refreshComputedValues(): void {
-    this.#_duration = compute(this.#duration)
+    this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
     this.#onEachProps((prop) => {
       prop._from = compute(prop.from)
       prop._to = compute(prop.to)
