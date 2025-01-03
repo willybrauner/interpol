@@ -1,5 +1,29 @@
 # @wbe/interpol
 
+## 0.17.0
+
+### Minor Changes
+
+- 17b0d4f: Interpol constructor accept inline props! Object props still working for Backward Compatibility.
+
+  ```ts
+  new Interpol({
+        // Old object props remains available
+        props: {
+          x: 100,
+          y: -100,
+          // (will be overrided by inline props)
+          top: -2000,
+        },
+        // NEW! inline props works outside the props object
+        top: [0, 100],
+        left: [-100, 100, "px"],
+
+        onComplete: ({ x, y, top, left }) => {
+        })
+  })
+  ```
+
 ## 0.16.0
 
 ### Minor Changes
