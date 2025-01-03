@@ -43,13 +43,13 @@ export type CallBack<K extends keyof Props> = (
   props: PropsValueObjectRef<K>,
   time: number,
   progress: number,
-  instance: Interpol<K>
+  instance: Interpol<K>,
 ) => void
 
 export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 export interface InterpolConstruct<K extends keyof Props> {
-  props: Props<K>
+  props?: Props<K>
   duration?: Value
   ease?: Ease
   reverseEase?: Ease
@@ -61,6 +61,7 @@ export interface InterpolConstruct<K extends keyof Props> {
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
   el?: El
+  [key: string]: PropsValues | boolean | Function | undefined | El | Ease | CallBack<K> | Props<K>
 }
 
 /**
@@ -68,7 +69,6 @@ export interface InterpolConstruct<K extends keyof Props> {
  *
  *
  */
-
 export type TimelineCallback = (time: number, progress: number) => void
 
 export interface TimelineConstruct {
