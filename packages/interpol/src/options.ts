@@ -7,12 +7,14 @@ import { Ease } from "./core/ease"
  */
 interface InterpolOptions {
   ticker: Ticker
+  durationFactor: number
   duration: Value
   ease: Ease
 }
 
 export const InterpolOptions: InterpolOptions = {
   ticker: new Ticker(),
+  durationFactor: 1,
   duration: 1000,
   ease: "linear",
 }
