@@ -591,8 +591,8 @@ pnpm run test:watch
 pnpm run dev
 
 # Or run a specific example
-pnpm run dev --scope interpol-basic
-pnpm run dev --scope {example-name}
+pnpm run dev --filter interpol-basic
+pnpm run dev --filter {example-name}
 ```
 
 ## Credits
