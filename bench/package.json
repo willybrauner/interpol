@@ -1,0 +1,20 @@
+{
+  "name": "bench",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wbe/interpol": "^0.19.0",
+    "animejs": "^3.2.2",
+    "gsap": "^3.12.5"
+  },
+  "devDependencies": {
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
+  }
+}
