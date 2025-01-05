@@ -91,22 +91,23 @@ export class Timeline {
     const prevAdd = this.#adds?.[this.#adds.length - 1]
 
     // Register full TL duration
-    // calc offset, could be a string like
+    // calc the final offset: could be a string like
     // relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
     // absolute position {number} 100 | -100
     let fOffset: number
     let startTime: number
+    const factor: number = InterpolOptions.durationFactor
 
     // Relative position in TL
     if (typeof offset === "string") {
-      fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset)
+      fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : 0
     }
 
     // absolute position in TL
     else if (typeof offset === "number") {
-      fOffset = offset
+      fOffset = offset * factor
       this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
       startTime = fOffset ?? 0
     }

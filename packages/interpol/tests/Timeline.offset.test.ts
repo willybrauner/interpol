@@ -1,6 +1,7 @@
 import { it, expect, describe } from "vitest"
-import { Timeline } from "../src"
+import { InterpolOptions, Timeline } from "../src"
 import "./_setup"
+import { afterEach } from "node:test"
 
 /**
  * Template for testing offset
@@ -145,5 +146,39 @@ describe.concurrent("Timeline.add() offset", () => {
       testTemplate([[0, 0]], 0),
       testTemplate([[150, -50]], 100),
     ])
+  })
+
+  afterEach(()=> {
+    InterpolOptions.durationFactor = 1
+    InterpolOptions.duration = 1000  
+  })
+  
+  it('should work with duration factor on relative offset', async() => {
+    InterpolOptions.durationFactor = 1000
+    InterpolOptions.duration = 1
+    const tl = new Timeline({
+      paused: true,
+      onComplete: (time) => {
+        expect(time).toBe(300)
+      },
+    })
+    tl.add({ duration: .2 })
+    // start .1 in advance before the first add finishes
+    tl.add({ duration: .2 }, '-=.1')
+     return tl.play()
+  })
+  it('should work with duration factor on absolute offset', async() => {
+    InterpolOptions.durationFactor = 1000
+    InterpolOptions.duration = 1
+    const tl = new Timeline({
+      paused: true,
+      onComplete: (time) => {
+        expect(time).toBe(300)
+      },
+    })
+    tl.add({ duration: .2 })
+    // start .1 after the first add
+    tl.add({ duration: .2 }, .1)
+     return tl.play()
   })
 })
