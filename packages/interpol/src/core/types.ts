@@ -9,7 +9,7 @@ import { Ease } from "./ease"
  */
 
 // Final Props Object returned by callbacks
-export type PropsValueObjectRef<K extends string> = Record<K, number | `${number}${Units}` | any>
+export type PropsValueObjectRef<K extends string> = Record<K, number>
 
 // Value can be a number or a function that return a number
 export type Value = number | (() => number)
@@ -19,8 +19,8 @@ export type Units = "%" | "px" | "em" | "rem" | "vw" | "vh" | "pt" | string
 export type PropsValues =
   | Value
   | [Value, Value, (Units | null | undefined)?]
-  | Partial<{ from: Value; to: Value; unit: Units; ease: Ease; reverseEase: Ease }>
-export type Props<K = string> = Record<string, PropsValues>
+  | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
+export type Props<K extends string = string> = Record<K, PropsValues>
 
 // Props object formatted in Map
 export type FormattedProp = {
@@ -29,10 +29,22 @@ export type FormattedProp = {
   _from: number
   _to: number
   value: number
-  unit: Units
   ease: Ease
   reverseEase: Ease
 }
+
+type ConfigKeys =
+  | "props"
+  | "duration"
+  | "ease"
+  | "reverseEase"
+  | "paused"
+  | "immediateRender"
+  | "delay"
+  | "debug"
+  | "beforeStart"
+  | "onUpdate"
+  | "onComplete"
 
 /**
  * Interpol
@@ -40,7 +52,7 @@ export type FormattedProp = {
  *
  */
 export type CallBack<K extends keyof Props> = (
-  props: PropsValueObjectRef<K>,
+  props: PropsValueObjectRef<Exclude<K, ConfigKeys>>,
   time: number,
   progress: number,
   instance: Interpol<K>,
@@ -48,7 +60,7 @@ export type CallBack<K extends keyof Props> = (
 
 export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
-export interface InterpolConstruct<K extends keyof Props> {
+export type InterpolConstruct<K extends keyof Props> = {
   props?: Props<K>
   duration?: Value
   ease?: Ease
@@ -60,13 +72,13 @@ export interface InterpolConstruct<K extends keyof Props> {
   beforeStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
-  el?: El
-  [key: string]: PropsValues | boolean | Function | undefined | El | Ease | CallBack<K> | Props<K>
+  //[key: string]: PropsValues | boolean | Function | undefined | Ease | CallBack<K> | Props<K>
+} & {
+  [P in K]: PropsValues | boolean | Function | undefined | Ease | CallBack<K> | Props<K>
 }
 
 /**
  * Timeline
- *
  *
  */
 export type TimelineCallback = (time: number, progress: number) => void

@@ -5,7 +5,6 @@ import {
   Props,
   Value,
   PropsValueObjectRef,
-  El,
 } from "./core/types"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -13,7 +12,6 @@ import { round } from "./core/round"
 import { compute } from "./core/compute"
 import { noop } from "./core/noop"
 import { Ease, easeAdapter, EaseFn, EaseName } from "./core/ease"
-import { styles } from "./core/styles"
 import { InterpolOptions } from "./options"
 import { Ticker } from "./core/Ticker"
 
@@ -25,7 +23,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
   public inTl = false
   public debugEnable: boolean
 
-  #duration: Value
   #_duration: number
   public get duration() {
     return this.#_duration
@@ -56,6 +53,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     return this.#props
   }
 
+  #duration: Value
   #propsValueRef: PropsValueObjectRef<K>
   #immediateRender: boolean
   #delay: number
@@ -66,11 +64,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
-  #el: El
   #hasSeekCompleted = false
 
   constructor({
-    props = null,
     duration = InterpolOptions.duration,
     ease = InterpolOptions.ease,
     reverseEase = ease,
@@ -81,8 +77,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    el = null,
-    ...inlineProps
+    ...props
   }: InterpolConstruct<K>) {
     this.ticker = InterpolOptions.ticker
     this.#duration = duration
@@ -90,21 +85,14 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#delay = delay * InterpolOptions.durationFactor
     this.#immediateRender = immediateRender
     this.#beforeStart = beforeStart
-    this.#el = el
-    this.#onUpdate = (props, time, progress, instance) => {
-      styles(this.#el, props)
-      onUpdate(props, time, progress, instance)
-    }
-    this.#onComplete = (props, time, progress, instance) => {
-      styles(this.#el, props)
-      onComplete(props, time, progress, instance)
-    }
+    this.#onUpdate = onUpdate
+    this.#onComplete = onComplete
     this.debugEnable = debug
     this.#ease = ease
     this.#reverseEase = reverseEase
 
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>({ ...(props || {}), ...(inlineProps as Props<K>) })
+    this.#props = this.#prepareProps<K>(props as Props<K>)
     this.refreshComputedValues()
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
@@ -349,14 +337,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
       (acc, key: K) => {
         let p = props[key as K]
         acc[key as K] = {
-          from: p?.[0] ?? p?.["from"] ?? 0,
+          from: p?.[0] ?? 0,
           _from: null,
-          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
+          to: p?.[1] ?? 0,
           _to: null,
           value: null,
-          unit: p?.[2] ?? p?.["unit"] ?? null,
-          ease: this.#chooseEase(p?.["ease"] || this.#ease),
-          reverseEase: this.#chooseEase(p?.["reverseEase"] || p?.["ease"] || this.#reverseEase),
+          ease: this.#chooseEase(this.#ease),
+          reverseEase: this.#chooseEase(this.#reverseEase),
         }
         return acc
       },
@@ -372,7 +359,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     props: Record<K, FormattedProp>,
   ): PropsValueObjectRef<K> {
     return Object.keys(props).reduce((acc, key: K) => {
-      acc[key as K] = props[key]._from + props[key].unit
+      acc[key as K] = props[key]._from
       return acc
     }, {} as any)
   }
