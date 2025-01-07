@@ -9,7 +9,6 @@ describe.concurrent("Interpol delay", () => {
       const delay = 200
       const mock = vi.fn()
       const itp = new Interpol({
-        props: { x: [0, 100] },
         delay,
         onComplete: () => mock(),
       })

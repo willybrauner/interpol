@@ -8,7 +8,7 @@ const COORDS = ["x", "y", "z"]
  * @param element
  * @param props
  */
-export const styles = (element: El, props: PropsValueObjectRef<string>): void => {
+export const styles = (element: El, props: PropsValueObjectRef<string, number | string>): void => {
   if (!element) return
   if (!Array.isArray(element)) element = [element as HTMLElement]
 

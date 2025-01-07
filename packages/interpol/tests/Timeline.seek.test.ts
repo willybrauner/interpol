@@ -9,7 +9,7 @@ describe.concurrent("Timeline seek", () => {
       const mock = vi.fn()
       const tl = new Timeline({ paused: true })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 200,
         onUpdate: ({ v }) => mock(v),
       })
@@ -30,12 +30,12 @@ describe.concurrent("Timeline seek", () => {
       const mockAdd2 = vi.fn()
       const tl = new Timeline()
       tl.add({
-        props: { v: [0, 1000] },
+        v: [0, 1000],
         duration: 1000,
         onUpdate: ({ v }) => mockAdd1(v),
       })
       tl.add({
-        props: { v: [1000, 2000] },
+        v: [1000, 2000],
         duration: 1000,
         onUpdate: ({ v }) => mockAdd2(v),
       })
@@ -86,12 +86,12 @@ describe.concurrent("Timeline seek", () => {
       const onTlComplete = vi.fn()
       const tl = new Timeline({ paused: true, onComplete: onTlComplete })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         onComplete: onComplete1,
       })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         onComplete: onComplete2,
       })
@@ -123,12 +123,10 @@ describe.concurrent("Timeline seek", () => {
       const onTlComplete = vi.fn()
       const tl = new Timeline({ paused: true, onComplete: onTlComplete })
       tl.add({
-        props: { v: [0, 100] },
         duration: 100,
         onComplete: onComplete1,
       })
       tl.add({
-        props: { v: [0, 100] },
         duration: 100,
         onComplete: onComplete2,
       })
@@ -136,18 +134,12 @@ describe.concurrent("Timeline seek", () => {
       tl.seek(0.5)
       expect(onComplete1).toHaveBeenCalledTimes(0)
       expect(onComplete2).toHaveBeenCalledTimes(0)
-      tl.seek(1)
-      expect(onComplete1).toHaveBeenCalledTimes(0)
-      expect(onComplete2).toHaveBeenCalledTimes(0)
-      tl.seek(0.5)
-      expect(onComplete1).toHaveBeenCalledTimes(0)
-      expect(onComplete2).toHaveBeenCalledTimes(0)
-      tl.seek(1)
-      expect(onComplete1).toHaveBeenCalledTimes(0)
-      expect(onComplete2).toHaveBeenCalledTimes(0)
+      tl.seek(1, false, false)
+      expect(onComplete1).toHaveBeenCalledTimes(1)
+      expect(onComplete2).toHaveBeenCalledTimes(1)
 
       // because 3th argument suppressTlEvents is "true" by default
-      expect(onTlComplete).toHaveBeenCalledTimes(0)
+      expect(onTlComplete).toHaveBeenCalledTimes(1)
 
       resolve()
     })

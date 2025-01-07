@@ -8,7 +8,7 @@ describe.concurrent("Interpol callbacks", () => {
       new Promise(async (resolve: any) => {
         const beforeStart = vi.fn()
         const itp = new Interpol({
-          props: { x: [0, 100] },
+          x: [0, 100],
           duration: 500,
           paused,
           beforeStart,
@@ -28,7 +28,7 @@ describe.concurrent("Interpol callbacks", () => {
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
       const itp = new Interpol({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         paused: true,
         onComplete: () => mock(),
@@ -46,7 +46,7 @@ describe.concurrent("Interpol callbacks", () => {
         const onUpdate = vi.fn()
         new Interpol({
           paused: true,
-          props: { v: [0, 100] },
+          v: [0, 100],
           duration: 100,
           immediateRender,
           onUpdate,

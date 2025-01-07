@@ -94,12 +94,16 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // Prepare & compute props
     this.#props = this.#prepareProps<K>(props as unknown as Props<K>)
     this.refreshComputedValues()
+    this.#log("props", this.#props)
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
+    this.#log("this.#propsValueRef", this.#propsValueRef)
 
     // start
-    if (this.#immediateRender) this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
-    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress, this)
+    if (this.#immediateRender) {
+      this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
+    }
 
+    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress, this)
     if (!this.#isPaused) this.play()
   }
 
@@ -337,13 +341,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
       (acc, key: K) => {
         let p = props[key as K]
         acc[key as K] = {
-          from: p?.[0] ?? 0,
+          from: p?.[0] ?? p?.["from"] ?? 0,
           _from: null,
-          to: p?.[1] ?? 0,
+          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
           _to: null,
           value: null,
-          ease: this.#chooseEase(this.#ease),
-          reverseEase: this.#chooseEase(this.#reverseEase),
+          ease: this.#chooseEase(p?.["ease"] || this.#ease),
+          reverseEase: this.#chooseEase(p?.["reverseEase"] || p?.["ease"] || this.#reverseEase),
         }
         return acc
       },
@@ -373,7 +377,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     props: Record<P, FormattedProp>,
   ): PropsValueObjectRef<P> {
     for (const key of Object.keys(propsValue)) {
-      propsValue[key as P] = props[key].value + props[key].unit
+      propsValue[key as P] = props[key].value
     }
     return this.#propsValueRef
   }

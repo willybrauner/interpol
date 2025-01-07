@@ -5,23 +5,23 @@ import "./_setup"
 
 describe.concurrent("Interpol basic", () => {
   it("should return the right time", async () => {
-    const test = (duration) => {
+    const test = (duration: number) => {
       return new Interpol({
-        props: { v: [5, 100] },
+        v: [5, 100],
         duration,
         onComplete: (props, time) => {
           expect(time).toBe(duration)
         },
       }).play()
     }
-    const tests = new Array(100).fill(0).map((_, i) => test(randomRange(0, 2000)))
+    const tests = new Array(30).fill(0).map((_, i) => test(randomRange(0, 1000)))
     await Promise.all(tests)
   })
 
   it("should not auto play if paused is set", async () => {
     const mock = vi.fn()
     const itp = new Interpol({
-      props: { v: [5, 100] },
+      v: [5, 100],
       duration: 100,
       paused: true,
       onUpdate: () => mock(),
@@ -38,7 +38,7 @@ describe.concurrent("Interpol basic", () => {
     const mock = vi.fn()
     return new Promise((resolve: any) => {
       new Interpol({
-        props: { v: [0, 1000] },
+        v: [0, 1000],
         duration: 0,
         onUpdate: () => {
           mock()

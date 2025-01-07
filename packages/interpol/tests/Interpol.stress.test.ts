@@ -9,7 +9,7 @@ import "./_setup"
  */
 const interpolTest = (from, to, duration, resolve, isLast) => {
   const inter = new Interpol({
-    props: { v: [from, to] },
+    v: [from, to],
     duration,
     onUpdate: ({ v }) => {
       if (inter.props.v.from < inter.props.v.to) {

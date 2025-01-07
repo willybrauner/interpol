@@ -8,11 +8,11 @@ describe.concurrent("Timeline callbacks", () => {
       const onComplete = vi.fn()
       const tl = new Timeline({ paused: true, onComplete })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
       })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
       })
       await tl.play()
@@ -29,12 +29,12 @@ describe.concurrent("Timeline callbacks", () => {
       const onComplete2 = vi.fn()
       const tl = new Timeline({ paused: true })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         onComplete: () => onComplete1(),
       })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         onComplete: () => onComplete2(),
       })
@@ -53,13 +53,13 @@ describe.concurrent("Timeline callbacks", () => {
 
       const tl = new Timeline({ paused: true })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         immediateRender: true,
         onUpdate,
       })
       tl.add({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 100,
         onUpdate: onUpdate2,
       })

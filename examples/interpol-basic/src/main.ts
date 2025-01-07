@@ -34,18 +34,18 @@ inputSlider!.oninput = () => itp.seek(parseFloat(inputSlider!.value) / 100, fals
 
 const itp = new Interpol({
   // declare a props object
-  props: {
-    x: { from: 0, to: 100, ease: "power3.out" },
-    y: { from: 0, to: 500, ease: "power1.in" },
-    opacity: [0.5, 1],
-  },
+  debug: true,
+  x: [0, 100],
+  y: [0, 300],
+  opacity: [0.5, 1],
   // declare inline props outside the props object
   top: [0, 100],
   left: [-100, 100],
 
   onUpdate: ({ x, y, opacity, top }) => {
+    
     ball!.style.transform = `translate3d(${x}px, ${y}px, 0px)`
-    ball!.style.opacity = opacity
+    ball!.style.opacity = opacity as any
   },
   onComplete: (props) => {
     console.log("itp onComplete", props)

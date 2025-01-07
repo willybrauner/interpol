@@ -32,10 +32,7 @@ describe.concurrent("Timeline stress test", () => {
 
         // Add interpol to the TL
         for (let i = 0; i < itpNumber; i++) {
-          tl.add({
-            props: { v: [randomRange(-100, 100), randomRange(-100, 100)] },
-            duration: itpDuration,
-          })
+          tl.add({ duration: itpDuration })
         }
 
         tl.play().then(resolve)

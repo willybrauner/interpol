@@ -27,9 +27,9 @@ describe.concurrent("Timeline stop", () => {
         for (let i = 0; i < itpNumber; i++) {
           tl.add(
             new Interpol({
-              props: { v: [randomRange(-10000, 10000), randomRange(-10000, 10000)] },
+              v: [randomRange(-10000, 10000), randomRange(-10000, 10000)],
               duration: itpDuration,
-            })
+            }),
           )
         }
 
