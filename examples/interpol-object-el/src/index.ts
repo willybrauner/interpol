@@ -52,7 +52,6 @@ async function main() {
   tl.add({
     value: [0, 1],
     ease: "expo.out",
-    duration: 1000,
     onUpdate: ({ value }) => {
       program.uniforms.uMove.value = value
     },

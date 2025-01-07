@@ -61,7 +61,7 @@ export type InterpolConstructBase<K extends keyof Props> = {
 }
 
 export type InterpolConstruct<K extends keyof Props> = InterpolConstructBase<K> & {
-  [P in K]: PropsValues | any
+  [P in K]: PropsValues | any // TODO better typing
 }
 
 /**

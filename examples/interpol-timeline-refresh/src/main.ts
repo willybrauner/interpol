@@ -31,7 +31,7 @@ tl.add({
   },
 })
 tl.add({
-  x: [() => EXTERNAL_X, 50, "vw"],
+  x: [() => EXTERNAL_X, 50],
   onUpdate: ({ x }) => {
     styles(ball, { x: `${x}vw` })
     console.log("3 - x", x)

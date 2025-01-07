@@ -1,5 +1,5 @@
 import css from "./App.module.less"
-import React, { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { styles, Timeline } from "@wbe/interpol"
 import { Controls } from "../controls/Controls"
 import { useWindowSize } from "../../utils/useWindowSize"
