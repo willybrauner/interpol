@@ -16,6 +16,8 @@ import { Ease, easeAdapter, EaseFn, EaseName } from "./core/ease"
 import { styles } from "./core/styles"
 import { InterpolOptions } from "./options"
 import { Ticker } from "./core/Ticker"
+import { valueUnit } from "./core/valueUnit"
+import { is } from "./core/is"
 
 let ID = 0
 
@@ -105,7 +107,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // Prepare & compute props
     this.#props = this.#prepareProps<K>({ ...(props || {}), ...(inlineProps as Props<K>) })
-    this.refreshComputedValues()
+    this.refreshComputedValues(false, true)
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
     // start
@@ -115,13 +117,23 @@ export class Interpol<K extends keyof Props = keyof Props> {
     if (!this.#isPaused) this.play()
   }
 
-  // Compute if values were functions
-  public refreshComputedValues(): void {
-    this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
-    this.#onEachProps((prop) => {
-      prop._from = compute(prop.from)
-      prop._to = compute(prop.to)
-    })
+  public refreshComputedValues(props = true, duration = true): void {
+    if (props) {
+      this.#onEachProps((prop) => {
+        const [_from, _fromUnit] = valueUnit(compute(prop.from))
+        const [_to, _toUnit] = valueUnit(compute(prop.to))
+        prop._from = _from
+        prop._to = _to
+        // todo
+        //prop.unit =
+        // utils.isArray(p) && utils.isString(prop?.[2])
+        //     ? p[2]
+        //     : (p?.["unit"] ?? _fromUnit ?? _toUnit ?? null)
+      })
+    }
+    if (duration) {
+      this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
+    }
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -348,13 +360,74 @@ export class Interpol<K extends keyof Props = keyof Props> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
         let p = props[key as K]
+
+        // from can be:
+        // - the first entry on array
+        // - 'p.from' object key
+        const from =
+          // check array
+          is.array(p) &&
+          (p as [])?.length >= 1 &&
+          (is.string(p?.[0]) || is.number(p?.[0]) || is.function(p?.[0]))
+            ? p[0]
+            : // check object
+              (p?.["from"] ??
+              // fallback to 0
+              0)
+
+        // to can be:
+        // - a single value
+        // - the second entry on array
+        // - 'p.to' object key
+        const to =
+          // check single value (string or number or function)
+          is.string(p) || is.number(p) || is.function(p)
+            ? p
+            : // check array
+              (p?.[1] ??
+              // check object
+              p?.["to"] ??
+              // fallback to 0
+              0)
+
+        // extract value and unit from computed value
+        const [_from, _fromUnit] = valueUnit(compute(from))
+        const [_to, _toUnit] = valueUnit(compute(to))
+
+        // unit can be:
+        // - the third entry on array
+        // - 'p.unit' object key
+        // - fromUnit or toUnit
+        const unit =
+          // check array
+          is.array(p) && is.string(p?.[2])
+            ? p[2]
+            : // check object
+              (p?.["unit"] ??
+              // extacted unit from string prop value
+              (_fromUnit || _toUnit) ??
+              // fallback to null
+              null)
+
+        // console.log({
+        //   key,
+        //   p,
+        //   from,
+        //   to,
+        //   _from,
+        //   _to,
+        //   unit,
+        //   _fromUnit,
+        //   _toUnit,
+        // })
+
         acc[key as K] = {
-          from: p?.[0] ?? p?.["from"] ?? 0,
-          _from: null,
-          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
-          _to: null,
+          from,
+          to,
+          _from,
+          _to,
+          unit,
           value: null,
-          unit: p?.[2] ?? p?.["unit"] ?? null,
           ease: this.#chooseEase(p?.["ease"] || this.#ease),
           reverseEase: this.#chooseEase(p?.["reverseEase"] || p?.["ease"] || this.#reverseEase),
         }

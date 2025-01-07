@@ -20,15 +20,56 @@ describe.concurrent("Interpol props", () => {
           expect(x).toBeTypeOf(onCompleteType)
           expect(y).toBeTypeOf(onCompleteType)
         },
-      })
+      }).play()
 
     return Promise.all([
       test(0, 1000, "px", "1000px", "string"),
       test(-100, 100, "%", "100%", "string"),
       test(0, 1000, null, 1000, "number"),
       test(null, 1000, null, 1000, "number"),
-      test(null, null, null, NaN, "number"),
+      test(null, null, null, 0, "number"),
     ])
+  })
+
+  it("should accept unit as third param and return string value", async () => {
+    const test = (unit) =>
+      new Promise((resolve: any) => {
+        const callback = ({ v }) => {
+          expect(v).toBeTypeOf("string")
+          expect(v).toContain(unit)
+          expect(v.slice(-unit.length)).toBe(unit)
+        }
+        new Interpol({
+          props: { v: [5, 100, unit] },
+          duration: 100,
+          beforeStart: ({ v }) => {
+            callback({ v })
+            expect(v).toBe(5 + unit)
+          },
+          onUpdate: callback,
+          onComplete: ({ v }) => {
+            callback({ v })
+            expect(v).toBe(100 + unit)
+            resolve()
+          },
+        })
+      })
+    return Promise.all(
+      ["px", "rem", "svh", "foo", "bar", "whatever-unit-string-we-want"].map((e) => test(e)),
+    )
+  })
+
+  it("should return a number value if unit as third param is not defined", async () => {
+    return new Promise(async (resolve: any) => {
+      const callback = ({ v }) => expect(v).toBeTypeOf("number")
+      new Interpol({
+        props: { v: [5, 100] },
+        duration: 100,
+        beforeStart: callback,
+        onUpdate: callback,
+        onComplete: resolve,
+      })
+    })
   })
 
   it("should accept object props", async () => {
@@ -46,14 +87,14 @@ describe.concurrent("Interpol props", () => {
           expect(x).toBe(onCompleteProp)
           expect(x).toBeTypeOf(onCompleteType)
         },
-      })
+      }).play()
 
     return Promise.all([
       test(0, 1000, "px", "1000px", "string"),
       test(-100, 100, "%", "100%", "string"),
       test(0, 1000, null, 1000, "number"),
       test(null, 1000, null, 1000, "number"),
-      test(null, null, null, NaN, "number"),
+      test(null, null, null, 0, "number"),
     ])
   })
 
@@ -69,7 +110,7 @@ describe.concurrent("Interpol props", () => {
           expect(x).toBe(onCompleteProp)
           expect(x).toBeTypeOf(onCompleteType)
         },
-      })
+      }).play()
 
     return Promise.all([
       test(0, 0, "number"),
@@ -79,7 +120,45 @@ describe.concurrent("Interpol props", () => {
     ])
   })
 
-  it("should accept inline props", async () => {
+  it("should accept string props", async () => {
+    const test = (to, onCompleteProp, onCompleteType) =>
+      new Interpol({
+        x: to,
+        duration: 1,
+        onUpdate: ({ x }) => {
+          expect(x).toBeTypeOf(onCompleteType)
+        },
+        onComplete: ({ x }) => {
+          expect(x).toBe(onCompleteProp)
+          expect(x).toBeTypeOf(onCompleteType)
+        },
+      }).play()
+
+    return Promise.all([
+      test(10, 10, "number"),
+      test("10px", "10px", "string"),
+      test(0, 0, "number"),
+      test(-20, -20, "number"),
+      test('-20', -20, "number"),
+
+      // array
+      test([0, 10], 10, "number"),
+      test([-20, 32], 32, "number"),
+      test([-20, "32px"], "32px", "string"),
+      test(["-20px", 32], "32px", "string"),
+
+      // object
+      test({ from: "0", to: "10px" }, "10px", "string"),
+      test({ from: "0", to: 10 }, 10, "number"),
+      test({ from: "0px", to: 10 }, "10px", "string"),
+
+      // with computed value
+      test({ from: "0px", to: () => 10 }, "10px", "string"),
+      test({ from: "0px", to: () => "10px" }, "10px", "string"),
+    ])
+  })
+
+  it("should accept inline props (outide the props object)", async () => {
     return new Interpol({
       duration: 100,
       x: 100,
@@ -122,10 +201,10 @@ describe.concurrent("Interpol props", () => {
   it("Should works without props object and without inline props", async () => {
     return new Interpol({
       duration: 100,
-      onUpdate: (props, time, progress) => {
+      onUpdate: (props) => {
         expect(props).toEqual({})
       },
-      onComplete: (props, time, progress) => {
+      onComplete: (props) => {
         expect(props).toEqual({})
       },
     }).play()

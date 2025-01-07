@@ -12,7 +12,7 @@ import { Ease } from "./ease"
 export type PropsValueObjectRef<K extends string> = Record<K, number | `${number}${Units}` | any>
 
 // Value can be a number or a function that return a number
-export type Value = number | (() => number)
+export type Value = (number | string) | (() => number | string)
 export type Units = "%" | "px" | "em" | "rem" | "vw" | "vh" | "pt" | string
 
 // Props params
