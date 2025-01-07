@@ -1,4 +1,4 @@
-import { Timeline } from "@wbe/interpol"
+import { styles, Timeline } from "@wbe/interpol"
 import "./index.less"
 
 const ball = document.querySelector<HTMLElement>(".ball")
@@ -14,36 +14,26 @@ const tl: Timeline = new Timeline({ debug: false, paused: true })
 let EXTERNAL_X = 0
 
 tl.add({
-  el: ball,
-  duration: 1000,
   ease: "power3.in",
-  props: {
-    x: [0, 70, "vw"],
-  },
+  x: [0, 70],
   onUpdate: ({ x }) => {
-    EXTERNAL_X = parseFloat(x)
+    EXTERNAL_X = x
+    styles(ball, { x: `${x}vw` })
     console.log("1 - x", x)
   },
 })
 tl.add({
-  el: ball,
-  duration: 1000,
-  props: {
-    x: [() => EXTERNAL_X, 20, "vw"],
-  },
+  x: [() => EXTERNAL_X, 20],
   onUpdate: ({ x }) => {
-    EXTERNAL_X = parseFloat(x)
+    styles(ball, { x: `${x}vw` })
+    EXTERNAL_X = x
     console.log("2 - x", x)
   },
 })
-
 tl.add({
-  el: ball,
-  duration: 1000,
-  props: {
-    x: [() => EXTERNAL_X, 50, "vw"],
-  },
+  x: [() => EXTERNAL_X, 50, "vw"],
   onUpdate: ({ x }) => {
+    styles(ball, { x: `${x}vw` })
     console.log("3 - x", x)
   },
 })
