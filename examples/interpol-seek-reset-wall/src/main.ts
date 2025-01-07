@@ -1,4 +1,4 @@
-import { Timeline, Interpol } from "@wbe/interpol"
+import { Timeline, Interpol, styles } from "@wbe/interpol"
 import "./style.css"
 
 const wall = document.querySelector<HTMLElement>(".wall")
@@ -20,8 +20,9 @@ const testWithInterpol = () => {
     el: wall,
     duration: 1000,
     ease: "linear",
-    props: {
-      x: [() => -innerWidth * 0.9, 0, "px"],
+    x: [() => -innerWidth * 0.9, 0, "px"],
+    onUpdate: ({ x }) => {
+      styles(wall, { x: x + "px" })
     },
   })
 
@@ -54,20 +55,20 @@ const testWithTimeline = () => {
     immediateRender: true,
     paused: true,
     debug: true,
-    el: wall,
     duration: 1000,
     ease: "linear",
-    props: {
-      x: [() => -innerWidth * 0.9, 0, "px"],
+    x: [() => -innerWidth * 0.9, 0],
+    onUpdate: ({ x }) => {
+      styles(wall, { x: x + "px" })
     },
   })
   tl.add({
     debug: true,
-    el: wall,
     duration: 1000,
     ease: "linear",
-    props: {
-      x: [0, () => -innerWidth * 0.5, "px"],
+    x: [0, () => -innerWidth * 0.5],
+    onUpdate: ({ x }) => {
+      styles(wall, { x: x + "px" })
     },
   })
 
