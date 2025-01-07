@@ -1,5 +1,5 @@
-import "./index.less"
-import { Interpol, InterpolOptions, styles } from "@wbe/interpol"
+import "./index.css"
+import { Interpol, styles } from "@wbe/interpol"
 import { DragGesture } from "@use-gesture/vanilla"
 import gsap from "gsap"
 
@@ -8,12 +8,12 @@ const ball = document.querySelector<HTMLElement>(".ball")
 let state = {
   current: {
     x: 0,
-    y: 0
+    y: 0,
   },
   target: {
     x: 0,
-    y: 0
-  }
+    y: 0,
+  },
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -31,10 +31,9 @@ new DragGesture(ball, ({ active, delta: [dx, dy] }) => {
   new Interpol({
     ease: "expo.out",
     duration: 2000,
-    props: {
-      x: { from: state.current.x, to: state.target.x },
-      y: { from: state.current.y, to: state.target.y }
-    },
+    x: { from: state.current.x, to: state.target.x },
+    y: { from: state.current.y, to: state.target.y },
+
     onUpdate: ({ x, y }) => {
       // anim
       styles(ball, { x: x + "px", y: y + "px" })
@@ -44,9 +43,7 @@ new DragGesture(ball, ({ active, delta: [dx, dy] }) => {
       state.current.y = y
     },
   })
-
 })
-
 
 // -------------------------------------------------------------------------------------------------
 
@@ -85,4 +82,3 @@ new DragGesture(ball, ({ delta: [dx, dy] }) => {
 })
 
  */
-
