@@ -92,7 +92,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#reverseEase = reverseEase
 
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>(props as Props<K>)
+    this.#props = this.#prepareProps<K>(props as unknown as Props<K>)
     this.refreshComputedValues()
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
 
@@ -332,7 +332,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Prepare internal props object
    */
-  #prepareProps<K extends keyof Props>(props: Props): Record<K, FormattedProp> {
+  #prepareProps<K extends keyof Props>(props: Props<K>): Record<K, FormattedProp> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
         let p = props[key as K]
