@@ -50,17 +50,12 @@ async function main() {
   const tl = new Timeline({ paused: true })
 
   tl.add({
-    el: program.uniforms.uMove,
-    props: {
-      value: [0, 1],
-    },
+    value: [0, 1],
     ease: "expo.out",
     duration: 1000,
-
-    // no need to use onUpdate callback
-    // onUpdate: ({ value }) => {
-    //   program.uniforms.uMove.value = value;
-    // },
+    onUpdate: ({ value }) => {
+      program.uniforms.uMove.value = value
+    },
   })
 
   const loop = async () => {
