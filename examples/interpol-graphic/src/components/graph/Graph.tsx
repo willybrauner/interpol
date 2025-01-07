@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react"
+import { useCallback, useRef } from "react"
 import css from "./Graph.module.less"
 import { Coords } from "../../utils/calcCoords"
 

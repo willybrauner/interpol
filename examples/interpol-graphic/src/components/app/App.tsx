@@ -41,7 +41,7 @@ export function App() {
 
     for (let props of coords) {
       tl.current.add({
-        props,
+        ...props,
         delay: 100,
         duration: () => randomRange(100, 600),
         //ease: eases[randomRange(0, eases.length - 1)] as any,

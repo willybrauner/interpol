@@ -1,5 +1,4 @@
 import css from "./Params.module.less"
-import React from "react"
 
 export function Params({ params, className }: {params, className?}) {
   return (
