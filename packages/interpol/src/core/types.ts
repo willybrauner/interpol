@@ -19,8 +19,11 @@ export type PropsValues =
 
 export type Props<K extends string = string> = Record<K, PropsValues>
 
+// zdplssmdl
+type ExtraProps<T extends string> = Record<Exclude<T, keyof InterpolConstructBase<T>>, PropsValues>;
+
 // Final Props Object returned by callbacks
-export type PropsValueObjectRef<K extends string, V = number> = Record<K, V>
+export type CallbackProps<K extends string, V = number> = Record<K, V>
 
 // Props object formatted in Map
 export type FormattedProp = {
@@ -33,19 +36,19 @@ export type FormattedProp = {
   reverseEase: Ease
 }
 
+export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
+
 /**
  * Interpol
  *
  *
  */
 export type CallBack<K extends keyof Props> = (
-  props: PropsValueObjectRef<Exclude<K, keyof InterpolConstructBase<K>>>,
+  props: CallbackProps<Exclude<K, keyof InterpolConstructBase<K>>>,
   time: number,
   progress: number,
   instance: Interpol<K>,
 ) => void
-
-export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 export type InterpolConstructBase<K extends keyof Props> = {
   props?: Props<K>
@@ -64,6 +67,8 @@ export type InterpolConstructBase<K extends keyof Props> = {
 export type InterpolConstruct<K extends keyof Props> = InterpolConstructBase<K> & {
   [P in K]: PropsValues | any // TODO better typing
 }
+
+
 
 /**
  * Timeline

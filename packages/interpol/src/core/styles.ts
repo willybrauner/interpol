@@ -1,4 +1,4 @@
-import { El, PropsValueObjectRef } from "./types"
+import { El, CallbackProps } from "./types"
 
 const CACHE = new Map<HTMLElement, Record<string, string>>()
 const COORDS = new Set(["x", "y", "z"])
@@ -38,7 +38,7 @@ function formatValue(key: string, val: number | string, format = true): string |
  */
 export const styles = (
   element: El,
-  props: PropsValueObjectRef<string, number | string>,
+  props: CallbackProps<string, number | string>,
   autoUnits = true,
 ): void => {
   if (!element) return
