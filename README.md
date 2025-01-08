@@ -13,6 +13,8 @@ This is the lowest level of animate machine.
 Interpol don't come with dom API, it only provides real time progress of the interpolations that can be use or bind
 on... mesh, dom element or anything else, for ~=3kB!
 
+(⚠️ Interpol still is in early development, the API can change until the first major release)
+
 ## Summary
 
 - [Summary](#summary)
@@ -268,8 +270,6 @@ interface IInterpolConstruct<K extends keyof Props> {
   // inline props are an interpol list object, 3 definition types
   // default: /
   [x: string]: PropsValues
-  // or props object wrapper (old way kept for backward compatibility)
-  // props?: Record<string, PropsValues>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second
