@@ -7,6 +7,7 @@ import { Ease } from "./ease"
  *
  *
  */
+export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 // Value can be a number or a function that return a number
 export type Value = number | (() => number)
@@ -17,10 +18,13 @@ export type PropsValues =
   | [Value, Value]
   | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
 
+// props
 export type Props<K extends string = string> = Record<K, PropsValues>
-
-// zdplssmdl
-type ExtraProps<T extends string> = Record<Exclude<T, keyof InterpolConstructBase<T>>, PropsValues>;
+export type PropKeys<T extends string> = keyof InterpolConstructBase<T> | (string & {})
+export type ExtraProps<T extends string> = Record<
+  Exclude<T, keyof InterpolConstructBase<T>>,
+  PropsValues
+>
 
 // Final Props Object returned by callbacks
 export type CallbackProps<K extends string, V = number> = Record<K, V>
@@ -36,22 +40,19 @@ export type FormattedProp = {
   reverseEase: Ease
 }
 
-export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
-
 /**
  * Interpol
  *
  *
  */
-export type CallBack<K extends keyof Props> = (
+export type CallBack<K extends string = string> = (
   props: CallbackProps<Exclude<K, keyof InterpolConstructBase<K>>>,
   time: number,
   progress: number,
   instance: Interpol<K>,
 ) => void
 
-export type InterpolConstructBase<K extends keyof Props> = {
-  props?: Props<K>
+export type InterpolConstructBase<K extends string = string> = {
   duration?: Value
   ease?: Ease
   reverseEase?: Ease
@@ -64,11 +65,12 @@ export type InterpolConstructBase<K extends keyof Props> = {
   onComplete?: CallBack<K>
 }
 
-export type InterpolConstruct<K extends keyof Props> = InterpolConstructBase<K> & {
-  [P in K]: PropsValues | any // TODO better typing
+// @credit Philippe Elsass
+export type InterpolConstruct<T extends PropKeys<T>> = InterpolConstructBase<T> & {
+  [key in T]: key extends keyof InterpolConstructBase<T>
+    ? InterpolConstructBase<T>[key]
+    : PropsValues
 }
-
-
 
 /**
  * Timeline

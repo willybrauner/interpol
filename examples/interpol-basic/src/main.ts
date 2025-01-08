@@ -4,7 +4,7 @@ import { Interpol, styles } from "@wbe/interpol"
 /**
  * Query
  */
-const ball = document.querySelector<HTMLElement>(".ball")
+const element = document.querySelector<HTMLElement>(".ball")
 const seek0 = document.querySelector<HTMLButtonElement>(".seek-0")
 const seek05 = document.querySelector<HTMLButtonElement>(".seek-05")
 const seek1 = document.querySelector<HTMLButtonElement>(".seek-1")
@@ -30,8 +30,11 @@ const itp = new Interpol({
   x: 100,
   y: { from: 0, to: 300 },
   opacity: [0.5, 1],
-  onUpdate: ({ x, y, opacity }) => {
-    styles(ball!, { x, y, opacity })
+  z: [100, 0],
+  b: "dldl",
+  
+  onUpdate: ({ x, y, opacity, z, b, s }) => {
+    styles(element!, { x, y, opacity })
   },
   onComplete: (props) => {
     console.log("itp onComplete", props)

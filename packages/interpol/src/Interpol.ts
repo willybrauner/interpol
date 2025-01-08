@@ -5,6 +5,7 @@ import {
   Props,
   Value,
   CallbackProps,
+  InterpolConstructBase,
 } from "./core/types"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -17,7 +18,7 @@ import { Ticker } from "./core/Ticker"
 
 let ID = 0
 
-export class Interpol<K extends keyof Props = keyof Props> {
+export class Interpol<K extends string = string> {
   public readonly ID = ++ID
   public ticker: Ticker
   public inTl = false
@@ -67,7 +68,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #hasSeekCompleted = false
 
   constructor({
-    props,
     duration = InterpolOptions.duration,
     ease = InterpolOptions.ease,
     reverseEase = ease,
@@ -93,7 +93,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#reverseEase = reverseEase
 
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>({ ...props, ...(inlineProps as unknown as Props<K>) })
+    this.#props = this.#prepareProps<K>(
+      inlineProps as Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>,
+    )
     this.refreshComputedValues()
     this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
 
@@ -335,7 +337,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Prepare internal props object
    */
-  #prepareProps<K extends keyof Props>(props: Props<K>): Record<K, FormattedProp> {
+  #prepareProps<K extends keyof Props>(props): Record<K, FormattedProp> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
         let p = props[key as K]
