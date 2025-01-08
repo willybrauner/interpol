@@ -13,7 +13,7 @@ This is the lowest level of animate machine.
 Interpol don't come with dom API, it only provides real time progress of the interpolations that can be use or bind
 on... mesh, dom element or anything else, for ~=3kB!
 
-(⚠️ Interpol still is in early development, the API can change until the first major release)
+_⚠️ Interpol still is in early development, the API can change until the first major release_
 
 ## Summary
 
