@@ -31,7 +31,7 @@ const itp = new Interpol({
   y: { from: 0, to: 300 },
   opacity: [0.5, 1],
   onUpdate: ({ x, y, opacity }) => {
-    styles(ball!, { x: x + "px", y: y + "px", opacity })
+    styles(ball!, { x, y, opacity })
   },
   onComplete: (props) => {
     console.log("itp onComplete", props)
