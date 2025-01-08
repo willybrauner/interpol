@@ -1,3 +1,5 @@
+export type { InterpolConstruct, Props, TimelineConstruct, Value } from "./core/types"
+
 export { InterpolOptions } from "./options"
 export { Interpol } from "./Interpol"
 export { Timeline } from "./Timeline"

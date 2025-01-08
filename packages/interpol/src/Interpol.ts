@@ -4,8 +4,8 @@ import {
   InterpolConstruct,
   Props,
   Value,
-  PropsValueObjectRef,
-  El,
+  CallbackProps,
+  InterpolConstructBase,
 } from "./core/types"
 import { deferredPromise } from "./core/deferredPromise"
 import { clamp } from "./core/clamp"
@@ -13,19 +13,17 @@ import { round } from "./core/round"
 import { compute } from "./core/compute"
 import { noop } from "./core/noop"
 import { Ease, easeAdapter, EaseFn, EaseName } from "./core/ease"
-import { styles } from "./core/styles"
 import { InterpolOptions } from "./options"
 import { Ticker } from "./core/Ticker"
 
 let ID = 0
 
-export class Interpol<K extends keyof Props = keyof Props> {
+export class Interpol<K extends string = string> {
   public readonly ID = ++ID
   public ticker: Ticker
   public inTl = false
   public debugEnable: boolean
 
-  #duration: Value
   #_duration: number
   public get duration() {
     return this.#_duration
@@ -56,7 +54,8 @@ export class Interpol<K extends keyof Props = keyof Props> {
     return this.#props
   }
 
-  #propsValueRef: PropsValueObjectRef<K>
+  #duration: Value
+  #callbackProps: CallbackProps<K>
   #immediateRender: boolean
   #delay: number
   #ease: Ease
@@ -66,11 +65,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
-  #el: El
   #hasSeekCompleted = false
 
   constructor({
-    props = null,
     duration = InterpolOptions.duration,
     ease = InterpolOptions.ease,
     reverseEase = ease,
@@ -81,7 +78,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    el = null,
     ...inlineProps
   }: InterpolConstruct<K>) {
     this.ticker = InterpolOptions.ticker
@@ -90,28 +86,25 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#delay = delay * InterpolOptions.durationFactor
     this.#immediateRender = immediateRender
     this.#beforeStart = beforeStart
-    this.#el = el
-    this.#onUpdate = (props, time, progress, instance) => {
-      styles(this.#el, props)
-      onUpdate(props, time, progress, instance)
-    }
-    this.#onComplete = (props, time, progress, instance) => {
-      styles(this.#el, props)
-      onComplete(props, time, progress, instance)
-    }
+    this.#onUpdate = onUpdate
+    this.#onComplete = onComplete
     this.debugEnable = debug
     this.#ease = ease
     this.#reverseEase = reverseEase
 
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>({ ...(props || {}), ...(inlineProps as Props<K>) })
+    this.#props = this.#prepareProps<K>(
+      inlineProps as Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>,
+    )
     this.refreshComputedValues()
-    this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
+    this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
 
     // start
-    if (this.#immediateRender) this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
-    this.#beforeStart(this.#propsValueRef, this.#time, this.#progress, this)
+    if (this.#immediateRender) {
+      this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
+    }
 
+    this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
     if (!this.#isPaused) this.play()
   }
 
@@ -238,15 +231,15 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // Update time, interpolate and assign props value
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
-    this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
+    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps, this.#props)
 
     // if last & current progress are differents,
     // Or if progress param is the same this.progress, execute onUpdate
     if (this.#lastProgress !== this.#progress || progress === this.#progress) {
       if (this.#lastProgress !== this.#progress) this.#hasSeekCompleted = false
-      this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
+      this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
       this.#log(`seek onUpdate`, {
-        props: this.#propsValueRef,
+        props: this.#callbackProps,
         time: this.#time,
         progress: this.#progress,
       })
@@ -254,11 +247,11 @@ export class Interpol<K extends keyof Props = keyof Props> {
 
     // if progress 1, execute onComplete only if it hasn't been called before
     if (this.#progress === 1 && !this.#hasSeekCompleted && !suppressEvents) {
-      this.#onComplete(this.#propsValueRef, this.#time, this.#progress, this)
+      this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
       this.#lastProgress = this.#progress
       this.#hasSeekCompleted = true
       this.#log(`seek onComplete`, {
-        props: this.#propsValueRef,
+        props: this.#callbackProps,
         time: this.#time,
         progress: this.#progress,
       })
@@ -276,7 +269,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     if (this.#_duration <= 0) {
       this.#onEachProps((p) => (p.value = p._to))
       const obj = {
-        props: this.#assignPropsValue<K>(this.#propsValueRef, this.#props),
+        props: this.#assignPropsValue<K>(this.#callbackProps, this.#props),
         time: this.#_duration,
         progress: 1,
       }
@@ -293,12 +286,12 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#time = clamp(0, this.#_duration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#_duration), 1)
     this.#interpolate(this.#progress)
-    this.#propsValueRef = this.#assignPropsValue<K>(this.#propsValueRef, this.#props)
+    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps, this.#props)
 
     // Pass value, time and progress
-    this.#onUpdate(this.#propsValueRef, this.#time, this.#progress, this)
+    this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
     this.#log("handleTick onUpdate", {
-      props: this.#propsValueRef,
+      props: this.#callbackProps,
       t: this.#time,
       p: this.#progress,
     })
@@ -306,7 +299,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     // on play complete
     if (!this.#isReversed && this.#progress === 1) {
       this.#log(`handleTick onComplete!`)
-      this.#onComplete(this.#propsValueRef, this.#time, this.#progress, this)
+      this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
@@ -344,7 +337,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   /**
    * Prepare internal props object
    */
-  #prepareProps<K extends keyof Props>(props: Props): Record<K, FormattedProp> {
+  #prepareProps<K extends keyof Props>(props): Record<K, FormattedProp> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
         let p = props[key as K]
@@ -354,7 +347,6 @@ export class Interpol<K extends keyof Props = keyof Props> {
           to: p?.[1] ?? p?.["to"] ?? p ?? 0,
           _to: null,
           value: null,
-          unit: p?.[2] ?? p?.["unit"] ?? null,
           ease: this.#chooseEase(p?.["ease"] || this.#ease),
           reverseEase: this.#chooseEase(p?.["reverseEase"] || p?.["ease"] || this.#reverseEase),
         }
@@ -370,9 +362,9 @@ export class Interpol<K extends keyof Props = keyof Props> {
    */
   #createPropsParamObjRef<K extends keyof Props>(
     props: Record<K, FormattedProp>,
-  ): PropsValueObjectRef<K> {
+  ): CallbackProps<K> {
     return Object.keys(props).reduce((acc, key: K) => {
-      acc[key as K] = props[key]._from + props[key].unit
+      acc[key as K] = props[key]._from
       return acc
     }, {} as any)
   }
@@ -382,13 +374,13 @@ export class Interpol<K extends keyof Props = keyof Props> {
    * in order to keep the same reference on each frame
    */
   #assignPropsValue<P extends K>(
-    propsValue: PropsValueObjectRef<K>,
+    propsValue: CallbackProps<K>,
     props: Record<P, FormattedProp>,
-  ): PropsValueObjectRef<P> {
+  ): CallbackProps<P> {
     for (const key of Object.keys(propsValue)) {
-      propsValue[key as P] = props[key].value + props[key].unit
+      propsValue[key as P] = props[key].value
     }
-    return this.#propsValueRef
+    return this.#callbackProps
   }
 
   /**

@@ -28,8 +28,8 @@ describe.concurrent("Timeline reverse", () => {
         },
       })
 
-      tl.add({ props: { v: [0, 1000] }, duration: 100 })
-      tl.add({ props: { v: [0, 1000] }, duration: 100 })
+      tl.add({ duration: 100 })
+      tl.add({ duration: 100 })
 
       await tl.play()
       await tl.reverse()

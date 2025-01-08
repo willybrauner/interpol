@@ -19,19 +19,15 @@ describe.concurrent("Timeline auto refresh computed values", () => {
 
     tl.add({
       duration: 100,
-      props: {
-        x: [0, firstAddTo],
-      },
+      x: [0, firstAddTo],
       onUpdate: ({ x }) => {
         // register the external value
-        EXTERNAL_X = parseFloat(x)
+        EXTERNAL_X = x
       },
     })
     tl.add({
       duration: 100,
-      props: {
-        x: [() => EXTERNAL_X, secondAddTo],
-      },
+      x: [() => EXTERNAL_X, secondAddTo],
       onUpdate: ({ x }, t, p, instance) => {
         if (firstOnUpdate) {
           expect(EXTERNAL_X).toBe(firstAddTo)
@@ -39,7 +35,7 @@ describe.concurrent("Timeline auto refresh computed values", () => {
           firstOnUpdate = false
         }
         // register the external value
-        EXTERNAL_X = parseFloat(x)
+        EXTERNAL_X = x
       },
       onComplete: () => {
         expect(EXTERNAL_X).toBe(secondAddTo)
@@ -55,20 +51,15 @@ describe.concurrent("Timeline auto refresh computed values", () => {
 
     tl.add({
       duration: 100,
-      props: {
-        x: [0, 200],
-      },
+      x: [0, 200],
       onUpdate: ({ x }) => {
         // register the external value
-        EXTERNAL_X = parseFloat(x)
+        EXTERNAL_X = x
       },
     })
-    tl.add<"x">({
+    tl.add({
       duration: 100,
-      props: {
-        // DIFF with the previous test, here we don't use a computed value
-        x: [EXTERNAL_X, 30],
-      },
+      x: [EXTERNAL_X, 30],
       onUpdate: ({ x }, time, progress, instance) => {
         if (firstOnUpdate) {
           // _from as not been computed before the 1st add() starts

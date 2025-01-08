@@ -19,7 +19,7 @@ const testTemplate = (itps: [number, (number | string)?][], tlDuration: number) 
       },
     })
     for (let [duration, offset] of itps) {
-      tl.add({ duration, props: { v: [0, 100] } }, offset)
+      tl.add({ duration, v: [0, 100] }, offset)
     }
   })
 

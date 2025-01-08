@@ -8,17 +8,9 @@ describe.concurrent("Timeline play", () => {
       const onComplete = vi.fn()
       const tl = new Timeline({ onComplete, paused: true })
       // accept instance
-      tl.add(
-        new Interpol({
-          duration: 100,
-          props: { v: [0, 100] },
-        })
-      )
+      tl.add(new Interpol({ duration: 100 }))
       // accept object
-      tl.add({
-        duration: 100,
-        props: { v: [0, 100] },
-      })
+      tl.add({ duration: 100 })
       await tl.play()
       expect(onComplete).toBeCalledTimes(1)
       resolve()
@@ -31,10 +23,7 @@ describe.concurrent("Timeline play", () => {
       const promiseResolve = vi.fn()
       const tl = new Timeline({ onComplete, paused: true })
       for (let i = 0; i < 3; i++) {
-        tl.add({
-          props: { v: [0, 100] },
-          duration: 100,
-        })
+        tl.add({ duration: 100 })
       }
       for (let i = 0; i < 3; i++) tl.play()
       await tl.play()

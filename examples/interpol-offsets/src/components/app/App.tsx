@@ -1,6 +1,6 @@
 import css from "./App.module.less"
-import React, { useEffect, useRef, useState } from "react"
-import { Timeline } from "@wbe/interpol"
+import { useEffect, useRef, useState } from "react"
+import { styles, Timeline } from "@wbe/interpol"
 import { Controls } from "../controls/Controls"
 import { useWindowSize } from "../../utils/useWindowSize"
 
@@ -20,12 +20,12 @@ export function App() {
       const curr = refs.current[i]
       tl.add(
         {
-          el: curr,
           duration: 1000,
           immediateRender: true,
           ease: "power1.inOut",
-          props: {
-            x: [0, containerRef.current.offsetWidth - curr.offsetWidth, "px"],
+          x: [0, containerRef.current.offsetWidth - curr.offsetWidth],
+          onUpdate: ({ x }) => {
+            styles(curr, { x: x + "px" })
           },
         },
 
@@ -33,7 +33,7 @@ export function App() {
         // in order to test the offset interpolation
         // ball 1 is relative to its position in the timeline
         // other balls are absolute (relative to the beginning of the timeline)
-        i === 1 ? customOffset : i * 40
+        i === 1 ? customOffset : i * 40,
       )
     }
 

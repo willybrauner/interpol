@@ -8,7 +8,7 @@ describe.concurrent("Interpol refresh", () => {
   it("should compute 'from' 'to' and 'duration' if there are functions", async () => {
     return new Promise(async (resolve: any) => {
       const itp = new Interpol({
-        props: { v: [() => randomRange(-100, 100), () => randomRange(-100, 100)] },
+        v: [() => randomRange(-100, 100), () => randomRange(-100, 100)],
         duration: () => randomRange(-100, 100),
       })
       expect(typeof itp.props.v._to).toBe("number")
@@ -23,18 +23,17 @@ describe.concurrent("Interpol refresh", () => {
       const mockTo = vi.fn()
       const mockFrom = vi.fn()
       const itp = new Interpol({
-        props: {
-          v: [
-            () => {
-              mockFrom()
-              return randomRange(-100, 100)
-            },
-            () => {
-              mockTo()
-              return randomRange(-100, 100)
-            },
-          ],
-        },
+        v: [
+          () => {
+            mockFrom()
+            return randomRange(-100, 100)
+          },
+          () => {
+            mockTo()
+            return randomRange(-100, 100)
+          },
+        ],
+
         duration: () => 66,
       })
 

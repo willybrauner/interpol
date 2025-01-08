@@ -8,7 +8,7 @@ describe.concurrent("Interpol seek", () => {
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
       const itp = new Interpol({
-        props: { v: [0, 100] },
+        v: [0, 100],
         duration: 1000,
         onUpdate: ({ v }) => mock(v),
       })
@@ -28,7 +28,7 @@ describe.concurrent("Interpol seek", () => {
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
       const itp = new Interpol({
-        props: { v: [0, 1000] },
+        v: [0, 1000],
         duration: 1000,
         onUpdate: ({ v }) => mock(v),
       })
@@ -60,7 +60,7 @@ describe.concurrent("Interpol seek", () => {
   it("Should execute Interpol events callbacks on seek if suppressEvents is false", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
-      const itp = new Interpol({ props: { v: [0, 100] }, onComplete })
+      const itp = new Interpol({ onComplete })
       // onComplete is called each time the interpol reach the end (progress 1)
       itp.seek(0.5, false)
       expect(onComplete).toHaveBeenCalledTimes(0)
@@ -79,7 +79,7 @@ describe.concurrent("Interpol seek", () => {
   it("Shouldn't execute Interpol events callbacks on seek if suppressEvents is true", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
-      const itp = new Interpol({ props: { v: [0, 100] }, onComplete })
+      const itp = new Interpol({ onComplete })
       itp.seek(0.5)
       itp.seek(1)
       itp.seek(0.25)

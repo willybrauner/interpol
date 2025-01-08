@@ -8,10 +8,10 @@
 <img alt="logo" src="./packages/interpol/interpol.png">
 </p>
 
-Interpol library interpolates values between two points.
+Interpol library interpolates a set of number values with a gsap's like API.
 This is the lowest level of animate machine.
-Interpol is _initially_ not a DOM API, it provides real time progress of the interpolation that can be use or bind
-on... anything, for ~=3kB!
+Interpol don't come with dom API, it only provides real time progress of the interpolations that can be use or bind
+on... mesh, dom element or anything else, for ~=3kB!
 
 ## Summary
 
@@ -24,11 +24,7 @@ on... anything, for ~=3kB!
 - [Props](#props)
   - [Props types](#props-types)
   - [Computed prop values](#computed-prop-values)
-- [Interpol DOM styles](#interpol-dom-styles)
-  - [Props unit](#props-unit)
-  - [Styles helper](#styles-helper)
-  - [`el` property](#el-property)
-- [Real word example](#real-word-example)
+- [Styles helper](#styles-helper)
 - [Easing](#easing)
 - [API](#api)
   - [interpol constructor](#interpol-constructor)
@@ -122,7 +118,6 @@ tl.add({
 // Or add interpol instance to the timeline
 const itp = new Interpol({
   x: [100, 50],
-  duration: 500,
   onComplete: ({ x }, time, progress) => {
     // itp 2 is complete
   },
@@ -149,11 +144,11 @@ new Interpol({
   x: 100,
 
   // 2. an array
-  // [from, to, unit?]
+  // [from, to]
   x: [0, 100],
 
   // 3. an object with explicite `from` and `to` properties
-  // { from?, to, unit?, ease?, reverseEase? }
+  // { from?, to, ease?, reverseEase? }
   x: { from: 0, to: 100 },
 })
 ```
@@ -185,54 +180,19 @@ const itp = new Interpol({
 itp.refreshComputedValues()
 ```
 
-## Interpol DOM styles
+## Styles helper
 
-One of the main usage of Interpol is to animate DOM styles. The API provide some helpers to simplify this usage and avoid to write the same code each time you want to animate a DOM element.
-
-- [Props unit](#props-unit): define a unit for each props in the props array
-- [Styles helper](#styles-helper): a core helper function to simplify the DOM manipulation
-- [el property](#el-property): set the DOM element to animate directly in the constructor
-
-### Props unit
-
-One props array is able to receive a string an optional third value unit who will be associated to the interpolated value.
-
-Without the unit:
-
-```ts
-new Interpol({
-  top: [-100, 0],
-  onUpdate: ({ top }) => {
-    // Set manually the unit each time
-    element.style.top = `${top}px`
-  },
-})
-```
-
-With the unit as 3th value:
-
-```ts
-new Interpol({
-  // [from, to, unit]
-  top: [-100, 0, "px"],
-  onUpdate: ({ top }) => {
-    // top is value + "px" is already defined
-    element.style.top = top
-  },
-})
-```
-
-### Styles helper
-
-This repository provides a `styles` helper function that simplifies DOM manipulation.
+One of the main usage of Interpol is to animate DOM element style properties.
+The API provide `styles`, a core helper function to simplify the DOM manipulation.
 The function uses a DOM cache to associate multiple transformation functions with the same DOM element at the same time.
 
 Definition:
 
 ```ts
 declare const styles: (
-  element: HTMLElement | HTMLElement[] | null,
+  element: HTMLElement | HTMLElement[] | Record<any, number> | null,
   props: Record<string, string | number>,
+  autoUnits: boolean = true,
 ) => void
 ```
 
@@ -242,82 +202,18 @@ Example:
 import { Interpol, styles } from "./Interpol"
 
 new Interpol({
-  x: [-100, 0, "%"],
+  x: [-100, 0],
+  y: [0, 50],
   opacity: [0, 1],
-  onUpdate: ({ x, opacity }) => {
-    styles(element, { x, opacity })
+  onUpdate: ({ x, y, opacity }) => {
+    // set updated interpol values to the DOM element
+    styles(element, { x, y, opacity })
 
     // Is Equivalent to:
-    // element.style.transform = `translate3d(${x}%, 0px, 0px)`
+    // element.style.transform = `translate3d(${x}px, ${y}px, 0px)`
     // element.style.opacity = opacity
   },
 })
-```
-
-### `el` property
-
-But it might be redundant to set props on item styles every time we want to animate the interpol instance. Therefore, you can use the `el` property constructor to define the DOM element to animate. No more using the `onUpdate` callback.
-
-```ts
-new Interpol({
-  // can recieve HTMLElement or HTMLElement[]
-  el: document.querySelector("div"),
-  x: [-100, 0, "%"],
-  opacity: [0, 1],
-})
-```
-
-Under the hood, the `el` property is used by the `styles` helper function, inside the `onUpdate` callback, just like in the previous example.
-
-You have to be careful of some points:
-
-- props needs their appropriate unit defined
-- props keys must be valid CSS properties, (except `x`, `y`, `z` witch are aliases for `translateX`, `translateY`, `translateZ`)
-
-## Real word example
-
-```ts
-import { Timeline } from "@wbe/interpol"
-
-// The DOM element we want to animate
-const element = document.querySelector("div")
-
-// Create a timeline instance
-const tl = new Timeline({
-  paused: true,
-  onComplete: () => console.log("Timeline is complete"),
-})
-
-// `add()` can recieve an Interpol object constructor
-tl.add({
-  el: element,
-  x: [-100, 0, "%"],
-  y: [0, 100, "px"],
-  duration: 1000,
-  ease: (t) => t * (2 - t),
-  onComplete: () => {
-    console.log("This interpol is complete")
-  },
-})
-
-tl.add(
-  {
-    width: [10, 50],
-    duration: 500,
-    ease: (t) => t * t,
-    onUpdate: ({ width }) => {
-      element.style.width = `${width}%`
-    },
-  },
-  // set an offset duration,
-  // this interpol will start 100ms before the previous interpol end
-  "-=100",
-)
-
-await tl.play()
-// timeline is complete, start reverse
-await tl.reverse()
-// timeline reverse is complete
 ```
 
 ## Easing
@@ -352,23 +248,28 @@ new Interpol({
 
 ```ts
 import { EaseFn } from "./ease"
+
+// A Value can be a number or a computed number
 type Value = number | (() => number)
 
-// the props value type can be a single number, an array or an object
+// The propsValues type can be a single number, an array or an object
 export type PropsValues =
   // 1. to
   | Value
-  // 2. [from, to, unit]
-  | [Value, Value, (Units | null | undefined)?]
-  // 3. { from, to, unit, ease }
-  | Partial<{ from: Value; to: Value; unit: Units; ease: Ease; reverseEase: Ease }>
+  // 2. [from, to]
+  | [Value, Value]
+  // 3. { from, to, ease }
+  | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
 
+/**
+ * Interpol constructor
+ */
 interface IInterpolConstruct<K extends keyof Props> {
   // inline props are an interpol list object, 3 definition types
   // default: /
   [x: string]: PropsValues
   // or props object wrapper (old way kept for backward compatibility)
-  props?: Record<string, PropsValues>
+  // props?: Record<string, PropsValues>
 
   // Interpolation duration between `from` and `to` values (millisecond).
   // ex: 1000 is 1 second

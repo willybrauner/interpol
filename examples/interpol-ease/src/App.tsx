@@ -6,7 +6,7 @@ import { Params } from "./Params"
 import { useWindowSize } from "../libs/useWindowSize"
 
 export function App() {
-  const $ball = useRef<HTMLDivElement>()
+  const $ball = useRef<HTMLDivElement>(null)
   const { width } = useWindowSize()
 
   const [instance, setInstance] = useState<Interpol>(null)
@@ -23,9 +23,7 @@ export function App() {
     const ballSize = $ball.current?.offsetWidth
 
     const itp = new Interpol({
-      props: {
-        value: [0, () => window.innerHeight - ballSize],
-      },
+      value: [0, () => window.innerHeight - ballSize],
       duration: 1000,
       ease: Ease[ease],
       debug: true,

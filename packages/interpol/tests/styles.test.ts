@@ -1,5 +1,5 @@
 import { it, expect, describe } from "vitest"
-import { Interpol, styles } from "../src"
+import { styles } from "../src"
 import { getDocument } from "./utils/getDocument"
 import "./_setup"
 
@@ -25,26 +25,31 @@ describe.concurrent("styles DOM helpers", () => {
     const el2 = doc.createElement("div")
     const el3 = doc.createElement("div")
 
-    // this is wrong to set a number without unit on transform, but it's just for testing
-    styles(el, { x: 1 })
-    expect(el.style.transform).toBe("translate3d(1, 0px, 0px)")
+    // styles function will add px on some properties automatically
+    // can be disabled by passing false as third argument
+    styles(el, { x: 1 }, true)
+    expect(el.style.transform).toBe("translate3d(1px, 0px, 0px)")
 
-    styles(el, { y: "11px" })
-    expect(el.style.transform).toBe("translate3d(1, 11px, 0px)")
+    styles(el, { y: 11 })
+    expect(el.style.transform).toBe("translate3d(1px, 11px, 0px)")
 
     styles(el, { z: "111px" })
-    expect(el.style.transform).toBe("translate3d(1, 11px, 111px)")
+    expect(el.style.transform).toBe("translate3d(1px, 11px, 111px)")
 
     styles(el, { scale: 1, rotate: "1deg" })
-    expect(el.style.transform).toBe("translate3d(1, 11px, 111px) scale(1) rotate(1deg)")
+    expect(el.style.transform).toBe("translate3d(1px, 11px, 111px) scale(1) rotate(1deg)")
+
+    styles(el, { scale: 1, rotate: 10 })
+    expect(el.style.transform).toBe("translate3d(1px, 11px, 111px) scale(1) rotate(10deg)")
 
     // the second element should not be affected by the first element
-    styles(el2, { x: 2 })
+    // false as third argument to disable auto add px
+    styles(el2, { x: 2 }, false)
     expect(el2.style.transform).toBe("translate3d(2, 0px, 0px)")
 
-    // the third too
+    // the third too should not be affected by the others
     styles(el3, { x: "10rem", y: "40%", skewX: 0.5 })
-    expect(el3.style.transform).toBe("translate3d(10rem, 40%, 0px) skewX(0.5)")
+    expect(el3.style.transform).toBe("translate3d(10rem, 40%, 0px) skewX(0.5deg)")
   })
 
   it("should set props of transform CSS properties on DOM element with array", async () => {
@@ -54,9 +59,8 @@ describe.concurrent("styles DOM helpers", () => {
     // But we should not prevent user to do it
     // Use x y z for translate3d and translateX for translateX property
     styles(el, { x: 2, translateX: "222px" })
-    expect(el.style.transform).toBe("translate3d(2, 0px, 0px) translateX(222px)")
+    expect(el.style.transform).toBe("translate3d(2px, 0px, 0px) translateX(222px)")
   })
-
 
   it("null should return '' as value", async () => {
     const { el } = getDocument()
@@ -76,4 +80,19 @@ describe.concurrent("styles DOM helpers", () => {
     for (let el of arr) expect(el.style.transformOrigin).toBe("center")
   })
 
+  it("should work with translateX translateY and translateZ", async () => {
+    const { el, doc } = getDocument()
+    styles(el, { translateX: 1 }, true)
+    expect(el.style.transform).toBe("translateX(1px)")
+    styles(el, { translateY: 1 }, true)
+    expect(el.style.transform).toBe("translateX(1px) translateY(1px)")
+    styles(el, { translateZ: 1 }, false)
+    expect(el.style.transform).toBe("translateX(1px) translateY(1px) translateZ(1)")
+
+    // special case
+    styles(el, { translateX: "10" }, true)
+    expect(el.style.transform).toBe("translateX(10) translateY(1px) translateZ(1)")
+    styles(el, { translateX: 10 }, true)
+    expect(el.style.transform).toBe("translateX(10px) translateY(1px) translateZ(1)")
+  })
 })

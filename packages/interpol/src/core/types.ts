@@ -7,20 +7,27 @@ import { Ease } from "./ease"
  *
  *
  */
-
-// Final Props Object returned by callbacks
-export type PropsValueObjectRef<K extends string> = Record<K, number | `${number}${Units}` | any>
+export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
 // Value can be a number or a function that return a number
 export type Value = number | (() => number)
-export type Units = "%" | "px" | "em" | "rem" | "vw" | "vh" | "pt" | string
 
 // Props params
 export type PropsValues =
   | Value
-  | [Value, Value, (Units | null | undefined)?]
-  | Partial<{ from: Value; to: Value; unit: Units; ease: Ease; reverseEase: Ease }>
-export type Props<K = string> = Record<string, PropsValues>
+  | [Value, Value]
+  | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
+
+// props
+export type Props<K extends string = string> = Record<K, PropsValues>
+export type PropKeys<T extends string> = keyof InterpolConstructBase<T> | (string & {})
+export type ExtraProps<T extends string> = Record<
+  Exclude<T, keyof InterpolConstructBase<T>>,
+  PropsValues
+>
+
+// Final Props Object returned by callbacks
+export type CallbackProps<K extends string, V = number> = Record<K, V>
 
 // Props object formatted in Map
 export type FormattedProp = {
@@ -29,7 +36,6 @@ export type FormattedProp = {
   _from: number
   _to: number
   value: number
-  unit: Units
   ease: Ease
   reverseEase: Ease
 }
@@ -39,17 +45,14 @@ export type FormattedProp = {
  *
  *
  */
-export type CallBack<K extends keyof Props> = (
-  props: PropsValueObjectRef<K>,
+export type CallBack<K extends string = string> = (
+  props: CallbackProps<Exclude<K, keyof InterpolConstructBase<K>>>,
   time: number,
   progress: number,
   instance: Interpol<K>,
 ) => void
 
-export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
-
-export interface InterpolConstruct<K extends keyof Props> {
-  props?: Props<K>
+export type InterpolConstructBase<K extends string = string> = {
   duration?: Value
   ease?: Ease
   reverseEase?: Ease
@@ -60,13 +63,17 @@ export interface InterpolConstruct<K extends keyof Props> {
   beforeStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
-  el?: El
-  [key: string]: PropsValues | boolean | Function | undefined | El | Ease | CallBack<K> | Props<K>
+}
+
+// @credit Philippe Elsass
+export type InterpolConstruct<T extends PropKeys<T>> = InterpolConstructBase<T> & {
+  [key in T]: key extends keyof InterpolConstructBase<T>
+    ? InterpolConstructBase<T>[key]
+    : PropsValues
 }
 
 /**
  * Timeline
- *
  *
  */
 export type TimelineCallback = (time: number, progress: number) => void

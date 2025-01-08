@@ -15,18 +15,22 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
       debug: true,
       ease: "expo.out",
       duration: wallDuration,
-      props: {
-        x: [-100, 0, "%"],
-        opacity: [0, 1],
-      },
+      x: [-100, 0],
+      opacity: [0, 1],
 
       // Use the styles function to update the DOM element
       beforeStart: ({ x, opacity }) => {
-        styles(rootRef.current, { x, opacity })
+        styles(rootRef.current, {
+          x: `${x}%`,
+          opacity,
+        })
       },
 
       onUpdate: ({ x, opacity }) => {
-        styles(rootRef.current, { x, opacity })
+        styles(rootRef.current, {
+          x: `${x}%`,
+          opacity,
+        })
       },
     })
 
@@ -40,10 +44,9 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
         {
           duration: itemDuration,
           ease: "expo.out",
-          props: {
-            y: [100, 0],
-            opacity: [0, 1],
-          },
+          y: [100, 0],
+          opacity: [0, 1],
+
           // Equivalent to copy the onUpdate function on beforeStart
           // "immediateRender" allows to execute "onUpdate" callback just before "beforeStart"
           // Useful in this case, onUpdate will be called once, if the timeline is paused
@@ -51,7 +54,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
           immediateRender: true,
           onUpdate: ({ y, opacity }) => {
             styles(item, {
-              translateY: `${y}%`,
+              y: `${y}%`,
               opacity,
             })
           },
@@ -60,20 +63,20 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
         // delay is not available on Interpol instance when using Timeline
         // It could be complicated to implement it since we use the Interpol.seek
         // method to move the timeline
-        `-=${itemDuration - itemDelay}`
+        `-=${itemDuration - itemDelay}`,
       )
     }
 
     tl.add(
       {
-        el: rootRef.current,
         duration: wallDuration,
         ease: "expo.out",
-        props: {
-          scale: [1, 0.8],
+        scale: [1, 0.8],
+        onUpdate: ({ scale }) => {
+          styles(rootRef.current, { scale })
         },
       },
-      "-=800"
+      "-=800",
     )
 
     return tl

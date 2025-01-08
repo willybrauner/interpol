@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client"
 import "./main.less"
 import React, { useEffect, useRef, useState } from "react"
-import { Interpol } from "@wbe/interpol"
+import { Interpol, styles } from "@wbe/interpol"
 import { useWindowSize } from "./utils/useWindowSize"
 
 /**
@@ -19,7 +19,7 @@ const randomRGB = () => `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 2
 const getEases = () =>
   ["power1", "power2", "power3", "expo"].reduce(
     (a, b) => [...a, ...["in", "out", "inOut"].map((d) => `${b}.${d}`)],
-    []
+    [],
   )
 
 const eases = getEases()
@@ -40,13 +40,16 @@ export function App() {
     let itps = []
     for (let el of els.current) {
       const itp = new Interpol({
-        el,
         paused: true,
         duration: () => random(1000, 3000),
         ease: randomEase,
-        props: {
-          x: [random(0, innerWidth), () => random(0, innerWidth), "px"],
-          y: [random(0, innerHeight), () => random(0, innerHeight), "px"],
+        x: [random(0, innerWidth), () => random(0, innerWidth)],
+        y: [random(0, innerHeight), () => random(0, innerHeight)],
+        onUpdate: ({ x, y }) => {
+          styles(el, {
+            x: x + "px",
+            y: y + "px",
+          })
         },
       })
       itps.push(itp)
