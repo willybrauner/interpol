@@ -67,6 +67,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
   #hasSeekCompleted = false
 
   constructor({
+    props,
     duration = InterpolOptions.duration,
     ease = InterpolOptions.ease,
     reverseEase = ease,
@@ -77,7 +78,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
-    ...props
+    ...inlineProps
   }: InterpolConstruct<K>) {
     this.ticker = InterpolOptions.ticker
     this.#duration = duration
@@ -92,7 +93,7 @@ export class Interpol<K extends keyof Props = keyof Props> {
     this.#reverseEase = reverseEase
 
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>(props as unknown as Props<K>)
+    this.#props = this.#prepareProps<K>({ ...props, ...(inlineProps as unknown as Props<K>) })
     this.refreshComputedValues()
     this.#log("props", this.#props)
     this.#propsValueRef = this.#createPropsParamObjRef<K>(this.#props)
