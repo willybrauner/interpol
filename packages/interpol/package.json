@@ -1,5 +1,10 @@
 {
   "name": "@wbe/interpol",
+  "description": "Interpolates values with a GSAP-like API ~ 3kB",
+  "author": {
+    "name": "Willy Brauner",
+    "url": "https://willybrauner.com"
+  },
   "version": "0.20.0",
   "type": "module",
   "sideEffects": false,
