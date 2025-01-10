@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.20.1
+
+### Patch Changes
+
+- 8470e1a: Add missing description & author in package.json
+
 ## 0.20.0
 
 ### Minor Changes
