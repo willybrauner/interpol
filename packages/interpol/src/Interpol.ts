@@ -150,10 +150,11 @@ export class Interpol<K extends string = string> {
 
   public async reverse(from: number = 1, allowReplay = true): Promise<any> {
     if (this.#isPlaying && !allowReplay) return
-    // If is playing normal direction, change to reverse and return
+    // If is playing normal direction, change to reverse and return a new promise
     if (this.#isPlaying && !this.#isReversed) {
       this.#isReversed = true
-      return
+      this.#onCompleteDeferred = deferredPromise()
+      return this.#onCompleteDeferred.promise
     }
     // If is playing reverse, restart reverse
     if (this.#isPlaying && this.#isReversed) {
