@@ -38,7 +38,7 @@ importers:
   examples/interpol-basic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
     devDependencies:
       typescript:
@@ -71,7 +71,7 @@ importers:
         version: link:../../packages/interpol
       gsap:
         specifier: latest
-        version: 3.12.5
+        version: 3.12.7
     devDependencies:
       typescript:
         specifier: ^5.7.2
@@ -83,7 +83,7 @@ importers:
   examples/interpol-ease:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
       react:
         specifier: ^19.0.0
@@ -114,7 +114,7 @@ importers:
   examples/interpol-graphic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
       react:
         specifier: ^19.0.0
@@ -145,7 +145,7 @@ importers:
   examples/interpol-menu:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
       react:
         specifier: ^19.0.0
@@ -176,7 +176,7 @@ importers:
   examples/interpol-object-el:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
       ogl:
         specifier: ^1.0.9
@@ -195,7 +195,7 @@ importers:
   examples/interpol-offsets:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
       react:
         specifier: ^19.0.0
@@ -226,7 +226,7 @@ importers:
   examples/interpol-particles:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.20.1
+        specifier: ^0.20.2
         version: link:../../packages/interpol
       react:
         specifier: ^19.0.0
@@ -2091,8 +2091,8 @@ packages:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
     dev: true
 
-  /gsap@3.12.5:
-    resolution: {integrity: sha512-srBfnk4n+Oe/ZnMIOXt3gT605BX9x5+rh/prT2F1SsNJsU1XuMiP0E2aptW481OnonOGACZWBqseH5Z7csHxhQ==}
+  /gsap@3.12.7:
+    resolution: {integrity: sha512-V4GsyVamhmKefvcAKaoy0h6si0xX7ogwBoBSs2CTJwt7luW0oZzC0LhdkyuKV8PJAXr7Yaj8pMjCKD4GJ+eEMg==}
     dev: false
 
   /html-encoding-sniffer@4.0.0:
