@@ -166,7 +166,7 @@ export class Timeline {
 
   public async reverse(from: number = 1): Promise<any> {
     this.#reverseFrom = from
-    // If TL is playing in normal direction, change to reverse and return
+    // If TL is playing in normal direction, change to reverse and return a new promise
     if (this.#isPlaying && !this.#isReversed) {
       this.#isReversed = true
       this.#onCompleteDeferred = deferredPromise()
