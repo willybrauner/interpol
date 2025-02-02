@@ -169,7 +169,8 @@ export class Timeline {
     // If TL is playing in normal direction, change to reverse and return
     if (this.#isPlaying && !this.#isReversed) {
       this.#isReversed = true
-      return
+      this.#onCompleteDeferred = deferredPromise()
+      return this.#onCompleteDeferred.promise
     }
     // If is playing reverse, restart reverse
     if (this.#isPlaying && this.#isReversed) {
