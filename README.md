@@ -1,6 +1,7 @@
 <h1 align="center" style="text-align:center">Interpol 👮🏽‍</h1>
 <p align="center">
 <img alt="npm" src="https://img.shields.io/npm/v/@wbe/interpol">
+<img alt="npm-downloads-src" src="https://img.shields.io/npm/dt/@wbe/interpol">
 <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/%40wbe%2Finterpol">
 <img alt="build" src="https://github.com/willybrauner/interpol/workflows/tests/badge.svg">
 </p>
@@ -13,12 +14,13 @@ This is the lowest level of animate machine.
 Interpol don't come with dom API, it only provides real time progress of the interpolations that can be use or bind
 on... mesh, dom element or anything else, for ~=3kB!
 
-_⚠️ Interpol still is in early development, the API can change until the first major release_
+> [!IMPORTANT]
+> Interpol still is in early development, the API can change until the first major release.
 
 ## Summary
 
 - [Summary](#summary)
-- [Playground 🕹️](#playground-️)
+[Playground](#playground)
 - [Install](#install)
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
@@ -43,7 +45,7 @@ _⚠️ Interpol still is in early development, the API can change until the fir
 - [About](#about)
 - [License](#license)
 
-## Playground 🕹️
+## Playground
 
 The examples of this repo are available on codesandbox:
 
