@@ -1,4 +1,4 @@
-<h1 align="center" style="text-align:center">Interpol 👮🏽‍</h1>
+<h1 align="center" style="text-align:center">Interpol</h1>
 <p align="center">
 <img alt="npm" src="https://img.shields.io/npm/v/@wbe/interpol">
 <img alt="npm-downloads-src" src="https://img.shields.io/npm/dt/@wbe/interpol">
@@ -9,7 +9,7 @@
 <img alt="logo" src="./packages/interpol/interpol.png">
 </p>
 
-Interpol library interpolates a set of number values with a gsap's like API.
+Interpol library **interpolates a set of number values with a GSAP-like API**.
 This is the lowest level of animate machine.
 Interpol don't come with dom API, it only provides real time progress of the interpolations that can be use or bind
 on... mesh, dom element or anything else, for ~=3kB!
@@ -20,7 +20,7 @@ on... mesh, dom element or anything else, for ~=3kB!
 ## Summary
 
 - [Summary](#summary)
-[Playground](#playground)
+  [Playground](#playground)
 - [Install](#install)
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
@@ -90,10 +90,10 @@ new Interpol({
 
 In this example:
 
-- The Interpol will start automatically;
-- `v` will be interpolated between 0 and 100 during 1 second
+- The Interpol will start automatically
+- `v` will be interpolated between `0` and `100` during 1 second
 - `time` is the current time in millisecond
-- `progress` is the current progress between 0 and 1
+- `progress` is the current progress between `0` and `1`
 
 ### Timeline
 
@@ -131,9 +131,9 @@ tl.add(itp)
 
 In this example:
 
-- The timeline will start automatically;
-- Interpol 1, will interpolate `x` value between 0 and 100 during 1 second;
-- Interpol 2, will start when Interpol 1 is complete and will interpolate `x` value between 100 and 50 during 0.5 second.
+- The timeline will start automatically
+- Interpol 1, will interpolate `x` value between `0` and `100` during 1 second
+- Interpol 2, will start when Interpol 1 is complete and will interpolate `x` value between `100` and `50` during 0.5 second
 
 ## Props
 
@@ -203,7 +203,7 @@ declare const styles: (
 Example:
 
 ```ts
-import { Interpol, styles } from "./Interpol"
+import { Interpol, styles } from "@wbe/Interpol"
 
 new Interpol({
   x: [-100, 0],
@@ -212,7 +212,6 @@ new Interpol({
   onUpdate: ({ x, y, opacity }) => {
     // set updated interpol values to the DOM element
     styles(element, { x, y, opacity })
-
     // Is Equivalent to:
     // element.style.transform = `translate3d(${x}px, ${y}px, 0px)`
     // element.style.opacity = opacity
@@ -230,7 +229,7 @@ new Interpol({
 })
 ```
 
-[GSAP like ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string or object:
+[GSAP like ease functions](./packages/interpol/src/core/ease.ts) are available in Interpol as string or object:
 
 ```js
 import { Interpol, Power3 } from "@wbe/interpol"
@@ -250,9 +249,9 @@ new Interpol({
 
 ### interpol constructor
 
-```ts
-import { EaseFn } from "./ease"
+For mor details, see the full type definition [types.ts](./packages/interpol/src/core/types.ts)
 
+```ts
 // A Value can be a number or a computed number
 type Value = number | (() => number)
 
@@ -262,7 +261,7 @@ export type PropsValues =
   | Value
   // 2. [from, to]
   | [Value, Value]
-  // 3. { from, to, ease }
+  // 3. { from, to, ease, reverseEase }
   | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
 
 /**
