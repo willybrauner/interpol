@@ -15,10 +15,10 @@ Interpol don't come with dom API, it only provides real time progress of the int
 on... mesh, dom element or anything else, for ~=3kB!
 
 > [!IMPORTANT]
-> Interpol still is in early development, the API can change until the first major release.
+> Interpol still is in development, the API can change until the first major release.
 
 > [!NOTE]
-> For an in-depth discovery of the library, check out my [Interpol blog post](https://willybrauner.com/journal/interpol)
+> For an in-depth discovery of the library, check out this [Interpol blog post](https://willybrauner.com/journal/interpol).
 
 ## Summary
 
