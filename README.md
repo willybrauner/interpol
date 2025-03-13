@@ -17,6 +17,9 @@ on... mesh, dom element or anything else, for ~=3kB!
 > [!IMPORTANT]
 > Interpol still is in early development, the API can change until the first major release.
 
+> [!NOTE]
+> For an in-depth discovery of the library, check out my [Interpol blog post](https://willybrauner.com/journal/interpol)
+
 ## Summary
 
 - [Summary](#summary)
@@ -41,6 +44,7 @@ on... mesh, dom element or anything else, for ~=3kB!
     - [Use the internal Ticker instance globally](#use-the-internal-ticker-instance-globally)
   - [Defaults properties](#defaults-properties)
 - [Dev examples](#dev-examples)
+- [Showcase](#showcase)
 - [Credits](#credits)
 - [About](#about)
 - [License](#license)
@@ -496,6 +500,15 @@ pnpm run dev
 pnpm run dev --filter interpol-basic
 pnpm run dev --filter {example-name}
 ```
+
+## Showcase
+
+These projects have been built with Interpol. PRs are open to add your project to this list.
+
+- [oggy-story.com](https://oggy-story.com)
+- [julienjussey.com](https://julienjussey.com)
+- [theoplawinski.com](https://www.theoplawinski.com)
+- [willybrauner.com](https://willybrauner.com)
 
 ## Credits
 
