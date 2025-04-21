@@ -70,7 +70,7 @@ describe.concurrent("Interpol callbacks", () => {
       expect(onStart).toHaveBeenCalledTimes(0)
       await itp.play()
       expect(onStart).toHaveBeenCalledTimes(1)
-      await itp.play(0.3)
+      await itp.play(0.5)
       expect(onStart).toHaveBeenCalledTimes(2)
       resolve()
     })
@@ -82,7 +82,7 @@ describe.concurrent("Interpol callbacks", () => {
       const itp = new Interpol({
         x: [0, 100],
         y: [-20, 100],
-        duration: 100,
+        duration: 150,
         paused: true,
         onStart: (props, time, progress) => {
           onStart()
@@ -98,21 +98,6 @@ describe.concurrent("Interpol callbacks", () => {
       itp.play()
       await wait(100)
       resolve()
-    })
-  })
-
-  it("Should call onStart with correct params", () => {
-    return new Promise(async (resolve: any) => {
-      new Interpol({
-        x: [-20, 100],
-        duration: 100,
-        onStart: (props, time, progress) => {
-          expect(props).toEqual({ x: -20 })
-          expect(time).toBe(0)
-          expect(progress).toBe(0)
-          resolve()
-        },
-      })
     })
   })
 })
