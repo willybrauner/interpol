@@ -139,18 +139,19 @@ export class Interpol<K extends string = string> {
     this.#isPlaying = true
     this.#isPaused = false
 
+    // before onStart, check if we start from 0 or not
+    // on the first case, force reset callbackProps
+    // else, assign the value to callbackProps
+    this.#callbackProps =
+      from === 0
+        ? this.#createPropsParamObjRef<K>(this.#props)
+        : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
+
     // Delay is set only on first play
     // If this play is trigger before onComplete, we don't wait again
     // start ticker only if is single Interpol, not TL
     this.#timeout = setTimeout(
       () => {
-        // before onStart, check if we start from 0 or not
-        // on the first case, reset the callbackProps
-        this.#callbackProps =
-          this.progress === 0
-            ? this.#createPropsParamObjRef<K>(this.#props)
-            : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
-
         this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
         this.ticker.add(this.#handleTick)
       },
