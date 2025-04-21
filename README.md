@@ -310,6 +310,10 @@ interface IInterpolConstruct<K extends keyof Props> {
     instance: Interpol,
   ) => void
 
+  // Called one frame before the interpol start with default params values
+  // default: /
+  onStart?: (props: Record<K, number>, time: number, progress: number, instance: Interpol) => void
+
   // Called on frame update
   // default: /
   onUpdate?: (props: Record<K, number>, time: number, progress: number, instance: Interpol) => void
@@ -370,11 +374,16 @@ itp.seek(progress)
 
 ```ts
 interface ITimelineConstruct {
-  // Execute on frame update
+
+  // Executed one frame before the Timeline start
+  // default: /
+  onStart?: (time: number, progress: number) => void
+
+  // Executed on frame update
   // default: /
   onUpdate?: (time: number, progress: number) => void
 
-  // Execute on complete
+  // Executed on complete
   // default: /
   onComplete?: (time: number, progress: number) => void
 
