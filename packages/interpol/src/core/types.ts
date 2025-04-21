@@ -82,6 +82,7 @@ export type TimelineCallback = (time: number, progress: number) => void
 export interface TimelineConstruct {
   paused?: boolean
   debug?: boolean
+  onStart?: TimelineCallback
   onUpdate?: TimelineCallback
   onComplete?: TimelineCallback
   ticker?: Ticker

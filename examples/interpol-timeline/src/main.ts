@@ -6,6 +6,7 @@ import "./index.less"
  */
 const ball = document.querySelector<HTMLElement>(".ball")
 const ball2 = document.querySelector<HTMLElement>(".ball-2")
+const play = document.querySelector<HTMLButtonElement>(".play")
 const seek0 = document.querySelector<HTMLButtonElement>(".seek-0")
 const seek05 = document.querySelector<HTMLButtonElement>(".seek-05")
 const seek1 = document.querySelector<HTMLButtonElement>(".seek-1")
@@ -15,9 +16,10 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
 /**
  * Events
  */
-;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
+;["reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
 )
+play.onclick = () => tl.play()
 seek0.onclick = () => tl.seek(0, false, false)
 seek05.onclick = () => tl.seek(0.5, false, false)
 seek1.onclick = () => tl.seek(1, false, false)
@@ -30,6 +32,9 @@ window.addEventListener("resize", () => tl.seek(1))
  */
 const tl: Timeline = new Timeline({
   debug: true,
+  onStart: (time, progress) => {
+    console.log("tl onStart", time, progress)
+  },
   onComplete: (time, progress) => console.log(`tl onComplete!`),
 })
 
