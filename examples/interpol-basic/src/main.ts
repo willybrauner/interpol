@@ -5,6 +5,7 @@ import { Interpol, styles } from "@wbe/interpol"
  * Query
  */
 const element = document.querySelector<HTMLElement>(".ball")
+const play = document.querySelector<HTMLButtonElement>(".play")
 const seek0 = document.querySelector<HTMLButtonElement>(".seek-0")
 const seek05 = document.querySelector<HTMLButtonElement>(".seek-05")
 const seek1 = document.querySelector<HTMLButtonElement>(".seek-1")
@@ -14,12 +15,13 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
 /**
  * Events
  */
-;["play", "reverse", "pause", "stop", "resume"].forEach(
+;["reverse", "pause", "stop", "resume"].forEach(
   (name: any) =>
     // @ts-ignore
     (document.querySelector<HTMLButtonElement>(`.${name}`)!.onclick = () => itp[name]()),
 )
 
+play!.onclick = () => itp.play(0.3)
 seek0!.onclick = () => itp.seek(0, false)
 seek05!.onclick = () => itp.seek(0.5, false)
 seek1!.onclick = () => itp.seek(1, false)
@@ -31,12 +33,19 @@ const itp = new Interpol({
   y: { from: 0, to: 300 },
   opacity: [0.5, 1],
   z: [100, 0],
-  b: "dldl",
-  
-  onUpdate: ({ x, y, opacity, z, b, s }) => {
+  delay: 500,
+  //debug: true,
+  paused: true,
+
+  onStart: (props, time, progress) => {
+    console.log("itp onStart", props, time, progress)
+  },
+  onUpdate: ({ x, y, opacity, z }) => {
     styles(element!, { x, y, opacity })
   },
   onComplete: (props) => {
     console.log("itp onComplete", props)
   },
 })
+
+itp.play()

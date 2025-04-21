@@ -61,10 +61,12 @@ export class Interpol<K extends string = string> {
   #ease: Ease
   #reverseEase: Ease
   #beforeStart: CallBack<K>
+  #onStart: CallBack<K>
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
+  #hasSeekOnStart = false
   #hasSeekCompleted = false
 
   constructor({
@@ -75,6 +77,7 @@ export class Interpol<K extends string = string> {
     delay = 0,
     immediateRender = false,
     beforeStart = noop,
+    onStart = noop,
     onUpdate = noop,
     onComplete = noop,
     debug = false,
@@ -86,6 +89,7 @@ export class Interpol<K extends string = string> {
     this.#delay = delay * InterpolOptions.durationFactor
     this.#immediateRender = immediateRender
     this.#beforeStart = beforeStart
+    this.#onStart = onStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.debugEnable = debug
@@ -99,12 +103,12 @@ export class Interpol<K extends string = string> {
     this.refreshComputedValues()
     this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
 
-    // start
+    this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
+
     if (this.#immediateRender) {
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
     }
 
-    this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
     if (!this.#isPaused) this.play()
   }
 
@@ -140,6 +144,14 @@ export class Interpol<K extends string = string> {
     // start ticker only if is single Interpol, not TL
     this.#timeout = setTimeout(
       () => {
+        // before onStart, check if we start from 0 or not
+        // on the first case, reset the callbackProps
+        this.#callbackProps =
+          this.progress === 0
+            ? this.#createPropsParamObjRef<K>(this.#props)
+            : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
+
+        this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
         this.ticker.add(this.#handleTick)
       },
       this.#time > 0 ? 0 : this.#delay,
@@ -217,6 +229,19 @@ export class Interpol<K extends string = string> {
   public seek(progress: number, suppressEvents = true): void {
     if (this.#isPlaying) this.pause()
 
+    // if progress 0, execute onStart only if it hasn't been called before
+    // need to reset callbackProps
+    if (this.#progress === 0 && !this.#hasSeekOnStart && !suppressEvents) {
+      this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
+      this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
+      this.#hasSeekOnStart = true
+      this.#log(`seek onStart`, {
+        props: this.#callbackProps,
+        time: this.#time,
+        progress: this.#progress,
+      })
+    }
+
     // keep previous progress before update it
     this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
@@ -237,7 +262,10 @@ export class Interpol<K extends string = string> {
     // if last & current progress are differents,
     // Or if progress param is the same this.progress, execute onUpdate
     if (this.#lastProgress !== this.#progress || progress === this.#progress) {
-      if (this.#lastProgress !== this.#progress) this.#hasSeekCompleted = false
+      if (this.#lastProgress !== this.#progress) {
+        this.#hasSeekOnStart = false
+        this.#hasSeekCompleted = false
+      }
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
       this.#log(`seek onUpdate`, {
         props: this.#callbackProps,
@@ -261,6 +289,7 @@ export class Interpol<K extends string = string> {
     // if progress 0, reset completed flag and allow onComplete to be called again
     if (this.#progress === 0) {
       this.#lastProgress = this.#progress
+      this.#hasSeekOnStart = false
       this.#hasSeekCompleted = false
     }
   }
@@ -381,7 +410,7 @@ export class Interpol<K extends string = string> {
     for (const key of Object.keys(propsValue)) {
       propsValue[key as P] = props[key].value
     }
-    return this.#callbackProps
+    return propsValue
   }
 
   /**
