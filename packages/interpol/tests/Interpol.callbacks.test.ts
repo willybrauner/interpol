@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol } from "../src"
 import "./_setup"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Interpol callbacks", () => {
   it("should execute beforeStart before the play", async () => {
@@ -55,5 +56,63 @@ describe.concurrent("Interpol callbacks", () => {
         resolve()
       })
     return Promise.all([test(true), test(false)])
+  })
+
+  it("Should call onStart when the animation starts", () => {
+    return new Promise(async (resolve: any) => {
+      const onStart = vi.fn()
+      const itp = new Interpol({
+        x: [0, 100],
+        duration: 100,
+        paused: true,
+        onStart,
+      })
+      expect(onStart).toHaveBeenCalledTimes(0)
+      await itp.play()
+      expect(onStart).toHaveBeenCalledTimes(1)
+      await itp.play(0.3)
+      expect(onStart).toHaveBeenCalledTimes(2)
+      resolve()
+    })
+  })
+
+  it("Should call onStart each time, we replay during a play", () => {
+    return new Promise(async (resolve: any) => {
+      const onStart = vi.fn()
+      const itp = new Interpol({
+        x: [0, 100],
+        y: [-20, 100],
+        duration: 100,
+        paused: true,
+        onStart: (props, time, progress) => {
+          onStart()
+          expect(props).toEqual({ x: 0, y: -20 })
+          expect(time).toBe(0)
+          expect(progress).toBe(0)
+        },
+      })
+      expect(onStart).toHaveBeenCalledTimes(0)
+      itp.play()
+      await wait(100)
+      expect(onStart).toHaveBeenCalledTimes(1)
+      itp.play()
+      await wait(100)
+      resolve()
+    })
+  })
+
+  it("Should call onStart with correct params", () => {
+    return new Promise(async (resolve: any) => {
+      new Interpol({
+        x: [-20, 100],
+        duration: 100,
+        onStart: (props, time, progress) => {
+          expect(props).toEqual({ x: -20 })
+          expect(time).toBe(0)
+          expect(progress).toBe(0)
+          resolve()
+        },
+      })
+    })
   })
 })
