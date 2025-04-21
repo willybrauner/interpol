@@ -70,4 +70,36 @@ describe.concurrent("Timeline callbacks", () => {
       resolve()
     })
   })
+
+  it("Should call onStart with params when the animation starts", () => {
+    return new Promise(async (resolve: any) => {
+      const onStart = vi.fn()
+      const tl = new Timeline({ paused: true, onStart })
+      tl.add({
+        v: [0, 100],
+        duration: 100,
+      })
+      await tl.play()
+      expect(onStart).toHaveBeenCalledTimes(1)
+      expect(onStart.mock.calls[0][0]).toEqual(0)
+      expect(onStart.mock.calls[0][1]).toEqual(0)
+      resolve()
+    })
+  })
+
+  it("Sould call onStart if timeline play with a from value", () => {
+    return new Promise(async (resolve: any) => {
+      const onStart = vi.fn()
+      const tl = new Timeline({ paused: true, onStart })
+      tl.add({
+        v: [0, 100],
+        duration: 100,
+      })
+      await tl.play(0.5)
+      expect(onStart).toHaveBeenCalledTimes(1)
+      expect(onStart.mock.calls[0][0]).toEqual(50)
+      expect(onStart.mock.calls[0][1]).toEqual(0.5)
+      resolve()
+    })
+  })
 })

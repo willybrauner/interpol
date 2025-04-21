@@ -44,17 +44,20 @@ export class Timeline {
   #ticker: Ticker
   #tlDuration: number = 0
   #debugEnable: boolean
+  #onStart: (time: number, progress: number) => void
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
   #reverseLoop = false
 
   constructor({
+    onStart = noop,
     onUpdate = noop,
     onComplete = noop,
     debug = false,
     paused = false,
   }: TimelineConstruct = {}) {
+    this.#onStart = onStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug
@@ -158,6 +161,9 @@ export class Timeline {
     this.#isReversed = false
     this.#isPlaying = true
     this.#isPaused = false
+
+    // Call onStart callback
+    this.#onStart(this.#time, this.#progress)
 
     this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
