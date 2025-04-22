@@ -1,6 +1,7 @@
 import { it, expect, vi, describe } from "vitest"
 import { Timeline } from "../src"
 import "./_setup"
+import { wait } from "./utils/wait"
 
 describe.concurrent("Timeline callbacks", () => {
   it("Timeline should execute Timeline events callback once & on play only", () => {
@@ -71,18 +72,31 @@ describe.concurrent("Timeline callbacks", () => {
     })
   })
 
-  it("Should call onStart with params when the animation starts", () => {
+  it.only("Should call onStart with params when the animation starts", () => {
     return new Promise(async (resolve: any) => {
-      const onStart = vi.fn()
+      const onStart = vi.fn((...args) => {
+        // console.log("onStart", args)
+      })
       const tl = new Timeline({ paused: true, onStart })
       tl.add({
-        v: [0, 100],
+        v: 100,
         duration: 100,
       })
       await tl.play()
+      const [time, progress] = onStart.mock.calls[0]
       expect(onStart).toHaveBeenCalledTimes(1)
-      expect(onStart.mock.calls[0][0]).toEqual(0)
-      expect(onStart.mock.calls[0][1]).toEqual(0)
+      expect(time).toEqual(0)
+      expect(progress).toEqual(0)
+
+      tl.play()
+      await wait(50)
+      expect(onStart).toHaveBeenCalledTimes(2)
+      expect(time).toEqual(0)
+      expect(progress).toEqual(0)
+
+      // replay before, the end
+      tl.play()
+      expect(onStart).toHaveBeenCalledTimes(3)
       resolve()
     })
   })

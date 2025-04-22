@@ -232,7 +232,12 @@ export class Interpol<K extends string = string> {
 
     // if progress 0, execute onStart only if it hasn't been called before
     // need to reset callbackProps
-    if (this.#progress === 0 && !this.#hasSeekOnStart && !suppressEvents) {
+    if (
+      this.#lastProgress === 0 &&
+      this.#progress > 0 &&
+      !this.#hasSeekOnStart &&
+      !suppressEvents
+    ) {
       this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
       this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
       this.#hasSeekOnStart = true
