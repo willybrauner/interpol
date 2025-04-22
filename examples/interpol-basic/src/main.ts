@@ -41,7 +41,7 @@ const itp = new Interpol({
     console.log("itp onStart", props, time, progress)
   },
   onUpdate: ({ x, y, opacity, z }) => {
-    console.log("itp onUpdate", { x, y, opacity, z })
+    //console.log("itp onUpdate", { x, y, opacity, z })
     styles(element!, { x, y, opacity })
   },
   onComplete: (props) => {

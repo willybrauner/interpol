@@ -31,17 +31,18 @@ window.addEventListener("resize", () => tl.seek(1))
  * Timeline
  */
 const tl: Timeline = new Timeline({
-  debug: true,
+  debug: false,
   onStart: (time, progress) => {
-    console.log("tl onStart", time, progress)
+    console.log("tl onStart ici !", time, progress)
   },
   onComplete: (time, progress) => console.log(`tl onComplete!`),
 })
 
 const itp = new Interpol({
-  x: [0, 200],
-  y: [0, 200],
-  ease: Power1.in,
+  x: [0, innerWidth / 2],
+  y: [0, innerHeight / 2],
+  ease: "power3.in",
+  duration: 600,
   onUpdate: ({ x, y }) => {
     styles(ball, { x: x + "px", y: y + "px" })
   },
@@ -52,11 +53,12 @@ const itp = new Interpol({
 tl.add(itp)
 
 tl.add({
-  x: [200, 100],
-  y: [200, 300],
-  ease: Power1.out,
-  onUpdate: ({ x, y }) => {
-    styles(ball, { x: x + "px", y: y + "px" })
+  x: [innerWidth / 2, 0],
+
+  duration: 600,
+  ease: "power3.out",
+  onUpdate: ({ x }) => {
+    styles(ball, { x })
   },
   onComplete: (e) => {
     console.log("itp 2 onComplete", e)
@@ -64,11 +66,10 @@ tl.add({
 })
 
 tl.add({
-  x: [0, 100],
-  y: [0, 400],
-  ease: Power1.out,
-  onUpdate: ({ x, y }) => {
-    styles(ball2, { x: x + "px", y: y + "px" })
+  scale: [1, 0.5],
+  ease: "power4.out",
+  onUpdate: ({ scale }) => {
+    styles(ball2, { scale })
   },
   onComplete: (e) => {
     console.log("itp 3 onComplete", e)
