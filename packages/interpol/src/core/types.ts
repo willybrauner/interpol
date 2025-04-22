@@ -61,6 +61,7 @@ export type InterpolConstructBase<K extends string = string> = {
   delay?: number
   debug?: boolean
   beforeStart?: CallBack<K>
+  onStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
 }
@@ -81,6 +82,7 @@ export type TimelineCallback = (time: number, progress: number) => void
 export interface TimelineConstruct {
   paused?: boolean
   debug?: boolean
+  onStart?: TimelineCallback
   onUpdate?: TimelineCallback
   onComplete?: TimelineCallback
   ticker?: Ticker
