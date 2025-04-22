@@ -138,21 +138,21 @@ export class Interpol<K extends string = string> {
     this.#isReversed = false
     this.#isPlaying = true
     this.#isPaused = false
+    const fromStart = this.progress === 0
 
     // before onStart, check if we start from 0 or not
     // on the first case, force reset callbackProps
     // else, assign the value to callbackProps
-    this.#callbackProps =
-      from === 0
-        ? this.#createPropsParamObjRef<K>(this.#props)
-        : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
+    this.#callbackProps = fromStart
+      ? this.#createPropsParamObjRef<K>(this.#props)
+      : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
 
     // Delay is set only on first play
     // If this play is trigger before onComplete, we don't wait again
     // start ticker only if is single Interpol, not TL
     this.#timeout = setTimeout(
       () => {
-        this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
+        if (fromStart) this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
         this.ticker.add(this.#handleTick)
       },
       this.#time > 0 ? 0 : this.#delay,
@@ -230,24 +230,6 @@ export class Interpol<K extends string = string> {
   public seek(progress: number, suppressEvents = true): void {
     if (this.#isPlaying) this.pause()
 
-    // if progress 0, execute onStart only if it hasn't been called before
-    // need to reset callbackProps
-    if (
-      this.#lastProgress === 0 &&
-      this.#progress > 0 &&
-      !this.#hasSeekOnStart &&
-      !suppressEvents
-    ) {
-      this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
-      this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
-      this.#hasSeekOnStart = true
-      this.#log(`seek onStart`, {
-        props: this.#callbackProps,
-        time: this.#time,
-        progress: this.#progress,
-      })
-    }
-
     // keep previous progress before update it
     this.#lastProgress = this.#progress
     this.#progress = clamp(0, progress, 1)
@@ -280,6 +262,27 @@ export class Interpol<K extends string = string> {
       })
     }
 
+    // onStart
+    // - if we go from 0 to 1 and never play
+    // - if it hasn't been called before
+    // need to reset callbackProps
+    if (
+      // prettier-ignore
+      (this.#lastProgress === 0 && this.#progress > 0) && 
+      !this.#hasSeekCompleted && 
+      !suppressEvents
+    ) {
+      this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
+      this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
+      this.#hasSeekOnStart = true
+      this.#log(`seek onStart`, {
+        props: this.#callbackProps,
+        time: this.#time,
+        progress: this.#progress,
+      })
+    }
+
+    // onComplete
     // if progress 1, execute onComplete only if it hasn't been called before
     if (this.#progress === 1 && !this.#hasSeekCompleted && !suppressEvents) {
       this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)

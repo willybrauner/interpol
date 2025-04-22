@@ -21,7 +21,7 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
     (document.querySelector<HTMLButtonElement>(`.${name}`)!.onclick = () => itp[name]()),
 )
 
-play!.onclick = () => itp.play(0.3)
+play!.onclick = () => itp.play(0)
 seek0!.onclick = () => itp.seek(0, false)
 seek05!.onclick = () => itp.seek(0.5, false)
 seek1!.onclick = () => itp.seek(1, false)
@@ -33,7 +33,7 @@ const itp = new Interpol({
   y: { from: 0, to: 300 },
   opacity: [0.5, 1],
   z: [100, 0],
-  delay: 500,
+  // delay: 500,
   //debug: true,
   paused: true,
 
@@ -49,4 +49,4 @@ const itp = new Interpol({
   },
 })
 
-itp.play()
+//itp.play()
