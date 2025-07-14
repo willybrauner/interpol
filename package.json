@@ -28,16 +28,16 @@
     "ci:publish": "pnpm build && pnpm changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.11",
-    "@size-limit/preset-small-lib": "^11.1.6",
-    "@types/node": "^22.10.2",
-    "jsdom": "^25.0.1",
-    "prettier": "^3.4.2",
-    "size-limit": "^11.1.6",
-    "turbo": "^2.3.3",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.6",
-    "vitest": "^2.1.8"
+    "@changesets/cli": "^2.29.5",
+    "@size-limit/preset-small-lib": "^11.2.0",
+    "@types/node": "^24.0.13",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "size-limit": "^11.2.0",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vitest": "^3.2.4"
   },
   "prettier": {
     "semi": false,
