@@ -356,9 +356,9 @@ itp.stop()
 itp.refreshComputedValues()
 
 // Seek to a specific time
-// seek(progress: number, suppressEvents = true): void
-// progress: number between 0 and 1
-itp.seek(progress)
+// progress(value: number, suppressEvents = true): void
+// value: number between 0 and 1
+itp.progress(progressValue)
 ```
 
 ### Timeline constructor
@@ -421,9 +421,9 @@ tl.stop()
 refreshComputedValues(): void
 
 // seek to a specific time
-// seek(progress: number, suppressEvents = true, suppressTlEvents = true): void
-// progress is a number between 0 and 1
-tl.seek(progress)
+// progress(value: number, suppressEvents = true, suppressTlEvents = true): void
+// value is a number between 0 and 1
+tl.progress(progressValue)
 ```
 
 ## Options

@@ -20,12 +20,12 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
 )
 play.onclick = () => tl.play()
-seek0.onclick = () => tl.seek(0, false, false)
-seek05.onclick = () => tl.seek(0.5, false, false)
-seek1.onclick = () => tl.seek(1, false, false)
-inputProgress.onchange = () => tl.seek(parseFloat(inputProgress.value) / 100, false, false)
-inputSlider.oninput = () => tl.seek(parseFloat(inputSlider.value) / 100, false, false)
-window.addEventListener("resize", () => tl.seek(1))
+seek0.onclick = () => tl.progress(0, false, false)
+seek05.onclick = () => tl.progress(0.5, false, false)
+seek1.onclick = () => tl.progress(1, false, false)
+inputProgress.onchange = () => tl.progress(parseFloat(inputProgress.value) / 100, false, false)
+inputSlider.oninput = () => tl.progress(parseFloat(inputSlider.value) / 100, false, false)
+window.addEventListener("resize", () => tl.progress(1))
 
 /**
  * Timeline

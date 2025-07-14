@@ -34,9 +34,6 @@ export class Interpol<K extends string = string> {
   }
   #lastProgress = 0
   #progress = 0
-  public get progress() {
-    return this.#progress
-  }
   #isReversed = false
   public get isReversed() {
     return this.#isReversed
@@ -138,7 +135,7 @@ export class Interpol<K extends string = string> {
     this.#isReversed = false
     this.#isPlaying = true
     this.#isPaused = false
-    const fromStart = this.progress === 0
+    const fromStart = this.#progress === 0
 
     // before onStart, check if we start from 0 or not
     // on the first case, force reset callbackProps
@@ -225,14 +222,17 @@ export class Interpol<K extends string = string> {
   }
 
   /**
-   * Seek to a specific progress (between 0 and 1)
+   * Set progress to a specific value (between 0 and 1)
    */
-  public seek(progress: number, suppressEvents = true): void {
+  public progress(value?: number, suppressEvents = true): number | void {
+    if (value === undefined) {
+      return this.#progress
+    }
     if (this.#isPlaying) this.pause()
 
     // keep previous progress before update it
     this.#lastProgress = this.#progress
-    this.#progress = clamp(0, progress, 1)
+    this.#progress = clamp(0, value, 1)
 
     // if this is the first progress in range (between 0 & 1), refresh computed values
     if (
@@ -249,7 +249,7 @@ export class Interpol<K extends string = string> {
 
     // if last & current progress are differents,
     // Or if progress param is the same this.progress, execute onUpdate
-    if (this.#lastProgress !== this.#progress || progress === this.#progress) {
+    if (this.#lastProgress !== this.#progress || value === this.#progress) {
       if (this.#lastProgress !== this.#progress) {
         this.#hasSeekOnStart = false
         this.#hasSeekCompleted = false

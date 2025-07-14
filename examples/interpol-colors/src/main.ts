@@ -21,12 +21,12 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
     }),
 )
 
-seek0!.onclick = () => itp.seek(0, false)
-seek05!.onclick = () => itp.seek(0.5, false)
-seek1!.onclick = () => itp.seek(1, false)
+seek0!.onclick = () => itp.progress(0, false)
+seek05!.onclick = () => itp.progress(0.5, false)
+seek1!.onclick = () => itp.progress(1, false)
 
-inputProgress!.onchange = () => itp.seek(parseFloat(inputProgress!.value) / 100, false)
-inputSlider!.oninput = () => itp.seek(parseFloat(inputSlider!.value) / 100, false)
+inputProgress!.onchange = () => itp.progress(parseFloat(inputProgress!.value) / 100, false)
+inputSlider!.oninput = () => itp.progress(parseFloat(inputSlider!.value) / 100, false)
 
 const itp = new Interpol({
   v: [0, 1],

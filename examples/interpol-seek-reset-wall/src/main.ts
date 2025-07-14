@@ -39,7 +39,7 @@ const testWithInterpol = () => {
 
   window.addEventListener("resize", () => {
     itp.refreshComputedValues()
-    itp.seek(0)
+    itp.progress(0)
     isVisible = false
   })
 }
@@ -84,7 +84,7 @@ const testWithTimeline = () => {
   })
   window.addEventListener("resize", () => {
     tl.refreshComputedValues()
-    tl.seek(0)
+    tl.progress(0)
     isVisible = false
   })
 }

@@ -16,12 +16,12 @@ describe.concurrent("Interpol delay", () => {
       await wait(delay).then(() => {
         expect(itp.isPlaying).toBe(true)
         expect(itp.time).toBe(0)
-        expect(itp.progress).toBe(0)
+        expect(itp.progress()).toBe(0)
       })
       // wait just after play
       await wait(100)
       expect(itp.time).toBeGreaterThan(0)
-      expect(itp.progress).toBeGreaterThan(0)
+      expect(itp.progress()).toBeGreaterThan(0)
       resolve()
     })
   })
@@ -45,12 +45,12 @@ describe.concurrent("Interpol delay", () => {
       await wait(delay * InterpolOptions.durationFactor).then(() => {
         expect(itp.isPlaying).toBe(true)
         expect(itp.time).toBe(0)
-        expect(itp.progress).toBe(0)
+        expect(itp.progress()).toBe(0)
       })
       // wait just after play
       await wait(100)
       expect(itp.time).toBeGreaterThan(0)
-      expect(itp.progress).toBeGreaterThan(0)
+      expect(itp.progress()).toBeGreaterThan(0)
       resolve()
     })
   })
