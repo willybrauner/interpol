@@ -40,7 +40,7 @@ describe.concurrent("Timeline stop", () => {
 
         // have been reset after stop
         expect(tl.time).toBe(0)
-        expect(tl.progress).toBe(0)
+        expect(tl.progress()).toBe(0)
 
         // OnComplete should not have been called
         expect(onCompleteMock).toHaveBeenCalledTimes(0)

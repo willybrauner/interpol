@@ -14,7 +14,7 @@ export const Controls = ({
   const [progress, setProgress] = useState("0")
 
   useEffect(() => {
-    instance?.seek(parseFloat(progress) / 100)
+    instance?.progress(parseFloat(progress) / 100)
   }, [progress])
 
   return (

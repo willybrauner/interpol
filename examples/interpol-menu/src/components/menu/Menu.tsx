@@ -61,7 +61,7 @@ export function Menu({ isOpen }: { isOpen: boolean }) {
         },
         // Use the offset to create a delay between each item
         // delay is not available on Interpol instance when using Timeline
-        // It could be complicated to implement it since we use the Interpol.seek
+        // It could be complicated to implement it since we use the Interpol.progress
         // method to move the timeline
         `-=${itemDuration - itemDelay}`,
       )

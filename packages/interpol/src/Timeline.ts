@@ -18,9 +18,6 @@ let TL_ID = 0
 export class Timeline {
   public readonly ID: number
   #progress = 0
-  public get progress(): number {
-    return this.#progress
-  }
   #time = 0
   public get time(): number {
     return this.#time
@@ -214,12 +211,15 @@ export class Timeline {
     this.#ticker.remove(this.#handleTick)
   }
 
-  public seek(progress: number, suppressEvents = true, suppressTlEvents = true): void {
+  public progress(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
+    if (value === undefined) {
+      return this.#progress
+    }
     if (this.#isPlaying) this.pause()
-    this.#progress = clamp(0, progress, 1)
+    this.#progress = clamp(0, value, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
     this.#updateAdds(this.#time, this.#progress, suppressEvents)
-    if (progress === 1 && !suppressTlEvents) {
+    if (value === 1 && !suppressTlEvents) {
       this.#onComplete(this.#time, this.#progress)
     }
   }
@@ -257,7 +257,7 @@ export class Timeline {
 
   /**
    * Update all adds (itps)
-   * Main update function witch seek all adds on there relative time in TL
+   * Main update function witch progress all adds on there relative time in TL
    * @param tlTime
    * @param tlProgress
    * @param suppressEvents
@@ -271,12 +271,12 @@ export class Timeline {
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
 
-    // Then seek all itps
+    // Then progress all itps
     this.#onAllAdds((add) => {
       // Register last and current progress in current add
       add.progress.last = add.progress.current
       add.progress.current = (tlTime - add.time.start) / add.itp.duration
-      add.itp.seek(add.progress.current, suppressEvents)
+      add.itp.progress(add.progress.current, suppressEvents)
     }, this.#reverseLoop)
   }
 
