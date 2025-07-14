@@ -4,9 +4,9 @@ import { Interpol } from "@wbe/interpol"
 /**
  * Query
  */
-const seek0 = document.querySelector<HTMLButtonElement>(".seek-0")
-const seek05 = document.querySelector<HTMLButtonElement>(".seek-05")
-const seek1 = document.querySelector<HTMLButtonElement>(".seek-1")
+const progress0 = document.querySelector<HTMLButtonElement>(".progress-0")
+const progress05 = document.querySelector<HTMLButtonElement>(".progress-05")
+const progress1 = document.querySelector<HTMLButtonElement>(".progress-1")
 const inputProgress = document.querySelector<HTMLInputElement>(".progress")
 const inputSlider = document.querySelector<HTMLInputElement>(".slider")
 
@@ -21,9 +21,9 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
     }),
 )
 
-seek0!.onclick = () => itp.progress(0, false)
-seek05!.onclick = () => itp.progress(0.5, false)
-seek1!.onclick = () => itp.progress(1, false)
+progress0!.onclick = () => itp.progress(0, false)
+progress05!.onclick = () => itp.progress(0.5, false)
+progress1!.onclick = () => itp.progress(1, false)
 
 inputProgress!.onchange = () => itp.progress(parseFloat(inputProgress!.value) / 100, false)
 inputSlider!.oninput = () => itp.progress(parseFloat(inputSlider!.value) / 100, false)
