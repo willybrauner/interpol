@@ -1,5 +1,11 @@
 # @wbe/interpol
 
+## 0.20.3
+
+### Patch Changes
+
+- d76a060: Export easing types
+
 ## 0.20.2
 
 ### Patch Changes
