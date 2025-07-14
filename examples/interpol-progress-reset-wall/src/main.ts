@@ -17,12 +17,11 @@ const testWithInterpol = () => {
     immediateRender: true,
     paused: true,
     debug: true,
-    el: wall,
     duration: 1000,
     ease: "linear",
-    x: [() => -innerWidth * 0.9, 0, "px"],
+    x: [() => -innerWidth * 0.9, 0],
     onUpdate: ({ x }) => {
-      styles(wall, { x: x + "px" })
+      styles(wall, { x })
     },
   })
 
@@ -59,7 +58,7 @@ const testWithTimeline = () => {
     ease: "linear",
     x: [() => -innerWidth * 0.9, 0],
     onUpdate: ({ x }) => {
-      styles(wall, { x: x + "px" })
+      styles(wall, { x })
     },
   })
   tl.add({
@@ -68,7 +67,7 @@ const testWithTimeline = () => {
     ease: "linear",
     x: [0, () => -innerWidth * 0.5],
     onUpdate: ({ x }) => {
-      styles(wall, { x: x + "px" })
+      styles(wall, { x })
     },
   })
 
