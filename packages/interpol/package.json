@@ -38,10 +38,10 @@
     "build:watch": "tsup --watch --sourcemap"
   },
   "devDependencies": {
-    "terser": "^5.37.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.6",
-    "vitest": "^2.1.8"
+    "terser": "^5.43.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vitest": "^3.2.4"
   }
 }
