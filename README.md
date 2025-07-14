@@ -370,7 +370,8 @@ itp.refreshComputedValues()
 itp.progress(progressValue)
 
 // Get current progress value
-itp.progress(): number
+// progress(): number
+itp.progress()
 ```
 
 ### Timeline constructor
@@ -433,12 +434,13 @@ tl.stop()
 refreshComputedValues(): void
 
 // set progress to a specific value
-// progress(value: number, suppressEvents = true, suppressTlEvents = true): void
 // value is a number between 0 and 1
+// progress(value: number, suppressEvents = true, suppressTlEvents = true): void
 tl.progress(progressValue)
 
 // Get current progress value
-itp.progress(): number
+// progress(): number
+tl.progress()
 ```
 
 ## Options
