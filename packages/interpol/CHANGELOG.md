@@ -1,5 +1,14 @@
 # @wbe/interpol
 
+## 0.21.0
+
+### Minor Changes
+
+- 679881a: Interpol onStart method
+
+  exec Interpol `onStart` on `play()` only if we start from `0` 
+  exec Interpol `onStart` on `seek()` each time we start from 0 and go to...
+
 ## 0.20.3
 
 ### Patch Changes
@@ -56,7 +65,6 @@
   These breaking changes will make the API more predictable and focus on what this library is for, which is interpolating sets of values.
 
   ## Breaking changes
-
   - [ Breaking changes ] Remove `props` object constructor params, keep only `...props`. In order to simplify the usage of props, a unique way to declare props is now "inline props" on the root constructor.
 
   before:
@@ -131,7 +139,6 @@
   ```
 
   ## Features
-
   - [ Feature ] Improve `styles` function with `autoUnits`
     A 3th `autoUnits` param as been added to `styles()` function.
 
@@ -160,7 +167,6 @@
   ```
 
   - [x] fix props key types
-
   - [x] update Interpol / Timeline tests
   - [x] update examples
   - [x] update de documentation
@@ -293,7 +299,6 @@
 ### Patch Changes
 
 - 481f5e6: add exports types
-
   - To export the correct `cjs` and `esm` builds, add the exports field in `package.json`.
   - bump all dependencies to their last version
 
@@ -437,7 +442,6 @@
 ### Minor Changes
 
 - 59beb18: Prop should accept multi types
-
   - Prop accept single 'to' `number` instead of [from, to] `array`.
 
   ```ts
@@ -550,12 +554,10 @@
   https://github.com/willybrauner/interpol/assets/7604357/96601416-2679-46ea-b918-dfd4559bc7c7
 
   ## Callback executions logic
-
   - in Interpol and In Timeline, `onComplete` is called only on play and seek(1)
   - `onReverseComplete` should be create for the reverse purpose
 
   ## TODO in other PRs
-
   - create `onReverseComplete`
   - exec beforeStart() too
 
@@ -622,7 +624,6 @@
 ### Minor Changes
 
 - a547e0b: Uniformize & externalize raf
-
   - Move `Ticker` instance global for each `Interpol` & `Timeline` instances
   - Remove `Ticker` from `Interpol` & `Timeline` constructors
   - Use the same internal raf for each instances
@@ -739,7 +740,6 @@
 ### Minor Changes
 
 - d5079f2: Create a low level DOM API.
-
   - define a unit for each props in the props array
 
   ```ts
@@ -791,7 +791,6 @@
 ### Minor Changes
 
 - 1d38bab: Improve beforeStart callback:
-
   - `beforeStart` get same params than `onUpdate` and `onComplete`:
     ```ts
        beforeStart?: (props?: Record<K, number>, time?: number, progress?: number) => void
@@ -799,7 +798,6 @@
   - A new properties `initUpdate` (boolean) as been added on as Interpol instance property. It allows to execute "onUpdate" callback just before `beforeStart`. Useful in this case, onUpdate will be called once, if the timeline is paused in order to give a position to DOM element.
 
   New "Menu" example:
-
   - Test thus new features on a real word example.
 
 ## 0.5.3
