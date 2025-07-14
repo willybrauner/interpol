@@ -374,11 +374,6 @@ itp.seek(progress)
 
 ```ts
 interface ITimelineConstruct {
-
-  // Executed one frame before the Timeline start
-  // default: /
-  onStart?: (time: number, progress: number) => void
-
   // Executed on frame update
   // default: /
   onUpdate?: (time: number, progress: number) => void
