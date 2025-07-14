@@ -40,6 +40,9 @@ const itp = new Interpol({
   y: [0, innerHeight / 2],
   ease: "power3.in",
   duration: 600,
+  onStart: (e) => {
+    console.log("itp 1 onStart", e)
+  },
   onUpdate: ({ x, y }) => {
     styles(ball, { x: x + "px", y: y + "px" })
   },
@@ -51,9 +54,11 @@ tl.add(itp)
 
 tl.add({
   x: [innerWidth / 2, 0],
-
   duration: 600,
   ease: "power3.out",
+  onStart: (e) => {
+    console.log("itp 2 onStart", e)
+  },
   onUpdate: ({ x }) => {
     styles(ball, { x })
   },
@@ -65,6 +70,9 @@ tl.add({
 tl.add({
   scale: [1, 0.5],
   ease: "power4.out",
+  onStart: (e) => {
+    console.log("itp 3 onStart", e)
+  },
   onUpdate: ({ scale }) => {
     styles(ball2, { scale })
   },
