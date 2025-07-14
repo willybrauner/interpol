@@ -6,6 +6,7 @@ import "./index.less"
  */
 const ball = document.querySelector<HTMLElement>(".ball")
 const ball2 = document.querySelector<HTMLElement>(".ball-2")
+const play = document.querySelector<HTMLButtonElement>(".play")
 const seek0 = document.querySelector<HTMLButtonElement>(".seek-0")
 const seek05 = document.querySelector<HTMLButtonElement>(".seek-05")
 const seek1 = document.querySelector<HTMLButtonElement>(".seek-1")
@@ -15,9 +16,10 @@ const inputSlider = document.querySelector<HTMLInputElement>(".slider")
 /**
  * Events
  */
-;["play", "reverse", "pause", "stop", "refresh", "resume"].forEach(
+;["reverse", "pause", "stop", "refresh", "resume"].forEach(
   (name) => (document.querySelector<HTMLButtonElement>(`.${name}`).onclick = () => tl[name]()),
 )
+play.onclick = () => tl.play()
 seek0.onclick = () => tl.seek(0, false, false)
 seek05.onclick = () => tl.seek(0.5, false, false)
 seek1.onclick = () => tl.seek(1, false, false)
@@ -29,14 +31,18 @@ window.addEventListener("resize", () => tl.seek(1))
  * Timeline
  */
 const tl: Timeline = new Timeline({
-  debug: true,
+  debug: false,
   onComplete: (time, progress) => console.log(`tl onComplete!`),
 })
 
 const itp = new Interpol({
-  x: [0, 200],
-  y: [0, 200],
-  ease: Power1.in,
+  x: [0, innerWidth / 2],
+  y: [0, innerHeight / 2],
+  ease: "power3.in",
+  duration: 600,
+  onStart: (e) => {
+    console.log("itp 1 onStart", e)
+  },
   onUpdate: ({ x, y }) => {
     styles(ball, { x: x + "px", y: y + "px" })
   },
@@ -47,11 +53,14 @@ const itp = new Interpol({
 tl.add(itp)
 
 tl.add({
-  x: [200, 100],
-  y: [200, 300],
-  ease: Power1.out,
-  onUpdate: ({ x, y }) => {
-    styles(ball, { x: x + "px", y: y + "px" })
+  x: [innerWidth / 2, 0],
+  duration: 600,
+  ease: "power3.out",
+  onStart: (e) => {
+    console.log("itp 2 onStart", e)
+  },
+  onUpdate: ({ x }) => {
+    styles(ball, { x })
   },
   onComplete: (e) => {
     console.log("itp 2 onComplete", e)
@@ -59,11 +68,13 @@ tl.add({
 })
 
 tl.add({
-  x: [0, 100],
-  y: [0, 400],
-  ease: Power1.out,
-  onUpdate: ({ x, y }) => {
-    styles(ball2, { x: x + "px", y: y + "px" })
+  scale: [1, 0.5],
+  ease: "power4.out",
+  onStart: (e) => {
+    console.log("itp 3 onStart", e)
+  },
+  onUpdate: ({ scale }) => {
+    styles(ball2, { scale })
   },
   onComplete: (e) => {
     console.log("itp 3 onComplete", e)
