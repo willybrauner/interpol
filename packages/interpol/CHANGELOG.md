@@ -1,12 +1,31 @@
 # @wbe/interpol
 
+## 0.22.0
+
+### Minor Changes
+
+- da163ac: Rename seek method to progress
+
+  **Breaking change**
+
+  In order to fit to the [GSAP API](<https://gsap.com/docs/v3/GSAP/Tween/progress()>), Interpol & Timeline `seek` method has been renamed `progress`.
+  `progress` is now a getter and setter:
+
+  ```ts
+  // Set progress to a specific value
+  itp.progress(progressValue): void
+
+  // Get current progress value
+  itp.progress(): number
+  ```
+
 ## 0.21.0
 
 ### Minor Changes
 
 - 679881a: Interpol onStart method
 
-  exec Interpol `onStart` on `play()` only if we start from `0` 
+  exec Interpol `onStart` on `play()` only if we start from `0`
   exec Interpol `onStart` on `seek()` each time we start from 0 and go to...
 
 ## 0.20.3
