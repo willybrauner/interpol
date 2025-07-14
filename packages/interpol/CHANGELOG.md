@@ -6,6 +6,9 @@
 
 - 679881a: Interpol onStart method
 
+  exec Interpol `onStart` on `play()` only if we start from `0` 
+  exec Interpol `onStart` on `seek()` each time we start from 0 and go to...
+
 ## 0.20.3
 
 ### Patch Changes
