@@ -21,7 +21,7 @@ describe.concurrent("Interpol progress", () => {
     })
   })
 
-  it("Interpol should be seekable to the same progress several times in a row", () => {
+  it("Interpol should be progressable to the same progress several times in a row", () => {
     /**
      * Goal is to test if the onUpdate callback is called each time we progress to the same progress value
      */
@@ -36,7 +36,7 @@ describe.concurrent("Interpol progress", () => {
       // stop it during the play
       await wait(100)
 
-      // clear the mock value, because it will be called before the first seek
+      // clear the mock value, because it will be called before the first progress
       mock.mockClear()
       // progress multiple times on the same progress value
       const PROGRESS_REPEAT_NUMBER = 30

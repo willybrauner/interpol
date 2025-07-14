@@ -43,7 +43,7 @@ describe.concurrent("Timeline progress", () => {
       // stop it during the play
       await wait(100)
 
-      // clear the mock value, because it will be called before the first seek
+      // clear the mock value, because it will be called before the first progress
       mockAdd1.mockClear()
       mockAdd2.mockClear()
 

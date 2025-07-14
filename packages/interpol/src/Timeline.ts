@@ -257,7 +257,7 @@ export class Timeline {
 
   /**
    * Update all adds (itps)
-   * Main update function witch seek all adds on there relative time in TL
+   * Main update function witch progress all adds on there relative time in TL
    * @param tlTime
    * @param tlProgress
    * @param suppressEvents
@@ -271,7 +271,7 @@ export class Timeline {
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
 
-    // Then seek all itps
+    // Then progress all itps
     this.#onAllAdds((add) => {
       // Register last and current progress in current add
       add.progress.last = add.progress.current

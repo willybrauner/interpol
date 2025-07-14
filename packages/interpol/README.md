@@ -355,7 +355,7 @@ itp.stop()
 // refreshComputedValues(): void
 itp.refreshComputedValues()
 
-// Seek to a specific time
+// Progress to a specific time
 // progress(value: number, suppressEvents = true): void
 // value: number between 0 and 1
 itp.progress(progressValue)
@@ -420,7 +420,7 @@ tl.stop()
 // compute 'from', 'to' and 'duration' values on each adds if there are functions
 refreshComputedValues(): void
 
-// seek to a specific time
+// progress to a specific time
 // progress(value: number, suppressEvents = true, suppressTlEvents = true): void
 // value is a number between 0 and 1
 tl.progress(progressValue)

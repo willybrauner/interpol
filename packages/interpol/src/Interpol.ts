@@ -63,8 +63,8 @@ export class Interpol<K extends string = string> {
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
   #onCompleteDeferred = deferredPromise()
-  #hasSeekOnStart = false
-  #hasSeekCompleted = false
+  #hasProgressOnStart = false
+  #hasProgressCompleted = false
 
   constructor({
     duration = InterpolOptions.duration,
@@ -251,11 +251,11 @@ export class Interpol<K extends string = string> {
     // Or if progress param is the same this.progress, execute onUpdate
     if (this.#lastProgress !== this.#progress || value === this.#progress) {
       if (this.#lastProgress !== this.#progress) {
-        this.#hasSeekOnStart = false
-        this.#hasSeekCompleted = false
+        this.#hasProgressOnStart = false
+        this.#hasProgressCompleted = false
       }
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-      this.#log(`seek onUpdate`, {
+      this.#log(`progress onUpdate`, {
         props: this.#callbackProps,
         time: this.#time,
         progress: this.#progress,
@@ -269,13 +269,13 @@ export class Interpol<K extends string = string> {
     if (
       // prettier-ignore
       (this.#lastProgress === 0 && this.#progress > 0) && 
-      !this.#hasSeekCompleted && 
+      !this.#hasProgressCompleted && 
       !suppressEvents
     ) {
       this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
       this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
-      this.#hasSeekOnStart = true
-      this.#log(`seek onStart`, {
+      this.#hasProgressOnStart = true
+      this.#log(`progress onStart`, {
         props: this.#callbackProps,
         time: this.#time,
         progress: this.#progress,
@@ -284,11 +284,11 @@ export class Interpol<K extends string = string> {
 
     // onComplete
     // if progress 1, execute onComplete only if it hasn't been called before
-    if (this.#progress === 1 && !this.#hasSeekCompleted && !suppressEvents) {
+    if (this.#progress === 1 && !this.#hasProgressCompleted && !suppressEvents) {
       this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
       this.#lastProgress = this.#progress
-      this.#hasSeekCompleted = true
-      this.#log(`seek onComplete`, {
+      this.#hasProgressCompleted = true
+      this.#log(`progress onComplete`, {
         props: this.#callbackProps,
         time: this.#time,
         progress: this.#progress,
@@ -298,8 +298,8 @@ export class Interpol<K extends string = string> {
     // if progress 0, reset completed flag and allow onComplete to be called again
     if (this.#progress === 0) {
       this.#lastProgress = this.#progress
-      this.#hasSeekOnStart = false
-      this.#hasSeekCompleted = false
+      this.#hasProgressOnStart = false
+      this.#hasProgressCompleted = false
     }
   }
 
