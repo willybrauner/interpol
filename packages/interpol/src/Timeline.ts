@@ -44,20 +44,17 @@ export class Timeline {
   #ticker: Ticker
   #tlDuration: number = 0
   #debugEnable: boolean
-  #onStart: (time: number, progress: number) => void
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
   #reverseLoop = false
 
   constructor({
-    onStart = noop,
     onUpdate = noop,
     onComplete = noop,
     debug = false,
     paused = false,
   }: TimelineConstruct = {}) {
-    this.#onStart = onStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.#debugEnable = debug
@@ -162,11 +159,6 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    // play onStart only if progress is 0, not we have another from
-    if (this.#progress === 0) {
-      this.#onStart(this.#time, this.#progress)
-    }
-
     this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
@@ -224,12 +216,6 @@ export class Timeline {
 
   public seek(progress: number, suppressEvents = true, suppressTlEvents = true): void {
     if (this.#isPlaying) this.pause()
-
-    // play onStart event
-    if (this.#progress === 0 && !this.#isReversed) {
-      this.#onStart(this.#time, this.#progress)
-    }
-
     this.#progress = clamp(0, progress, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
     this.#updateAdds(this.#time, this.#progress, suppressEvents)
@@ -256,8 +242,6 @@ export class Timeline {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress, false)
-
-
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
       this.#onComplete(this.#time, this.#progress)

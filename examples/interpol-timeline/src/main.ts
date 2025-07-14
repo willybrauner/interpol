@@ -32,9 +32,6 @@ window.addEventListener("resize", () => tl.seek(1))
  */
 const tl: Timeline = new Timeline({
   debug: false,
-  onStart: (time, progress) => {
-    console.log("tl onStart ici !", time, progress)
-  },
   onComplete: (time, progress) => console.log(`tl onComplete!`),
 })
 
