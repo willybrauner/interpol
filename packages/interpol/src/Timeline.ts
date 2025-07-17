@@ -69,11 +69,18 @@ export class Timeline {
    * @param offset Default "0" is relative position in TL
    */
   public add<K extends keyof Props>(
-    interpol: Interpol | InterpolConstruct<K>,
+    interpol: Interpol | InterpolConstruct<K> | (() => void),
     offset: number | string = "0",
   ): Timeline {
-    // Create Interpol instance or not
+    // add method accept callback () => void
+    // If interpol param is a function, we transform it to an Interpol instance
+    // in order to take advantage of internal callback management during the timeline
+    if (typeof interpol === "function") {
+      interpol = new Interpol({ duration: 0, onComplete: interpol })
+    }
+    // Create Interpol instance if needed
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
+
     // Stop first to avoid to run play() method if "paused: false" is set
     itp.stop()
     // Compute from to and duration
@@ -271,12 +278,36 @@ export class Timeline {
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
 
-    // Then progress all itps
+    // Execute callbacks with duration 0 at their exact time before progressing other adds
     this.#onAllAdds((add) => {
-      // Register last and current progress in current add
-      add.progress.last = add.progress.current
-      add.progress.current = (tlTime - add.time.start) / add.itp.duration
-      add.itp.progress(add.progress.current, suppressEvents)
+      if (add.itp.duration === 0) {
+        const wasTriggered = add.progress.current >= 1
+        const shouldTrigger = tlTime >= add.time.start && !wasTriggered
+
+        if (shouldTrigger && !suppressEvents) {
+          // Temporarily set timeline time to the exact callback trigger time
+          const originalTime = this.#time
+          this.#time = add.time.start
+          add.progress.last = add.progress.current
+          add.progress.current = 1
+          add.itp.progress(1, false)
+          this.#time = originalTime
+        } else if (tlTime < add.time.start) {
+          // Reset callback if we're before its trigger time
+          add.progress.last = add.progress.current
+          add.progress.current = 0
+        }
+      }
+    }, this.#reverseLoop)
+
+    // Then progress all non-callback itps
+    this.#onAllAdds((add) => {
+      if (add.itp.duration > 0) {
+        // Register last and current progress in current add
+        add.progress.last = add.progress.current
+        add.progress.current = (tlTime - add.time.start) / add.itp.duration
+        add.itp.progress(add.progress.current, suppressEvents)
+      }
     }, this.#reverseLoop)
   }
 
