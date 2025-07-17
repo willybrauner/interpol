@@ -11,6 +11,7 @@ interface IAdd {
   itp: Interpol
   time: { start: number; end: number; offset: number }
   progress: { start?: number; end?: number; current: number; last: number }
+  _isAbsoluteOffset?: boolean
 }
 
 let TL_ID = 0
@@ -72,27 +73,19 @@ export class Timeline {
     interpol: Interpol | InterpolConstruct<K> | (() => void),
     offset: number | string = "0",
   ): Timeline {
+    // Prepare the new Interpol instance
     // add method accept callback () => void
     // If interpol param is a function, we transform it to an Interpol instance
     // in order to take advantage of internal callback management during the timeline
     if (typeof interpol === "function") {
-      interpol = new Interpol({ duration: 0, onComplete: interpol, paused: true })
+      interpol = new Interpol({ duration: 0, onComplete: interpol })
     }
-    // Create Interpol instance if needed
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
-
-    // Stop first to avoid to run play() method if "paused: false" is set
     itp.stop()
-    // Compute from to and duration
     itp.refreshComputedValues()
-    // Bind Timeline ticker to each interpol instance
     itp.ticker = this.#ticker
-    // Specify that we use the itp in Timeline context
     itp.inTl = true
-    // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
-    // Get prev add of the list
-    const prevAdd = this.#adds?.[this.#adds.length - 1]
 
     // Register full TL duration
     // calc the final offset: could be a string like
@@ -105,8 +98,14 @@ export class Timeline {
     // Relative position in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
+      // Find the last relative element chronologically, not by add order
+      const relativeAdds = this.#adds.filter((add) => !add._isAbsoluteOffset)
+      const prevAdd =
+        relativeAdds?.length > 0
+          ? relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
+          : null
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
-      startTime = prevAdd ? prevAdd.time.end + fOffset : 0
+      startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
     }
 
     // absolute position in TL
@@ -130,6 +129,7 @@ export class Timeline {
         current: 0,
         last: 0,
       },
+      _isAbsoluteOffset: typeof offset === "number",
     })
 
     // Re Calc all progress start and end after each add register,

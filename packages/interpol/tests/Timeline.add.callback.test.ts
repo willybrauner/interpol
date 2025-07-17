@@ -13,14 +13,13 @@ describe("Timeline add callback", () => {
   it("should execute callbacks at their intended times", async () => {
     const callbackTimes: number[] = []
     const tl = new Timeline({ paused: true })
+
+    // normal ITP
     tl.add({
       duration: 100,
     })
     // Callback should execute around 100ms
     tl.add(() => callbackTimes.push(tl.time))
-    // Callback at 50ms (absolute)
-    tl.add(() => callbackTimes.push(tl.time), 50)
-
     // normal ITP
     tl.add({
       duration: 100,
@@ -35,16 +34,33 @@ describe("Timeline add callback", () => {
     tl.add(() => callbackTimes.push(tl.time), 300)
     // Callback at 300ms (absolute)
     tl.add(() => callbackTimes.push(tl.time), 650)
-
+    // Callback at 0ms (absolute) - Position should be independent of add order
+    tl.add(() => callbackTimes.push(tl.time), 0)
     await tl.play()
 
-    // We just verify that callbacks execute, accepting that tl.time
-    // reflects the current timeline progression time
-    expect(callbackTimes.length).toBeGreaterThan(0)
-    expect(callbackTimes).toHaveLength(5)
-    const expectedTimes = [50, 100, 150, 300, 650]
+    console.log("Callback execution times:", callbackTimes)
+    console.log("Expected times:", [0, 100, 150, 300, 650])
+
+    // We just verify that callbacks execute in the right order and timing range
+    expect(callbackTimes.length).toBe(5)
+
+    // Check order: callbacks should execute in chronological order regardless of add order
+    const sortedTimes = [...callbackTimes].sort((a, b) => a - b)
+    expect(callbackTimes).toEqual(sortedTimes)
+
+    // Check that times are in reasonable ranges (allowing for RAF timing variations)
+    const expectedRanges = [
+      [0, 30],
+      [80, 130],
+      [130, 180],
+      [280, 330],
+      [630, 680],
+    ]
+
     callbackTimes.forEach((actual, i) => {
-      expect(Math.abs(actual - expectedTimes[i])).toBeLessThanOrEqual(32)
+      const [min, max] = expectedRanges[i]
+      expect(actual).toBeGreaterThanOrEqual(min)
+      expect(actual).toBeLessThanOrEqual(max)
     })
   })
 
@@ -64,5 +80,13 @@ describe("Timeline add callback", () => {
       await tl.play()
       expect(cb).toHaveBeenCalledTimes(NUM as number)
     }
+  })
+
+  it("should execute single callbacks with absolute offset", async () => {
+    const cb = vi.fn()
+    const tl = new Timeline({ paused: true })
+    tl.add(() => cb(), "200")
+    await tl.play()
+    expect(cb).toHaveBeenCalledTimes(1)
   })
 })
