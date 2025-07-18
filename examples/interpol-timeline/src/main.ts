@@ -36,7 +36,7 @@ const tl: Timeline = new Timeline({
 })
 
 const itp = new Interpol({
-  x: [0, innerWidth / 2],
+  x: [100, innerWidth / 2],
   y: [0, innerHeight / 2],
   ease: "power3.in",
   duration: 600,
@@ -80,3 +80,12 @@ tl.add({
     console.log("itp 3 onComplete", e)
   },
 })
+
+// tl.add(() => {
+//   console.log("add callback!!!!!!")
+//   styles(ball, { background: "blue" })
+// }, 100)
+tl.add(() => {
+  console.log("add callback!!!!!!")
+  styles(ball, { background: "green" })
+}, "-=200")

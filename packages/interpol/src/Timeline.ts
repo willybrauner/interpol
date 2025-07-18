@@ -282,19 +282,15 @@ export class Timeline {
     this.#onAllAdds((add) => {
       // Register last and current progress in current add
       add.progress.last = add.progress.current
+      const hasNoDuration = add.itp.duration === 0
 
-      // For callbacks (duration 0), trigger when timeline reaches their start time
-      if (add.itp.duration === 0) {
-        const shouldTrigger = tlTime >= add.time.start && add.progress.current < 1
-        if (shouldTrigger) {
-          add.progress.current = 1
-          add.itp.progress(1, suppressEvents)
-        }
+      if (hasNoDuration) {
+        // For callbacks with duration 0, trigger when tlTime >= start time
+        add.progress.current = tlTime >= add.time.start ? 1 : 0
       } else {
-        // Normal interpolation
         add.progress.current = (tlTime - add.time.start) / add.itp.duration
-        add.itp.progress(add.progress.current, suppressEvents)
       }
+      add.itp.progress(add.progress.current, suppressEvents)
     }, this.#reverseLoop)
   } /**
    * Exe Callback function on all adds
