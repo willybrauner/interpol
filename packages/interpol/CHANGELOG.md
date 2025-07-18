@@ -1,5 +1,36 @@
 # @wbe/interpol
 
+## 0.23.0
+
+### Minor Changes
+
+- 8d03bb7: tl.add method accept callback function
+
+  ```ts
+  const tl = new Timeline()
+
+  // default Interpol constructor
+  tl.add({
+    v: [0, 100],
+    onUpdate: ({ x }, time, progress) => { ... },
+  })
+
+  // ✅ new! set a callback function (as GSAP `call()` does)
+  tl.add(() => {
+    // ...
+  })
+
+  // with relative offset
+  tl.add(() => {
+   // ...
+  }, "-=100")
+
+  // with absolute offset
+  tl.add(() => {
+   // ...
+  }, 0)
+  ```
+
 ## 0.22.0
 
 ### Minor Changes
