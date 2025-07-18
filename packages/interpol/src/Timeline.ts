@@ -11,6 +11,7 @@ interface IAdd {
   itp: Interpol
   time: { start: number; end: number; offset: number }
   progress: { start?: number; end?: number; current: number; last: number }
+  _isAbsoluteOffset?: boolean
 }
 
 let TL_ID = 0
@@ -58,39 +59,31 @@ export class Timeline {
     this.#isPaused = paused
     this.ID = ++TL_ID
     this.#ticker = InterpolOptions.ticker
-
     // waiting for all adds register before log
     setTimeout(() => this.#log("adds", this.#adds), 1)
   }
 
   /**
-   * Add a new interpol obj or instance in Timeline
-   * @param interpol
+   * Add a new interpol obj or instance in Timeline or a callback function
+   * @param interpol Interpol | InterpolConstruct<K> | (() => void),
    * @param offset Default "0" is relative position in TL
    */
   public add<K extends keyof Props>(
-    interpol: Interpol | InterpolConstruct<K>,
+    interpol: Interpol | InterpolConstruct<K> | (() => void),
     offset: number | string = "0",
   ): Timeline {
-    // Create Interpol instance or not
+    // Prepare the new Interpol instance
+    // If interpol param is a callback function, we transform it to an Interpol instance
+    if (typeof interpol === "function")
+      interpol = new Interpol({ duration: 0, onComplete: interpol })
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
-    // Stop first to avoid to run play() method if "paused: false" is set
     itp.stop()
-    // Compute from to and duration
     itp.refreshComputedValues()
-    // Bind Timeline ticker to each interpol instance
     itp.ticker = this.#ticker
-    // Specify that we use the itp in Timeline context
     itp.inTl = true
-    // Only active debug on each itp, if is enabled on the timeline
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
-    // Get prev add of the list
-    const prevAdd = this.#adds?.[this.#adds.length - 1]
 
-    // Register full TL duration
     // calc the final offset: could be a string like
-    // relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
-    // absolute position {number} 100 | -100
     let fOffset: number
     let startTime: number
     const factor: number = InterpolOptions.durationFactor
@@ -98,10 +91,15 @@ export class Timeline {
     // Relative position in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
+      // Find the last relative element chronologically, not by add order
+      const relativeAdds = this.#adds.filter((add) => !add._isAbsoluteOffset)
+      // prettier-ignore
+      const prevAdd = relativeAdds?.length > 0
+          ? relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
+          : null
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
-      startTime = prevAdd ? prevAdd.time.end + fOffset : 0
+      startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
     }
-
     // absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset * factor
@@ -123,6 +121,7 @@ export class Timeline {
         current: 0,
         last: 0,
       },
+      _isAbsoluteOffset: typeof offset === "number",
     })
 
     // Re Calc all progress start and end after each add register,
@@ -134,6 +133,7 @@ export class Timeline {
 
     // hack needed because we need to waiting all adds register if this is an autoplay
     if (!this.isPaused) setTimeout(() => this.play(), 0)
+
     // return the Timeline instance to chain methods
     return this
   }
@@ -144,18 +144,15 @@ export class Timeline {
       this.#isReversed = false
       return
     }
-
     if (this.#isPlaying) {
       this.stop()
       return await this.play(from)
     }
-
     this.#time = this.#tlDuration * from
     this.#progress = from
     this.#isReversed = false
     this.#isPlaying = true
     this.#isPaused = false
-
     this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
@@ -212,9 +209,7 @@ export class Timeline {
   }
 
   public progress(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
-    if (value === undefined) {
-      return this.#progress
-    }
+    if (value === undefined) return this.#progress
     if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, value, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
@@ -267,15 +262,20 @@ export class Timeline {
     if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
     if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
     this.#lastTlProgress = tlProgress
-
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
-
     // Then progress all itps
     this.#onAllAdds((add) => {
       // Register last and current progress in current add
       add.progress.last = add.progress.current
-      add.progress.current = (tlTime - add.time.start) / add.itp.duration
+      // For callbacks with duration 0, trigger when tlTime >= start time
+      // In other case, calculate the current progress
+      // prettier-ignore
+      add.progress.current =
+        add.itp.duration === 0
+          ? tlTime >= add.time.start ? 1 : 0
+          : (tlTime - add.time.start) / add.itp.duration
+      // progress current itp
       add.itp.progress(add.progress.current, suppressEvents)
     }, this.#reverseLoop)
   }
@@ -286,7 +286,7 @@ export class Timeline {
    * @param {(add: IAdd, i?: number) => void} cb
    * @param {boolean} reverse Call from X to 0 index
    */
-  #onAllAdds(cb: (add: IAdd, i?: number) => void, reverse = false): void {
+  #onAllAdds(cb: (add: IAdd, i?: number) => void, reverse: boolean = false): void {
     const startIndex = reverse ? this.#adds.length - 1 : 0
     const endIndex = reverse ? -1 : this.#adds.length
     const step = reverse ? -1 : 1

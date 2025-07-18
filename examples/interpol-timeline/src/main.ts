@@ -36,15 +36,16 @@ const tl: Timeline = new Timeline({
 })
 
 const itp = new Interpol({
-  x: [0, innerWidth / 2],
+  x: [100, innerWidth / 2],
   y: [0, innerHeight / 2],
   ease: "power3.in",
   duration: 600,
   onStart: (e) => {
     console.log("itp 1 onStart", e)
+    styles(ball, { background: "red" })
   },
   onUpdate: ({ x, y }) => {
-    styles(ball, { x: x + "px", y: y + "px" })
+    styles(ball, { x, y })
   },
   onComplete: (e) => {
     console.log("itp 1 onComplete", e)
@@ -80,3 +81,18 @@ tl.add({
     console.log("itp 3 onComplete", e)
   },
 })
+
+tl.add(() => {
+  console.log("add callback blue")
+  styles(ball, { background: "blue" })
+}, 300)
+
+tl.add(() => {
+  console.log("add callback green")
+  styles(ball, { background: "green" })
+}, 2000)
+
+tl.add(() => {
+  console.log("add callback red")
+  styles(ball, { background: "red" })
+}, 2500)

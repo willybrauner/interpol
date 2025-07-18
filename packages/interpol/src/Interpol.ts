@@ -284,15 +284,25 @@ export class Interpol<K extends string = string> {
 
     // onComplete
     // if progress 1, execute onComplete only if it hasn't been called before
-    if (this.#progress === 1 && !this.#hasProgressCompleted && !suppressEvents) {
-      this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
-      this.#lastProgress = this.#progress
-      this.#hasProgressCompleted = true
-      this.#log(`progress onComplete`, {
-        props: this.#callbackProps,
-        time: this.#time,
-        progress: this.#progress,
-      })
+    // Special case for duration 0: execute onComplete every time progress goes from < 1 to 1
+    if (this.#progress === 1 && !suppressEvents) {
+      const shouldExecute =
+        this.#_duration <= 0
+          ? // For duration 0, execute when transitioning from < 1 to 1
+            this.#lastProgress < 1
+          : // For normal duration, execute only once
+            !this.#hasProgressCompleted
+
+      if (shouldExecute) {
+        this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
+        this.#lastProgress = this.#progress
+        this.#hasProgressCompleted = true
+        this.#log(`progress onComplete`, {
+          props: this.#callbackProps,
+          time: this.#time,
+          progress: this.#progress,
+        })
+      }
     }
 
     // if progress 0, reset completed flag and allow onComplete to be called again

@@ -28,6 +28,7 @@ on... mesh, dom element or anything else, for ~=3kB!
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
   - [Timeline](#timeline)
+  - [add callback & offsets](#timeline-add-callback--offsets)
 - [Props](#props)
   - [Props types](#props-types)
   - [Computed prop values](#computed-prop-values)
@@ -138,6 +139,51 @@ In this example:
 - The timeline will start automatically
 - Interpol 1, will interpolate `x` value between `0` and `100` during 1 second
 - Interpol 2, will start when Interpol 1 is complete and will interpolate `x` value between `100` and `50` during 0.5 second
+
+### Timeline add callback & offsets
+
+A timeline can also be used to add callback function instead of Interpol instance or constructor.
+
+```ts
+tl.add(() => {
+  // do something when the timeline reaches this point  
+})
+```
+
+Plus, you can set an offset to the callback to execute it at a specific time in the timeline.
+Two types of offsets are available:
+
+- **Relative offset**: a string with a number and an operator, relative to the previous: `+=100` `-=100`
+- **Absolute offset**: a number in milliseconds, relative to the timeline start: `100`, `-100`, `0`
+
+A full example:
+
+```ts
+import { Timeline } from "@wbe/interpol"
+
+const tl = new Timeline()
+
+// Use an Interpol constructor 
+tl.add({
+  x: [-20, 100],
+  onUpdate: ({ x }, time, progress) => { ... },
+})
+
+// Set a callback as parameter instead of an Interpol instance or constructor
+tl.add(() => {
+  console.log("Timeline reached this point when previous add is complete")
+}) 
+
+// Set a callback with an absolute offset (50ms in this case)
+tl.add(() => {
+  console.log("Timeline reached this point exactly 50ms after the beginning")
+}, 50) 
+
+// Set a callback with a relative offset (-50 in this case)
+tl.add(() => {
+  console.log("Timeline reached this point 50ms before the previous interpol end")
+}, '-=50') 
+```
 
 ## Props
 
@@ -404,7 +450,7 @@ import { Timeline } from "@wbe/Interpol"
 const tl = new Timeline()
 
 // add(interpol: Interpol | IInterpolConstruct, offset: number | string = "0"): Timeline
-// @param interpol: Interpol object or Interpol instance
+// @param interpol: Interpol object | Interpol instance | () => void
 // @param offset:
 //  - relative to the previous interpol (string): "+=100", "-=100", "100", "-100"
 //  - absolute (number): 0 (from the tl beginning), 100
