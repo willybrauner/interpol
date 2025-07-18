@@ -1,0 +1,55 @@
+.root {
+  width: 100vw;
+}
+
+.progressContainer {
+  position: absolute;
+  width: 95%;
+  //height: 100px;
+  transform: translateX(-50%);
+  left: 50%;
+  bottom: 0;
+  right: 0;
+
+  //outline: 1px dashed red;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  row-gap: 10px;
+  padding: 20px 0;
+}
+
+.itpLineWrapper {
+  overflow: hidden;
+  position: relative;
+  height: 10px;
+  width: 100%;
+  border-radius: 10px;
+  &:not(:first-child) {
+    margin-top: 4px;
+  }
+}
+
+.itpLine {
+  border-radius: 10px;
+  height: 100%;
+  background-color: #777;
+  position: relative;
+}
+
+.itpLineProgress {
+  transform-origin: left;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 0px;
+  background-color: #333;
+  height: 100%;
+  width: 100%;
+}
+
+.itpLabel {
+  font-size: 8px;
+}
