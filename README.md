@@ -153,7 +153,7 @@ tl.add(() => {
 Plus, you can set an offset to the callback to execute it at a specific time in the timeline.
 Two types of offsets are available:
 
-- **Relative offset**: a string with a number and an operator, relative to the previous: `+=100` `-=100`
+- **Relative offset**: a string with a number and an operator, relative to the previous: `"+=100"` `"-=100"`
 - **Absolute offset**: a number in milliseconds, relative to the timeline start: `100`, `-100`, `0`
 
 A full example:
