@@ -157,4 +157,41 @@ describe("Timeline add callback", () => {
       expect(cb).toHaveBeenCalledTimes(1)
     }
   })
+
+  it.only("should execute tl.add() callback with absolute offset, no matter the order", async () => {
+    const cb = vi.fn((n: number) => n)
+    let tl: Timeline
+
+    // Set relative add offset from the beginning
+    tl = new Timeline({ paused: true })
+    tl.add({ duration: 100, onComplete: () => cb(3) })
+    tl.add({ duration: 50, onComplete: () => cb(4) })
+    tl.add(() => cb(1), 0)
+    tl.add(() => cb(2), 20)
+    tl.add(() => cb(5), 200)
+    await tl.play()
+    for (let i = 1; i <= 5; i++) expect(cb).toHaveBeenNthCalledWith(i, i)
+    cb.mockClear()
+
+    // Set relative add offset from the end
+    tl = new Timeline({ paused: true })
+    tl.add(() => cb(1), 0)
+    tl.add(() => cb(5), 200)
+    tl.add(() => cb(2), 20)
+    tl.add({ duration: 100, onComplete: () => cb(3) })
+    tl.add({ duration: 50, onComplete: () => cb(4) })
+    await tl.play()
+    for (let i = 1; i <= 5; i++) expect(cb).toHaveBeenNthCalledWith(i, i)
+    cb.mockClear()
+
+    // shuffle
+    tl = new Timeline({ paused: true })
+    tl.add(() => cb(2), 20)
+    tl.add({ duration: 100, onComplete: () => cb(3) })
+    tl.add(() => cb(5), 200)
+    tl.add({ duration: 50, onComplete: () => cb(4) })
+    tl.add(() => cb(1), 0)
+    await tl.play()
+    for (let i = 1; i <= 5; i++) expect(cb).toHaveBeenNthCalledWith(i, i)
+  })
 })
