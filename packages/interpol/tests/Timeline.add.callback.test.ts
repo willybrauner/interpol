@@ -93,7 +93,7 @@ describe("Timeline add callback", () => {
   it("should execute single callback with absolute offset", async () => {
     const cb = vi.fn()
     const tl = new Timeline({ paused: true })
-    tl.add(() => cb(), 100) // offset absolu de 100ms
+    tl.add(() => cb(), 100) // absolute offset of 100ms
     await tl.play()
     expect(cb).toHaveBeenCalledTimes(1)
   })
