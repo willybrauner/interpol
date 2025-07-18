@@ -158,7 +158,7 @@ describe("Timeline add callback", () => {
     }
   })
 
-  it.only("should execute tl.add() callback with absolute offset, no matter the order", async () => {
+  it("should execute tl.add() callback with absolute offset, no matter the order", async () => {
     const cb = vi.fn((n: number) => n)
     let tl: Timeline
 

@@ -64,8 +64,8 @@ export class Timeline {
   }
 
   /**
-   * Add a new interpol obj or instance in Timeline
-   * @param interpol
+   * Add a new interpol obj or instance in Timeline or a callback function
+   * @param interpol Interpol | InterpolConstruct<K> | (() => void),
    * @param offset Default "0" is relative position in TL
    */
   public add<K extends keyof Props>(
@@ -73,24 +73,21 @@ export class Timeline {
     offset: number | string = "0",
   ): Timeline {
     // Prepare the new Interpol instance
-    // add method accept callback () => void
-    // If interpol param is a function, we transform it to an Interpol instance
-    // in order to take advantage of internal callback management during the timeline
-    if (typeof interpol === "function") {
+    // If interpol param is a callback function, we transform it to an Interpol instance
+    if (typeof interpol === "function")
       interpol = new Interpol({ duration: 0, onComplete: interpol })
-    }
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
     itp.stop()
     itp.refreshComputedValues()
     itp.ticker = this.#ticker
     itp.inTl = true
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
+
     // calc the final offset: could be a string like
-    // - relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
-    // - absolute position {number} 100 | -100
     let fOffset: number
     let startTime: number
     const factor: number = InterpolOptions.durationFactor
+
     // Relative position in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
@@ -109,6 +106,7 @@ export class Timeline {
       this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
       startTime = fOffset ?? 0
     }
+
     // push new Add instance in local
     this.#adds.push({
       itp,
@@ -125,14 +123,17 @@ export class Timeline {
       },
       _isAbsoluteOffset: typeof offset === "number",
     })
+
     // Re Calc all progress start and end after each add register,
     // because we need to know the full TL duration for this calc
     this.#onAllAdds((currAdd, i) => {
       this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration || 0
       this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
+
     // hack needed because we need to waiting all adds register if this is an autoplay
     if (!this.isPaused) setTimeout(() => this.play(), 0)
+
     // return the Timeline instance to chain methods
     return this
   }
