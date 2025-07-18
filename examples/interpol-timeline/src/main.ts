@@ -81,11 +81,16 @@ tl.add({
   },
 })
 
-// tl.add(() => {
-//   console.log("add callback!!!!!!")
-//   styles(ball, { background: "blue" })
-// }, 100)
 tl.add(() => {
-  console.log("add callback!!!!!!")
+  console.log("add callback blue")
+  styles(ball, { background: "blue" })
+}, 300)
+tl.add(() => {
+  console.log("add callback green")
   styles(ball, { background: "green" })
-}, "-=200")
+}, "+=1000")
+
+tl.add(() => {
+  console.log("add callback red")
+  styles(ball, { background: "red" })
+}, "+500")
