@@ -59,7 +59,6 @@ export class Timeline {
     this.#isPaused = paused
     this.ID = ++TL_ID
     this.#ticker = InterpolOptions.ticker
-
     // waiting for all adds register before log
     setTimeout(() => this.#log("adds", this.#adds), 1)
   }
@@ -86,35 +85,30 @@ export class Timeline {
     itp.ticker = this.#ticker
     itp.inTl = true
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
-
-    // Register full TL duration
     // calc the final offset: could be a string like
-    // relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
-    // absolute position {number} 100 | -100
+    // - relative position {string} "-=100" | "-100" | "100" | "+=100" | "+100"
+    // - absolute position {number} 100 | -100
     let fOffset: number
     let startTime: number
     const factor: number = InterpolOptions.durationFactor
-
     // Relative position in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
       // Find the last relative element chronologically, not by add order
       const relativeAdds = this.#adds.filter((add) => !add._isAbsoluteOffset)
-      const prevAdd =
-        relativeAdds?.length > 0
+      // prettier-ignore
+      const prevAdd = relativeAdds?.length > 0
           ? relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
           : null
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
     }
-
     // absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset * factor
       this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
       startTime = fOffset ?? 0
     }
-
     // push new Add instance in local
     this.#adds.push({
       itp,
@@ -131,14 +125,12 @@ export class Timeline {
       },
       _isAbsoluteOffset: typeof offset === "number",
     })
-
     // Re Calc all progress start and end after each add register,
     // because we need to know the full TL duration for this calc
     this.#onAllAdds((currAdd, i) => {
       this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration || 0
       this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
-
     // hack needed because we need to waiting all adds register if this is an autoplay
     if (!this.isPaused) setTimeout(() => this.play(), 0)
     // return the Timeline instance to chain methods
@@ -151,18 +143,15 @@ export class Timeline {
       this.#isReversed = false
       return
     }
-
     if (this.#isPlaying) {
       this.stop()
       return await this.play(from)
     }
-
     this.#time = this.#tlDuration * from
     this.#progress = from
     this.#isReversed = false
     this.#isPlaying = true
     this.#isPaused = false
-
     this.#ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
@@ -219,9 +208,7 @@ export class Timeline {
   }
 
   public progress(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
-    if (value === undefined) {
-      return this.#progress
-    }
+    if (value === undefined) return this.#progress
     if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, value, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
@@ -274,15 +261,12 @@ export class Timeline {
     if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
     if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
     this.#lastTlProgress = tlProgress
-
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
-
     // Then progress all itps
     this.#onAllAdds((add) => {
       // Register last and current progress in current add
       add.progress.last = add.progress.current
-
       // For callbacks with duration 0, trigger when tlTime >= start time
       // In other case, calculate the current progress
       // prettier-ignore
@@ -290,16 +274,18 @@ export class Timeline {
         add.itp.duration === 0
           ? tlTime >= add.time.start ? 1 : 0
           : (tlTime - add.time.start) / add.itp.duration
-
+      // progress current itp
       add.itp.progress(add.progress.current, suppressEvents)
     }, this.#reverseLoop)
-  } /**
+  }
+
+  /**
    * Exe Callback function on all adds
    * Need to call from 0 to x or x to 0, depends on reversed state
    * @param {(add: IAdd, i?: number) => void} cb
    * @param {boolean} reverse Call from X to 0 index
    */
-  #onAllAdds(cb: (add: IAdd, i?: number) => void, reverse = false): void {
+  #onAllAdds(cb: (add: IAdd, i?: number) => void, reverse: boolean = false): void {
     const startIndex = reverse ? this.#adds.length - 1 : 0
     const endIndex = reverse ? -1 : this.#adds.length
     const step = reverse ? -1 : 1

@@ -144,13 +144,14 @@ describe("Timeline add callback", () => {
     expect(cb).toHaveBeenCalledTimes(2)
   })
 
-  it("should execute cb when his position is on the last of the timeline", async () => {
-    const OFFSETS = ["0", 0, 100, 500, 233]
+  it("should execute callback when his position is on the last of the timeline", async () => {
+    const OFFSETS = ["0", "+=250", "-=50", 0, 100, 500, 233]
 
     for (let offset of OFFSETS) {
       const cb = vi.fn()
       const tl = new Timeline({ paused: true })
       tl.add({ duration: 100 })
+      tl.add({ duration: 20 })
       tl.add(() => cb(), offset)
       await tl.play()
       expect(cb).toHaveBeenCalledTimes(1)
