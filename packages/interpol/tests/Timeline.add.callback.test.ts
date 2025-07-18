@@ -5,7 +5,7 @@ import "./_setup"
 describe("Timeline add callback", () => {
   /**
    * We assume that the tl.time is a physical time in ms
-   * It can't reflect the exact position set via duration beacause depend on RAF
+   * It can't reflect the exact position set via duration because depend on RAF
    *
    * ex:
    *  tl.add(() => {}, 50) // will maybe execute around 64ms and it's ok
