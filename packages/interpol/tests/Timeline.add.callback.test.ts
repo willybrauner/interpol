@@ -101,7 +101,7 @@ describe("Timeline add callback", () => {
   it("should execute single callback with relative offset", async () => {
     const cb = vi.fn()
     const tl = new Timeline({ paused: true })
-    tl.add(() => cb(), "+=100") // offset relatif de 100ms
+    tl.add(() => cb(), "+=100") // relative offset of 100ms
     await tl.play()
     expect(cb).toHaveBeenCalledTimes(1)
   })
