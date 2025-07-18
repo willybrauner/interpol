@@ -282,14 +282,15 @@ export class Timeline {
     this.#onAllAdds((add) => {
       // Register last and current progress in current add
       add.progress.last = add.progress.current
-      const hasNoDuration = add.itp.duration === 0
 
-      if (hasNoDuration) {
-        // For callbacks with duration 0, trigger when tlTime >= start time
-        add.progress.current = tlTime >= add.time.start ? 1 : 0
-      } else {
-        add.progress.current = (tlTime - add.time.start) / add.itp.duration
-      }
+      // For callbacks with duration 0, trigger when tlTime >= start time
+      // In other case, calculate the current progress
+      // prettier-ignore
+      add.progress.current =
+        add.itp.duration === 0
+          ? tlTime >= add.time.start ? 1 : 0
+          : (tlTime - add.time.start) / add.itp.duration
+
       add.itp.progress(add.progress.current, suppressEvents)
     }, this.#reverseLoop)
   } /**
