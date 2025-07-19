@@ -96,7 +96,7 @@ export function App() {
 
   return (
     <div className={css.root}>
-      <Controls className={css.controls} instance={instance} />
+      {/* <Controls className={css.controls} instance={instance} /> */}
       <div className={css.container} ref={containerRef}>
         <div className={css.ball} ref={ref1} />
         <div className={css.ball} ref={ref2} />
@@ -104,7 +104,7 @@ export function App() {
         <div className={css.ball} ref={ref4} />
       </div>
 
-      <Visual timeline={instance} />
+      {instance && <Visual timeline={instance} />}
     </div>
   )
 }
