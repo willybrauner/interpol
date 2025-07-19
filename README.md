@@ -64,6 +64,7 @@ The examples of this repo are available on codesandbox:
 - [Interpol offsets](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-offsets)
 - [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
 - [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
+- [Interpol timeline visual](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline-visual)
 
 ## Install
 
