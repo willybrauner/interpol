@@ -16,25 +16,11 @@ export function App() {
   const windowSize = useWindowSize()
 
   useEffect(() => {
-    const duration = 1800
-    const ease = "power2.inOut"
-    const tl = new Timeline({ debug: false })
+    const tl = new Timeline()
 
-    // tl.add(() => {}, duration * 0.2)
-    // tl.add(() => {}, duration * 0.6)
-
-    tl.add({
-      duration,
-      ease: "power2.in",
-      immediateRender: true,
-      x: [0, containerRef.current.offsetWidth - ref1.current.offsetWidth],
-      onUpdate: ({ x }) => {
-        styles(ref1.current, { x })
-      },
-    })
     tl.add(
       {
-        duration,
+        duration: 1800,
         ease: "power4.out",
         immediateRender: true,
         x: [0, containerRef.current.offsetWidth - ref2.current.offsetWidth],
@@ -43,24 +29,24 @@ export function App() {
           styles(ref2.current, { x, rotate })
         },
       },
-      `-=${duration / 1.5}`,
+      `-=${1800 / 1.5}`,
     )
     tl.add(
       {
-        duration,
-        ease,
+        duration: 1800,
+        ease: "power2.inOut",
         immediateRender: true,
         x: [0, containerRef.current.offsetWidth - ref3.current.offsetWidth],
         onUpdate: ({ x }) => {
           styles(ref3.current, { x })
         },
       },
-      `-=${duration / 1.5}`,
+      `-=${1800 / 1.5}`,
     )
     tl.add(
       {
         duration: 600,
-        ease,
+        ease: "power2.inOut",
         immediateRender: true,
         x: [0, containerRef.current.offsetWidth - ref4.current.offsetWidth],
         onUpdate: ({ x }) => {
@@ -70,7 +56,6 @@ export function App() {
       2000,
     )
 
-    // stagger all ref if for loop, opacity 1 -> 0.5
     const refs = [ref1, ref2, ref3, ref4]
     refs.forEach((ref, index) => {
       tl.add(
