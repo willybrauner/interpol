@@ -7,7 +7,7 @@ import { round } from "./core/round"
 import { noop } from "./core/noop"
 import { InterpolOptions } from "./options"
 
-interface IAdd {
+export interface IAdd {
   itp: Interpol
   time: { start: number; end: number; offset: number }
   progress: { start?: number; end?: number; current: number; last: number }
@@ -36,11 +36,21 @@ export class Timeline {
     return this.#isPaused
   }
   #adds: IAdd[] = []
+  public get adds(): IAdd[] {
+    return this.#adds
+  }
+  #tlDuration: number = 0
+  public get duration(): number {
+    return this.#tlDuration
+  }
+  #ticker: Ticker
+  public get ticker(): Ticker {
+    return this.#ticker
+  }
+
   #playFrom = 0
   #reverseFrom = 1
   #onCompleteDeferred = deferredPromise()
-  #ticker: Ticker
-  #tlDuration: number = 0
   #debugEnable: boolean
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
