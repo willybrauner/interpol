@@ -84,8 +84,9 @@ export class Timeline {
   ): Timeline {
     // Prepare the new Interpol instance
     // If interpol param is a callback function, we transform it to an Interpol instance
-    if (typeof interpol === "function")
+    if (typeof interpol === "function") {
       interpol = new Interpol({ duration: 0, onComplete: interpol })
+    }
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
     itp.stop()
     itp.refreshComputedValues()
@@ -93,7 +94,6 @@ export class Timeline {
     itp.inTl = true
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
 
-    // calc the final offset: could be a string like
     let fOffset: number
     let startTime: number
     const factor: number = InterpolOptions.durationFactor
@@ -101,16 +101,19 @@ export class Timeline {
     // Relative position in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
-      // Find the last relative element chronologically, not by add order
       const relativeAdds = this.#adds.filter((add) => !add._isAbsoluteOffset)
-      // prettier-ignore
-      const prevAdd = relativeAdds?.length > 0
-          ? relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
-          : null
+
+      const prevAdd =
+        relativeAdds?.length > 0
+          ? // get previous relative add add with the biggest end time
+            relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
+          : // or get the previous (absolute)
+            this.#adds?.[this.#adds.length - 1] || null
+
       this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
     }
-    // absolute position in TL
+    // Absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset * factor
       this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)

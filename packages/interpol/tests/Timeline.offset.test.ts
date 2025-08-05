@@ -2,6 +2,7 @@ import { it, expect, describe } from "vitest"
 import { InterpolOptions, Timeline } from "../src"
 import "./_setup"
 import { afterEach } from "node:test"
+import { expectToBeBetween } from "./utils/expectToBeBetween"
 
 /**
  * Template for testing offset
@@ -9,13 +10,18 @@ import { afterEach } from "node:test"
  * @param tlDuration
  */
 const testTemplate = (itps: [number, (number | string)?][], tlDuration: number) =>
-  new Promise(async (resolve: any) => {
+  new Promise(async (resolve: any, reject) => {
     const tl = new Timeline({
       onComplete: (time) => {
         // We are testing the final time / final tlDuration
         // It depends on itps duration and offset
-        expect(time).toBe(tlDuration)
-        resolve()
+
+        try {
+          expect(time).toBe(tlDuration)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
       },
     })
     for (let [duration, offset] of itps) {
@@ -152,7 +158,85 @@ describe.concurrent("Timeline.add() offset", () => {
     InterpolOptions.durationFactor = 1
     InterpolOptions.duration = 1000  
   })
-  
+
+
+  /**
+
+     0             100           200        300
+                    [- itp1     -]
+                           [- itp2    -]
+                                 [- itp3    -]
+     [- itp4  -]
+
+   */
+  it('absolute & relative offsets should work together', async () => {
+    return new Promise<void>((resolve, reject) => {
+      const tl = new Timeline({
+        paused: true,
+        onComplete: (time) => {
+          try {
+            expect(tl.time).toBe(300)
+            resolve()
+          } catch (error) {
+            reject(error)
+          }
+        },
+      })
+
+      // Absolute from 100 ms
+      tl.add({ 
+         duration: 100,
+        onComplete: () => {
+          console.log('itp 1 time should be 200', tl.time)
+          try {
+            expectToBeBetween(tl.time, 190, 210)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      }, 100) 
+
+      // Relative from the previous add, will start at 100 - 50
+      tl.add({ 
+        duration: 100,
+        onComplete: () => {
+          try {
+            expectToBeBetween(tl.time, 240, 260)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      }, '-=50') 
+
+      // Relative from the previous add
+      tl.add({ 
+        duration: 100,
+        onComplete: () => {
+          try {
+            expect(tl.time).toBe(300)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      }, '-=50') 
+    
+      // Absolute from 0
+      tl.add({ 
+        duration: 100,
+        onComplete: () => {
+          try {
+            expectToBeBetween(tl.time, 100, 120)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      }, 0) 
+      
+
+      tl.play().catch(reject)
+    })
+  })
+
   it('should work with duration factor on relative offset', async() => {
     InterpolOptions.durationFactor = 1000
     InterpolOptions.duration = 1
@@ -181,4 +265,5 @@ describe.concurrent("Timeline.add() offset", () => {
     tl.add({ duration: .2 }, .1)
      return tl.play()
   })
+
 })
