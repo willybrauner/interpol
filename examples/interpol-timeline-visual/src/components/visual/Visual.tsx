@@ -54,13 +54,13 @@ export const Visual = (props: IProps) => {
    * Set progress
    */
   useEffect(() => {
-    return props.timeline.ticker.add(() => {
+    document.addEventListener("tlOnUpdate", () => {
       rootRef.current?.style.setProperty(
         "--progress-x",
-        String((elRect.width / 100) * (props.timeline.progress() as number) * 100),
+        String((elRect?.width / 100) * (props.timeline.progress() as number) * 100),
       )
     })
-  })
+  }, [elRect?.width])
 
   /**
    * Listen keys

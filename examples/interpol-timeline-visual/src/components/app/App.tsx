@@ -1,9 +1,10 @@
 import css from "./App.module.less"
 import { useEffect, useRef, useState } from "react"
-import { Interpol, styles, Timeline } from "@wbe/interpol"
-import { Controls } from "../controls/Controls"
+import { styles, Timeline } from "@wbe/interpol"
 import { useWindowSize } from "../../utils/useWindowSize"
 import { Visual } from "../visual/Visual"
+
+export const tlOnUpdateEvent = new Event("tlOnUpdate")
 
 export function App() {
   const ref1 = useRef(null)
@@ -16,8 +17,25 @@ export function App() {
   const windowSize = useWindowSize()
 
   useEffect(() => {
-    const tl = new Timeline()
+    const tl = new Timeline({
+      debug: false,
+      onUpdate: (t, p) => {
+        document.dispatchEvent(tlOnUpdateEvent)
+      },
+      onComplete: (t, p) => {
+        console.log(t, p)
+      },
+    })
 
+    tl.add({
+      duration: 1800,
+      ease: "power4.out",
+      immediateRender: true,
+      x: [0, containerRef.current.offsetWidth - ref1.current.offsetWidth],
+      onUpdate: ({ x }) => {
+        styles(ref1.current, { x })
+      },
+    })
     tl.add(
       {
         duration: 1800,
@@ -45,7 +63,7 @@ export function App() {
     )
     tl.add(
       {
-        duration: 600,
+        duration: 1800,
         ease: "power2.inOut",
         immediateRender: true,
         x: [0, containerRef.current.offsetWidth - ref4.current.offsetWidth],
@@ -53,7 +71,7 @@ export function App() {
           styles(ref4.current, { x })
         },
       },
-      2000,
+      `-=${1800 / 1.5}`,
     )
 
     const refs = [ref1, ref2, ref3, ref4]
