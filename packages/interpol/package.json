@@ -5,7 +5,7 @@
     "name": "Willy Brauner",
     "url": "https://willybrauner.com"
   },
-  "version": "0.23.1",
+  "version": "0.24.0",
   "type": "module",
   "sideEffects": false,
   "files": [

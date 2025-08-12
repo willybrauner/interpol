@@ -1,5 +1,27 @@
 # @wbe/interpol
 
+## 0.24.0
+
+### Minor Changes
+
+- 1f26cbd: meta fields
+
+  `Interpol` constructor now accepts a `Record<string, any>` `meta` field object to access custom Interpol properties from the instance.
+
+  ```ts
+  const itp = new Interpol({
+    meta: {
+      type: "first",
+    },
+    x: [0, 100],
+    onUpdate: ({ x }) => {
+      // ...
+    },
+  })
+
+  console.log(itp.meta) // { type: "first" }
+  ```
+
 ## 0.23.1
 
 ### Patch Changes
