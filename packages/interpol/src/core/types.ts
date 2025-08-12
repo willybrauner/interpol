@@ -64,6 +64,7 @@ export type InterpolConstructBase<K extends string = string> = {
   onStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
+  meta?: Record<string, any>
 }
 
 // @credit Philippe Elsass
