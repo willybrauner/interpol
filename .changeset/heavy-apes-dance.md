@@ -8,14 +8,14 @@ meta fields
 
 ```ts
 const itp = new Interpol({
-    meta: {
-      type: "first",
-    },
-    x: [0, 100],
-    onUpdate: ({ x }) => {
-        // ...
-    },
+  meta: {
+    type: "first",
+  },
+  x: [0, 100],
+  onUpdate: ({ x }) => {
+    // ...
+  },
 })
 
-const log(itp.meta) // { type: "first" }
+console.log(itp.meta) // { type: "first" }
 ```
