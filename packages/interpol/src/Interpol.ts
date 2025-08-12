@@ -51,6 +51,7 @@ export class Interpol<K extends string = string> {
     return this.#props
   }
 
+  meta: Record<string, any>
   #duration: Value
   #callbackProps: CallbackProps<K>
   #immediateRender: boolean
@@ -78,6 +79,7 @@ export class Interpol<K extends string = string> {
     onUpdate = noop,
     onComplete = noop,
     debug = false,
+    meta = {},
     ...inlineProps
   }: InterpolConstruct<K>) {
     this.ticker = InterpolOptions.ticker
@@ -92,6 +94,7 @@ export class Interpol<K extends string = string> {
     this.debugEnable = debug
     this.#ease = ease
     this.#reverseEase = reverseEase
+    this.meta = meta
 
     // Prepare & compute props
     this.#props = this.#prepareProps<K>(

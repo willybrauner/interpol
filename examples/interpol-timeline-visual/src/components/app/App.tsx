@@ -35,6 +35,9 @@ export function App() {
       onUpdate: ({ x }) => {
         styles(ref1.current, { x })
       },
+      meta: {
+        type: "first ball",
+      },
     })
     tl.add(
       {
@@ -45,6 +48,9 @@ export function App() {
         rotate: [0, 360],
         onUpdate: ({ x, rotate }) => {
           styles(ref2.current, { x, rotate })
+        },
+        meta: {
+          type: "carre",
         },
       },
       `-=${1800 / 1.5}`,
@@ -58,6 +64,9 @@ export function App() {
         onUpdate: ({ x }) => {
           styles(ref3.current, { x })
         },
+        meta: {
+          type: "3",
+        },
       },
       `-=${1800 / 1.5}`,
     )
@@ -69,6 +78,9 @@ export function App() {
         x: [0, containerRef.current.offsetWidth - ref4.current.offsetWidth],
         onUpdate: ({ x }) => {
           styles(ref4.current, { x })
+        },
+        meta: {
+          type: "4",
         },
       },
       `-=${1800 / 1.5}`,
