@@ -66,12 +66,13 @@ import { Interpol } from "@wbe/interpol"
 
 new Interpol({
   v: [0, 100],
+  z: [-100, 200],
   duration: 1000,
-  ease: (t) => t,
-  onUpdate: ({ v }, time, progress) => {
-    // On each frame, get updated `v` value between 0 and 100
+  ease: (t) => t * t,
+  onUpdate: ({ v, z }, time, progress) => {
+    // Use updated `v` and `z` values on each frame
   },
-  onComplete: ({ v }, time, progress) => {
+  onComplete: ({ v, z }, time, progress) => {
     // Interpol is complete
   },
 })
@@ -80,9 +81,10 @@ new Interpol({
 In this example:
 
 - The Interpol will start automatically
-- `v` will be interpolated between `0` and `100` during 1 second
+- `v` will be interpolated between `0` and `100` during 1000 milliseconds
+- `z` will be interpolated between `-100` and `200` during 1000 milliseconds
 - `time` is the current time in millisecond
-- `progress` is the current progress between `0` and `1`
+- `progress` is the current percent progress between `0` and `1`
 
 ### Timeline
 
@@ -96,7 +98,7 @@ const tl = new Timeline()
 tl.add({
   x: [0, 100],
   duration: 750,
-  onUpdate: ({ x y }, time, progress) => {},
+  onUpdate: ({ x }, time, progress) => {},
 })
 tl.add({
   foo: [100, 50],
