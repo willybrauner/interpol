@@ -107,14 +107,7 @@ Chaining interpol instancies with `Timeline`:
 ```js
 import { Interpol, Timeline } from "@wbe/interpol"
 
-const tl = new Timeline({
-  onUpdate: (time, progress) => {
-    // Timeline is updating
-  },
-  onComplete: (time, progress) => {
-    // Timeline is complete
-  },
-})
+const tl = new Timeline()
 
 // Set an Interpol instance object constructor directly
 tl.add({
@@ -146,7 +139,7 @@ A timeline can also be used to add callback function instead of Interpol instanc
 
 ```ts
 tl.add(() => {
-  // do something when the timeline reaches this point  
+  // do something when the timeline reaches this point
 })
 ```
 
@@ -163,7 +156,7 @@ import { Timeline } from "@wbe/interpol"
 
 const tl = new Timeline()
 
-// Use an Interpol constructor 
+// Use an Interpol constructor
 tl.add({
   x: [-20, 100],
   onUpdate: ({ x }, time, progress) => { ... },
@@ -172,17 +165,17 @@ tl.add({
 // Set a callback as parameter instead of an Interpol instance or constructor
 tl.add(() => {
   console.log("Timeline reached this point when previous add is complete")
-}) 
+})
 
 // Set a callback with an absolute offset (50ms in this case)
 tl.add(() => {
   console.log("Timeline reached this point exactly 50ms after the beginning")
-}, 50) 
+}, 50)
 
 // Set a callback with a relative offset (-50 in this case)
 tl.add(() => {
   console.log("Timeline reached this point 50ms before the previous interpol end")
-}, '-=50') 
+}, '-=50')
 ```
 
 ## Props
@@ -477,7 +470,7 @@ tl.resume()
 tl.stop()
 
 // compute 'from', 'to' and 'duration' values on each adds if there are functions
-refreshComputedValues(): void
+tl.refreshComputedValues()
 
 // set progress to a specific value
 // value is a number between 0 and 1
