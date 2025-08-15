@@ -22,12 +22,11 @@ on... mesh, dom element or anything else, for ~=3kB!
 ## Summary
 
 - [Summary](#summary)
-  [Playground](#playground)
 - [Install](#install)
 - [Basic usage](#basic-usage)
   - [Interpol](#interpol)
   - [Timeline](#timeline)
-  - [add callback & offsets](#timeline-add-callback--offsets)
+  - [Timeline add callback \& offsets](#timeline-add-callback--offsets)
 - [Props](#props)
   - [Props types](#props-types)
   - [Computed prop values](#computed-prop-values)
@@ -44,26 +43,11 @@ on... mesh, dom element or anything else, for ~=3kB!
     - [Use the internal Ticker instance globally](#use-the-internal-ticker-instance-globally)
   - [Defaults properties](#defaults-properties)
 - [Dev examples](#dev-examples)
+- [Playground](#playground)
 - [Showcase](#showcase)
 - [Credits](#credits)
 - [About](#about)
 - [License](#license)
-
-## Playground
-
-The examples of this repo are available on codesandbox:
-
-- [Interpol basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-basic)
-- [Interpol colors](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-colors)
-- [Interpol dom onDrag](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-dom-ondrag)
-- [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
-- [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
-- [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
-- [Interpol object el](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-object-el)
-- [Interpol offsets](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-offsets)
-- [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
-- [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
-- [Interpol timeline visual](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline-visual)
 
 ## Install
 
@@ -109,29 +93,24 @@ import { Interpol, Timeline } from "@wbe/interpol"
 
 const tl = new Timeline()
 
-// Set an Interpol instance object constructor directly
 tl.add({
   x: [0, 100],
-  onComplete: ({ x }, time, progress) => {
-    // itp 1 is complete
-  },
+  duration: 750,
+  onUpdate: ({ x y }, time, progress) => {},
 })
-
-// Or add interpol instance to the timeline
-const itp = new Interpol({
-  x: [100, 50],
-  onComplete: ({ x }, time, progress) => {
-    // itp 2 is complete
-  },
+tl.add({
+  foo: [100, 50],
+  bar: [0, 500],
+  duration: 500,
+  onUpdate: ({ foo, bar }, time, progress) => {},
 })
-tl.add(itp)
 ```
 
 In this example:
 
 - The timeline will start automatically
-- Interpol 1, will interpolate `x` value between `0` and `100` during 1 second
-- Interpol 2, will start when Interpol 1 is complete and will interpolate `x` value between `100` and `50` during 0.5 second
+- Interpol 1, will interpolate `x` value between `0` and `100` during 750 ms
+- Interpol 2, will start when Interpol 1 is complete and will interpolate `foo` & `bar` values during 500 ms
 
 ### Timeline add callback & offsets
 
@@ -156,7 +135,6 @@ import { Timeline } from "@wbe/interpol"
 
 const tl = new Timeline()
 
-// Use an Interpol constructor
 tl.add({
   x: [-20, 100],
   onUpdate: ({ x }, time, progress) => { ... },
@@ -551,6 +529,22 @@ pnpm run dev
 pnpm run dev --filter interpol-basic
 pnpm run dev --filter {example-name}
 ```
+
+## Playground
+
+The examples of this repo are available on codesandbox:
+
+- [Interpol basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-basic)
+- [Interpol colors](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-colors)
+- [Interpol dom onDrag](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-dom-ondrag)
+- [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
+- [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
+- [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
+- [Interpol object el](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-object-el)
+- [Interpol offsets](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-offsets)
+- [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
+- [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
+- [Interpol timeline visual](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline-visual)
 
 ## Showcase
 
