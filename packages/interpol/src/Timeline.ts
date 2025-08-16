@@ -155,11 +155,13 @@ export class Timeline {
     this.#playFrom = from
     if (this.#isPlaying && this.#isReversed) {
       this.#isReversed = false
-      return
+      return this.#onCompleteDeferred.promise
     }
     if (this.#isPlaying) {
-      this.stop()
-      return await this.play(from)
+      this.#time = this.#tlDuration * from
+      this.#progress = from
+      this.#isReversed = false
+      return this.#onCompleteDeferred.promise
     }
     this.#time = this.#tlDuration * from
     this.#progress = from
@@ -253,6 +255,7 @@ export class Timeline {
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
       this.#onComplete(this.#time, this.#progress)
+      console.log("--------Timeline completed, stopping...",this.#onCompleteDeferred)
       this.#onCompleteDeferred.resolve()
       this.stop()
     }
