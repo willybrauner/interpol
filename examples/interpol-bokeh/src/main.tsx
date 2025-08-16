@@ -14,7 +14,7 @@ function random(min: number, max: number, decimal = 0): number {
   const power = Math.pow(10, decimal)
   return Math.floor(rand * power) / power
 }
-const randomRGB = () => `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`
+const randomRGB = () => `rgb(${random(50, 200)}, ${random(50, 200)}, ${random(50, 200)})`
 
 const getEases = () =>
   ["power1", "power2", "power3", "expo"].reduce(
@@ -30,7 +30,7 @@ const randomEase = eases[random(0, eases.length - 1)]
  */
 export function App() {
   const els = useRef([])
-  const [pointsNumber, setPointsNumber] = useState(2)
+  const [pointsNumber, setPointsNumber] = useState(150)
   const windowSize = useWindowSize()
 
   /**
@@ -48,33 +48,32 @@ export function App() {
         {
           immediateRender: true,
           paused: true,
-          //debug: true,
-          duration: 1000,
-          ease: randomEase,
+          duration: () => random(1000, 5000),
+          ease: "power1.out",
           x: [innerWidth / 2, () => random(0, innerWidth)],
           y: [innerHeight / 2, () => random(0, innerHeight)],
-          // x: [random(innerWidth / 3, innerWidth / 6), () => random(0, innerWidth)],
-          // y: [random(0, innerHeight), () => random(0, innerHeight)],
-          scale: { from: 0, to: 16 },
+          scale: { from: 0, to: 5 },
           opacity: [1, 0],
-
           onUpdate: ({ x, y, scale, opacity }) => {
             styles(el, { x, y, scale, opacity })
           },
         },
-        random(0, 100),
+        random(0, 3000),
       )
     }
 
-    const yoyo = () => {
-      console.log("Yoyoing...")
-      timeline.play().then(() => {
-        console.log("EXAMPLE END Timeline completed, restarting...")
-        yoyo()
-      })
+    const yoyo = async () => {
+      await timeline.play()
+      await timeline.reverse()
+      timeline.refreshComputedValues()
+      yoyo()
     }
 
     yoyo()
+
+    return () => {
+      timeline.stop()
+    }
   }, [pointsNumber, windowSize])
 
   return (

@@ -12,7 +12,8 @@
     "/examples/interpol-particles",
     "/examples/interpol-timeline",
     "/examples/interpol-offsets",
-    "/examples/interpol-timeline-visual"
+    "/examples/interpol-timeline-visual",
+    "/examples/interpol-bokeh"
   ],
   "node": "18"
 }
