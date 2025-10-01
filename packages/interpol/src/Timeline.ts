@@ -152,6 +152,7 @@ export class Timeline {
   }
 
   public async play(from: number = 0): Promise<any> {
+    //console.log("Play !")
     this.#playFrom = from
     if (this.#isPlaying && this.#isReversed) {
       this.#isReversed = false
