@@ -21,7 +21,7 @@ describe.concurrent("Timeline play", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
       const promiseResolve = vi.fn()
-      const tl = new Timeline({ onComplete, paused: true })
+      const tl = new Timeline({ onComplete })
       for (let i = 0; i < 3; i++) {
         tl.add({ duration: 100 })
       }

@@ -3,6 +3,7 @@
   "packages": ["./packages/*"],
   "sandboxes": [
     "/examples/interpol-basic",
+    "/examples/interpol-delay",
     "/examples/interpol-colors",
     "/examples/interpol-dom-ondrag",
     "/examples/interpol-ease",
