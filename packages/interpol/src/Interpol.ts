@@ -28,7 +28,7 @@ export class Interpol<K extends string = string> {
   public get duration() {
     return this.#_duration
   }
-  #_delay: Value
+  #_delay: number
   public get delay() {
     return this.#_delay
   }
@@ -160,7 +160,7 @@ export class Interpol<K extends string = string> {
         if (fromStart) this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
         this.ticker.add(this.#handleTick)
       },
-      this.#time > 0 ? 0 : (this.#_delay as number),
+      this.#time > 0 ? 0 : this.#_delay,
     )
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
