@@ -58,7 +58,7 @@ export type InterpolConstructBase<K extends string = string> = {
   reverseEase?: Ease
   paused?: boolean
   immediateRender?: boolean
-  delay?: number
+  delay?: Value
   debug?: boolean
   beforeStart?: CallBack<K>
   onStart?: CallBack<K>

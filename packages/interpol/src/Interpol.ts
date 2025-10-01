@@ -28,6 +28,10 @@ export class Interpol<K extends string = string> {
   public get duration() {
     return this.#_duration
   }
+  #_delay: Value
+  public get delay() {
+    return this.#_delay
+  }
   #time = 0
   public get time() {
     return this.#time
@@ -53,9 +57,9 @@ export class Interpol<K extends string = string> {
 
   meta: Record<string, any>
   #duration: Value
+  #delay: Value
   #callbackProps: CallbackProps<K>
   #immediateRender: boolean
-  #delay: number
   #ease: Ease
   #reverseEase: Ease
   #beforeStart: CallBack<K>
@@ -85,7 +89,7 @@ export class Interpol<K extends string = string> {
     this.ticker = InterpolOptions.ticker
     this.#duration = duration
     this.#isPaused = paused
-    this.#delay = delay * InterpolOptions.durationFactor
+    this.#delay = delay
     this.#immediateRender = immediateRender
     this.#beforeStart = beforeStart
     this.#onStart = onStart
@@ -115,6 +119,7 @@ export class Interpol<K extends string = string> {
   // Compute if values were functions
   public refreshComputedValues(): void {
     this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
+    this.#_delay = compute(this.#delay) * InterpolOptions.durationFactor
     this.#onEachProps((prop) => {
       prop._from = compute(prop.from)
       prop._to = compute(prop.to)
@@ -155,7 +160,7 @@ export class Interpol<K extends string = string> {
         if (fromStart) this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
         this.ticker.add(this.#handleTick)
       },
-      this.#time > 0 ? 0 : this.#delay,
+      this.#time > 0 ? 0 : (this.#_delay as number),
     )
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
