@@ -1,5 +1,21 @@
 # @wbe/interpol
 
+## 0.25.0
+
+### Minor Changes
+
+- e2a023c: Transform delay as a computed property
+
+  `delay`property can now be used as a computed property, like props values & duration.
+
+  ```ts
+  const itp = new Interpol({
+    delay: () => Math.random() * 1000,
+  })
+
+  itp.refreshComputedValues()
+  ```
+
 ## 0.24.0
 
 ### Minor Changes

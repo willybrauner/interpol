@@ -8,7 +8,7 @@
     "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "^0.24.0"
+    "@wbe/interpol": "^0.25.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
