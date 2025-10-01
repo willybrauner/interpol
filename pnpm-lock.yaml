@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -34,7 +30,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.0.13)(jsdom@26.1.0)(terser@5.43.1)
@@ -42,7 +38,7 @@ importers:
   examples/interpol-basic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
     devDependencies:
       typescript:
@@ -50,7 +46,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
 
   examples/interpol-colors:
     dependencies:
@@ -63,7 +59,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
 
   examples/interpol-delay:
     dependencies:
@@ -95,12 +91,12 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
 
   examples/interpol-ease:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -131,7 +127,7 @@ importers:
   examples/interpol-graphic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -162,7 +158,7 @@ importers:
   examples/interpol-menu:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -193,7 +189,7 @@ importers:
   examples/interpol-object-el:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       ogl:
         specifier: ^1.0.11
@@ -207,12 +203,12 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
 
   examples/interpol-offsets:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -243,7 +239,7 @@ importers:
   examples/interpol-particles:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -282,7 +278,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
 
   examples/interpol-timeline:
     dependencies:
@@ -334,7 +330,7 @@ importers:
   examples/interpol-timeline-visual:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.24.0
+        specifier: ^0.25.0
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -3495,3 +3491,7 @@ packages:
   /yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
