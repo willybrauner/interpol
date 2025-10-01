@@ -1,5 +1,39 @@
 # @wbe/interpol
 
+## 0.25.1
+
+### Patch Changes
+
+- 1ca34db: Timeline play return promise
+
+  before:
+
+  ```ts
+  const timeline = new Timeline({
+    onComplete: () => {
+      // was properly called ✅
+    },
+  })
+
+  timeline.play().then(() => {
+    // was never called 🚫
+  })
+  ```
+
+  after:
+
+  ```ts
+  const timeline = new Timeline({
+    onComplete: () => {
+      // was properly called ✅
+    },
+  })
+
+  timeline.play().then(() => {
+    // is properly called now  ✅
+  })
+  ```
+
 ## 0.25.0
 
 ### Minor Changes
