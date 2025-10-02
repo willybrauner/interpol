@@ -32,6 +32,14 @@ export class Interpol<K extends string = string> {
   public get delay() {
     return this.#_delay
   }
+  #_ease: EaseFn
+  public get ease() {
+    return this.#_ease
+  }
+  #_reverseEase: EaseFn
+  public get reverseEase() {
+    return this.#_reverseEase
+  }
   #time = 0
   public get time() {
     return this.#time
@@ -60,8 +68,9 @@ export class Interpol<K extends string = string> {
   #delay: Value
   #callbackProps: CallbackProps<K>
   #immediateRender: boolean
-  #ease: Ease
-  #reverseEase: Ease
+  #ease: Value<Ease>
+  #reverseEase: Value<Ease>
+  #originalProps: Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>
   #beforeStart: CallBack<K>
   #onStart: CallBack<K>
   #onUpdate: CallBack<K>
@@ -100,11 +109,14 @@ export class Interpol<K extends string = string> {
     this.#reverseEase = reverseEase
     this.meta = meta
 
+    this.#_ease = this.#chooseEase(this.#ease)
+    this.#_reverseEase = this.#chooseEase(this.#reverseEase)
+
     // Prepare & compute props
-    this.#props = this.#prepareProps<K>(
-      inlineProps as Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>,
-    )
+    this.#originalProps = inlineProps as Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>
+
     this.refreshComputedValues()
+
     this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
 
     this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
@@ -118,12 +130,23 @@ export class Interpol<K extends string = string> {
 
   // Compute if values were functions
   public refreshComputedValues(): void {
+    // re preprare all props
+    this.#props = this.#prepareProps<K>(this.#originalProps)
+
+    // compute global options
     this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
     this.#_delay = compute(this.#delay) * InterpolOptions.durationFactor
-    this.#onEachProps((prop) => {
+    this.#_ease = this.#chooseEase(this.#ease)
+    this.#_reverseEase = this.#chooseEase(this.#reverseEase)
+
+    // compute each internal prop properties
+    for (const key of Object.keys(this.#props)) {
+      const prop = this.#props[key]
       prop._from = compute(prop.from)
       prop._to = compute(prop.to)
-    })
+      prop.ease = prop._computeEaseFn(this.#_ease)
+      prop.reverseEase = prop._computeReverseEaseFn(this.#_reverseEase)
+    }
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -378,17 +401,11 @@ export class Interpol<K extends string = string> {
    * Mute each props value key
    */
   #interpolate(progress): void {
-    // select ease
-    const selectEase = (prop) =>
-      this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
     // update prop.value
-    this.#onEachProps(
-      (prop) =>
-        (prop.value = round(
-          prop._from + (prop._to - prop._from) * selectEase(prop)(progress),
-          1000,
-        )),
-    )
+    this.#onEachProps((prop) => {
+      const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
+      prop.value = round(prop._from + (prop._to - prop._from) * selectedEase(progress), 1000)
+    })
   }
 
   /**
@@ -404,8 +421,23 @@ export class Interpol<K extends string = string> {
           to: p?.[1] ?? p?.["to"] ?? p ?? 0,
           _to: null,
           value: null,
-          ease: this.#chooseEase(p?.["ease"] || this.#ease),
-          reverseEase: this.#chooseEase(p?.["reverseEase"] || p?.["ease"] || this.#reverseEase),
+          // will be exec by refresh and set _ease
+          _computeEaseFn: (globalEase) => {
+            const propEase = p?.["ease"]
+            return propEase ? this.#chooseEase(propEase) : globalEase
+          },
+          // will be exec by refresh and set _reverseEase
+          _computeReverseEaseFn: (globalEase) => {
+            const reverseEase = p?.["reverseEase"]
+            const propEase = p?.["ease"]
+            return reverseEase
+              ? this.#chooseEase(reverseEase)
+              : propEase
+                ? this.#chooseEase(propEase)
+                : globalEase
+          },
+          ease: null,
+          reverseEase: null,
         }
         return acc
       },
@@ -446,8 +478,14 @@ export class Interpol<K extends string = string> {
    * @param e ease name or function
    * @returns ease function
    */
-  #chooseEase(e: Ease): EaseFn {
-    return e != null ? (typeof e === "string" ? easeAdapter(e as EaseName) : (e as EaseFn)) : null
+  #chooseEase(e: Value<Ease>): EaseFn {
+    if (e == null) return (t) => t
+    // First, compute the value if it's a function that returns Ease
+    const computedEase = compute(e)
+    // then, handle the computed result which should be either string or EaseFn
+    return typeof computedEase === "string"
+      ? (easeAdapter(computedEase as EaseName) as EaseFn)
+      : (computedEase as EaseFn)
   }
 
   /**
