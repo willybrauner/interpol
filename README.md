@@ -302,11 +302,11 @@ interface IInterpolConstruct<K extends keyof Props> {
 
   // Interpol easing function
   // default: `t => t` (lineal easing)
-  ease?: EaseName | EaseFn
+  ease?: (EaseName | EaseFn) | (() => EaseName | EaseFn)
 
   // Overwrite easing function on reverse
-  // default: /
-  reverseEase?: EaseName | EaseFn
+  // default: `ease`
+  reverseEase?: (EaseName | EaseFn) | (() => EaseName | EaseFn)
 
   // Make interpol paused at start (not autoplay)
   // default: `false`
@@ -314,7 +314,7 @@ interface IInterpolConstruct<K extends keyof Props> {
 
   // Add delay before first start
   // default: `false`
-  delay?: number
+  delay?: number | (() => number)
 
   // Enable debug to get interpol logs information
   // default: `false`
@@ -379,7 +379,7 @@ itp.resume()
 // stop(): void
 itp.stop()
 
-// Compute 'from', 'to' and 'duration' values if there are functions
+// Compute 'from', 'to' 'duration', 'ease' & 'delay' values if there are functions
 // refresh(): void
 itp.refresh()
 
@@ -449,7 +449,7 @@ tl.resume()
 // stop(): void
 tl.stop()
 
-// compute 'from', 'to' and 'duration' values on each adds if there are functions
+// call refresh on each interpol instance
 tl.refresh()
 
 // set progress to a specific value
