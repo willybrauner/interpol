@@ -49,7 +49,6 @@ for (let i = 0; i < num; i++) {
     scale: { from: 1, to: () => random(1, 3) },
     opacity: { from: 1, to: 1, ease: "expo.out" },
     ease: "power2.out",
-    //reverseEase: "power3.inOut",
     onUpdate: ({ x, y, rotate, scale, opacity }) => {
       styles(el, { x, y, scale, rotate, pointerEvent: "none" })
     },
