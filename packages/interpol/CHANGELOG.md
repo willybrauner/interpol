@@ -1,5 +1,18 @@
 # @wbe/interpol
 
+## 0.26.0
+
+### Minor Changes
+
+- 8c8bf3b: Use `ease` and `reverseEase` as computed values
+
+  ```ts
+  new Interpol({
+    ease: () => randomEase(),
+    reverseEase: () => randomEase(),
+  })
+  ```
+
 ## 0.25.1
 
 ### Patch Changes
