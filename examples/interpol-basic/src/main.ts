@@ -1,52 +1,80 @@
 import "./index.css"
-import { Interpol, styles } from "@wbe/interpol"
+import { EaseName, Interpol, styles } from "@wbe/interpol"
+import { Pane } from "tweakpane"
 
-/**
- * Query
- */
-const element = document.querySelector<HTMLElement>(".ball")
-const play = document.querySelector<HTMLButtonElement>(".play")
-const progress0 = document.querySelector<HTMLButtonElement>(".progress-0")
-const progress05 = document.querySelector<HTMLButtonElement>(".progress-05")
-const progress1 = document.querySelector<HTMLButtonElement>(".progress-1")
-const inputProgress = document.querySelector<HTMLInputElement>(".progress")
-const inputSlider = document.querySelector<HTMLInputElement>(".slider")
+const element = document.querySelector<HTMLElement>(".element")!
 
-/**
- * Events
- */
-;["reverse", "pause", "stop", "resume"].forEach(
-  (name: any) =>
-    // @ts-ignore
-    (document.querySelector<HTMLButtonElement>(`.${name}`)!.onclick = () => itp[name]()),
-)
-
-play!.onclick = () => itp.play(0)
-progress0!.onclick = () => itp.progress(0, false)
-progress05!.onclick = () => itp.progress(0.5, false)
-progress1!.onclick = () => itp.progress(1, false)
-inputProgress!.onchange = () => itp.progress(parseFloat(inputProgress!.value) / 100, false)
-inputSlider!.oninput = () => itp.progress(parseFloat(inputSlider!.value) / 100, false)
+const PARAMS = {
+  ease: "power3.out" as EaseName,
+  duration: 2000,
+  x: 50,
+  scale: 1.4,
+}
 
 const itp = new Interpol({
-  x: 100,
-  y: { from: 0, to: 300 },
-  opacity: [0.5, 1],
-  z: [100, 0],
-  // delay: 500,
-  //debug: true,
   paused: true,
-
-  onStart: (props, time, progress) => {
-    console.log("itp onStart", props, time, progress)
-  },
-  onUpdate: ({ x, y, opacity, z }) => {
-    //console.log("itp onUpdate", { x, y, opacity, z })
-    styles(element!, { x, y, opacity })
-  },
-  onComplete: (props) => {
-    console.log("itp onComplete", props)
-  },
+  x: [0, () => PARAMS.x],
+  rotate: [0, 360],
+  scale: [1, () => PARAMS.scale],
+  duration: () => PARAMS.duration,
+  ease: () => PARAMS.ease,
+  onUpdate: ({ x, rotate, scale }) => styles(element, { x, rotate, scale }),
 })
 
-//itp.play()
+const pane = new Pane()
+pane.addButton({ title: "play" }).on("click", () => itp.play())
+pane.addButton({ title: "reverse" }).on("click", () => itp.reverse())
+pane.addButton({ title: "pause" }).on("click", () => itp.pause())
+pane.addButton({ title: "stop" }).on("click", () => itp.stop())
+pane.addButton({ title: "resume" }).on("click", () => itp.resume())
+pane.addButton({ title: "refresh" }).on("click", () => itp.refreshComputedValues())
+
+// add x binding
+pane.addBinding(PARAMS, "x", { min: -200, max: 200, label: "x (to)" }).on("change", () => {
+  itp.refreshComputedValues()
+})
+
+// add scale binding
+pane
+  .addBinding(PARAMS, "scale", { min: 0.7, max: 2.5, step: 0.1, label: "scale (to)" })
+  .on("change", () => {
+    itp.refreshComputedValues()
+  })
+
+pane.addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 }).on("change", (ev) => {
+  itp.progress(ev?.value || 0)
+})
+
+pane.addBinding(PARAMS, "duration", { min: 0, max: 10000, step: 100 }).on("change", () => {
+  itp.refreshComputedValues()
+})
+
+const eases = [
+  "linear",
+  "expo.in",
+  "expo.out",
+  "expo.inOut",
+  "power1.in",
+  "power1.out",
+  "power1.inOut",
+  "power2.in",
+  "power2.out",
+  "power2.inOut",
+  "power3.in",
+  "power3.out",
+  "power3.inOut",
+].reduce(
+  (acc, cur) => {
+    acc[cur] = cur
+    return acc
+  },
+  {} as Record<string, string>,
+)
+
+pane
+  .addBinding(PARAMS, "ease", {
+    options: eases,
+  })
+  .on("change", () => {
+    itp.refreshComputedValues()
+  })

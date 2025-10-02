@@ -42,9 +42,15 @@ importers:
   examples/interpol-basic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.25.1
+        specifier: workspace:*
         version: link:../../packages/interpol
+      tweakpane:
+        specifier: ^4.0.5
+        version: 4.0.5
     devDependencies:
+      '@tweakpane/core':
+        specifier: ^2.0.5
+        version: 2.0.5
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -1381,6 +1387,10 @@ packages:
       '@size-limit/esbuild': 11.2.0(size-limit@11.2.0)
       '@size-limit/file': 11.2.0(size-limit@11.2.0)
       size-limit: 11.2.0
+    dev: true
+
+  /@tweakpane/core@2.0.5:
+    resolution: {integrity: sha512-punBgD5rKCF5vcNo6BsSOXiDR/NSs9VM7SG65QSLJIxfRaGgj54ree9zQW6bO3pNFf3AogiGgaNODUVQRk9YqQ==}
     dev: true
 
   /@types/babel__core@7.20.5:
@@ -3124,6 +3134,10 @@ packages:
       turbo-windows-64: 2.5.4
       turbo-windows-arm64: 2.5.4
     dev: true
+
+  /tweakpane@4.0.5:
+    resolution: {integrity: sha512-rxEXdSI+ArlG1RyO6FghC4ZUX8JkEfz8F3v1JuteXSV0pEtHJzyo07fcDG+NsJfN5L39kSbCYbB9cBGHyuI/tQ==}
+    dev: false
 
   /typescript@5.8.3:
     resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}

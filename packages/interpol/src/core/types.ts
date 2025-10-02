@@ -1,6 +1,6 @@
 import { Interpol } from "../Interpol"
 import { Ticker } from "./Ticker"
-import { Ease } from "./ease"
+import { Ease, EaseFn } from "./ease"
 
 /**
  * Common
@@ -9,14 +9,14 @@ import { Ease } from "./ease"
  */
 export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
 
-// Value can be a number or a function that return a number
-export type Value = number | (() => number)
+// Value can be a type T or a function that return a type T
+export type Value<T = number> = T | (() => T)
 
 // Props params
 export type PropsValues =
   | Value
   | [Value, Value]
-  | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
+  | Partial<{ from: Value; to: Value; ease: Value<Ease>; reverseEase: Value<Ease> }>
 
 // props
 export type Props<K extends string = string> = Record<K, PropsValues>
@@ -36,8 +36,10 @@ export type FormattedProp = {
   _from: number
   _to: number
   value: number
-  ease: Ease
-  reverseEase: Ease
+  ease: EaseFn
+  reverseEase: EaseFn
+  _computeEaseFn: (defaultEase: EaseFn) => EaseFn
+  _computeReverseEaseFn: (defaultEase: EaseFn) => EaseFn
 }
 
 /**
@@ -54,8 +56,8 @@ export type CallBack<K extends string = string> = (
 
 export type InterpolConstructBase<K extends string = string> = {
   duration?: Value
-  ease?: Ease
-  reverseEase?: Ease
+  ease?: Value<Ease>
+  reverseEase?: Value<Ease>
   paused?: boolean
   immediateRender?: boolean
   delay?: Value
