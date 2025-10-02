@@ -83,4 +83,35 @@ describe.concurrent("Ease", () => {
       resolve(true)
     })
   })
+
+  it("Interpol should accept string easename for ease & reverseEase", async () => {
+    const itp = (ease, reverseEase) =>
+      new Promise(async (resolve) => {
+        const itp = new Interpol({
+          duration: 300,
+          x: [0, 100],
+          ease: ease,
+          reverseEase: reverseEase,
+          onComplete: (props, t, p, instance) => {
+            expect(props.x).toBe(100)
+          },
+        })
+
+        expect(itp.ease).toBe(Power1.in)
+        expect(itp.props.x.ease).toBe(Power1.in)
+        expect(itp.reverseEase).toBe(Power2.inOut)
+        expect(itp.props.x.reverseEase).toBe(Power2.inOut)
+
+        await itp.play()
+        resolve(true)
+      })
+
+    // prettier-ignore
+    return Promise.all([
+      itp("power1.in", "power2.inOut"),
+      itp(() => "power1.in", () => "power2.inOut"),
+      itp(() => Power1.in, () => Power2.inOut),
+      itp(Power1.in, Power2.inOut),
+    ])
+  })
 })
