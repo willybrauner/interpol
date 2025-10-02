@@ -22,6 +22,7 @@ export function App() {
     if (!$ball.current) return
     const ballSize = $ball.current?.offsetWidth
 
+    console.log("Ease[ease]", Ease[ease])
     const itp = new Interpol({
       value: [0, () => window.innerHeight - ballSize],
       duration: 1000,

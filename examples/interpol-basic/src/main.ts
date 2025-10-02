@@ -12,21 +12,15 @@ const PARAMS = {
 }
 
 const itp = new Interpol({
-  debug: true,
+  // debug: true,
+  paused: true,
   x: [0, () => PARAMS.x],
   rotate: [0, 360],
   scale: [1, () => PARAMS.scale],
-  paused: true,
   duration: () => PARAMS.duration,
   ease: () => PARAMS.ease,
-  onStart: (props, time, progress) => {
-    console.log("itp onStart", props, time, progress)
-  },
   onUpdate: ({ x, rotate, scale }) => {
     styles(element, { x, rotate, scale })
-  },
-  onComplete: (props, time, progress, instance) => {
-    console.log("itp onComplete", props, time, progress, instance)
   },
 })
 

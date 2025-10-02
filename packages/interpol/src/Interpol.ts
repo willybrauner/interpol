@@ -474,7 +474,7 @@ export class Interpol<K extends string = string> {
 
   /**
    * Choose ease function
-   * Can be a string or a function
+   * Can be a string or a function or a function that returns one of those
    * @param e ease name or function
    * @returns ease function
    */
@@ -482,10 +482,20 @@ export class Interpol<K extends string = string> {
     if (e == null) return (t) => t
     // First, compute the value if it's a function that returns Ease
     const computedEase = compute(e)
-    // then, handle the computed result which should be either string or EaseFn
-    return typeof computedEase === "string"
-      ? (easeAdapter(computedEase as EaseName) as EaseFn)
-      : (computedEase as EaseFn)
+
+    // if computed value is a string, return the corresponding ease function
+    if (typeof computedEase === "string") {
+      return easeAdapter(computedEase as EaseName) as EaseFn
+    }
+    // if initial "e" param is a function that returns a number (EaseFn)
+    // deduce that it's an EaseFn, ex: ease = (t) => t * t
+    else if (typeof (e as (t: number) => number)?.(0) === "number") {
+      return e as EaseFn
+    }
+    // else return the computed result ex: () => (t) => t * t transformed as (t) => t * t
+    else {
+      return computedEase as EaseFn
+    }
   }
 
   /**
