@@ -8,20 +8,22 @@ const PARAMS = {
   ease: "power3.out" as EaseName,
   duration: 2000,
   x: 200,
+  scale: 1.2,
 }
 
 const itp = new Interpol({
   debug: true,
   x: [0, () => PARAMS.x],
   rotate: [0, 360],
+  scale: [1, () => PARAMS.scale],
   paused: true,
   duration: () => PARAMS.duration,
   ease: () => PARAMS.ease,
   onStart: (props, time, progress) => {
     console.log("itp onStart", props, time, progress)
   },
-  onUpdate: ({ x, rotate }) => {
-    styles(element, { x, rotate })
+  onUpdate: ({ x, rotate, scale }) => {
+    styles(element, { x, rotate, scale })
   },
   onComplete: (props, time, progress, instance) => {
     console.log("itp onComplete", props, time, progress, instance)
@@ -40,6 +42,13 @@ pane.addButton({ title: "refresh" }).on("click", () => itp.refreshComputedValues
 pane.addBinding(PARAMS, "x", { min: -200, max: 200, label: "x (to)" }).on("change", () => {
   itp.refreshComputedValues()
 })
+
+// add scale binding
+pane
+  .addBinding(PARAMS, "scale", { min: 0.7, max: 2, step: 0.1, label: "scale (to)" })
+  .on("change", () => {
+    itp.refreshComputedValues()
+  })
 
 pane.addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 }).on("change", (ev) => {
   itp.progress(ev?.value || 0)
