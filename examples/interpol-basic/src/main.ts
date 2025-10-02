@@ -4,20 +4,24 @@ import { Pane } from "tweakpane"
 
 const element = document.querySelector<HTMLElement>(".element")!
 
-const PARAMS = { ease: "power3.out" as EaseName }
+const PARAMS = {
+  ease: "power3.out" as EaseName,
+  duration: 2000,
+  x: 200,
+}
 
 const itp = new Interpol({
   debug: true,
-  x: 100,
-  y: { from: 0, to: 300 },
+  x: [0, () => PARAMS.x],
   rotate: [0, 360],
   paused: true,
+  duration: () => PARAMS.duration,
   ease: () => PARAMS.ease,
   onStart: (props, time, progress) => {
     console.log("itp onStart", props, time, progress)
   },
-  onUpdate: ({ x, y, rotate }) => {
-    styles(element, { x, y, rotate })
+  onUpdate: ({ x, rotate }) => {
+    styles(element, { x, rotate })
   },
   onComplete: (props, time, progress, instance) => {
     console.log("itp onComplete", props, time, progress, instance)
@@ -30,8 +34,19 @@ pane.addButton({ title: "reverse" }).on("click", () => itp.reverse())
 pane.addButton({ title: "pause" }).on("click", () => itp.pause())
 pane.addButton({ title: "stop" }).on("click", () => itp.stop())
 pane.addButton({ title: "resume" }).on("click", () => itp.resume())
+pane.addButton({ title: "refresh" }).on("click", () => itp.refreshComputedValues())
+
+// add x binding
+pane.addBinding(PARAMS, "x", { min: -200, max: 200, label: "x (to)" }).on("change", () => {
+  itp.refreshComputedValues()
+})
+
 pane.addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 }).on("change", (ev) => {
   itp.progress(ev?.value || 0)
+})
+
+pane.addBinding(PARAMS, "duration", { min: 0, max: 10000, step: 100 }).on("change", () => {
+  itp.refreshComputedValues()
 })
 
 const eases = [
@@ -63,12 +78,3 @@ pane
   .on("change", () => {
     itp.refreshComputedValues()
   })
-
-// const gui = new GUI({})
-// gui.add({ play: () => itp.play() }, "play")
-// gui.add({ reverse: () => itp.reverse() }, "reverse")
-// gui.add({ pause: () => itp.pause() }, "pause")
-// gui.add({ resume: () => itp.resume() }, "resume")
-// gui.add({ stop: () => itp.stop() }, "stop")
-// // progress
-// gui.add({ progress: 0 }, "progress", 0, 1).onChange((value) => itp.progress(value as number))
