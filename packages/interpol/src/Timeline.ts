@@ -89,7 +89,7 @@ export class Timeline {
     }
     const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
     itp.stop()
-    itp.refreshComputedValues()
+    itp.refresh()
     itp.ticker = this.#ticker
     itp.inTl = true
     if (this.#debugEnable) itp.debugEnable = this.#debugEnable
@@ -234,8 +234,16 @@ export class Timeline {
     }
   }
 
+  public refresh(): void {
+    this.#onAllAdds((e) => e.itp.refresh())
+  }
+
+  /**
+   * @deprecated use refresh() instead
+   */
   public refreshComputedValues(): void {
-    this.#onAllAdds((e) => e.itp.refreshComputedValues())
+    console.warn(`Timeline.refreshComputedValues() is deprecated. Use Timeline.refresh() instead.`)
+    this.refresh()
   }
 
   /**

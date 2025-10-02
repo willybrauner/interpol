@@ -54,7 +54,7 @@ export function App() {
       })
       itps.push(itp)
       const yoyo = () => {
-        itp.refreshComputedValues()
+        itp.refresh()
         itp.play().then(() => itp.reverse().then(yoyo))
       }
       yoyo()

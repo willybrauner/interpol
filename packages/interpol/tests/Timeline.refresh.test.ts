@@ -9,7 +9,7 @@ describe.concurrent("Timeline auto refresh computed values", () => {
      * as "from" of the second add().
      *
      * It will work if "from" of the second add() is a computed value
-     * Behind the scene, we re-execute refreshComputedValues() juste before the add() starts
+     * Behind the scene, we re-execute refresh() juste before the add() starts
      */
     const tl = new Timeline({ paused: true })
     let EXTERNAL_X = 0

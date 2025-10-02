@@ -90,7 +90,7 @@ describe.concurrent("Interpol delay", () => {
     })
   })
 
-  it('should refesh delay when calling "refreshComputedValues()"', () => {
+  it('should refesh delay when calling "refresh()"', () => {
     return new Promise(async (resolve: any) => {
       InterpolOptions.durationFactor = 1
       InterpolOptions.duration = 1000
@@ -113,7 +113,7 @@ describe.concurrent("Interpol delay", () => {
       })
 
       for (let i = 0; i < 10; i++) {
-        itp.refreshComputedValues()
+        itp.refresh()
         expect(itp.delay).not.toEqual(currDelay)
       }
 

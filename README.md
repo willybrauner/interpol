@@ -198,13 +198,13 @@ new Interpol({
 })
 ```
 
-In order to refresh computed values, you can use the `refreshComputedValues` method:
+In order to refresh computed values, you can use the `refresh` method:
 
 ```ts
 const itp = new Interpol({
   // ...
 })
-itp.refreshComputedValues()
+itp.refresh()
 ```
 
 ## Styles helper
@@ -380,8 +380,8 @@ itp.resume()
 itp.stop()
 
 // Compute 'from', 'to' and 'duration' values if there are functions
-// refreshComputedValues(): void
-itp.refreshComputedValues()
+// refresh(): void
+itp.refresh()
 
 // Set progress to a specific value
 // progress(value: number, suppressEvents = true): void
@@ -450,7 +450,7 @@ tl.resume()
 tl.stop()
 
 // compute 'from', 'to' and 'duration' values on each adds if there are functions
-tl.refreshComputedValues()
+tl.refresh()
 
 // set progress to a specific value
 // value is a number between 0 and 1
