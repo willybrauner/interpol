@@ -31,10 +31,10 @@ export type CallbackProps<K extends string, V = number> = Record<K, V>
 
 // Props object formatted in Map
 export type FormattedProp = {
-  _from: number
-  _to: number
   from: Value
   to: Value
+  _from: number
+  _to: number
   value: number
   ease: EaseFn
   reverseEase: EaseFn

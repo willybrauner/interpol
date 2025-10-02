@@ -109,22 +109,17 @@ export class Interpol<K extends string = string> {
     this.#reverseEase = reverseEase
     this.meta = meta
 
-    this.#_ease = this.#chooseEase(this.#ease)
-    this.#_reverseEase = this.#chooseEase(this.#reverseEase)
-
     // Prepare & compute props
-    this.#originalProps = inlineProps as Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>
-
+    this.#originalProps = inlineProps
+    // Compute all values (duration, delay, ease, props values)
     this.refreshComputedValues()
-
+    // Create callback props object
     this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
-
+    // Initial callbacks
     this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
-
     if (this.#immediateRender) {
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
     }
-
     if (!this.#isPaused) this.play()
   }
 
