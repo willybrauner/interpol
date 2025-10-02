@@ -148,7 +148,7 @@ export class Interpol<K extends string = string> {
    * @deprecated use refresh() instead
    */
   public refreshComputedValues(): void {
-    console.warn(`Interpol.refresh() is deprecated. Use Interpol.refresh() instead.`)
+    console.warn(`Interpol.refreshComputedValues() is deprecated. Use Interpol.refresh() instead.`)
     this.refresh()
   }
 
