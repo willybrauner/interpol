@@ -7,21 +7,18 @@ const element = document.querySelector<HTMLElement>(".element")!
 const PARAMS = {
   ease: "power3.out" as EaseName,
   duration: 2000,
-  x: 200,
-  scale: 1.2,
+  x: 50,
+  scale: 1.4,
 }
 
 const itp = new Interpol({
-  // debug: true,
   paused: true,
   x: [0, () => PARAMS.x],
   rotate: [0, 360],
   scale: [1, () => PARAMS.scale],
   duration: () => PARAMS.duration,
   ease: () => PARAMS.ease,
-  onUpdate: ({ x, rotate, scale }) => {
-    styles(element, { x, rotate, scale })
-  },
+  onUpdate: ({ x, rotate, scale }) => styles(element, { x, rotate, scale }),
 })
 
 const pane = new Pane()
@@ -39,7 +36,7 @@ pane.addBinding(PARAMS, "x", { min: -200, max: 200, label: "x (to)" }).on("chang
 
 // add scale binding
 pane
-  .addBinding(PARAMS, "scale", { min: 0.7, max: 2, step: 0.1, label: "scale (to)" })
+  .addBinding(PARAMS, "scale", { min: 0.7, max: 2.5, step: 0.1, label: "scale (to)" })
   .on("change", () => {
     itp.refreshComputedValues()
   })
