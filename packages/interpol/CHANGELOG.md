@@ -1,5 +1,33 @@
 # @wbe/interpol
 
+## 0.27.0
+
+### Minor Changes
+
+- 6d33c38: Rename `refreshComputedValues()` to `refresh()`
+
+  `refreshComputedValues()` is deprecated. Use `refresh()` instead.
+
+  before:
+
+  ```ts
+  const itp = new Interpol({ ... })
+  itp.refreshComputedValues()
+
+  const tl = new Timeline({ ... })
+  tl.refreshComputedValues()
+  ```
+
+  after:
+
+  ```ts
+  const itp = new Interpol({ ... })
+  itp.refresh()
+
+  const tl = new Timeline({ ... })
+  tl.refresh()
+  ```
+
 ## 0.26.0
 
 ### Minor Changes
