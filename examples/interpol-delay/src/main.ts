@@ -25,7 +25,7 @@ for (let i = 0; i < 120; i++) {
 
   const yoyo = async () => {
     await itp.play()
-    itp.refreshComputedValues()
+    itp.refresh()
     yoyo()
   }
   yoyo()

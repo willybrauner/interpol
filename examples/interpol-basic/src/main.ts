@@ -27,18 +27,18 @@ pane.addButton({ title: "reverse" }).on("click", () => itp.reverse())
 pane.addButton({ title: "pause" }).on("click", () => itp.pause())
 pane.addButton({ title: "stop" }).on("click", () => itp.stop())
 pane.addButton({ title: "resume" }).on("click", () => itp.resume())
-pane.addButton({ title: "refresh" }).on("click", () => itp.refreshComputedValues())
+pane.addButton({ title: "refresh" }).on("click", () => itp.refresh())
 
 // add x binding
 pane.addBinding(PARAMS, "x", { min: -200, max: 200, label: "x (to)" }).on("change", () => {
-  itp.refreshComputedValues()
+  itp.refresh()
 })
 
 // add scale binding
 pane
   .addBinding(PARAMS, "scale", { min: 0.7, max: 2.5, step: 0.1, label: "scale (to)" })
   .on("change", () => {
-    itp.refreshComputedValues()
+    itp.refresh()
   })
 
 pane.addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 }).on("change", (ev) => {
@@ -46,7 +46,7 @@ pane.addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 }).on
 })
 
 pane.addBinding(PARAMS, "duration", { min: 0, max: 10000, step: 100 }).on("change", () => {
-  itp.refreshComputedValues()
+  itp.refresh()
 })
 
 const eases = [
@@ -76,5 +76,5 @@ pane
     options: eases,
   })
   .on("change", () => {
-    itp.refreshComputedValues()
+    itp.refresh()
   })

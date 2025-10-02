@@ -59,7 +59,7 @@ for (let i = 0; i < num; i++) {
 
   el.addEventListener("mousemove", async () => {
     if (itp.isPlaying) return
-    itp.refreshComputedValues()
+    itp.refresh()
     await itp.play()
     await itp.reverse()
   })

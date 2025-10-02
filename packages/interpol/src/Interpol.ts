@@ -112,7 +112,7 @@ export class Interpol<K extends string = string> {
     // Prepare & compute props
     this.#originalProps = inlineProps
     // Compute all values (duration, delay, ease, props values)
-    this.refreshComputedValues()
+    this.refresh()
     // Create callback props object
     this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
     // Initial callbacks
@@ -124,7 +124,7 @@ export class Interpol<K extends string = string> {
   }
 
   // Compute if values were functions
-  public refreshComputedValues(): void {
+  public refresh(): void {
     // re preprare all props
     this.#props = this.#prepareProps<K>(this.#originalProps)
 
@@ -142,6 +142,14 @@ export class Interpol<K extends string = string> {
       prop.ease = prop._computeEaseFn(this.#_ease)
       prop.reverseEase = prop._computeReverseEaseFn(this.#_reverseEase)
     }
+  }
+
+  /**
+   * @deprecated use refresh() instead
+   */
+  public refreshComputedValues(): void {
+    console.warn(`Interpol.refreshComputedValues() is deprecated. Use Interpol.refresh() instead.`)
+    this.refresh()
   }
 
   public async play(from: number = 0, allowReplay = true): Promise<any> {
@@ -265,7 +273,7 @@ export class Interpol<K extends string = string> {
       (this.#progress !== 0 && this.#lastProgress === 0) ||
       (this.#progress !== 1 && this.#lastProgress === 1)
     ) {
-      this.refreshComputedValues()
+      this.refresh()
     }
 
     // Update time, interpolate and assign props value

@@ -72,7 +72,7 @@ describe.concurrent("Ease", () => {
       // wait after the middle of the tween
       // and refresh
       await wait(200)
-      itp.refreshComputedValues()
+      itp.refresh()
 
       // ease functions should be updated
       expect(itp.ease).toBe(Power1.out)

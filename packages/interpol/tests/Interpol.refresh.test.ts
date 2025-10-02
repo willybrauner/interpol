@@ -18,7 +18,7 @@ describe.concurrent("Interpol refresh", () => {
     })
   })
 
-  it("should re compute if refreshComputedValues() is called", async () => {
+  it("should re compute if refresh() is called", async () => {
     return new Promise(async (resolve: any) => {
       const mockTo = vi.fn()
       const mockFrom = vi.fn()
@@ -41,7 +41,7 @@ describe.concurrent("Interpol refresh", () => {
       expect(mockTo).toHaveBeenCalledTimes(1)
       expect(itp.duration).toBe(66)
       await wait(itp.duration)
-      itp.refreshComputedValues()
+      itp.refresh()
       await wait(500)
       expect(mockFrom).toHaveBeenCalledTimes(2)
       expect(mockTo).toHaveBeenCalledTimes(2)
