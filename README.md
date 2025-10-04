@@ -5,7 +5,7 @@
 <img alt="build" src="https://github.com/willybrauner/interpol/workflows/tests/badge.svg">
 </p>
 <p align="center">
-<img alt="logo" src="./packages/interpol/interpol.png">
+<img alt="logo" src="./packages/interpol/interpol.webp">
 </p>
 
 Interpol library **interpolates a set of number values with a GSAP-like API**.
