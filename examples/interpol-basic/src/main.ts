@@ -1,4 +1,4 @@
-import "./styles.css"
+import "./index.css"
 import { EaseName, Interpol, styles } from "@wbe/interpol"
 import { Pane } from "tweakpane"
 

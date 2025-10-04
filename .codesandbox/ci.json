@@ -11,9 +11,9 @@
     "/examples/interpol-menu",
     "/examples/interpol-object-el",
     "/examples/interpol-particles",
-    "/examples/interpol-timeline",
     "/examples/interpol-offsets",
-    "/examples/interpol-timeline-visual"
+    "/examples/interpol-timeline-visual",
+    "/examples/timeline-basic"
   ],
   "node": "18"
 }

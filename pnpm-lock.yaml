@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 importers:
 
   .:
@@ -30,7 +34,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.0.13)(jsdom@26.1.0)(terser@5.43.1)
@@ -52,7 +56,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-colors:
     dependencies:
@@ -65,7 +69,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-delay:
     dependencies:
@@ -97,7 +101,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-ease:
     dependencies:
@@ -222,7 +226,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-offsets:
     dependencies:
@@ -297,38 +301,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
-
-  examples/interpol-timeline:
-    dependencies:
-      '@wbe/interpol':
-        specifier: workspace:*
-        version: link:../../packages/interpol
-      react:
-        specifier: ^19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.1.8
-        version: 19.1.8
-      '@types/react-dom':
-        specifier: ^19.1.6
-        version: 19.1.6(@types/react@19.1.8)
-      '@vitejs/plugin-react':
-        specifier: ^4.6.0
-        version: 4.6.0(vite@7.0.4)
-      less:
-        specifier: ^4.3.0
-        version: 4.3.0
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-timeline-refresh:
     dependencies:
@@ -376,6 +349,25 @@ importers:
       vite:
         specifier: ^7.0.4
         version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+
+  examples/timeline-basic:
+    dependencies:
+      '@wbe/interpol':
+        specifier: workspace:*
+        version: link:../../packages/interpol
+      tweakpane:
+        specifier: ^4.0.5
+        version: 4.0.5
+    devDependencies:
+      '@tweakpane/core':
+        specifier: ^2.0.5
+        version: 2.0.5
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.0.4
+        version: 7.1.7(@types/node@24.0.13)(terser@5.43.1)
 
   packages/interpol:
     devDependencies:
@@ -3518,7 +3510,3 @@ packages:
   /yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
