@@ -1,0 +1,23 @@
+{
+  "name": "interpol-gsap-benchmark",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "vite --host"
+  },
+  "dependencies": {
+    "@wbe/interpol": "workspace:*",
+    "@wbe/utils": "^0.2.1",
+    "animejs": "^4.2.0",
+    "gsap": "^3.13.0",
+    "stats-gl": "^3.6.0",
+    "tweakpane": "^4.0.5"
+  },
+  "devDependencies": {
+    "@tweakpane/core": "^2.0.5",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4"
+  }
+}
