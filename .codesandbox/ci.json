@@ -12,8 +12,8 @@
     "/examples/interpol-gsap-benchmark",
     "/examples/interpol-offsets",
     "/examples/interpol-particles",
-    "/examples/interpol-timeline-visual",
-    "/examples/timeline-basic"
+    "/examples/timeline-basic",
+    "/examples/timeline-visual"
   ],
   "node": "18"
 }
