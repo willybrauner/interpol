@@ -1,18 +1,18 @@
 {
-  "name": "interpol-dom-ondrag",
+  "name": "interpol-easing",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "src/main.ts",
   "scripts": {
     "dev": "vite --host"
   },
   "dependencies": {
     "@wbe/interpol": "workspace:*",
-    "@use-gesture/vanilla": "latest",
-    "gsap": "latest"
+    "tweakpane": "^4.0.5"
   },
   "devDependencies": {
+    "@tweakpane/core": "^2.0.5",
     "typescript": "^5.8.3",
     "vite": "^7.0.4"
   }
