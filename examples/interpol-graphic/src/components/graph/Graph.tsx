@@ -1,5 +1,5 @@
+import css from "./Graph.module.css"
 import { useCallback, useRef } from "react"
-import css from "./Graph.module.less"
 import { Coords } from "../../utils/calcCoords"
 
 export const Graph = ({ coords }: { coords: Coords }) => {
@@ -18,7 +18,7 @@ export const Graph = ({ coords }: { coords: Coords }) => {
       }
       return path
     },
-    [coords]
+    [coords],
   )
 
   /**
@@ -32,7 +32,7 @@ export const Graph = ({ coords }: { coords: Coords }) => {
         { x: curr.x[0], y: curr.y[0] },
         ...(i === coords.length - 1 ? [{ x: curr.x[1], y: curr.y[1] }] : []),
       ],
-      []
+      [],
     )
 
   return (

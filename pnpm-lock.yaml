@@ -90,7 +90,7 @@ importers:
         specifier: ^7.0.4
         version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
-  examples/interpol-ease:
+  examples/interpol-easing:
     dependencies:
       '@wbe/interpol':
         specifier: workspace:*
@@ -107,12 +107,12 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
+        version: 7.1.7(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-graphic:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.27.0
+        specifier: workspace:*
         version: link:../../packages/interpol
       react:
         specifier: ^19.1.0
@@ -120,7 +120,13 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      tweakpane:
+        specifier: ^4.0.5
+        version: 4.0.5
     devDependencies:
+      '@tweakpane/core':
+        specifier: ^2.0.5
+        version: 2.0.5
       '@types/react':
         specifier: ^19.1.8
         version: 19.1.8

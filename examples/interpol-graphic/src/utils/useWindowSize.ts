@@ -6,11 +6,11 @@ export const useWindowSize = (): { width: number; height: number } => {
     const handler = () => {
       setS({ width: window.innerWidth, height: window.innerHeight })
     }
-    window.addEventListener("resie", handler)
+    window.addEventListener("resize", handler)
     return () => {
-      window.removeEventListener("resie", handler)
+      window.removeEventListener("resize", handler)
     }
-  }, [s])
+  }, [])
 
   return s
 }

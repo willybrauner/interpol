@@ -15,8 +15,7 @@
   top: calc(var(--ball-size) / 2 * -1);
   width: 100%;
   height: 100%;
-  stroke: hotpink;
+  stroke: #546acb;
   stroke-width: 2;
   fill: none;
 }
-
