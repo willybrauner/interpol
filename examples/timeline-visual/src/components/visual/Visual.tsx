@@ -1,5 +1,5 @@
 import { useMemo, useRef, useLayoutEffect, useState, useEffect } from "react"
-import css from "./Visual.module.less"
+import css from "./Visual.module.css"
 import { IAdd, Timeline } from "@wbe/interpol"
 
 export interface IProps {

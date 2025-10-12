@@ -6,13 +6,12 @@
 
 .typeOffsetContainer {
   display: flex;
-  //gap: 20rem;
 }
 
 .container {
   width: 95vw;
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -36,7 +35,6 @@
   }
   &:nth-child(2) {
     background: lightgreen;
-
     border-radius: 0%;
   }
   &:nth-child(3) {

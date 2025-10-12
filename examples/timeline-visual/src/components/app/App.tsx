@@ -1,8 +1,9 @@
-import css from "./App.module.less"
+import css from "./App.module.css"
 import { useEffect, useRef, useState } from "react"
 import { styles, Timeline } from "@wbe/interpol"
 import { useWindowSize } from "../../utils/useWindowSize"
 import { Visual } from "../visual/Visual"
+import { createTweekpane } from "../../utils/createTweakpane"
 
 export const tlOnUpdateEvent = new Event("tlOnUpdate")
 
@@ -11,7 +12,7 @@ export function App() {
   const ref2 = useRef(null)
   const ref3 = useRef(null)
   const ref4 = useRef(null)
-
+  const paneRef = useRef(null)
   const containerRef = useRef(null)
   const [instance, setInstance] = useState(null)
   const windowSize = useWindowSize()
@@ -104,6 +105,10 @@ export function App() {
 
     setInstance(tl)
 
+    if (!paneRef.current) {
+      paneRef.current = createTweekpane(tl, {})
+    }
+
     return () => {
       tl.stop()
     }
@@ -111,14 +116,12 @@ export function App() {
 
   return (
     <div className={css.root}>
-      {/* <Controls className={css.controls} instance={instance} /> */}
       <div className={css.container} ref={containerRef}>
         <div className={css.ball} ref={ref1} />
         <div className={css.ball} ref={ref2} />
         <div className={css.ball} ref={ref3} />
         <div className={css.ball} ref={ref4} />
       </div>
-
       {instance && <Visual timeline={instance} />}
     </div>
   )

@@ -66,7 +66,7 @@ export const createTweekpane = (
   /**
    * DISPLAY folder
    */
-  const displayFolder = pane.addFolder({ title: "Interpol State", expanded: true })
+  const displayFolder = pane.addFolder({ title: "States", expanded: true })
 
   // Create reactive object for Interpol properties
   const DISPLAY = {
