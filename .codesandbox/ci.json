@@ -6,9 +6,12 @@
     "/examples/interpol-bokeh",
     "/examples/interpol-colors",
     "/examples/interpol-easing",
+    "/examples/interpol-gl-property",
     "/examples/interpol-graphic",
-    "/examples/interpol-particles",
+    "/examples/interpol-grid",
+    "/examples/interpol-gsap-benchmark",
     "/examples/interpol-offsets",
+    "/examples/interpol-particles",
     "/examples/interpol-timeline-visual",
     "/examples/timeline-basic"
   ],

@@ -109,6 +109,28 @@ importers:
         specifier: ^7.0.4
         version: 7.1.7(@types/node@24.0.13)(terser@5.43.1)
 
+  examples/interpol-gl-property:
+    dependencies:
+      '@wbe/interpol':
+        specifier: workspace:*
+        version: link:../../packages/interpol
+      ogl:
+        specifier: ^1.0.11
+        version: 1.0.11
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      tweakpane:
+        specifier: ^4.0.5
+        version: 4.0.5
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.0.4
+        version: 7.1.7(@types/node@24.0.13)(terser@5.43.1)
+
   examples/interpol-graphic:
     dependencies:
       '@wbe/interpol':
@@ -136,15 +158,12 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.6.0
         version: 4.6.0(vite@7.0.4)
-      less:
-        specifier: ^4.3.0
-        version: 4.3.0
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
       vite:
         specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-grid:
     dependencies:
@@ -189,25 +208,6 @@ importers:
       vite:
         specifier: ^7.0.4
         version: 7.1.7(@types/node@24.0.13)(terser@5.43.1)
-
-  examples/interpol-object-el:
-    dependencies:
-      '@wbe/interpol':
-        specifier: ^0.27.0
-        version: link:../../packages/interpol
-      ogl:
-        specifier: ^1.0.11
-        version: 1.0.11
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
-    devDependencies:
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-offsets:
     dependencies:
@@ -1432,7 +1432,7 @@ packages:
       '@rolldown/pluginutils': 1.0.0-beta.19
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.0.4(@types/node@24.0.13)(less@4.3.0)
+      vite: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
     transitivePeerDependencies:
       - supports-color
     dev: true

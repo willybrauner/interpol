@@ -1,5 +1,5 @@
 {
-  "name": "interpol-object-el",
+  "name": "interpol-gl-property",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,9 +8,10 @@
     "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "^0.27.0",
+    "@wbe/interpol": "workspace:*",
     "ogl": "^1.0.11",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "tweakpane": "^4.0.5"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
