@@ -28,8 +28,8 @@ const pane = new Pane({
 pane.addButton({ title: "play" }).on("click", () => itp.play())
 pane.addButton({ title: "reverse" }).on("click", () => itp.reverse())
 pane.addButton({ title: "pause" }).on("click", () => itp.pause())
-pane.addButton({ title: "stop" }).on("click", () => itp.stop())
 pane.addButton({ title: "resume" }).on("click", () => itp.resume())
+pane.addButton({ title: "stop" }).on("click", () => itp.stop())
 pane.addButton({ title: "refresh" }).on("click", () => itp.refresh())
 
 pane.addBinding(PARAMS, "x", { min: -200, max: 200, label: "x (to)" }).on("change", () => {

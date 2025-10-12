@@ -1,39 +1,69 @@
 import "./index.css"
-import { Interpol } from "@wbe/interpol"
+import { EaseName, Interpol } from "@wbe/interpol"
+import { Pane } from "tweakpane"
+
+const PARAMS = {
+  ease: "power3.out" as EaseName,
+  duration: 2000,
+  colorFrom: "rgb(0, 10, 0)",
+  colorTo: "#4bafcf",
+}
 
 /**
- * Query
+ * Interpol
  */
-const progress0 = document.querySelector<HTMLButtonElement>(".progress-0")
-const progress05 = document.querySelector<HTMLButtonElement>(".progress-05")
-const progress1 = document.querySelector<HTMLButtonElement>(".progress-1")
-const inputProgress = document.querySelector<HTMLInputElement>(".progress")
-const inputSlider = document.querySelector<HTMLInputElement>(".slider")
-
-/**
- * Events
- */
-;["play", "reverse", "pause", "stop", "resume"].forEach(
-  (name: any) =>
-    (document.querySelector<HTMLButtonElement>(`.${name}`)!.onclick = () => {
-      // @ts-ignore
-      itp[name]()
-    }),
-)
-
-progress0!.onclick = () => itp.progress(0, false)
-progress05!.onclick = () => itp.progress(0.5, false)
-progress1!.onclick = () => itp.progress(1, false)
-
-inputProgress!.onchange = () => itp.progress(parseFloat(inputProgress!.value) / 100, false)
-inputSlider!.oninput = () => itp.progress(parseFloat(inputSlider!.value) / 100, false)
-
 const itp = new Interpol({
+  paused: true,
   v: [0, 1],
   duration: 2000,
   onUpdate: ({ v }) => {
-    document.body.style.background = interpolateColor("rgb(0, 10, 0)", "#DDDDDD", v)
+    document.body.style.background = interpolateColor(PARAMS.colorFrom, PARAMS.colorTo, v)
   },
+})
+
+const loop = async () => {
+  await itp.play()
+  await itp.reverse()
+  loop()
+}
+loop()
+
+/**
+ * Controls Pane
+ */
+const pane = new Pane({ title: "Controls", expanded: true })
+pane.addButton({ title: "play (loop)" }).on("click", () => loop())
+pane.addButton({ title: "reverse" }).on("click", () => itp.reverse())
+pane.addButton({ title: "pause" }).on("click", () => itp.pause())
+pane.addButton({ title: "resume" }).on("click", () => itp.resume())
+pane.addButton({ title: "stop" }).on("click", () => itp.stop())
+pane.addButton({ title: "refresh" }).on("click", () => itp.refresh())
+pane.addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 }).on("change", (ev) => {
+  itp.progress(ev?.value || 0)
+})
+pane.addBinding(PARAMS, "duration", { min: 0, max: 10000, step: 100 }).on("change", () => {
+  itp.refresh()
+})
+// prettier-ignore
+const eases = [ "linear", "expo.in", "expo.out", "expo.inOut", "power1.in", "power1.out", "power1.inOut", "power2.in", "power2.out", "power2.inOut", "power3.in", "power3.out", "power3.inOut"]
+.reduce((acc, cur) => {
+    acc[cur] = cur
+    return acc
+  },
+  {} as Record<string, string>,
+)
+pane
+  .addBinding(PARAMS, "ease", {
+    options: eases,
+  })
+  .on("change", () => {
+    itp.refresh()
+  })
+pane.addBinding(PARAMS, "colorFrom", { label: "color from" }).on("change", () => {
+  itp.refresh()
+})
+pane.addBinding(PARAMS, "colorTo", { label: "color to" }).on("change", () => {
+  itp.refresh()
 })
 
 /**

@@ -63,7 +63,13 @@ importers:
       '@wbe/interpol':
         specifier: workspace:*
         version: link:../../packages/interpol
+      tweakpane:
+        specifier: ^4.0.5
+        version: 4.0.5
     devDependencies:
+      '@tweakpane/core':
+        specifier: ^2.0.5
+        version: 2.0.5
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -209,37 +215,6 @@ importers:
         specifier: ^7.0.4
         version: 7.1.7(@types/node@24.0.13)(terser@5.43.1)
 
-  examples/interpol-menu:
-    dependencies:
-      '@wbe/interpol':
-        specifier: ^0.27.0
-        version: link:../../packages/interpol
-      react:
-        specifier: ^19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.1.8
-        version: 19.1.8
-      '@types/react-dom':
-        specifier: ^19.1.6
-        version: 19.1.6(@types/react@19.1.8)
-      '@vitejs/plugin-react':
-        specifier: ^4.6.0
-        version: 4.6.0(vite@7.0.4)
-      less:
-        specifier: ^4.3.0
-        version: 4.3.0
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
-
   examples/interpol-object-el:
     dependencies:
       '@wbe/interpol':
@@ -320,19 +295,6 @@ importers:
       vite:
         specifier: ^7.0.4
         version: 7.0.4(@types/node@24.0.13)(less@4.3.0)
-
-  examples/interpol-progress-reset-wall:
-    dependencies:
-      '@wbe/interpol':
-        specifier: workspace:*
-        version: link:../../packages/interpol
-    devDependencies:
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.13)(terser@5.43.1)
 
   examples/interpol-timeline-refresh:
     dependencies:
