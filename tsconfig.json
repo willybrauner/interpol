@@ -15,7 +15,7 @@
     "experimentalDecorators": true,
     "types": ["vite/client"],
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["./src/*"]
     },
     "lib": ["esnext", "dom"]
   },

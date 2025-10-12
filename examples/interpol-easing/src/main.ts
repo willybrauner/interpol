@@ -1,6 +1,6 @@
 import "./index.css"
 import { EaseName, Interpol, styles } from "@wbe/interpol"
-import { createTweekpane } from "./createTweakpane"
+import { createTweekpane } from "./utils/createTweakpane"
 
 const element = document.querySelector<HTMLElement>(".ball")!
 
