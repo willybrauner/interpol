@@ -14,6 +14,7 @@ export function App() {
   const tl = useRef<Timeline>(null)
   const coords = useMemo(() => calcCoords(pointsNumber), [pointsNumber])
 
+  const paneRef = useRef<any>(null)
   useEffect(() => {
     console.log("width", width)
     tl.current = new Timeline()
@@ -28,11 +29,14 @@ export function App() {
         },
       })
     }
-    const pane = createTweekpane(tl.current as any, {})
-    const props = pane.addFolder({ title: "Props", expanded: true })
-    props
-      .addBinding({ pointsNumber }, "pointsNumber", { min: 3, max: 100, step: 1 })
-      .on("change", (ev) => setPointNumber(ev.value as number))
+
+    if (!paneRef.current) {
+      paneRef.current = createTweekpane(tl.current as any, {})
+      const props = paneRef.current.addFolder({ title: "Props", expanded: true })
+      props
+        .addBinding({ pointsNumber }, "pointsNumber", { min: 3, max: 100, step: 1 })
+        .on("change", (ev) => setPointNumber(ev.value as number))
+    }
 
     return () => {
       tl.current.stop()
