@@ -1,6 +1,6 @@
+import "./main.css"
 import ReactDOM from "react-dom/client"
-import "./main.less"
-import React, { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Interpol, styles } from "@wbe/interpol"
 import { useWindowSize } from "./utils/useWindowSize"
 
@@ -46,10 +46,7 @@ export function App() {
         x: [random(0, innerWidth), () => random(0, innerWidth)],
         y: [random(0, innerHeight), () => random(0, innerHeight)],
         onUpdate: ({ x, y }) => {
-          styles(el, {
-            x: x + "px",
-            y: y + "px",
-          })
+          styles(el, { x, y })
         },
       })
       itps.push(itp)
@@ -65,24 +62,28 @@ export function App() {
   }, [pointsNumber, windowSize])
 
   return (
-    <div>
+    <div className="app">
       <input
+        className="input"
+        name="particles number"
         autoFocus={true}
         value={pointsNumber}
         type={"number"}
         onChange={(e) => setPointsNumber(parseInt(e.target.value))}
       />
-      {pointsNumber > 0 &&
-        new Array(pointsNumber)
-          .fill(0)
-          .map((_, i) => (
-            <div
-              key={i}
-              className={"particle"}
-              style={{ backgroundColor: randomRGB() }}
-              ref={(r) => (els.current[i] = r)}
-            />
-          ))}
+      <div className="wrapper">
+        {pointsNumber > 0 &&
+          new Array(pointsNumber)
+            .fill(0)
+            .map((_, i) => (
+              <div
+                key={i}
+                className={"particle"}
+                style={{ backgroundColor: randomRGB() }}
+                ref={(r) => (els.current[i] = r as any)}
+              />
+            ))}
+      </div>
     </div>
   )
 }
