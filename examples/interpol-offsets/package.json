@@ -10,7 +10,8 @@
   "dependencies": {
     "@wbe/interpol": "^0.27.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "tweakpane": "^4.0.5"
   },
   "devDependencies": {
     "@types/react": "^19.1.8",

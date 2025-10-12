@@ -4,10 +4,9 @@
   position: relative;
 }
 
-
 .typeOffsetContainer {
   display: flex;
-  gap: 20rem;
+  gap: 20px;
 }
 
 .container {
@@ -21,12 +20,11 @@
 .ball {
   display: block;
   background: hotpink;
-  width: 30rem;
-  height: 30rem;
-  @media(min-width: 768px)
-  {
-    width: 60rem;
-    height: 60rem;
+  width: 30px;
+  height: 30px;
+  @media (min-width: 768px) {
+    width: 60px;
+    height: 60px;
   }
   border-radius: 50%;
 }

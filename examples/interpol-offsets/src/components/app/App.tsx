@@ -1,20 +1,26 @@
-import css from "./App.module.less"
+import css from "./App.module.css"
 import { useEffect, useRef, useState } from "react"
 import { styles, Timeline } from "@wbe/interpol"
-import { Controls } from "../controls/Controls"
 import { useWindowSize } from "../../utils/useWindowSize"
+import { Pane } from "tweakpane"
+import { createTweekpane } from "../../utils/createTweakpane"
 
 export function App() {
   const refs = useRef([])
   const containerRef = useRef(null)
   const [instance, setInstance] = useState(null)
   const windowSize = useWindowSize()
+  const paneRef = useRef(null)
 
   const [customOffset, setCustomOffset] = useState<number | string>("0")
   const [type, setType] = useState<string>("relative")
 
+  const PARAMS = useRef({
+    offsetType: "relative",
+  })
+
   useEffect(() => {
-    const tl = new Timeline({ debug: true })
+    const tl = new Timeline({ debug: false })
 
     for (let i = 0; i < refs.current.length; i++) {
       const curr = refs.current[i]
@@ -38,6 +44,35 @@ export function App() {
     }
 
     setInstance(tl)
+
+    if (!paneRef.current) {
+      paneRef.current = createTweekpane(tl)
+
+      const folder = paneRef.current.addFolder({ title: "Offset", expanded: true })
+
+      folder
+        .addBinding(PARAMS.current, "offsetType", {
+          options: {
+            relative: "relative",
+            absolute: "absolute",
+          },
+        })
+        .on("change", (ev) => {
+          setType(ev.value)
+          tl.play()
+        })
+
+      folder
+        .addBinding({ offset: customOffset }, "offset", {
+          label: "value",
+          min: -1000,
+          max: 1000,
+        })
+        .on("change", (ev) => {
+          setCustomOffset(type === "relative" ? `${ev.value}` : parseInt(ev.value))
+          tl.play()
+        })
+    }
   }, [windowSize, customOffset])
 
   const handleValue = (v): void => {
@@ -50,9 +85,6 @@ export function App() {
 
   return (
     <div className={css.root}>
-      <Controls className={css.controls} instance={instance} />
-      <br />
-
       <div className={css.typeOffsetContainer}>
         <div className={css.typeContainer}>
           <div>type</div>
@@ -80,7 +112,7 @@ export function App() {
             key={i}
             className={css.ball}
             style={{ backgroundColor: i === 1 && "cadetblue" }}
-            ref={(r) => (refs.current[i] = r)}
+            ref={(r) => (refs.current[i] = r as any)}
           ></div>
         ))}
       </div>
