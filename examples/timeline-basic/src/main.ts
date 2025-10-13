@@ -1,6 +1,7 @@
 import "./index.css"
 import { styles, Timeline } from "@wbe/interpol"
 import { Pane } from "tweakpane"
+import { createTweekpane } from "./utils/createTweakpane"
 
 const wrapper = document.querySelector<HTMLElement>(".wrapper")!
 const elements: HTMLElement[] = []
@@ -78,25 +79,10 @@ for (let i = 0; i < elements.length; i++) {
   )
 }
 
-const loop = async () => {
+const yoyo = async () => {
   await tl.play()
-  loop()
+  yoyo()
 }
-loop()
+yoyo()
 
-const pane = new Pane({
-  title: "Controls",
-  expanded: true,
-})
-pane.addButton({ title: "play loop" }).on("click", () => loop())
-// pane.addButton({ title: "reverse" }).on("click", () => {
-//   tl.refresh()
-//   tl.reverse()
-// })
-pane.addButton({ title: "pause" }).on("click", () => tl.pause())
-pane.addButton({ title: "stop" }).on("click", () => tl.stop())
-pane.addButton({ title: "resume" }).on("click", () => tl.resume())
-pane.addButton({ title: "refresh" }).on("click", () => tl.refresh())
-pane.addBinding({ progress: tl.progress() }, "progress", { min: 0, max: 1 }).on("change", (ev) => {
-  tl.progress(ev?.value || 0)
-})
+createTweekpane(tl, {}, yoyo)

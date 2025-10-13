@@ -1,0 +1,25 @@
+:root {
+  --color-gray: #454545;
+  --color-black-1: #313131;
+  --color-black: #001011;
+  --color-blue: #284a56;
+  --color-white: #fff;
+  --ball-size: 30rem;
+}
+
+body {
+  margin: 0;
+  font-size: 16rem;
+  min-width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  background-color: var(--color-black);
+}
+
+.particle {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}

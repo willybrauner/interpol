@@ -1,0 +1,37 @@
+:root {
+  --color-gray: #454545;
+  --color-black-1: #313131;
+  --color-black: #001011;
+  --color-blue: #284a56;
+  --ball-size: 30px;
+}
+
+body {
+  background-color: var(--color-black);
+  margin: 0;
+  font-size: 16px;
+  min-width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  position: fixed;
+}
+
+.controls {
+  position: relative;
+  top: 0;
+}
+
+.params {
+  position: relative;
+  margin-top: 10rem;
+}
+
+.ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--ball-size);
+  height: var(--ball-size);
+  border-radius: 50%;
+  background-color: rgb(117, 190, 255);
+}

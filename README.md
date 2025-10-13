@@ -537,16 +537,23 @@ pnpm run dev --filter {example-name}
 The examples of this repo are available on codesandbox:
 
 - [Interpol basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-basic)
+- [Interpol bokeh](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-bokeh)
 - [Interpol colors](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-colors)
-- [Interpol dom onDrag](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-dom-ondrag)
-- [Interpol ease](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-ease)
-- [Interpol graphic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graphic)
-- [Interpol menu](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-menu)
-- [Interpol object el](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-object-el)
+- [Interpol easing](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-easing)
+- [Interpol GL property](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-gl-property)
+- [Interpol graph](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graph)
+- [Interpol GSAP benchmark](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-gsap-benchmark)
 - [Interpol offsets](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-offsets)
 - [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
-- [Interpol timeline](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline)
-- [Interpol timeline visual](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-timeline-visual)
+- [Timeline basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/timeline-basic)
+- [Timeline visual](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/timeline-visual)
+
+All examples can be found in the [examples](./examples) folder.
+
+```shell
+# start dev server for all examples
+pnpm run dev -- --open
+```
 
 ## Showcase
 

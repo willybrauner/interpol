@@ -6,7 +6,7 @@ import Stats from "stats-gl"
 import { Pane } from "tweakpane"
 
 const PARAMS = {
-  testType: "GSAP" as "Interpol" | "GSAP",
+  testType: "Interpol" as "Interpol" | "GSAP",
   isRunning: false,
   multiple: 6,
 }

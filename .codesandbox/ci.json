@@ -3,17 +3,16 @@
   "packages": ["./packages/*"],
   "sandboxes": [
     "/examples/interpol-basic",
-    "/examples/interpol-delay",
+    "/examples/interpol-bokeh",
     "/examples/interpol-colors",
-    "/examples/interpol-dom-ondrag",
-    "/examples/interpol-ease",
-    "/examples/interpol-graphic",
-    "/examples/interpol-menu",
-    "/examples/interpol-object-el",
-    "/examples/interpol-particles",
+    "/examples/interpol-easing",
+    "/examples/interpol-gl-property",
+    "/examples/interpol-graph",
+    "/examples/interpol-gsap-benchmark",
     "/examples/interpol-offsets",
-    "/examples/interpol-timeline-visual",
-    "/examples/timeline-basic"
+    "/examples/interpol-particles",
+    "/examples/timeline-basic",
+    "/examples/timeline-visual"
   ],
   "node": "18"
 }
