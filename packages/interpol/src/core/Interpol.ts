@@ -6,16 +6,15 @@ import {
   Value,
   CallbackProps,
   InterpolConstructBase,
-} from "./core/types"
-import { deferredPromise } from "./core/deferredPromise"
-import { clamp } from "./core/clamp"
-import { round } from "./core/round"
-import { compute } from "./core/compute"
-import { noop } from "./core/noop"
-import { Ease, easeAdapter, EaseFn, EaseName } from "./core/ease"
+} from "./types"
+import { deferredPromise } from "../utils/deferredPromise"
+import { clamp } from "../utils/clamp"
+import { round } from "../utils/round"
+import { compute } from "../utils/compute"
+import { noop } from "../utils/noop"
+import { Ease, easeAdapter, EaseFn, EaseName } from "./ease"
+import { Ticker } from "./Ticker"
 import { InterpolOptions } from "./options"
-import { Ticker } from "./core/Ticker"
-
 let ID = 0
 
 export class Interpol<K extends string = string> {

@@ -1,4 +1,4 @@
-import { Interpol } from "../Interpol"
+import { Interpol } from "./Interpol"
 import { Ticker } from "./Ticker"
 import { Ease, EaseFn } from "./ease"
 

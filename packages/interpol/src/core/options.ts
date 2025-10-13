@@ -1,6 +1,6 @@
-import { Ticker } from "./core/Ticker"
-import { Value } from "./core/types"
-import { Ease } from "./core/ease"
+import { Ticker } from "./Ticker"
+import { Value } from "./types"
+import { Ease } from "./ease"
 
 /**
  * global options in window object
