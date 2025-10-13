@@ -42,7 +42,6 @@
     "pre-publish": "npm run build && npm run test",
     "ci:version": "pnpm changeset version && pnpm --filter \"@wbe/*\" install --lockfile-only",
     "ci:publish": "pnpm build && pnpm changeset publish",
-    "preinstall": "node scripts/setup-examples.js",
     "clean": "rm -rf dist && find . -type d -name 'node_modules' -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {

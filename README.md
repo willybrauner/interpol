@@ -534,21 +534,7 @@ pnpm run dev --filter {example-name}
 
 ## Playground
 
-The examples of this repo are available on codesandbox:
-
-- [Interpol basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-basic)
-- [Interpol bokeh](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-bokeh)
-- [Interpol colors](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-colors)
-- [Interpol easing](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-easing)
-- [Interpol GL property](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-gl-property)
-- [Interpol graph](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-graph)
-- [Interpol GSAP benchmark](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-gsap-benchmark)
-- [Interpol offsets](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-offsets)
-- [Interpol particles](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/interpol-particles)
-- [Timeline basic](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/timeline-basic)
-- [Timeline visual](https://codesandbox.io/s/github/willybrauner/interpol/tree/main/examples/timeline-visual)
-
-All examples can be found in the [examples](./examples) folder.
+All examples can be found in the [examples](./examples) folder. You can easily start all the examples with the command:
 
 ```shell
 # start dev server for all examples
