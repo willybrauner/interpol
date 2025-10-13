@@ -4,9 +4,9 @@ on:
     branches:
       - main
     paths:
-      - '**/package.json'
-      - '.changeset/**'
-      - '.github/workflows/release.yml'
+      - "**/package.json"
+      - ".changeset/**"
+      - ".github/workflows/release.yml"
 env:
   # Bypass husky commit hook for CI
   HUSKY: 0
@@ -23,27 +23,21 @@ jobs:
       - name: Use Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Cache pnpm modules
         uses: actions/cache@v3
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-  keys: |
+          restore-keys: |
             ${{ runner.os }}-
 
       - uses: pnpm/action-setup@v2
         with:
           version: 8.3.1
           run_install: |
-            args: [--filter "@wbe/*"]          
-
-      - name: Copy README file to interpol package
-        uses: canastro/copy-file-action@master
-        with:
-          source: 'README.md'
-          target: 'packages/interpol/README.md'
+            args: [--filter "@wbe/*"]
 
       - name: Set up NPM credentials
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
@@ -57,8 +51,8 @@ jobs:
           version: pnpm ci:version
           publish: pnpm ci:publish
           # Messages
-          commit: 'chore(deploy): Release'
-          title: 'chore(deploy): Release'
+          commit: "chore(deploy): Release"
+          title: "chore(deploy): Release"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
