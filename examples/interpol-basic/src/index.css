@@ -1,10 +1,6 @@
 :root {
   --tp-button-background-color: #484e5e;
   --color-blue-500: #545f81;
-  --tp-button-background-color-hover: var(--color-blue-500);
-  --tp-button-background-color-active: var(--color-blue-500);
-  --tp-button-background-color-focus: var(--color-blue-500);
-  --tp-button-foreground-color: #bbbbbb;
 }
 
 body {
