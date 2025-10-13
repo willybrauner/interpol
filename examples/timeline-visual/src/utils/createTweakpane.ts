@@ -10,7 +10,7 @@ export const createTweekpane = (
   PARAMS: Record<any, any>,
   yoyo?: () => Promise<void>,
 ): Pane => {
-  const pane = new Pane({ title: "Controls", expanded: false })
+  const pane = new Pane({ title: "Controls", expanded: true })
 
   /**
    * Controls folder
@@ -35,32 +35,35 @@ export const createTweekpane = (
    */
   const optionsFolder = pane.addFolder({ title: "Options", expanded: true })
 
-  if (PARAMS.duration) {
-    optionsFolder
-      .addBinding(PARAMS, "duration", { min: 0, max: 10000, step: 100 })
-      .on("change", () => {
+  if (PARAMS) {
+    if (PARAMS.duration) {
+      optionsFolder
+        .addBinding(PARAMS, "duration", { min: 0, max: 10000, step: 100 })
+
+        .on("change", () => {
+          itp.refresh()
+        })
+    }
+
+    const easeNames = ["linear", "power1", "power2", "power3", "power4", "expo"]
+    const easeTypes = ["in", "out", "inOut"]
+    const eases: Record<string, string> = { linear: "linear" }
+    for (const name of easeNames.slice(1)) {
+      for (const type of easeTypes) {
+        const key = `${name}.${type}`
+        eases[key] = key
+      }
+    }
+    if (PARAMS.ease) {
+      optionsFolder.addBinding(PARAMS, "ease", { options: eases }).on("change", () => {
         itp.refresh()
       })
-  }
-
-  const easeNames = ["linear", "power1", "power2", "power3", "power4", "expo"]
-  const easeTypes = ["in", "out", "inOut"]
-  const eases: Record<string, string> = { linear: "linear" }
-  for (const name of easeNames.slice(1)) {
-    for (const type of easeTypes) {
-      const key = `${name}.${type}`
-      eases[key] = key
     }
-  }
-  if (PARAMS.ease) {
-    optionsFolder.addBinding(PARAMS, "ease", { options: eases }).on("change", () => {
-      itp.refresh()
-    })
-  }
-  if (PARAMS.reverseEase) {
-    optionsFolder.addBinding(PARAMS, "reverseEase", { options: eases }).on("change", () => {
-      itp.refresh()
-    })
+    if (PARAMS.reverseEase) {
+      optionsFolder.addBinding(PARAMS, "reverseEase", { options: eases }).on("change", () => {
+        itp.refresh()
+      })
+    }
   }
 
   /**

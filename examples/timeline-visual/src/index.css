@@ -16,3 +16,47 @@ body {
   position: fixed;
   background-color: var(--color-black);
 }
+
+.root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.typeOffsetContainer {
+  display: flex;
+}
+
+.container {
+  width: 95vw;
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ball {
+  display: block;
+  background: hotpink;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  @media (min-width: 768px) {
+    width: 100px;
+    height: 100px;
+  }
+
+  &:not(:first-child) {
+    margin-top: 4px;
+  }
+  &:nth-child(1) {
+    background: cadetblue;
+  }
+  &:nth-child(2) {
+    background: lightgreen;
+    border-radius: 0%;
+  }
+  &:nth-child(3) {
+    background: lightcoral;
+  }
+}
