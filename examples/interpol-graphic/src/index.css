@@ -3,23 +3,11 @@
   --color-black-1: #313131;
   --color-black: #001011;
   --color-blue: #284a56;
-  --color-white: #fff;
   --ball-size: 30px;
 }
 
-html {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-weight: 400;
-  color-scheme: dark;
-  background-color: var(--color-black);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
 body {
+  background-color: var(--color-black);
   margin: 0;
   font-size: 16px;
   min-width: 100vw;
@@ -28,7 +16,22 @@ body {
   position: fixed;
 }
 
-button {
-  background-color: var(--color-blue);
-  border: none;
+.controls {
+  position: relative;
+  top: 0;
+}
+
+.params {
+  position: relative;
+  margin-top: 10rem;
+}
+
+.ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--ball-size);
+  height: var(--ball-size);
+  border-radius: 50%;
+  background-color: rgb(117, 190, 255);
 }
