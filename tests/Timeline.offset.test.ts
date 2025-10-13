@@ -1,5 +1,5 @@
 import { it, expect, describe } from "vitest"
-import { InterpolOptions, Timeline } from "../src"
+import { engine, Timeline } from "../src"
 import "./_setup"
 import { afterEach } from "node:test"
 import { expectToBeBetween } from "./utils/expectToBeBetween"
@@ -155,8 +155,8 @@ describe.concurrent("Timeline.add() offset", () => {
   })
 
   afterEach(()=> {
-    InterpolOptions.durationFactor = 1
-    InterpolOptions.duration = 1000  
+    engine.durationFactor = 1
+    engine.duration = 1000  
   })
 
 
@@ -238,8 +238,8 @@ describe.concurrent("Timeline.add() offset", () => {
   })
 
   it('should work with duration factor on relative offset', async() => {
-    InterpolOptions.durationFactor = 1000
-    InterpolOptions.duration = 1
+    engine.durationFactor = 1000
+    engine.duration = 1
     const tl = new Timeline({
       paused: true,
       onComplete: (time) => {
@@ -252,8 +252,8 @@ describe.concurrent("Timeline.add() offset", () => {
      return tl.play()
   })
   it('should work with duration factor on absolute offset', async() => {
-    InterpolOptions.durationFactor = 1000
-    InterpolOptions.duration = 1
+    engine.durationFactor = 1000
+    engine.duration = 1
     const tl = new Timeline({
       paused: true,
       onComplete: (time) => {
