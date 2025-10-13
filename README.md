@@ -5,7 +5,7 @@
 <img alt="build" src="https://github.com/willybrauner/interpol/workflows/tests/badge.svg">
 </p>
 <p align="center">
-<img alt="logo" src="./packages/interpol/interpol.webp">
+<img alt="logo" src="interpol.webp
 </p>
 
 Interpol library **interpolates a set of number values with a GSAP-like API**.
@@ -252,7 +252,7 @@ new Interpol({
 })
 ```
 
-[GSAP like ease functions](./packages/interpol/src/core/ease.ts) are available in Interpol as string or object:
+[GSAP like ease functions](src/core/ease.ts) are available in Interpol as string or object:
 
 ```js
 import { Interpol, Power3 } from "@wbe/interpol"
@@ -272,7 +272,7 @@ new Interpol({
 
 ### interpol constructor
 
-For mor details, see the full type definition [types.ts](./packages/interpol/src/core/types.ts)
+For mor details, see the full type definition [types.ts](src/core/types.ts)
 
 ```ts
 // A Value can be a number or a computed number
@@ -552,7 +552,7 @@ All examples can be found in the [examples](./examples) folder.
 
 ```shell
 # start dev server for all examples
-pnpm run dev -- --open
+pnpm run dev --open
 ```
 
 ## Showcase
