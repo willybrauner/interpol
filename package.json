@@ -1,11 +1,16 @@
 {
   "name": "@wbe/interpol",
   "description": "Interpolates values with a GSAP-like API ~ 3kB",
+  "version": "0.27.0",
   "author": {
     "name": "Willy Brauner",
     "url": "https://willybrauner.com"
   },
-  "version": "0.27.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/willybrauner/interpol.git"
+  },
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -20,16 +25,11 @@
   "main": "./dist/interpol.cjs",
   "module": "./dist/interpol.js",
   "types": "./dist/interpol.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/willybrauner/interpol.git"
-  },
   "keywords": [
     "interpol",
     "interpolation",
     "animation",
-    "timeline",
-    "dom"
+    "timeline"
   ],
   "scripts": {
     "dev": "pnpm --parallel --color --filter './examples/*' run dev",
