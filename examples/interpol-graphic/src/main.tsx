@@ -37,7 +37,7 @@ export function App() {
     paneRef.current = createTweekpane(tl.current as any, {})
     const props = paneRef.current.addFolder({ title: "Props", expanded: true })
     props
-      .addBinding({ pointsNumber }, "pointsNumber", { min: 3, max: 100, step: 1 })
+      .addBinding({ pointsNumber }, "pointsNumber", { min: 2, max: 300, step: 1 })
       .on("change", (ev) => setPointNumber(ev.value as number))
 
     return () => {
