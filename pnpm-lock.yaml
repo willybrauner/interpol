@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 importers:
 
   .:
@@ -198,7 +202,7 @@ importers:
   examples/interpol-offsets:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.27.1
+        specifier: workspace:*
         version: link:../..
       react:
         specifier: ^19.1.0
@@ -232,7 +236,7 @@ importers:
   examples/interpol-particles:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.27.1
+        specifier: workspace:*
         version: link:../..
       react:
         specifier: ^19.1.0
@@ -282,7 +286,7 @@ importers:
   examples/timeline-visual:
     dependencies:
       '@wbe/interpol':
-        specifier: ^0.27.1
+        specifier: workspace:*
         version: link:../..
       react:
         specifier: ^19.1.0
@@ -3288,7 +3292,3 @@ packages:
   /yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
