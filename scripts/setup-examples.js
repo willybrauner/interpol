@@ -4,36 +4,26 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "
 import { resolve, dirname } from "path"
 import { execSync } from "child_process"
 import { fileURLToPath } from "url"
-import packageJson from "../package.json" assert { type: "json" }
+
+// Read package.json version
+const packageJson = JSON.parse(
+  readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "../package.json"), "utf8"),
+)
 console.log("current version:", packageJson.version)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// Debug environment variables to help identify CodeSandbox
-console.log('Environment debug:', {
-  CODESANDBOX: process.env.CODESANDBOX,
-  SANDBOX_URL: process.env.SANDBOX_URL,
-  CSB: process.env.CSB,
-  NODE_ENV: process.env.NODE_ENV,
-  HOSTNAME: process.env.HOSTNAME,
-  PWD: process.env.PWD,
-  HOME: process.env.HOME,
-  USER: process.env.USER,
-  CI: process.env.CI
-})
-
-const isCodeSandbox = 
+// CodeSandbox detection based on environment patterns
+const isCodeSandbox =
   process.env.FORCE_CODESANDBOX_MODE ||
-  process.env.CODESANDBOX || 
-  process.env.SANDBOX_URL || 
-  process.env.CSB || 
-  process.env.CI ||  // Many cloud environments set CI=true
-  process.env.NODE_ENV === 'development' && (
-    process.env.HOSTNAME?.includes('csb') ||
-    process.env.HOSTNAME?.includes('codesandbox') ||
-    process.env.PWD?.includes('/sandbox') ||
-    process.env.HOME?.includes('/sandbox')
-  )
+  process.env.CODESANDBOX ||
+  process.env.SANDBOX_URL ||
+  process.env.CSB ||
+  // CodeSandbox specific patterns
+  (process.env.CI === "true" &&
+    (process.env.HOSTNAME?.includes("ci-") ||
+      process.env.PWD?.startsWith("/tmp/") ||
+      process.env.HOME === "/home/node"))
 
 // Dynamically read all examples from the examples directory
 const examplesDir = resolve(__dirname, "../examples")
