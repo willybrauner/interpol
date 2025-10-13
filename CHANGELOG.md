@@ -1036,7 +1036,7 @@
 
 - e291182: Accept ease as "GSAP like" string name.
 
-  ["GSAP like" ease functions](./packages/interpol/src/core/ease.ts) are available in interpol as string too:
+  ["GSAP like" ease functions](src/core/ease.ts) are available in interpol as string too:
 
   ```js
   import { Interpol, Power3 } from "@wbe/interpol"

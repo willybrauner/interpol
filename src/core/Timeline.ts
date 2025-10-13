@@ -1,10 +1,10 @@
 import { Interpol } from "./Interpol"
-import { InterpolConstruct, Props, TimelineConstruct } from "./core/types"
-import { Ticker } from "./core/Ticker"
-import { deferredPromise } from "./core/deferredPromise"
-import { clamp } from "./core/clamp"
-import { round } from "./core/round"
-import { noop } from "./core/noop"
+import { InterpolConstruct, Props, TimelineConstruct } from "./types"
+import { Ticker } from "./Ticker"
+import { deferredPromise } from "../utils/deferredPromise"
+import { clamp } from "../utils/clamp"
+import { round } from "../utils/round"
+import { noop } from "../utils/noop"
 import { InterpolOptions } from "./options"
 
 export interface IAdd {

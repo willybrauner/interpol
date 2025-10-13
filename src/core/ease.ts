@@ -43,7 +43,6 @@ export const Linear: EaseFn = (t) => t
 /**
  * Adaptor for gsap ease functions as string
  */
-// prettier-ignore
 export type EaseType = "power1" | "power2" | "power3" | "power4" | "expo"
 export type EaseDirection = "in" | "out" | "inOut"
 export type EaseName = `${EaseType}.${EaseDirection}` | "linear" | "none"
@@ -53,7 +52,6 @@ export type Power = Record<string, EaseFn>
 
 export const easeAdapter = (ease: EaseName): EaseFn => {
   let [type, direction] = ease.split(".") as [EaseType, EaseDirection]
-  // if first letter is lowercase, capitalize it
   if (type[0] === type[0].toLowerCase()) {
     type = (type[0].toUpperCase() + type.slice(1)) as EaseType
   }

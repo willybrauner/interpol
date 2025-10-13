@@ -1,4 +1,4 @@
-import { isClient } from "./env"
+import { isClient } from "../utils/env"
 
 type TickParams = {
   delta: number

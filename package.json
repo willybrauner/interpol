@@ -1,31 +1,48 @@
 {
-  "name": "interpol",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "@wbe/interpol",
+  "description": "Interpolates values with a GSAP-like API ~ 3kB",
+  "version": "0.27.0",
+  "author": {
+    "name": "Willy Brauner",
+    "url": "https://willybrauner.com"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/willybrauner/interpol.git"
   },
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/interpol.js",
+      "require": "./dist/interpol.cjs"
+    }
+  },
+  "main": "./dist/interpol.cjs",
+  "module": "./dist/interpol.js",
+  "types": "./dist/interpol.d.ts",
   "keywords": [
     "interpol",
     "interpolation",
     "animation",
-    "timeline",
-    "dom"
+    "timeline"
   ],
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "FORCE_COLOR=1 turbo run build",
-    "build:watch": "FORCE_COLOR=1 turbo run build -- --watch",
-    "dev": "FORCE_COLOR=1 turbo run dev --concurrency 20",
-    "test:watch": "vitest --reporter verbose",
+    "dev": "pnpm --parallel --color --filter './examples/*' run dev",
+    "build": "tsup",
+    "build:watch": "tsup --watch --sourcemap",
     "test": "vitest run",
+    "test:watch": "vitest --reporter verbose",
     "size": "size-limit",
     "ncu": "find . -name 'node_modules' -prune -o -name 'package.json' -execdir ncu -u ';'",
     "pre-publish": "npm run build && npm run test",
     "ci:version": "pnpm changeset version && pnpm --filter \"@wbe/*\" install --lockfile-only",
-    "ci:publish": "pnpm build && pnpm changeset publish"
+    "ci:publish": "pnpm build && pnpm changeset publish",
+    "clean": "rm -rf dist && find . -type d -name 'node_modules' -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
@@ -34,7 +51,8 @@
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "size-limit": "^11.2.0",
-    "turbo": "^2.5.4",
+    "terser": "^5.43.1",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.4",
     "vitest": "^3.2.4"
@@ -47,7 +65,7 @@
   "size-limit": [
     {
       "name": "@wbe/interpol",
-      "path": "packages/interpol/dist/interpol.js",
+      "path": "dist/interpol.js",
       "limit": "3.5 KB"
     }
   ]
