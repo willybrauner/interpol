@@ -1,6 +1,6 @@
 {
   "buildCommand": "build",
-  "packages": ["./packages/*"],
+  "packages": ["./"],
   "sandboxes": [
     "/examples/interpol-basic",
     "/examples/interpol-bokeh",

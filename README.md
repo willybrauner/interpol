@@ -524,12 +524,8 @@ pnpm run build:watch
 # start tests and watch
 pnpm run test:watch
 
-# start dev server for all examples
-pnpm run dev
-
-# Or run a specific example
-pnpm run dev --filter interpol-basic
-pnpm run dev --filter {example-name}
+# start all dev server for all examples
+pnpm run dev --open
 ```
 
 ## Playground
