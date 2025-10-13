@@ -5,32 +5,22 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
 }
 
 body {
+  background-color: #242424;
   margin: 0;
   overflow: hidden;
 }
 
-.element {
+#app div {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #646cff, #0084ff);
+  background: red;
+  @media (min-width: 768px) {
+    width: 25px;
+    height: 25px;
+  }
 }
