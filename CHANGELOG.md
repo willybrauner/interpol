@@ -1,5 +1,15 @@
 # @wbe/interpol
 
+## 0.27.1
+
+### Patch Changes
+
+- de50ee8: Repo management
+  - Separate utils & core
+  - Move all the `packages/interpol/src` in root `src`
+  - Remove turbo. Use pnpm --parallel instead for start examples
+  - Add licence file
+
 ## 0.27.0
 
 ### Minor Changes
