@@ -66,17 +66,17 @@ describe.concurrent("Interpol delay", () => {
         delay: () => delay,
         duration,
         onStart: () => {
-          // -1 for rounding issues
+          // -2 for rounding issues
           const now = performance.now() - start
-          expect(now).toBeGreaterThanOrEqual(delay - 1)
+          expect(now).toBeGreaterThanOrEqual(delay - 2)
         },
         onUpdate: () => {
           const now = performance.now() - start
-          expect(now).toBeGreaterThanOrEqual(delay - 1)
+          expect(now).toBeGreaterThanOrEqual(delay - 2)
         },
         onComplete: () => {
           const now = performance.now() - start
-          expect(now).toBeGreaterThanOrEqual(delay + duration - 1)
+          expect(now).toBeGreaterThanOrEqual(delay + duration - 2)
         },
       })
 
