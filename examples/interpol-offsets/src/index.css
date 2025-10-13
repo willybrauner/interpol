@@ -7,14 +7,6 @@
   --ball-size: 30px;
 }
 
-html {
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
 body {
   margin: 0;
   font-size: 16px;
@@ -23,4 +15,34 @@ body {
   overflow: hidden;
   position: fixed;
   background-color: var(--color-black);
+}
+
+.root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.container {
+  --margin: 60px;
+  width: calc(50vw - (var(--margin) - var(--ball-size)));
+  position: absolute;
+  top: 50%;
+  left: var(--margin);
+  transform: translateY(-50%);
+}
+
+.ball {
+  display: block;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  @media (min-width: 768px) {
+    width: 60px;
+    height: 60px;
+  }
+}
+.ball:nth-child(2) {
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
 }
