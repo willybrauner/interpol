@@ -42,7 +42,7 @@
     "pre-publish": "npm run build && npm run test",
     "ci:version": "pnpm changeset version && pnpm --filter \"@wbe/*\" install --lockfile-only",
     "ci:publish": "pnpm build && pnpm changeset publish",
-    "clean": "rm -rf dist && find . -type d -name 'node_modules' -prune -exec rm -rf '{}' + && find . -type d -name '.turbo' -prune -exec rm -rf '{}' +"
+    "clean": "rm -rf dist && find . -type d -name 'node_modules' -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
@@ -65,7 +65,7 @@
   "size-limit": [
     {
       "name": "@wbe/interpol",
-      "path": "packages/interpol/dist/interpol.js",
+      "path": "dist/interpol.js",
       "limit": "3.5 KB"
     }
   ]
