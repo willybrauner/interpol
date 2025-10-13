@@ -1,5 +1,5 @@
 import "./index.css"
-import { EaseName, Interpol, InterpolOptions } from "@wbe/interpol"
+import { EaseName, Interpol, engine } from "@wbe/interpol"
 import { Renderer, Program, Mesh, Transform, Geometry } from "ogl"
 import { createTweekpane } from "./utils/createTweakpane"
 
@@ -46,7 +46,7 @@ const geometry = new Geometry(gl, {
 const mesh = new Mesh(gl, { geometry, program })
 mesh.setParent(scene)
 
-InterpolOptions.ticker.add(() => {
+engine.ticker.add(() => {
   renderer.render({ scene })
 })
 
