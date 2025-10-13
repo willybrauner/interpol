@@ -42,7 +42,7 @@ on... mesh, dom element or anything else, for ~=3kB!
     - [Disable internal raf](#disable-internal-raf)
     - [Use the internal Ticker instance globally](#use-the-internal-ticker-instance-globally)
   - [Defaults properties](#defaults-properties)
-- [Dev examples](#dev-examples)
+- [Dev](#dev)
 - [Playground](#playground)
 - [Showcase](#showcase)
 - [Credits](#credits)
@@ -512,7 +512,7 @@ InterpolOptions.duration = 1000
 InterpolOptions.ease = (t) => t * t
 ```
 
-## Dev examples
+## Dev
 
 ```shell
 # install dependencies
@@ -523,13 +523,6 @@ pnpm run build:watch
 
 # start tests and watch
 pnpm run test:watch
-
-# start dev server for all examples
-pnpm run dev
-
-# Or run a specific example
-pnpm run dev --filter interpol-basic
-pnpm run dev --filter {example-name}
 ```
 
 ## Playground
