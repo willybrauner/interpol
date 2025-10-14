@@ -45,8 +45,8 @@ on... mesh, dom element or anything else, for ~=3kB!
 - [Dev](#dev)
 - [Playground](#playground)
 - [Showcase](#showcase)
+- [Thanks to](#thanks-to)
 - [Credits](#credits)
-- [About](#about)
 - [License](#license)
 
 ## Install
@@ -543,14 +543,14 @@ These projects have been built with Interpol. PRs are open to add your project t
 - [theoplawinski.com](https://www.theoplawinski.com)
 - [willybrauner.com](https://willybrauner.com)
 
-## Credits
+## Thanks to
 
-- [gsap](https://greensock.com/gsap/)
-- [animate](https://github.com/SolalDR/animate/)
+- [gsap](https://gsap.com)
+- [anime.js](https://animejs.com)
 - [animini](https://github.com/dbismut/animini)
 - [signal](https://github.com/zouloux/signal)
 
-## About
+## Credits
 
 Interpol is an open-source project created and maintained by [Willy Brauner](https://willybrauner.com).
 
