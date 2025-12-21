@@ -17,7 +17,10 @@ on... mesh, dom element or anything else, for ~=3kB!
 > Interpol still is in development, the API can change until the first major release.
 
 > [!NOTE]
-> For an in-depth discovery of the library, check out this [Interpol blog post](https://willybrauner.com/journal/interpol).
+> For an in-depth discovery of the library, check out these articles:
+>
+> - [Codrops — Interpol: A Low-Level Take on Tweening and Motion](https://tympanus.net/codrops/2025/10/27/interpol-a-low-level-take-on-tweening-and-motion/)
+> - [willybrauner.com — Interpol](https://willybrauner.com/journal/interpol)
 
 ## Summary
 
