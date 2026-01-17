@@ -14,7 +14,7 @@ import { compute } from "../utils/compute"
 import { noop } from "../utils/noop"
 import { Ease, easeAdapter, EaseFn, EaseName } from "./ease"
 import { Ticker } from "./Ticker"
-import { InterpolOptions } from "./options"
+import { engine } from "./engine"
 let ID = 0
 
 export class Interpol<K extends string = string> {
@@ -80,8 +80,8 @@ export class Interpol<K extends string = string> {
   #hasProgressCompleted = false
 
   constructor({
-    duration = InterpolOptions.duration,
-    ease = InterpolOptions.ease,
+    duration = engine.duration,
+    ease = engine.ease,
     reverseEase = ease,
     paused = false,
     delay = 0,
@@ -94,7 +94,7 @@ export class Interpol<K extends string = string> {
     meta = {},
     ...inlineProps
   }: InterpolConstruct<K>) {
-    this.ticker = InterpolOptions.ticker
+    this.ticker = engine.ticker
     this.#duration = duration
     this.#isPaused = paused
     this.#delay = delay
@@ -128,8 +128,8 @@ export class Interpol<K extends string = string> {
     this.#props = this.#prepareProps<K>(this.#originalProps)
 
     // compute global options
-    this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
-    this.#_delay = compute(this.#delay) * InterpolOptions.durationFactor
+    this.#_duration = compute(this.#duration) * engine.durationFactor
+    this.#_delay = compute(this.#delay) * engine.durationFactor
     this.#_ease = this.#chooseEase(this.#ease)
     this.#_reverseEase = this.#chooseEase(this.#reverseEase)
 
