@@ -1,14 +1,14 @@
 import { it, expect, describe, vi } from "vitest"
 import { wait } from "./utils/wait"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import "./_setup"
 
-describe.concurrent("Interpol pause", () => {
+describe.concurrent("interpol pause", () => {
   it("should play, pause and play again (resume)", async () => {
     const mock = vi.fn()
     let savedTime = vi.fn(() => 0)
     return new Promise(async (resolve: any) => {
-      const itp = new Interpol({
+      const itp = interpol({
         duration: 1000,
         paused: true,
         onUpdate: mock,

@@ -1,5 +1,5 @@
 import "./index.css"
-import { EaseName, Interpol } from "@wbe/interpol"
+import { EaseName, interpol } from "@wbe/interpol"
 import { createTweekpane } from "./utils/createTweakpane"
 import { interpolateColor } from "./utils/interpolateColor"
 
@@ -11,9 +11,9 @@ const PARAMS = {
 }
 
 /**
- * Interpol
+ * interpol
  */
-const itp = new Interpol({
+const itp = interpol({
   paused: true,
   v: [0, 1],
   duration: 2000,

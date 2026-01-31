@@ -1,8 +1,8 @@
 import { it, expect, describe, vi } from "vitest"
-import { Timeline } from "../src"
+import { timeline } from "../src"
 import "./_setup"
 
-describe("Timeline add callback", () => {
+describe("timeline add callback", () => {
   /**
    * We assume that the tl.time is a physical time in ms
    * It can't reflect the exact position set via duration because depend on RAF
@@ -12,7 +12,7 @@ describe("Timeline add callback", () => {
    */
   it("should execute callbacks at their intended times", async () => {
     const callbackTimes: number[] = []
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
 
     // normal ITP
     tl.add({
@@ -73,7 +73,7 @@ describe("Timeline add callback", () => {
       [50, 200],
     ]) {
       const cb = vi.fn()
-      const tl = new Timeline({ paused: true })
+      const tl = timeline({ paused: true })
       for (let i = 0; i < (NUM as number); i++) {
         tl.add(() => cb(), OFFSET)
       }
@@ -84,7 +84,7 @@ describe("Timeline add callback", () => {
 
   it("should execute single callback without offset", async () => {
     const cb = vi.fn()
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     tl.add(() => cb())
     await tl.play()
     expect(cb).toHaveBeenCalledTimes(1)
@@ -92,7 +92,7 @@ describe("Timeline add callback", () => {
 
   it("should execute single callback with absolute offset", async () => {
     const cb = vi.fn()
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     tl.add(() => cb(), 100) // absolute offset of 100ms
     await tl.play()
     expect(cb).toHaveBeenCalledTimes(1)
@@ -100,7 +100,7 @@ describe("Timeline add callback", () => {
 
   it("should execute single callback with relative offset", async () => {
     const cb = vi.fn()
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     tl.add(() => cb(), "+=100") // relative offset of 100ms
     await tl.play()
     expect(cb).toHaveBeenCalledTimes(1)
@@ -108,7 +108,7 @@ describe("Timeline add callback", () => {
 
   it("should execute callback when using progress() method", async () => {
     const cb = vi.fn()
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     tl.add(() => cb())
     tl.progress(0, false)
     expect(cb).toHaveBeenCalledTimes(1)
@@ -126,7 +126,7 @@ describe("Timeline add callback", () => {
 
   it("should execute single callback with offset when using progress() method", async () => {
     const cb = vi.fn()
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     tl.add(() => cb(), 100)
     tl.progress(0, false)
     expect(cb).toHaveBeenCalledTimes(0)
@@ -149,7 +149,7 @@ describe("Timeline add callback", () => {
 
     for (let offset of OFFSETS) {
       const cb = vi.fn()
-      const tl = new Timeline({ paused: true })
+      const tl = timeline({ paused: true })
       tl.add({ duration: 100 })
       tl.add({ duration: 20 })
       tl.add(() => cb(), offset)
@@ -160,10 +160,10 @@ describe("Timeline add callback", () => {
 
   it("should execute tl.add() callback with absolute offset, no matter the order", async () => {
     const cb = vi.fn((n: number) => n)
-    let tl: Timeline
+    let tl: timeline
 
     // Set relative add offset from the beginning
-    tl = new Timeline({ paused: true })
+    tl = timeline({ paused: true })
     tl.add({ duration: 100, onComplete: () => cb(3) })
     tl.add({ duration: 50, onComplete: () => cb(4) })
     tl.add(() => cb(1), 0)
@@ -174,7 +174,7 @@ describe("Timeline add callback", () => {
     cb.mockClear()
 
     // Set relative add offset from the end
-    tl = new Timeline({ paused: true })
+    tl = timeline({ paused: true })
     tl.add(() => cb(1), 0)
     tl.add(() => cb(5), 200)
     tl.add(() => cb(2), 20)
@@ -185,7 +185,7 @@ describe("Timeline add callback", () => {
     cb.mockClear()
 
     // shuffle
-    tl = new Timeline({ paused: true })
+    tl = timeline({ paused: true })
     tl.add(() => cb(2), 20)
     tl.add({ duration: 100, onComplete: () => cb(3) })
     tl.add(() => cb(5), 200)

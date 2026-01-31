@@ -1,14 +1,14 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import "./_setup"
 import { wait } from "./utils/wait"
 
-describe.concurrent("Interpol callbacks", () => {
+describe.concurrent("interpol callbacks", () => {
   it("should execute beforeStart before the play", async () => {
     const pms = (paused: boolean) =>
       new Promise(async (resolve: any) => {
         const beforeStart = vi.fn()
-        const itp = new Interpol({
+        const itp = interpol({
           x: [0, 100],
           duration: 500,
           paused,
@@ -28,7 +28,7 @@ describe.concurrent("Interpol callbacks", () => {
   it("should return a resolved promise when complete", async () => {
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         v: [0, 100],
         duration: 100,
         paused: true,
@@ -45,7 +45,7 @@ describe.concurrent("Interpol callbacks", () => {
     const test = (immediateRender: boolean) =>
       new Promise(async (resolve: any) => {
         const onUpdate = vi.fn()
-        new Interpol({
+        interpol({
           paused: true,
           v: [0, 100],
           duration: 100,
@@ -61,7 +61,7 @@ describe.concurrent("Interpol callbacks", () => {
   it("Should call onStart each time, we replay after or during a play", () => {
     return new Promise(async (resolve: any) => {
       const onStart = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         x: [0, 100],
         y: [-20, 100],
         duration: 150,
@@ -106,7 +106,7 @@ describe.concurrent("Interpol callbacks", () => {
   it("Should not call onStart on reverse", () => {
     return new Promise(async (resolve: any) => {
       const onStart = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         x: [0, 100],
         duration: 100,
         paused: true,

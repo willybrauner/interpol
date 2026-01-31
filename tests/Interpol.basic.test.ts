@@ -1,12 +1,12 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import { randomRange } from "./utils/randomRange"
 import "./_setup"
 
-describe.concurrent("Interpol basic", () => {
+describe.concurrent("interpol basic", () => {
   it("should return the right time", async () => {
     const test = (duration: number) => {
-      return new Interpol({
+      return interpol({
         v: [5, 100],
         duration,
         onComplete: (props, time) => {
@@ -20,7 +20,7 @@ describe.concurrent("Interpol basic", () => {
 
   it("should not auto play if paused is set", async () => {
     const mock = vi.fn()
-    const itp = new Interpol({
+    const itp = interpol({
       v: [5, 100],
       duration: 100,
       paused: true,
@@ -37,7 +37,7 @@ describe.concurrent("Interpol basic", () => {
   it("play should play with duration 0", async () => {
     const mock = vi.fn()
     return new Promise((resolve: any) => {
-      new Interpol({
+      interpol({
         v: [0, 1000],
         duration: 0,
         onUpdate: () => {

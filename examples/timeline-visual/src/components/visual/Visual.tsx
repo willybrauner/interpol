@@ -1,9 +1,9 @@
 import { useMemo, useRef, useLayoutEffect, useState, useEffect } from "react"
 import css from "./Visual.module.css"
-import { IAdd, Timeline } from "@wbe/interpol"
+import { IAdd, timeline } from "@wbe/interpol"
 
 export interface IProps {
-  timeline: Timeline
+  timeline: timeline
 }
 
 export const Visual = (props: IProps) => {

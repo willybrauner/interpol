@@ -1,5 +1,5 @@
 import "./index.css"
-import { styles, Timeline } from "@wbe/interpol"
+import { styles, timeline } from "@wbe/interpol"
 import { Pane } from "tweakpane"
 import { createTweekpane } from "./utils/createTweakpane"
 
@@ -25,7 +25,7 @@ function easeInOutBack(x: number): number {
     : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
 }
 
-const tl = new Timeline()
+const tl = timeline()
 
 const duration = 800
 const curringOnUpdate = (el: HTMLElement) => (props: any) => styles(el, props)

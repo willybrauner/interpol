@@ -1,8 +1,8 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../../src"
+import { interpol } from "../../src"
 import "../_setup"
 
-describe.concurrent.skip("Interpol units", () => {
+describe.concurrent.skip("interpol units", () => {
   // it("should return a string value with unit", async () => {
   //   const test = (unit) =>
   //     new Promise((resolve: any) => {
@@ -11,7 +11,7 @@ describe.concurrent.skip("Interpol units", () => {
   //         expect(v).toContain(unit)
   //         expect(v.slice(-unit.length)).toBe(unit)
   //       }
-  //       new Interpol({
+  //       interpol({
   //         props: { v: [5, 100, unit] },
   //         duration: 100,
   //         beforeStart: ({ v }) => {
@@ -33,7 +33,7 @@ describe.concurrent.skip("Interpol units", () => {
   // it("should return a number value if unit is not defined", async () => {
   //   return new Promise(async (resolve: any) => {
   //     const callback = ({ v }) => expect(v).toBeTypeOf("number")
-  //     new Interpol({
+  //     interpol({
   //       props: { v: [5, 100] },
   //       duration: 100,
   //       beforeStart: callback,

@@ -1,5 +1,5 @@
 import "./index.css"
-import { EaseName, Interpol, styles } from "@wbe/interpol"
+import { EaseName, interpol, styles } from "@wbe/interpol"
 import { createTweekpane } from "./utils/createTweakpane"
 
 const element = document.querySelector<HTMLElement>(".ball")!
@@ -10,9 +10,9 @@ const PARAMS = {
 }
 
 /**
- * Interpol
+ * interpol
  */
-const itp = new Interpol({
+const itp = interpol({
   paused: true,
   x: [0, () => window.innerWidth - element.offsetWidth],
   y: [0, () => window.innerHeight - element.offsetHeight],

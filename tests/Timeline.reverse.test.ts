@@ -1,9 +1,9 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline } from "../src"
+import { timeline } from "../src"
 import "./_setup"
 import { wait } from "./utils/wait"
 
-describe.concurrent("Timeline reverse", () => {
+describe.concurrent("timeline reverse", () => {
   it("should reverse timeline properly", () => {
     const timeMock = vi.fn(() => 0)
     const progressMock = vi.fn(() => 0)
@@ -11,7 +11,7 @@ describe.concurrent("Timeline reverse", () => {
     const reverseCompleteMock = vi.fn()
 
     return new Promise(async (resolve: any) => {
-      const tl = new Timeline({
+      const tl = timeline({
         paused: true,
         onUpdate: (time, progress) => {
           timeMock.mockReturnValue(time)

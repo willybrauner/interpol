@@ -1,12 +1,12 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline } from "../src"
+import { timeline } from "../src"
 import "./_setup"
 
-describe.concurrent("Timeline callbacks", () => {
-  it("Timeline should execute Timeline events callback once & on play only", () => {
+describe.concurrent("timeline callbacks", () => {
+  it("timeline should execute timeline events callback once & on play only", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
-      const tl = new Timeline({ paused: true, onComplete })
+      const tl = timeline({ paused: true, onComplete })
       tl.add({
         v: [0, 100],
         duration: 100,
@@ -23,11 +23,11 @@ describe.concurrent("Timeline callbacks", () => {
     })
   })
 
-  it("Timeline should execute interpol's onComplete once", () => {
+  it("timeline should execute interpol's onComplete once", () => {
     return new Promise(async (resolve: any) => {
       const onComplete1 = vi.fn()
       const onComplete2 = vi.fn()
-      const tl = new Timeline({ paused: true })
+      const tl = timeline({ paused: true })
       tl.add({
         v: [0, 100],
         duration: 100,
@@ -51,7 +51,7 @@ describe.concurrent("Timeline callbacks", () => {
       const onUpdate = vi.fn()
       const onUpdate2 = vi.fn()
 
-      const tl = new Timeline({ paused: true })
+      const tl = timeline({ paused: true })
       tl.add({
         v: [0, 100],
         duration: 100,

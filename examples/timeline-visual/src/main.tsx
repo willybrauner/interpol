@@ -1,6 +1,6 @@
 import "./index.css"
 import ReactDOM from "react-dom/client"
-import { Timeline, styles } from "@wbe/interpol"
+import { timeline, styles } from "@wbe/interpol"
 import { useRef, useState, useEffect } from "react"
 import { Visual } from "./components/visual/Visual"
 import { createTweekpane } from "./utils/createTweakpane"
@@ -19,7 +19,7 @@ export function App() {
   const windowSize = useWindowSize()
 
   useEffect(() => {
-    const tl = new Timeline({
+    const tl = timeline({
       debug: false,
       onUpdate: (t, p) => {
         document.dispatchEvent(tlOnUpdateEvent)

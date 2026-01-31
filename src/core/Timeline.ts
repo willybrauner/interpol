@@ -1,4 +1,4 @@
-import { Interpol } from "./Interpol"
+import { interpol, Interpol } from "./Interpol"
 import { InterpolConstruct, Props, TimelineConstruct } from "./types"
 import { Ticker } from "./Ticker"
 import { deferredPromise } from "../utils/deferredPromise"
@@ -16,112 +16,122 @@ export interface IAdd {
 
 let TL_ID = 0
 
-export class Timeline {
-  public readonly ID: number
-  #progress = 0
-  #time = 0
-  public get time(): number {
-    return this.#time
-  }
-  #isPlaying = false
-  public get isPlaying(): boolean {
-    return this.#isPlaying
-  }
-  #isReversed = false
-  public get isReversed(): boolean {
-    return this.#isReversed
-  }
-  #isPaused = false
-  public get isPaused(): boolean {
-    return this.#isPaused
-  }
-  #adds: IAdd[] = []
-  public get adds(): IAdd[] {
-    return this.#adds
-  }
-  #tlDuration: number = 0
-  public get duration(): number {
-    return this.#tlDuration
-  }
-  #ticker: Ticker
-  public get ticker(): Ticker {
-    return this.#ticker
+export type Timeline = {
+  readonly ID: number
+  readonly time: number
+  readonly isPlaying: boolean
+  readonly isReversed: boolean
+  readonly isPaused: boolean
+  readonly duration: number
+  readonly ticker: Ticker
+  readonly adds: IAdd[]
+  add<K extends keyof Props>(
+    interp: Interpol | InterpolConstruct<K> | (() => void),
+    offset?: number | string,
+  ): Timeline
+  play(from?: number): Promise<any>
+  reverse(from?: number): Promise<any>
+  pause(): void
+  resume(): void
+  stop(): void
+  progress(value?: number, suppressEvents?: boolean, suppressTlEvents?: boolean): number | void
+  refresh(): void
+  refreshComputedValues(): void
+}
+
+export function timeline({
+  onUpdate = noop,
+  onComplete = noop,
+  debug = false,
+  paused = false,
+}: TimelineConstruct = {}): Timeline {
+  const id = ++TL_ID
+
+  let progress_ = 0
+  let time_ = 0
+  let isPlaying = false
+  let isReversed = false
+  let isPaused = paused
+  const adds: IAdd[] = []
+  let tlDuration = 0
+  const ticker: Ticker = InterpolOptions.ticker
+
+  let playFrom = 0
+  let reverseFrom = 1
+  let onCompleteDeferred = deferredPromise()
+  let lastTlProgress = 0
+  let reverseLoop = false
+
+  // waiting for all adds register before log
+  setTimeout(() => log("adds", adds), 1)
+
+  // --- private helpers ---
+
+  function onAllAdds(cb: (add: IAdd, i?: number) => void, reverse: boolean = false): void {
+    const startIndex = reverse ? adds.length - 1 : 0
+    const endIndex = reverse ? -1 : adds.length
+    const step = reverse ? -1 : 1
+    for (let i = startIndex; i !== endIndex; i += step) cb(adds[i], i)
   }
 
-  #playFrom = 0
-  #reverseFrom = 1
-  #onCompleteDeferred = deferredPromise()
-  #debugEnable: boolean
-  #onUpdate: (time: number, progress: number) => void
-  #onComplete: (time: number, progress: number) => void
-  #lastTlProgress = 0
-  #reverseLoop = false
-
-  constructor({
-    onUpdate = noop,
-    onComplete = noop,
-    debug = false,
-    paused = false,
-  }: TimelineConstruct = {}) {
-    this.#onUpdate = onUpdate
-    this.#onComplete = onComplete
-    this.#debugEnable = debug
-    this.#isPaused = paused
-    this.ID = ++TL_ID
-    this.#ticker = InterpolOptions.ticker
-    // waiting for all adds register before log
-    setTimeout(() => this.#log("adds", this.#adds), 1)
+  function updateAdds(tlTime: number, tlProgress: number, suppressEvents = true): void {
+    if (lastTlProgress > tlProgress && !reverseLoop) reverseLoop = true
+    if (lastTlProgress < tlProgress && reverseLoop) reverseLoop = false
+    lastTlProgress = tlProgress
+    onUpdate(tlTime, tlProgress)
+    onAllAdds((add) => {
+      add.progress.last = add.progress.current
+      // prettier-ignore
+      add.progress.current =
+        add.itp.duration === 0
+          ? tlTime >= add.time.start ? 1 : 0
+          : (tlTime - add.time.start) / add.itp.duration
+      add.itp.progress(add.progress.current, suppressEvents)
+    }, reverseLoop)
   }
 
-  /**
-   * Add a new interpol obj or instance in Timeline or a callback function
-   * @param interpol Interpol | InterpolConstruct<K> | (() => void),
-   * @param offset Default "0" is relative position in TL
-   */
-  public add<K extends keyof Props>(
-    interpol: Interpol | InterpolConstruct<K> | (() => void),
+  function log(...rest: any[]): void {
+    debug && console.log(`%ctimeline`, `color: rgb(217,50,133)`, id || "", ...rest)
+  }
+
+  // --- public methods ---
+
+  function add<K extends keyof Props>(
+    interp: Interpol | InterpolConstruct<K> | (() => void),
     offset: number | string = "0",
   ): Timeline {
-    // Prepare the new Interpol instance
-    // If interpol param is a callback function, we transform it to an Interpol instance
-    if (typeof interpol === "function") {
-      interpol = new Interpol({ duration: 0, onComplete: interpol })
+    if (typeof interp === "function" && !(interp as any)._isInterpol) {
+      interp = interpol({ duration: 0, onComplete: interp } as any)
     }
-    const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
+    const itp: Interpol = (interp as any)._isInterpol
+      ? (interp as Interpol)
+      : interpol<K>(interp as InterpolConstruct<K>)
     itp.stop()
     itp.refresh()
-    itp.ticker = this.#ticker
+    itp.ticker = ticker
     itp.inTl = true
-    if (this.#debugEnable) itp.debugEnable = this.#debugEnable
+    if (debug) itp.debugEnable = debug
 
     let fOffset: number
     let startTime: number
     const factor: number = InterpolOptions.durationFactor
 
-    // Relative position in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
-      const relativeAdds = this.#adds.filter((add) => !add._isAbsoluteOffset)
-
+      const relativeAdds = adds.filter((a) => !a._isAbsoluteOffset)
       const prevAdd =
         relativeAdds?.length > 0
-          ? // get previous relative add add with the biggest end time
-            relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
-          : // or get the previous (absolute)
-            this.#adds?.[this.#adds.length - 1] || null
-
-      this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
+          ? relativeAdds.reduce((a, b) => (b.time.end > a.time.end ? b : a))
+          : adds?.[adds.length - 1] || null
+      tlDuration = Math.max(tlDuration, tlDuration + itp.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
-    }
-    // Absolute position in TL
-    else if (typeof offset === "number") {
+    } else if (typeof offset === "number") {
       fOffset = offset * factor
-      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
+      tlDuration = Math.max(0, tlDuration, fOffset + itp.duration)
       startTime = fOffset ?? 0
     }
 
-    // push new Add instance in local
-    this.#adds.push({
+    adds.push({
       itp,
       time: {
         start: startTime,
@@ -137,191 +147,145 @@ export class Timeline {
       _isAbsoluteOffset: typeof offset === "number",
     })
 
-    // Re Calc all progress start and end after each add register,
-    // because we need to know the full TL duration for this calc
-    this.#onAllAdds((currAdd, i) => {
-      this.#adds[i].progress.start = currAdd.time.start / this.#tlDuration || 0
-      this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
+    onAllAdds((currAdd, i) => {
+      adds[i].progress.start = currAdd.time.start / tlDuration || 0
+      adds[i].progress.end = currAdd.time.end / tlDuration || 0
     })
 
-    // hack needed because we need to waiting all adds register if this is an autoplay
-    if (!this.isPaused) setTimeout(() => this.play(), 0)
+    if (!isPaused) setTimeout(() => play(), 0)
 
-    // return the Timeline instance to chain methods
-    return this
+    return self
   }
 
-  public async play(from: number = 0): Promise<any> {
-    this.#playFrom = from
-    if (this.#isPlaying && this.#isReversed) {
-      this.#isReversed = false
-      return this.#onCompleteDeferred.promise
+  async function play(from: number = 0): Promise<any> {
+    playFrom = from
+    if (isPlaying && isReversed) {
+      isReversed = false
+      return onCompleteDeferred.promise
     }
-    if (this.#isPlaying) {
-      this.#time = this.#tlDuration * from
-      this.#progress = from
-      this.#isReversed = false
-      return this.#onCompleteDeferred.promise
+    if (isPlaying) {
+      time_ = tlDuration * from
+      progress_ = from
+      isReversed = false
+      return onCompleteDeferred.promise
     }
-    this.#time = this.#tlDuration * from
-    this.#progress = from
-    this.#isReversed = false
-    this.#isPlaying = true
-    this.#isPaused = false
-    this.#ticker.add(this.#handleTick)
-    this.#onCompleteDeferred = deferredPromise()
-    return this.#onCompleteDeferred.promise
+    time_ = tlDuration * from
+    progress_ = from
+    isReversed = false
+    isPlaying = true
+    isPaused = false
+    ticker.add(handleTick)
+    onCompleteDeferred = deferredPromise()
+    return onCompleteDeferred.promise
   }
 
-  public async reverse(from: number = 1): Promise<any> {
-    this.#reverseFrom = from
-    // If TL is playing in normal direction, change to reverse and return a new promise
-    if (this.#isPlaying && !this.#isReversed) {
-      this.#isReversed = true
-      this.#onCompleteDeferred = deferredPromise()
-      return this.#onCompleteDeferred.promise
+  async function reverse(from: number = 1): Promise<any> {
+    reverseFrom = from
+    if (isPlaying && !isReversed) {
+      isReversed = true
+      onCompleteDeferred = deferredPromise()
+      return onCompleteDeferred.promise
     }
-    // If is playing reverse, restart reverse
-    if (this.#isPlaying && this.#isReversed) {
-      this.stop()
-      return await this.reverse(from)
+    if (isPlaying && isReversed) {
+      stop()
+      return await reverse(from)
     }
 
-    this.#time = this.#tlDuration * from
-    this.#progress = from
-    this.#isReversed = true
-    this.#isPlaying = true
-    this.#isPaused = false
+    time_ = tlDuration * from
+    progress_ = from
+    isReversed = true
+    isPlaying = true
+    isPaused = false
 
-    this.#ticker.add(this.#handleTick)
-    this.#onCompleteDeferred = deferredPromise()
-    return this.#onCompleteDeferred.promise
+    ticker.add(handleTick)
+    onCompleteDeferred = deferredPromise()
+    return onCompleteDeferred.promise
   }
 
-  public pause(): void {
-    this.#isPlaying = false
-    this.#isPaused = true
-    this.#onAllAdds((e) => e.itp.pause())
-    this.#ticker.remove(this.#handleTick)
+  function pause(): void {
+    isPlaying = false
+    isPaused = true
+    onAllAdds((e) => e.itp.pause())
+    ticker.remove(handleTick)
   }
 
-  public resume(): void {
-    if (!this.#isPaused) return
-    this.#isPaused = false
-    this.#isPlaying = true
-    this.#onAllAdds((e) => e.itp.resume())
-    this.#ticker.add(this.#handleTick)
+  function resume(): void {
+    if (!isPaused) return
+    isPaused = false
+    isPlaying = true
+    onAllAdds((e) => e.itp.resume())
+    ticker.add(handleTick)
   }
 
-  public stop(): void {
-    this.#progress = 0
-    this.#time = 0
-    this.#isPlaying = false
-    this.#isPaused = false
-    this.#isReversed = false
-    this.#onAllAdds((e) => e.itp.stop())
-    this.#ticker.remove(this.#handleTick)
+  function stop(): void {
+    progress_ = 0
+    time_ = 0
+    isPlaying = false
+    isPaused = false
+    isReversed = false
+    onAllAdds((e) => e.itp.stop())
+    ticker.remove(handleTick)
   }
 
-  public progress(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
-    if (value === undefined) return this.#progress
-    if (this.#isPlaying) this.pause()
-    this.#progress = clamp(0, value, 1)
-    this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds(this.#time, this.#progress, suppressEvents)
+  function progressFn(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
+    if (value === undefined) return progress_
+    if (isPlaying) pause()
+    progress_ = clamp(0, value, 1)
+    time_ = clamp(0, tlDuration * progress_, tlDuration)
+    updateAdds(time_, progress_, suppressEvents)
     if (value === 1 && !suppressTlEvents) {
-      this.#onComplete(this.#time, this.#progress)
+      onComplete(time_, progress_)
     }
   }
 
-  public refresh(): void {
-    this.#onAllAdds((e) => e.itp.refresh())
+  function refresh(): void {
+    onAllAdds((e) => e.itp.refresh())
   }
 
-  /**
-   * @deprecated use refresh() instead
-   */
-  public refreshComputedValues(): void {
+  function refreshComputedValues(): void {
     console.warn(`Timeline.refreshComputedValues() is deprecated. Use Timeline.refresh() instead.`)
-    this.refresh()
+    refresh()
   }
 
-  /**
-   * Handle Tick
-   * On each tick
-   * - update time and progress
-   * - update all adds
-   * - check if is completed
-   * @param delta
-   * @private
-   */
   // prettier-ignore
-  #handleTick = async ({ delta }): Promise<any> => {
-    this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
-    this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds(this.#time, this.#progress, false)
+  const handleTick = async ({ delta }): Promise<any> => {
+    time_ = clamp(0, tlDuration, time_ + (isReversed ? -delta : delta))
+    progress_ = clamp(0, round(time_ / tlDuration), 1)
+    updateAdds(time_, progress_, false)
     // on play complete
-    if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
-      this.#onComplete(this.#time, this.#progress)
-      this.#onCompleteDeferred.resolve()
-      this.stop()
+    if ((!isReversed && progress_ === 1) || tlDuration === 0) {
+      onComplete(time_, progress_)
+      onCompleteDeferred.resolve()
+      stop()
     }
     // on reverse complete
-    if ((this.#isReversed && this.#progress === 0) || this.#tlDuration === 0) {
-      this.#onCompleteDeferred.resolve()
-      this.stop()
+    if ((isReversed && progress_ === 0) || tlDuration === 0) {
+      onCompleteDeferred.resolve()
+      stop()
     }
   }
 
-  /**
-   * Update all adds (itps)
-   * Main update function witch progress all adds on there relative time in TL
-   * @param tlTime
-   * @param tlProgress
-   * @param suppressEvents
-   */
-  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true): void {
-    // Determine if the Adds loop should be reversed
-    if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
-    if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
-    this.#lastTlProgress = tlProgress
-    // Call constructor onUpdate
-    this.#onUpdate(tlTime, tlProgress)
-    // Then progress all itps
-    this.#onAllAdds((add) => {
-      // Register last and current progress in current add
-      add.progress.last = add.progress.current
-      // For callbacks with duration 0, trigger when tlTime >= start time
-      // In other case, calculate the current progress
-      // prettier-ignore
-      add.progress.current =
-        add.itp.duration === 0
-          ? tlTime >= add.time.start ? 1 : 0
-          : (tlTime - add.time.start) / add.itp.duration
-      // progress current itp
-      add.itp.progress(add.progress.current, suppressEvents)
-    }, this.#reverseLoop)
+  // --- build self ---
+
+  const self: Timeline = {
+    get ID() { return id },
+    get time() { return time_ },
+    get isPlaying() { return isPlaying },
+    get isReversed() { return isReversed },
+    get isPaused() { return isPaused },
+    get duration() { return tlDuration },
+    get ticker() { return ticker },
+    get adds() { return adds },
+    add,
+    play,
+    reverse,
+    pause,
+    resume,
+    stop,
+    progress: progressFn,
+    refresh,
+    refreshComputedValues,
   }
 
-  /**
-   * Exe Callback function on all adds
-   * Need to call from 0 to x or x to 0, depends on reversed state
-   * @param {(add: IAdd, i?: number) => void} cb
-   * @param {boolean} reverse Call from X to 0 index
-   */
-  #onAllAdds(cb: (add: IAdd, i?: number) => void, reverse: boolean = false): void {
-    const startIndex = reverse ? this.#adds.length - 1 : 0
-    const endIndex = reverse ? -1 : this.#adds.length
-    const step = reverse ? -1 : 1
-    for (let i = startIndex; i !== endIndex; i += step) cb(this.#adds[i], i)
-  }
-
-  /**
-   * Log util
-   * Active @wbe/debug only if debugEnable is true
-   * @param rest
-   */
-  #log(...rest: any[]): void {
-    this.#debugEnable && console.log(`%ctimeline`, `color: rgb(217,50,133)`, this.ID || "", ...rest)
-  }
+  return self
 }

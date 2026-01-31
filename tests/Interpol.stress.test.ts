@@ -1,5 +1,5 @@
 import { it, expect, describe } from "vitest"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import { interpolParamsGenerator } from "./utils/interpolParamsGenerator"
 import { randomRange } from "./utils/randomRange"
 import "./_setup"
@@ -8,7 +8,7 @@ import "./_setup"
  * Create generic interpol tester
  */
 const interpolTest = (from, to, duration, resolve, isLast) => {
-  const inter = new Interpol({
+  const inter = interpol({
     v: [from, to],
     duration,
     onUpdate: ({ v }) => {
@@ -33,7 +33,7 @@ const interpolTest = (from, to, duration, resolve, isLast) => {
  * Stress test
  * w/ from to and duration
  */
-describe.concurrent("Interpol stress test", () => {
+describe.concurrent("interpol stress test", () => {
   it("should interpol value between two points", async () => {
     let inputs = new Array(50)
       .fill(null)

@@ -1,11 +1,12 @@
 // Types
 export type { InterpolConstruct, Props, TimelineConstruct, Value } from "./core/types"
 export type { Ease, EaseFn, EaseName, EaseType, EaseDirection, Power } from "./core/ease"
-export type { IAdd } from "./core/Timeline"
+export type { IAdd, Timeline } from "./core/Timeline"
+export type { Interpol } from "./core/Interpol"
 
 // Core
-export { Interpol } from "./core/Interpol"
-export { Timeline } from "./core/Timeline"
+export { interpol } from "./core/Interpol"
+export { timeline } from "./core/Timeline"
 export { Ticker } from "./core/Ticker"
 export { InterpolOptions } from "./core/options"
 

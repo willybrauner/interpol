@@ -1,5 +1,5 @@
 import { it, expect, describe } from "vitest"
-import { InterpolOptions, Timeline } from "../src"
+import { InterpolOptions, timeline } from "../src"
 import "./_setup"
 import { afterEach } from "node:test"
 import { expectToBeBetween } from "./utils/expectToBeBetween"
@@ -11,7 +11,7 @@ import { expectToBeBetween } from "./utils/expectToBeBetween"
  */
 const testTemplate = (itps: [number, (number | string)?][], tlDuration: number) =>
   new Promise(async (resolve: any, reject) => {
-    const tl = new Timeline({
+    const tl = timeline({
       onComplete: (time) => {
         // We are testing the final time / final tlDuration
         // It depends on itps duration and offset
@@ -33,7 +33,7 @@ const testTemplate = (itps: [number, (number | string)?][], tlDuration: number) 
  * Tests
  */
 // prettier-ignore
-describe.concurrent("Timeline.add() offset", () => {
+describe.concurrent("timeline.add() offset", () => {
   it("relative offset should work with `0` (string)", () => {
     return Promise.all([
       testTemplate([[100], [100], [100]], 300),
@@ -171,7 +171,7 @@ describe.concurrent("Timeline.add() offset", () => {
    */
   it('absolute & relative offsets should work together', async () => {
     return new Promise<void>((resolve, reject) => {
-      const tl = new Timeline({
+      const tl = timeline({
         paused: true,
         onComplete: (time) => {
           try {
@@ -240,7 +240,7 @@ describe.concurrent("Timeline.add() offset", () => {
   it('should work with duration factor on relative offset', async() => {
     InterpolOptions.durationFactor = 1000
     InterpolOptions.duration = 1
-    const tl = new Timeline({
+    const tl = timeline({
       paused: true,
       onComplete: (time) => {
         expect(time).toBe(300)
@@ -254,7 +254,7 @@ describe.concurrent("Timeline.add() offset", () => {
   it('should work with duration factor on absolute offset', async() => {
     InterpolOptions.durationFactor = 1000
     InterpolOptions.duration = 1
-    const tl = new Timeline({
+    const tl = timeline({
       paused: true,
       onComplete: (time) => {
         expect(time).toBe(300)

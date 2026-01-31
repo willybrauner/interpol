@@ -1,12 +1,12 @@
 import "./style.css"
-import { Interpol, styles } from "@wbe/interpol"
+import { interpol, styles } from "@wbe/interpol"
 import { randomRGB, random } from "./utils"
 import { gsap } from "gsap"
 import Stats from "stats-gl"
 import { Pane } from "tweakpane"
 
 const PARAMS = {
-  testType: "Interpol" as "Interpol" | "GSAP",
+  testType: "interpol" as "interpol" | "GSAP",
   isRunning: false,
   multiple: 6,
 }
@@ -40,12 +40,12 @@ const _getElementPosition = (i: number) => {
 }
 
 /**
- * Interpol
+ * interpol
  * @returns
  */
 const interpolTest = () => {
   _removeAllElements()
-  const itps: Interpol[] = []
+  const itps: interpol[] = []
 
   for (let i = 0; i < NUM; i++) {
     const el = _createOneElement()
@@ -53,7 +53,7 @@ const interpolTest = () => {
 
     styles(el, { background: randomRGB(), width: ballSize + "px", height: ballSize + "px" })
     const offset = 800
-    const itp = new Interpol({
+    const itp = interpol({
       paused: true,
       immediateRender: true,
       duration: () => 3000,
@@ -161,7 +161,7 @@ const pane = new Pane({
 pane
   .addBinding(PARAMS, "testType", {
     options: {
-      Interpol: "Interpol",
+      interpol: "interpol",
       GSAP: "GSAP",
     },
   })
@@ -189,7 +189,7 @@ controlFolder.addButton({ title: "Stop" }).on("click", stopTest)
 function startTest() {
   stopTest()
   console.log(`Starting ${PARAMS.testType} test with ${NUM} elements`)
-  if (PARAMS.testType === "Interpol") CURRENT = interpolTest()
+  if (PARAMS.testType === "interpol") CURRENT = interpolTest()
   if (PARAMS.testType === "GSAP") CURRENT = gsapTest()
 
   CURRENT.loop()

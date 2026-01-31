@@ -1,5 +1,5 @@
 import "./index.css"
-import { Timeline, styles } from "@wbe/interpol"
+import { timeline, styles } from "@wbe/interpol"
 import { useRef, useState, useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import { createTweekpane } from "./utils/createTweakpane"
@@ -16,7 +16,7 @@ export function App() {
 
   const PARAMS = useRef({ type: typeState, offset: customOffset })
 
-  const tl = useRef<Timeline>(null)
+  const tl = useRef<timeline>(null)
 
   useEffect(() => {
     if (paneRef.current) {
@@ -25,7 +25,7 @@ export function App() {
       paneRef.current.dispose()
     }
 
-    tl.current = new Timeline({ debug: false, paused: true })
+    tl.current = timeline({ debug: false, paused: true })
     for (let i = 0; i < refs.current.length; i++) {
       const curr = refs.current[i]
       tl.current.add(

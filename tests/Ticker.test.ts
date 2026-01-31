@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { Interpol, InterpolOptions, Ticker } from "../src"
+import { interpol, InterpolOptions, Ticker } from "../src"
 import { wait } from "./utils/wait"
 import "./_setup"
 
@@ -10,7 +10,7 @@ describe.concurrent("Ticker", () => {
 
     const mock = vi.fn()
     return new Promise(async (resolve: any) => {
-      new Interpol({
+      interpol({
         props: { v: [-100, 100] },
         duration: 100,
         onComplete: mock,

@@ -1,7 +1,7 @@
 import "./main.css"
 import ReactDOM from "react-dom/client"
 import { useEffect, useRef, useState } from "react"
-import { Interpol, styles } from "@wbe/interpol"
+import { interpol, styles } from "@wbe/interpol"
 import { useWindowSize } from "./utils/useWindowSize"
 import { Pane } from "tweakpane"
 
@@ -39,7 +39,7 @@ export function App() {
   useEffect(() => {
     let itps = []
     for (let el of els.current) {
-      const itp = new Interpol({
+      const itp = interpol({
         paused: true,
         duration: () => random(1000, 3000),
         ease: randomEase,

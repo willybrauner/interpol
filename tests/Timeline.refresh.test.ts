@@ -1,8 +1,8 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline } from "../src"
+import { timeline } from "../src"
 import "./_setup"
 
-describe.concurrent("Timeline auto refresh computed values", () => {
+describe.concurrent("timeline auto refresh computed values", () => {
   it("adds computed values should be re-calc before add stars", () => {
     /**
      * Goal is to update EXTERNAL_X on the first add() onUpdate and reused the updated EXTERNAL_X
@@ -11,7 +11,7 @@ describe.concurrent("Timeline auto refresh computed values", () => {
      * It will work if "from" of the second add() is a computed value
      * Behind the scene, we re-execute refresh() juste before the add() starts
      */
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     let EXTERNAL_X = 0
     const firstAddTo = 200
     const secondAddTo = 30
@@ -45,7 +45,7 @@ describe.concurrent("Timeline auto refresh computed values", () => {
   })
 
   it("adds values should NOT be refresh before add stars", () => {
-    const tl = new Timeline({ paused: true })
+    const tl = timeline({ paused: true })
     let EXTERNAL_X = 0
     let firstOnUpdate = true
 

@@ -1,13 +1,13 @@
 import { it, expect, vi, describe } from "vitest"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import "./_setup"
 import { wait } from "./utils/wait"
 
-describe.concurrent("Interpol progress", () => {
-  it("Interpol should be able to set progress to specific value", () => {
+describe.concurrent("interpol progress", () => {
+  it("interpol should be able to set progress to specific value", () => {
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         v: [0, 100],
         duration: 1000,
         onUpdate: ({ v }) => mock(v),
@@ -21,13 +21,13 @@ describe.concurrent("Interpol progress", () => {
     })
   })
 
-  it("Interpol should be progressable to the same progress several times in a row", () => {
+  it("interpol should be progressable to the same progress several times in a row", () => {
     /**
      * Goal is to test if the onUpdate callback is called each time we progress to the same progress value
      */
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         v: [0, 1000],
         duration: 1000,
         onUpdate: ({ v }) => mock(v),
@@ -57,11 +57,11 @@ describe.concurrent("Interpol progress", () => {
     })
   })
 
-  it("Should execute Interpol events callbacks on progress if suppressEvents is false", () => {
+  it("Should execute interpol events callbacks on progress if suppressEvents is false", () => {
     return new Promise(async (resolve: any) => {
       const onStart = vi.fn()
       const onComplete = vi.fn()
-      const itp = new Interpol({ onStart, onComplete })
+      const itp = interpol({ onStart, onComplete })
 
       const testCounts = (onStartCount: number, onCompleteCount: number) => {
         expect(onStart).toHaveBeenCalledTimes(onStartCount)
@@ -111,11 +111,11 @@ describe.concurrent("Interpol progress", () => {
     })
   })
 
-  it("Shouldn't execute Interpol events callbacks on progress if suppressEvents is true", () => {
+  it("Shouldn't execute interpol events callbacks on progress if suppressEvents is true", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
       const onStart = vi.fn()
-      const itp = new Interpol({ onStart, onComplete })
+      const itp = interpol({ onStart, onComplete })
 
       for (let i = 0; i < 100; i++) {
         itp.progress(-1)

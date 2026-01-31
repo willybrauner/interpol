@@ -1,14 +1,14 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline, Interpol } from "../src"
+import { timeline, interpol } from "../src"
 import "./_setup"
 
-describe.concurrent("Timeline play", () => {
-  it("Timeline should add Interpol's and play properly", () => {
+describe.concurrent("timeline play", () => {
+  it("timeline should add interpol's and play properly", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
-      const tl = new Timeline({ onComplete, paused: true })
+      const tl = timeline({ onComplete, paused: true })
       // accept instance
-      tl.add(new Interpol({ duration: 100 }))
+      tl.add(interpol({ duration: 100 }))
       // accept object
       tl.add({ duration: 100 })
       await tl.play()
@@ -21,7 +21,7 @@ describe.concurrent("Timeline play", () => {
     return new Promise(async (resolve: any) => {
       const onComplete = vi.fn()
       const promiseResolve = vi.fn()
-      const tl = new Timeline({ onComplete })
+      const tl = timeline({ onComplete })
       for (let i = 0; i < 3; i++) {
         tl.add({ duration: 100 })
       }

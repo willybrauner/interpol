@@ -1,5 +1,5 @@
 import "./index.css"
-import { EaseName, Interpol, InterpolOptions } from "@wbe/interpol"
+import { EaseName, interpol, InterpolOptions } from "@wbe/interpol"
 import { Renderer, Program, Mesh, Transform, Geometry } from "ogl"
 import { createTweekpane } from "./utils/createTweakpane"
 
@@ -56,9 +56,9 @@ const PARAMS = {
 }
 
 /**
- * Interpol
+ * interpol
  */
-const itp = new Interpol({
+const itp = interpol({
   value: [0, 1],
   ease: () => PARAMS.ease as EaseName,
   duration: () => PARAMS.duration,

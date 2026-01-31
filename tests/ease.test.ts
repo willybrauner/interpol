@@ -11,7 +11,7 @@ import {
   Power3,
   Power4,
 } from "../src/core/ease"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import { wait } from "./utils/wait"
 
 const eases = { Power1, Power2, Power3, Power4, Expo }
@@ -45,12 +45,12 @@ describe.concurrent("Ease", () => {
     expect(easeAdapter("coucou" as any)).toBe(Linear)
   })
 
-  it("Interpol should accept recompute ease & reverseEase on refresh", async () => {
+  it("interpol should accept recompute ease & reverseEase on refresh", async () => {
     return new Promise(async (resolve) => {
       let ease = Power1.in
       let reverseEase = Power2.in
 
-      const itp = new Interpol({
+      const itp = interpol({
         duration: 300,
         x: [0, 200],
         ease: () => ease,
@@ -84,10 +84,10 @@ describe.concurrent("Ease", () => {
     })
   })
 
-  it("Interpol should accept string easename for ease & reverseEase", async () => {
+  it("interpol should accept string easename for ease & reverseEase", async () => {
     const itp = (ease, reverseEase) =>
       new Promise(async (resolve) => {
-        const itp = new Interpol({
+        const itp = interpol({
           duration: 300,
           x: [0, 100],
           ease: ease,

@@ -1,4 +1,4 @@
-import { Interpol, InterpolOptions } from "@wbe/interpol"
+import { interpol, InterpolOptions } from "@wbe/interpol"
 import { Pane } from "tweakpane"
 
 /**
@@ -6,7 +6,7 @@ import { Pane } from "tweakpane"
  */
 
 export const createTweekpane = (
-  itp: Interpol,
+  itp: interpol,
   PARAMS: Record<any, any>,
   yoyo?: () => Promise<void>,
 ): Pane => {
@@ -63,7 +63,7 @@ export const createTweekpane = (
    */
   const displayFolder = pane.addFolder({ title: "States", expanded: true })
 
-  // Create reactive object for Interpol properties
+  // Create reactive object for interpol properties
   const DISPLAY = {
     duration: itp.duration,
     time: itp.time,

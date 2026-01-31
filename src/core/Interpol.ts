@@ -17,425 +17,108 @@ import { Ticker } from "./Ticker"
 import { InterpolOptions } from "./options"
 let ID = 0
 
-export class Interpol<K extends string = string> {
-  public readonly ID = ++ID
-  public ticker: Ticker
-  public inTl = false
-  public debugEnable: boolean
-
-  #_duration: number
-  public get duration() {
-    return this.#_duration
-  }
-  #_delay: number
-  public get delay() {
-    return this.#_delay
-  }
-  #_ease: EaseFn
-  public get ease() {
-    return this.#_ease
-  }
-  #_reverseEase: EaseFn
-  public get reverseEase() {
-    return this.#_reverseEase
-  }
-  #time = 0
-  public get time() {
-    return this.#time
-  }
-  #lastProgress = 0
-  #progress = 0
-  #isReversed = false
-  public get isReversed() {
-    return this.#isReversed
-  }
-  #isPlaying = false
-  public get isPlaying() {
-    return this.#isPlaying
-  }
-  #isPaused = false
-  public get isPaused() {
-    return this.#isPaused
-  }
-  #props: Record<K, FormattedProp>
-  public get props() {
-    return this.#props
-  }
-
+export type Interpol<K extends string = string> = {
+  readonly _isInterpol: true
+  readonly ID: number
+  readonly duration: number
+  readonly delay: number
+  readonly ease: EaseFn
+  readonly reverseEase: EaseFn
+  readonly time: number
+  readonly isReversed: boolean
+  readonly isPlaying: boolean
+  readonly isPaused: boolean
+  readonly props: Record<K, FormattedProp>
+  ticker: Ticker
+  inTl: boolean
+  debugEnable: boolean
   meta: Record<string, any>
-  #duration: Value
-  #delay: Value
-  #callbackProps: CallbackProps<K>
-  #immediateRender: boolean
-  #ease: Value<Ease>
-  #reverseEase: Value<Ease>
-  #originalProps: Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>
-  #beforeStart: CallBack<K>
-  #onStart: CallBack<K>
-  #onUpdate: CallBack<K>
-  #onComplete: CallBack<K>
-  #timeout: ReturnType<typeof setTimeout>
-  #onCompleteDeferred = deferredPromise()
-  #hasProgressOnStart = false
-  #hasProgressCompleted = false
+  refresh(): void
+  refreshComputedValues(): void
+  play(from?: number, allowReplay?: boolean): Promise<any>
+  reverse(from?: number, allowReplay?: boolean): Promise<any>
+  pause(): void
+  resume(): void
+  stop(): void
+  progress(value?: number, suppressEvents?: boolean): number | void
+}
 
-  constructor({
-    duration = InterpolOptions.duration,
-    ease = InterpolOptions.ease,
-    reverseEase = ease,
-    paused = false,
-    delay = 0,
-    immediateRender = false,
-    beforeStart = noop,
-    onStart = noop,
-    onUpdate = noop,
-    onComplete = noop,
-    debug = false,
-    meta = {},
-    ...inlineProps
-  }: InterpolConstruct<K>) {
-    this.ticker = InterpolOptions.ticker
-    this.#duration = duration
-    this.#isPaused = paused
-    this.#delay = delay
-    this.#immediateRender = immediateRender
-    this.#beforeStart = beforeStart
-    this.#onStart = onStart
-    this.#onUpdate = onUpdate
-    this.#onComplete = onComplete
-    this.debugEnable = debug
-    this.#ease = ease
-    this.#reverseEase = reverseEase
-    this.meta = meta
+export function interpol<K extends string = string>({
+  duration = InterpolOptions.duration,
+  ease = InterpolOptions.ease,
+  reverseEase = ease,
+  paused = false,
+  delay = 0,
+  immediateRender = false,
+  beforeStart = noop,
+  onStart = noop,
+  onUpdate = noop,
+  onComplete = noop,
+  debug = false,
+  meta = {},
+  ...inlineProps
+}: InterpolConstruct<K>): Interpol<K> {
+  const id = ++ID
 
-    // Prepare & compute props
-    this.#originalProps = inlineProps
-    // Compute all values (duration, delay, ease, props values)
-    this.refresh()
-    // Create callback props object
-    this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
-    // Initial callbacks
-    this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
-    if (this.#immediateRender) {
-      this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-    }
-    if (!this.#isPaused) this.play()
-  }
+  let _duration: number
+  let _delay: number
+  let _ease: EaseFn
+  let _reverseEase: EaseFn
+  let time = 0
+  let lastProgress = 0
+  let progress_ = 0
+  let isReversed = false
+  let isPlaying = false
+  let isPaused = paused
 
-  // Compute if values were functions
-  public refresh(): void {
-    // re preprare all props
-    this.#props = this.#prepareProps<K>(this.#originalProps)
+  let props: Record<K, FormattedProp>
+  const durationVal: Value = duration
+  const delayVal: Value = delay
+  const easeVal: Value<Ease> = ease
+  const reverseEaseVal: Value<Ease> = reverseEase
+  const originalProps = inlineProps
 
-    // compute global options
-    this.#_duration = compute(this.#duration) * InterpolOptions.durationFactor
-    this.#_delay = compute(this.#delay) * InterpolOptions.durationFactor
-    this.#_ease = this.#chooseEase(this.#ease)
-    this.#_reverseEase = this.#chooseEase(this.#reverseEase)
+  let callbackProps: CallbackProps<K>
+  let timeout: ReturnType<typeof setTimeout>
+  let onCompleteDeferred = deferredPromise()
+  let hasProgressOnStart = false
+  let hasProgressCompleted = false
 
-    // compute each internal prop properties
-    for (const key of Object.keys(this.#props)) {
-      const prop = this.#props[key]
-      prop._from = compute(prop.from)
-      prop._to = compute(prop.to)
-      prop.ease = prop._computeEaseFn(this.#_ease)
-      prop.reverseEase = prop._computeReverseEaseFn(this.#_reverseEase)
+  // --- private helpers ---
+
+  function chooseEase(e: Value<Ease>): EaseFn {
+    if (e == null) return (t) => t
+    const computedEase = compute(e)
+    if (typeof computedEase === "string") {
+      return easeAdapter(computedEase as EaseName) as EaseFn
+    } else if (typeof (e as (t: number) => number)?.(0) === "number") {
+      return e as EaseFn
+    } else {
+      return computedEase as EaseFn
     }
   }
 
-  /**
-   * @deprecated use refresh() instead
-   */
-  public refreshComputedValues(): void {
-    console.warn(`Interpol.refreshComputedValues() is deprecated. Use Interpol.refresh() instead.`)
-    this.refresh()
-  }
-
-  public async play(from: number = 0, allowReplay = true): Promise<any> {
-    if (this.#isPlaying && !allowReplay) return
-    if (this.#isPlaying && this.#isReversed) {
-      this.#isReversed = false
-      return
-    }
-    if (this.#isPlaying) {
-      this.stop()
-      return await this.play(from)
-    }
-
-    this.#onEachProps((prop) => (prop.value = prop._to * from))
-    this.#time = this.#_duration * from
-    this.#progress = from
-    this.#isReversed = false
-    this.#isPlaying = true
-    this.#isPaused = false
-    const fromStart = this.#progress === 0
-
-    // before onStart, check if we start from 0 or not
-    // on the first case, force reset callbackProps
-    // else, assign the value to callbackProps
-    this.#callbackProps = fromStart
-      ? this.#createPropsParamObjRef<K>(this.#props)
-      : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
-
-    // Delay is set only on first play
-    // If this play is trigger before onComplete, we don't wait again
-    // start ticker only if is single Interpol, not TL
-    this.#timeout = setTimeout(
-      () => {
-        if (fromStart) this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
-        this.ticker.add(this.#handleTick)
-      },
-      this.#time > 0 ? 0 : this.#_delay,
-    )
-    this.#onCompleteDeferred = deferredPromise()
-    return this.#onCompleteDeferred.promise
-  }
-
-  public async reverse(from: number = 1, allowReplay = true): Promise<any> {
-    if (this.#isPlaying && !allowReplay) return
-    // If is playing normal direction, change to reverse and return a new promise
-    if (this.#isPlaying && !this.#isReversed) {
-      this.#isReversed = true
-      this.#onCompleteDeferred = deferredPromise()
-      return this.#onCompleteDeferred.promise
-    }
-    // If is playing reverse, restart reverse
-    if (this.#isPlaying && this.#isReversed) {
-      this.stop()
-      return await this.reverse(from)
-    }
-
-    this.#onEachProps((p) => (p.value = p._to * from))
-    this.#time = this.#_duration * from
-    this.#progress = from
-    this.#isReversed = true
-    this.#isPlaying = true
-    this.#isPaused = false
-
-    // start ticker only if is single Interpol, not TL
-    this.ticker.add(this.#handleTick)
-    // create new onComplete deferred Promise and return it
-    this.#onCompleteDeferred = deferredPromise()
-    return this.#onCompleteDeferred.promise
-  }
-
-  public pause(): void {
-    this.#isPaused = true
-    this.#isPlaying = false
-    if (!this.inTl) {
-      this.ticker.remove(this.#handleTick)
-    }
-  }
-
-  public resume(): void {
-    if (!this.#isPaused) return
-    this.#isPaused = false
-    this.#isPlaying = true
-    if (!this.inTl) {
-      this.ticker.add(this.#handleTick)
-    }
-  }
-
-  public stop(): void {
-    if (!this.inTl || (this.inTl && this.#isReversed)) {
-      this.#onEachProps((prop) => (prop.value = prop._from))
-      this.#time = 0
-      this.#lastProgress = this.#progress
-      this.#progress = 0
-    }
-
-    this.#isPlaying = false
-    this.#isPaused = false
-    clearTimeout(this.#timeout)
-
-    if (!this.inTl) {
-      this.#isReversed = false
-      this.ticker.remove(this.#handleTick)
-    }
-  }
-
-  /**
-   * Set progress to a specific value (between 0 and 1)
-   */
-  public progress(value?: number, suppressEvents = true): number | void {
-    if (value === undefined) {
-      return this.#progress
-    }
-    if (this.#isPlaying) this.pause()
-
-    // keep previous progress before update it
-    this.#lastProgress = this.#progress
-    this.#progress = clamp(0, value, 1)
-
-    // if this is the first progress in range (between 0 & 1), refresh computed values
-    if (
-      (this.#progress !== 0 && this.#lastProgress === 0) ||
-      (this.#progress !== 1 && this.#lastProgress === 1)
-    ) {
-      this.refresh()
-    }
-
-    // Update time, interpolate and assign props value
-    this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
-    this.#interpolate(this.#progress)
-    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps, this.#props)
-
-    // if last & current progress are differents,
-    // Or if progress param is the same this.progress, execute onUpdate
-    if (this.#lastProgress !== this.#progress || value === this.#progress) {
-      if (this.#lastProgress !== this.#progress) {
-        this.#hasProgressOnStart = false
-        this.#hasProgressCompleted = false
-      }
-      this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-      this.#log(`progress onUpdate`, {
-        props: this.#callbackProps,
-        time: this.#time,
-        progress: this.#progress,
-      })
-    }
-
-    // onStart
-    // - if we go from 0 to 1 and never play
-    // - if it hasn't been called before
-    // need to reset callbackProps
-    if (
-      // prettier-ignore
-      (this.#lastProgress === 0 && this.#progress > 0) && 
-      !this.#hasProgressCompleted && 
-      !suppressEvents
-    ) {
-      this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
-      this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
-      this.#hasProgressOnStart = true
-      this.#log(`progress onStart`, {
-        props: this.#callbackProps,
-        time: this.#time,
-        progress: this.#progress,
-      })
-    }
-
-    // onComplete
-    // if progress 1, execute onComplete only if it hasn't been called before
-    // Special case for duration 0: execute onComplete every time progress goes from < 1 to 1
-    if (this.#progress === 1 && !suppressEvents) {
-      const shouldExecute =
-        this.#_duration <= 0
-          ? // For duration 0, execute when transitioning from < 1 to 1
-            this.#lastProgress < 1
-          : // For normal duration, execute only once
-            !this.#hasProgressCompleted
-
-      if (shouldExecute) {
-        this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
-        this.#lastProgress = this.#progress
-        this.#hasProgressCompleted = true
-        this.#log(`progress onComplete`, {
-          props: this.#callbackProps,
-          time: this.#time,
-          progress: this.#progress,
-        })
-      }
-    }
-
-    // if progress 0, reset completed flag and allow onComplete to be called again
-    if (this.#progress === 0) {
-      this.#lastProgress = this.#progress
-      this.#hasProgressOnStart = false
-      this.#hasProgressCompleted = false
-    }
-  }
-
-  #handleTick = async ({ delta }): Promise<any> => {
-    // Specific case if duration is 0, execute onComplete and return
-    if (this.#_duration <= 0) {
-      this.#onEachProps((p) => (p.value = p._to))
-      const obj = {
-        props: this.#assignPropsValue<K>(this.#callbackProps, this.#props),
-        time: this.#_duration,
-        progress: 1,
-      }
-      this.#onUpdate(obj.props, obj.time, obj.progress, this)
-      this.#onComplete(obj.props, obj.time, obj.progress, this)
-      this.#onCompleteDeferred.resolve()
-      this.stop()
-      return
-    }
-
-    // calc time (time spend from the start)
-    // calc progress (between 0 and 1)
-    // calc value (between "from" and "to")
-    this.#time = clamp(0, this.#_duration, this.#time + (this.#isReversed ? -delta : delta))
-    this.#progress = clamp(0, round(this.#time / this.#_duration), 1)
-    this.#interpolate(this.#progress)
-    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps, this.#props)
-
-    // Pass value, time and progress
-    this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-    this.#log("handleTick onUpdate", {
-      props: this.#callbackProps,
-      t: this.#time,
-      p: this.#progress,
-    })
-
-    // on play complete
-    if (!this.#isReversed && this.#progress === 1) {
-      this.#log(`handleTick onComplete!`)
-      this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
-      this.#onCompleteDeferred.resolve()
-      this.stop()
-    }
-    // on reverse complete
-    if (this.#isReversed && this.#progress === 0) {
-      this.#onCompleteDeferred.resolve()
-      this.stop()
-    }
-  }
-
-  /**
-   * Utility function to execute a callback on each props
-   */
-  #onEachProps(fn: (prop: FormattedProp) => void): void {
-    for (const key of Object.keys(this.#props)) fn(this.#props[key])
-  }
-
-  /**
-   * Mute each props value key
-   */
-  #interpolate(progress): void {
-    // update prop.value
-    this.#onEachProps((prop) => {
-      const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
-      prop.value = round(prop._from + (prop._to - prop._from) * selectedEase(progress), 1000)
-    })
-  }
-
-  /**
-   * Prepare internal props object
-   */
-  #prepareProps<K extends keyof Props>(props): Record<K, FormattedProp> {
-    return Object.keys(props).reduce(
+  function prepareProps<K extends keyof Props>(p: any): Record<K, FormattedProp> {
+    return Object.keys(p).reduce(
       (acc, key: K) => {
-        let p = props[key as K]
+        let prop = p[key as K]
         acc[key as K] = {
-          from: p?.[0] ?? p?.["from"] ?? 0,
+          from: prop?.[0] ?? prop?.["from"] ?? 0,
           _from: null,
-          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
+          to: prop?.[1] ?? prop?.["to"] ?? prop ?? 0,
           _to: null,
           value: null,
-          // will be exec by refresh and set _ease
           _computeEaseFn: (globalEase) => {
-            const propEase = p?.["ease"]
-            return propEase ? this.#chooseEase(propEase) : globalEase
+            const propEase = prop?.["ease"]
+            return propEase ? chooseEase(propEase) : globalEase
           },
-          // will be exec by refresh and set _reverseEase
           _computeReverseEaseFn: (globalEase) => {
-            const reverseEase = p?.["reverseEase"]
-            const propEase = p?.["ease"]
-            return reverseEase
-              ? this.#chooseEase(reverseEase)
+            const rev = prop?.["reverseEase"]
+            const propEase = prop?.["ease"]
+            return rev
+              ? chooseEase(rev)
               : propEase
-                ? this.#chooseEase(propEase)
+                ? chooseEase(propEase)
                 : globalEase
           },
           ease: null,
@@ -447,63 +130,305 @@ export class Interpol<K extends string = string> {
     )
   }
 
-  /**
-   * Create an object with props keys
-   * in order to keep the same reference on each frame
-   */
-  #createPropsParamObjRef<K extends keyof Props>(
-    props: Record<K, FormattedProp>,
+  function onEachProps(fn: (prop: FormattedProp) => void): void {
+    for (const key of Object.keys(props)) fn(props[key])
+  }
+
+  function interpolate(prog: number): void {
+    onEachProps((prop) => {
+      const selectedEase = isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
+      prop.value = round(prop._from + (prop._to - prop._from) * selectedEase(prog), 1000)
+    })
+  }
+
+  function createPropsParamObjRef<K extends keyof Props>(
+    p: Record<K, FormattedProp>,
   ): CallbackProps<K> {
-    return Object.keys(props).reduce((acc, key: K) => {
-      acc[key as K] = props[key]._from
+    return Object.keys(p).reduce((acc, key: K) => {
+      acc[key as K] = p[key]._from
       return acc
     }, {} as any)
   }
 
-  /**
-   * Assign props value to propsValue object
-   * in order to keep the same reference on each frame
-   */
-  #assignPropsValue<P extends K>(
+  function assignPropsValue<P extends K>(
     propsValue: CallbackProps<K>,
-    props: Record<P, FormattedProp>,
+    p: Record<P, FormattedProp>,
   ): CallbackProps<P> {
     for (const key of Object.keys(propsValue)) {
-      propsValue[key as P] = props[key].value
+      propsValue[key as P] = p[key].value
     }
     return propsValue
   }
 
-  /**
-   * Choose ease function
-   * Can be a string or a function or a function that returns one of those
-   * @param e ease name or function
-   * @returns ease function
-   */
-  #chooseEase(e: Value<Ease>): EaseFn {
-    if (e == null) return (t) => t
-    // First, compute the value if it's a function that returns Ease
-    const computedEase = compute(e)
+  function log(...rest: any[]): void {
+    self.debugEnable && console.log(`%cinterpol`, `color: rgb(53,158,182)`, id || "", ...rest)
+  }
 
-    // if computed value is a string, return the corresponding ease function
-    if (typeof computedEase === "string") {
-      return easeAdapter(computedEase as EaseName) as EaseFn
-    }
-    // if initial "e" param is a function that returns a number (EaseFn)
-    // deduce that it's an EaseFn, ex: ease = (t) => t * t
-    else if (typeof (e as (t: number) => number)?.(0) === "number") {
-      return e as EaseFn
-    }
-    // else return the computed result ex: () => (t) => t * t transformed as (t) => t * t
-    else {
-      return computedEase as EaseFn
+  // --- public methods ---
+
+  function refresh(): void {
+    props = prepareProps<K>(originalProps)
+    _duration = compute(durationVal) * InterpolOptions.durationFactor
+    _delay = compute(delayVal) * InterpolOptions.durationFactor
+    _ease = chooseEase(easeVal)
+    _reverseEase = chooseEase(reverseEaseVal)
+    for (const key of Object.keys(props)) {
+      const prop = props[key]
+      prop._from = compute(prop.from)
+      prop._to = compute(prop.to)
+      prop.ease = prop._computeEaseFn(_ease)
+      prop.reverseEase = prop._computeReverseEaseFn(_reverseEase)
     }
   }
 
-  /**
-   * Log util
-   */
-  #log(...rest: any[]): void {
-    this.debugEnable && console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
+  function refreshComputedValues(): void {
+    console.warn(`Interpol.refreshComputedValues() is deprecated. Use Interpol.refresh() instead.`)
+    refresh()
   }
+
+  async function play(from: number = 0, allowReplay = true): Promise<any> {
+    if (isPlaying && !allowReplay) return
+    if (isPlaying && isReversed) {
+      isReversed = false
+      return
+    }
+    if (isPlaying) {
+      stop()
+      return await play(from)
+    }
+
+    onEachProps((prop) => (prop.value = prop._to * from))
+    time = _duration * from
+    progress_ = from
+    isReversed = false
+    isPlaying = true
+    isPaused = false
+    const fromStart = progress_ === 0
+
+    callbackProps = fromStart
+      ? createPropsParamObjRef<K>(props)
+      : assignPropsValue<K>(callbackProps, props)
+
+    timeout = setTimeout(
+      () => {
+        if (fromStart) onStart(callbackProps, time, progress_, self)
+        self.ticker.add(handleTick)
+      },
+      time > 0 ? 0 : _delay,
+    )
+    onCompleteDeferred = deferredPromise()
+    return onCompleteDeferred.promise
+  }
+
+  async function reverse(from: number = 1, allowReplay = true): Promise<any> {
+    if (isPlaying && !allowReplay) return
+    if (isPlaying && !isReversed) {
+      isReversed = true
+      onCompleteDeferred = deferredPromise()
+      return onCompleteDeferred.promise
+    }
+    if (isPlaying && isReversed) {
+      stop()
+      return await reverse(from)
+    }
+
+    onEachProps((p) => (p.value = p._to * from))
+    time = _duration * from
+    progress_ = from
+    isReversed = true
+    isPlaying = true
+    isPaused = false
+
+    self.ticker.add(handleTick)
+    onCompleteDeferred = deferredPromise()
+    return onCompleteDeferred.promise
+  }
+
+  function pause(): void {
+    isPaused = true
+    isPlaying = false
+    if (!self.inTl) {
+      self.ticker.remove(handleTick)
+    }
+  }
+
+  function resume(): void {
+    if (!isPaused) return
+    isPaused = false
+    isPlaying = true
+    if (!self.inTl) {
+      self.ticker.add(handleTick)
+    }
+  }
+
+  function stop(): void {
+    if (!self.inTl || (self.inTl && isReversed)) {
+      onEachProps((prop) => (prop.value = prop._from))
+      time = 0
+      lastProgress = progress_
+      progress_ = 0
+    }
+
+    isPlaying = false
+    isPaused = false
+    clearTimeout(timeout)
+
+    if (!self.inTl) {
+      isReversed = false
+      self.ticker.remove(handleTick)
+    }
+  }
+
+  function progressFn(value?: number, suppressEvents = true): number | void {
+    if (value === undefined) {
+      return progress_
+    }
+    if (isPlaying) pause()
+
+    lastProgress = progress_
+    progress_ = clamp(0, value, 1)
+
+    if (
+      (progress_ !== 0 && lastProgress === 0) ||
+      (progress_ !== 1 && lastProgress === 1)
+    ) {
+      refresh()
+    }
+
+    time = clamp(0, _duration * progress_, _duration)
+    interpolate(progress_)
+    callbackProps = assignPropsValue<K>(callbackProps, props)
+
+    if (lastProgress !== progress_ || value === progress_) {
+      if (lastProgress !== progress_) {
+        hasProgressOnStart = false
+        hasProgressCompleted = false
+      }
+      onUpdate(callbackProps, time, progress_, self)
+      log(`progress onUpdate`, {
+        props: callbackProps,
+        time: time,
+        progress: progress_,
+      })
+    }
+
+    if (
+      // prettier-ignore
+      (lastProgress === 0 && progress_ > 0) &&
+      !hasProgressCompleted &&
+      !suppressEvents
+    ) {
+      callbackProps = createPropsParamObjRef<K>(props)
+      onStart(callbackProps, time, progress_, self)
+      hasProgressOnStart = true
+      log(`progress onStart`, {
+        props: callbackProps,
+        time: time,
+        progress: progress_,
+      })
+    }
+
+    if (progress_ === 1 && !suppressEvents) {
+      const shouldExecute =
+        _duration <= 0
+          ? lastProgress < 1
+          : !hasProgressCompleted
+
+      if (shouldExecute) {
+        onComplete(callbackProps, time, progress_, self)
+        lastProgress = progress_
+        hasProgressCompleted = true
+        log(`progress onComplete`, {
+          props: callbackProps,
+          time: time,
+          progress: progress_,
+        })
+      }
+    }
+
+    if (progress_ === 0) {
+      lastProgress = progress_
+      hasProgressOnStart = false
+      hasProgressCompleted = false
+    }
+  }
+
+  const handleTick = async ({ delta }): Promise<any> => {
+    if (_duration <= 0) {
+      onEachProps((p) => (p.value = p._to))
+      const obj = {
+        props: assignPropsValue<K>(callbackProps, props),
+        time: _duration,
+        progress: 1,
+      }
+      onUpdate(obj.props, obj.time, obj.progress, self)
+      onComplete(obj.props, obj.time, obj.progress, self)
+      onCompleteDeferred.resolve()
+      stop()
+      return
+    }
+
+    time = clamp(0, _duration, time + (isReversed ? -delta : delta))
+    progress_ = clamp(0, round(time / _duration), 1)
+    interpolate(progress_)
+    callbackProps = assignPropsValue<K>(callbackProps, props)
+
+    onUpdate(callbackProps, time, progress_, self)
+    log("handleTick onUpdate", {
+      props: callbackProps,
+      t: time,
+      p: progress_,
+    })
+
+    if (!isReversed && progress_ === 1) {
+      log(`handleTick onComplete!`)
+      onComplete(callbackProps, time, progress_, self)
+      onCompleteDeferred.resolve()
+      stop()
+    }
+    if (isReversed && progress_ === 0) {
+      onCompleteDeferred.resolve()
+      stop()
+    }
+  }
+
+  // --- init ---
+  refresh()
+  callbackProps = createPropsParamObjRef<K>(props)
+
+  // Build self object - mutable properties are directly on the object
+  const self: Interpol<K> = {
+    _isInterpol: true as const,
+    get ID() { return id },
+    get duration() { return _duration },
+    get delay() { return _delay },
+    get ease() { return _ease },
+    get reverseEase() { return _reverseEase },
+    get time() { return time },
+    get isReversed() { return isReversed },
+    get isPlaying() { return isPlaying },
+    get isPaused() { return isPaused },
+    get props() { return props },
+    ticker: InterpolOptions.ticker,
+    inTl: false,
+    debugEnable: debug,
+    meta,
+    refresh,
+    refreshComputedValues,
+    play,
+    reverse,
+    pause,
+    resume,
+    stop,
+    progress: progressFn,
+  }
+
+  // Initial callbacks
+  beforeStart(callbackProps, time, progress_, self)
+  if (immediateRender) {
+    onUpdate(callbackProps, time, progress_, self)
+  }
+  if (!isPaused) play()
+
+  return self
 }

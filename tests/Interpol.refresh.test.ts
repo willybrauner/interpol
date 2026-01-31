@@ -1,13 +1,13 @@
 import { it, expect, describe, vi } from "vitest"
 import { randomRange } from "./utils/randomRange"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import { wait } from "./utils/wait"
 import "./_setup"
 
-describe.concurrent("Interpol refresh", () => {
+describe.concurrent("interpol refresh", () => {
   it("should compute 'from' 'to' and 'duration' if there are functions", async () => {
     return new Promise(async (resolve: any) => {
-      const itp = new Interpol({
+      const itp = interpol({
         v: [() => randomRange(-100, 100), () => randomRange(-100, 100)],
         duration: () => randomRange(-100, 100),
       })
@@ -22,7 +22,7 @@ describe.concurrent("Interpol refresh", () => {
     return new Promise(async (resolve: any) => {
       const mockTo = vi.fn()
       const mockFrom = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         v: [
           () => {
             mockFrom()

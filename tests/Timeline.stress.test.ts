@@ -1,9 +1,9 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline } from "../src"
+import { timeline } from "../src"
 import { randomRange } from "./utils/randomRange"
 import "./_setup"
 
-describe.concurrent("Timeline stress test", () => {
+describe.concurrent("timeline stress test", () => {
   it("should play multiple timelines properly", () => {
     const oneTl = ({ itpNumber, itpDuration }) =>
       new Promise(async (resolve: any) => {
@@ -11,7 +11,7 @@ describe.concurrent("Timeline stress test", () => {
         let progressMock = vi.fn(() => 0)
 
         // Create TL
-        const tl = new Timeline({
+        const tl = timeline({
           paused: true,
           onUpdate: (time, progress) => {
             timeMock.mockReturnValue(time)

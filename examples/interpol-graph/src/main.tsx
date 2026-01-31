@@ -1,7 +1,7 @@
 import "./index.css"
 import ReactDOM from "react-dom/client"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Timeline } from "@wbe/interpol"
+import { timeline } from "@wbe/interpol"
 import { Graph } from "./components/graph/Graph"
 import { calcCoords } from "./utils/calcCoords"
 import { createTweekpane } from "./utils/createTweakpane"
@@ -13,12 +13,12 @@ export function App() {
   const ball = useRef<HTMLDivElement>(null)
   const { width } = useWindowSize()
   const [pointsNumber, setPointNumber] = useState(10)
-  const tl = useRef<Timeline>(null)
+  const tl = useRef<timeline>(null)
   const coords = useMemo(() => calcCoords(pointsNumber), [pointsNumber])
 
   const paneRef = useRef<any>(null)
   useEffect(() => {
-    tl.current = new Timeline()
+    tl.current = timeline()
     for (let props of coords) {
       tl.current.add({
         ...props,

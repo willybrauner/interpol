@@ -1,5 +1,5 @@
 import "./index.css"
-import { EaseName, Interpol, styles } from "@wbe/interpol"
+import { EaseName, interpol, styles } from "@wbe/interpol"
 import { createTweekpane } from "./utils/createTweakpane"
 
 const element = document.querySelector<HTMLElement>(".element")!
@@ -10,7 +10,7 @@ const PARAMS = {
   scale: 1.6,
 }
 
-const itp = new Interpol({
+const itp = interpol({
   paused: true,
   rotate: [0, 360],
   scale: [1, () => PARAMS.scale],

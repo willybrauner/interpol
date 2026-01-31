@@ -1,13 +1,13 @@
 import { it, expect, vi, describe } from "vitest"
-import { Timeline } from "../src"
+import { timeline } from "../src"
 import "./_setup"
 import { wait } from "./utils/wait"
 
-describe.concurrent("Timeline progress", () => {
-  it("Timeline should be able to set progress to specific tl progress", () => {
+describe.concurrent("timeline progress", () => {
+  it("timeline should be able to set progress to specific tl progress", () => {
     return new Promise(async (resolve: any) => {
       const mock = vi.fn()
-      const tl = new Timeline({ paused: true })
+      const tl = timeline({ paused: true })
       tl.add({
         v: [0, 100],
         duration: 200,
@@ -21,14 +21,14 @@ describe.concurrent("Timeline progress", () => {
     })
   })
 
-  it("Timeline should be able to set progress to the same progress several times in a row", () => {
+  it("timeline should be able to set progress to the same progress several times in a row", () => {
     /**
      * Goal is to test if the onUpdate callback is called each time we progress to the same progress value
      */
     return new Promise(async (resolve: any) => {
       const mockAdd1 = vi.fn()
       const mockAdd2 = vi.fn()
-      const tl = new Timeline()
+      const tl = timeline()
       tl.add({
         v: [0, 1000],
         duration: 1000,
@@ -79,12 +79,12 @@ describe.concurrent("Timeline progress", () => {
     })
   })
 
-  it("Timeline should execute interpol's events callbacks on progress if suppressEvents is false", () => {
+  it("timeline should execute interpol's events callbacks on progress if suppressEvents is false", () => {
     return new Promise(async (resolve: any) => {
       const onComplete1 = vi.fn()
       const onComplete2 = vi.fn()
       const onTlComplete = vi.fn()
-      const tl = new Timeline({ paused: true, onComplete: onTlComplete })
+      const tl = timeline({ paused: true, onComplete: onTlComplete })
       tl.add({
         v: [0, 100],
         duration: 100,
@@ -116,12 +116,12 @@ describe.concurrent("Timeline progress", () => {
     })
   })
 
-  it("Timeline should execute interpol's events callbacks on progress if suppressEvents is true", () => {
+  it("timeline should execute interpol's events callbacks on progress if suppressEvents is true", () => {
     return new Promise(async (resolve: any) => {
       const onComplete1 = vi.fn()
       const onComplete2 = vi.fn()
       const onTlComplete = vi.fn()
-      const tl = new Timeline({ paused: true, onComplete: onTlComplete })
+      const tl = timeline({ paused: true, onComplete: onTlComplete })
       tl.add({
         duration: 100,
         onComplete: onComplete1,

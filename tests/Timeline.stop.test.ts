@@ -1,17 +1,17 @@
 import { it, expect, vi, describe } from "vitest"
-import { Interpol, Timeline } from "../src"
+import { interpol, timeline } from "../src"
 import { randomRange } from "./utils/randomRange"
 import { wait } from "./utils/wait"
 import "./_setup"
 
-describe.concurrent("Timeline stop", () => {
-  it("Timeline should stop and play properly", () => {
+describe.concurrent("timeline stop", () => {
+  it("timeline should stop and play properly", () => {
     const oneTl = ({ itpNumber = 3, itpDuration = 50 }) =>
       new Promise(async (resolve: any) => {
         const timelineDuration = itpNumber * itpDuration
         const onCompleteMock = vi.fn()
 
-        const tl = new Timeline({
+        const tl = timeline({
           onUpdate: (time, progress) => {
             expect(time).toBeGreaterThanOrEqual(0)
             expect(progress).toBeGreaterThanOrEqual(0)
@@ -26,7 +26,7 @@ describe.concurrent("Timeline stop", () => {
 
         for (let i = 0; i < itpNumber; i++) {
           tl.add(
-            new Interpol({
+            interpol({
               v: [randomRange(-10000, 10000), randomRange(-10000, 10000)],
               duration: itpDuration,
             }),

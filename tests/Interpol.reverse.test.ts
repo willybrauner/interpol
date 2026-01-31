@@ -1,13 +1,13 @@
 import { it, expect, describe, vi } from "vitest"
-import { Interpol } from "../src"
+import { interpol } from "../src"
 import { wait } from "./utils/wait"
 import "./_setup"
 
-describe.concurrent("Interpol reverse", () => {
+describe.concurrent("interpol reverse", () => {
   it("should update 'isRevered' state", async () => {
     return new Promise(async (resolve: any) => {
       const duration = 500
-      const itp = new Interpol({
+      const itp = interpol({
         paused: true,
         duration,
       })
@@ -23,7 +23,7 @@ describe.concurrent("Interpol reverse", () => {
     const onComplete = vi.fn()
     return new Promise(async (resolve: any) => {
       const duration = 300
-      const itp = new Interpol({
+      const itp = interpol({
         paused: true,
         duration,
         onComplete,
@@ -41,7 +41,7 @@ describe.concurrent("Interpol reverse", () => {
   it("should resolve reverse() promise when reverse is complete", async () => {
     const test = async ({ duration, waitBetweenPlayAndReverse }) => {
       const reverseComplete = vi.fn()
-      const itp = new Interpol({ duration, paused: true })
+      const itp = interpol({ duration, paused: true })
       // play and wait half duration
       itp.play()
       await wait(waitBetweenPlayAndReverse)

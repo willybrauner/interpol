@@ -1,17 +1,17 @@
 import { it, expect, describe, vi } from "vitest"
 import { wait } from "./utils/wait"
-import { Interpol, InterpolOptions } from "../src"
+import { interpol, InterpolOptions } from "../src"
 import "./_setup"
 import { randomRange } from "./utils/randomRange"
 
-describe.concurrent("Interpol delay", () => {
+describe.concurrent("interpol delay", () => {
   it("play with delay", () => {
     return new Promise(async (resolve: any) => {
       InterpolOptions.durationFactor = 1
       InterpolOptions.duration = 1000
       const delay = 100
       const mock = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         delay,
         onComplete: () => mock(),
       })
@@ -35,7 +35,7 @@ describe.concurrent("Interpol delay", () => {
       InterpolOptions.duration = 1
       const delay = 0.1
       const mock = vi.fn()
-      const itp = new Interpol({
+      const itp = interpol({
         delay,
         onComplete: () => mock(),
       })
@@ -61,7 +61,7 @@ describe.concurrent("Interpol delay", () => {
       const delay = 100
       const duration = 100
 
-      const itp = new Interpol({
+      const itp = interpol({
         paused: true,
         delay: () => delay,
         duration,
@@ -97,7 +97,7 @@ describe.concurrent("Interpol delay", () => {
       const duration = 100
       let currDelay = null
 
-      const itp = new Interpol({
+      const itp = interpol({
         paused: true,
         delay: () => randomRange(0, 300),
         duration,
