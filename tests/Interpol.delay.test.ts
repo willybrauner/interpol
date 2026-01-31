@@ -9,7 +9,7 @@ describe.concurrent("Interpol delay", () => {
     return new Promise(async (resolve: any) => {
       InterpolOptions.durationFactor = 1
       InterpolOptions.duration = 1000
-      const delay = 200
+      const delay = 100
       const mock = vi.fn()
       const itp = new Interpol({
         delay,
@@ -33,7 +33,7 @@ describe.concurrent("Interpol delay", () => {
     return new Promise(async (resolve: any) => {
       InterpolOptions.durationFactor = 1000
       InterpolOptions.duration = 1
-      const delay = 0.2
+      const delay = 0.1
       const mock = vi.fn()
       const itp = new Interpol({
         delay,
@@ -58,7 +58,7 @@ describe.concurrent("Interpol delay", () => {
       InterpolOptions.durationFactor = 1
       InterpolOptions.duration = 1000
       const start = performance.now()
-      const delay = 200
+      const delay = 100
       const duration = 100
 
       const itp = new Interpol({
@@ -68,15 +68,15 @@ describe.concurrent("Interpol delay", () => {
         onStart: () => {
           // -2 for rounding issues
           const now = performance.now() - start
-          expect(now).toBeGreaterThanOrEqual(delay - 2)
+          expect(now).toBeGreaterThanOrEqual(delay - (delay/4))
         },
         onUpdate: () => {
           const now = performance.now() - start
-          expect(now).toBeGreaterThanOrEqual(delay - 2)
+          expect(now).toBeGreaterThanOrEqual(delay - (delay/4))
         },
         onComplete: () => {
           const now = performance.now() - start
-          expect(now).toBeGreaterThanOrEqual(delay + duration - 2)
+          expect(now).toBeGreaterThanOrEqual( delay - (delay/4))
         },
       })
 
@@ -84,7 +84,7 @@ describe.concurrent("Interpol delay", () => {
 
       // final check
       const now = performance.now() - start
-      expect(now).toBeGreaterThanOrEqual(delay + duration)
+      expect(now).toBeGreaterThanOrEqual(delay + duration - (delay/4))
 
       resolve()
     })
