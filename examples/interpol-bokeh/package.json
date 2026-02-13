@@ -7,7 +7,7 @@
     "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "workspace:*"
+    "@wbe/interpol": "latest"
   },
   "devDependencies": {
     "typescript": "~5.8.3",

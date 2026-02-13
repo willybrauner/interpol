@@ -8,7 +8,7 @@
     "dev": "vite --host"
   },
   "dependencies": {
-    "@wbe/interpol": "workspace:*",
+    "@wbe/interpol": "latest",
     "@wbe/utils": "^0.2.1",
     "animejs": "^4.2.0",
     "gsap": "^3.13.0",

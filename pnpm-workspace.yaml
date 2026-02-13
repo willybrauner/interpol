@@ -1,3 +1,6 @@
 packages:
   - "."
   - "examples/*"
+
+overrides:
+  "@wbe/interpol": "workspace:*"
