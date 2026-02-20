@@ -169,9 +169,7 @@ export class Interpol<K extends string = string> {
       return await this.play(from)
     }
 
-    this.#onEachProps((prop) => {
-      prop.value = this.#computePropValue(prop, from)
-    })
+    this.#interpolate(from)
     this.#time = this.#_duration * from
     this.#progress = from
     this.#isReversed = false
@@ -214,9 +212,7 @@ export class Interpol<K extends string = string> {
       return await this.reverse(from)
     }
 
-    this.#onEachProps((p) => {
-      p.value = this.#computePropValue(p, from)
-    })
+    this.#interpolate(from)
     this.#time = this.#_duration * from
     this.#progress = from
     this.#isReversed = true
@@ -411,41 +407,34 @@ export class Interpol<K extends string = string> {
   }
 
   /**
-   * Mute each props value key
+   * Mute/interpolate each props value
    */
   #interpolate(progress: number): void {
-    // update prop.value
     this.#onEachProps((prop) => {
       const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
-      prop.value = this.#computePropValue(prop, selectedEase(progress))
+      const t = selectedEase(progress)
+
+      if (prop._keyframes?.length > 2) {
+        // get number of segments (keyframes - 1)
+        const segmentNumber = prop._keyframes.length - 1
+        // scale easedProgress to the total number of segments
+        const scaledProgress = t * segmentNumber
+        // get the current segment index (clamped to valid range)
+        const idx = Math.min(Math.floor(scaledProgress), segmentNumber - 1)
+        // calculate progress within the current segment (0 to 1)
+        const segmentProgress = scaledProgress - idx
+        // interpolate between the two keyframes of the current segment
+        const a = prop._keyframes[idx]
+        const b = prop._keyframes[idx + 1]
+        prop.value = round(a + (b - a) * segmentProgress, 1000)
+      }
+
+      // In other cases, simple from/to interpolation
+      // ex: x: [0, 25] | x: { from: 0, to: 25 } | x: 25
+      else {
+        prop.value = round(prop._from + (prop._to - prop._from) * t, 1000)
+      }
     })
-  }
-
-  /**
-   * Compute interpolated value for a prop at a given eased progress
-   * Supports simple from/to and multi-step keyframes
-   */
-  #computePropValue(prop: FormattedProp, easedProgress: number): number {
-    // If keyframes are defined and have more than 2 values
-    // ex: x: [0, 100, 25]
-    if (prop._keyframes?.length > 2) {
-      // get number of segments (keyframes - 1)
-      const segmentNumber = prop._keyframes.length - 1
-      // scale easedProgress to the total number of segments
-      const scaledProgress = easedProgress * segmentNumber
-      // get the current segment index (clamped to valid range)
-      const idx = Math.min(Math.floor(scaledProgress), segmentNumber - 1)
-      // calculate progress within the current segment (0 to 1)
-      const segmentProgress = scaledProgress - idx
-      // interpolate between the two keyframes of the current segment
-      const a = prop._keyframes[idx]
-      const b = prop._keyframes[idx + 1]
-      return round(a + (b - a) * segmentProgress, 1000)
-    }
-
-    // In other cases, simple from/to interpolation
-    // ex: x: [0, 25] | x: { from: 0, to: 25 } | x: 25
-    return round(prop._from + (prop._to - prop._from) * easedProgress, 1000)
   }
 
   /**
