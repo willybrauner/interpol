@@ -24,6 +24,8 @@ const loop = async () => {
   loop()
 }
 
+loop()
+
 const pane = createTweekpane(itp, PARAMS, loop)
 
 pane
