@@ -136,8 +136,15 @@ export class Interpol<K extends string = string> {
     // compute each internal prop properties
     for (const key of Object.keys(this.#props)) {
       const prop = this.#props[key]
-      prop._from = compute(prop.from)
-      prop._to = compute(prop.to)
+      // Compute keyframes if present
+      if (prop.keyframes) {
+        prop._keyframes = prop.keyframes.map((v) => compute(v))
+        prop._from = prop._keyframes[0]
+        prop._to = prop._keyframes[prop._keyframes.length - 1]
+      } else {
+        prop._from = compute(prop.from)
+        prop._to = compute(prop.to)
+      }
       prop.ease = prop._computeEaseFn(this.#_ease)
       prop.reverseEase = prop._computeReverseEaseFn(this.#_reverseEase)
     }
@@ -162,7 +169,9 @@ export class Interpol<K extends string = string> {
       return await this.play(from)
     }
 
-    this.#onEachProps((prop) => (prop.value = prop._to * from))
+    this.#onEachProps((prop) => {
+      prop.value = this.#computePropValue(prop, from)
+    })
     this.#time = this.#_duration * from
     this.#progress = from
     this.#isReversed = false
@@ -205,7 +214,9 @@ export class Interpol<K extends string = string> {
       return await this.reverse(from)
     }
 
-    this.#onEachProps((p) => (p.value = p._to * from))
+    this.#onEachProps((p) => {
+      p.value = this.#computePropValue(p, from)
+    })
     this.#time = this.#_duration * from
     this.#progress = from
     this.#isReversed = true
@@ -406,8 +417,25 @@ export class Interpol<K extends string = string> {
     // update prop.value
     this.#onEachProps((prop) => {
       const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
-      prop.value = round(prop._from + (prop._to - prop._from) * selectedEase(progress), 1000)
+      prop.value = this.#computePropValue(prop, selectedEase(progress))
     })
+  }
+
+  /**
+   * Compute interpolated value for a prop at a given eased progress
+   * Supports both simple from/to and multi-step keyframes
+   */
+  #computePropValue(prop: FormattedProp, easedProgress: number): number {
+    if (prop._keyframes && prop._keyframes.length > 2) {
+      const segments = prop._keyframes.length - 1
+      const scaledProgress = easedProgress * segments
+      const segmentIndex = Math.min(Math.floor(scaledProgress), segments - 1)
+      const segmentT = scaledProgress - segmentIndex
+      const a = prop._keyframes[segmentIndex]
+      const b = prop._keyframes[segmentIndex + 1]
+      return round(a + (b - a) * segmentT, 1000)
+    }
+    return round(prop._from + (prop._to - prop._from) * easedProgress, 1000)
   }
 
   /**
@@ -417,12 +445,15 @@ export class Interpol<K extends string = string> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
         let p = props[key as K]
+        const isKeyframes = Array.isArray(p) && p.length > 2
         acc[key as K] = {
-          from: p?.[0] ?? p?.["from"] ?? 0,
+          from: isKeyframes ? p[0] : (p?.[0] ?? p?.["from"] ?? 0),
           _from: null,
-          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
+          to: isKeyframes ? p[p.length - 1] : (p?.[1] ?? p?.["to"] ?? p ?? 0),
           _to: null,
           value: null,
+          keyframes: isKeyframes ? p : undefined,
+          _keyframes: undefined,
           // will be exec by refresh and set _ease
           _computeEaseFn: (globalEase) => {
             const propEase = p?.["ease"]

@@ -15,7 +15,7 @@ export type Value<T = number> = T | (() => T)
 // Props params
 export type PropsValues =
   | Value
-  | [Value, Value]
+  | Value[]
   | Partial<{ from: Value; to: Value; ease: Value<Ease>; reverseEase: Value<Ease> }>
 
 // props
@@ -40,6 +40,8 @@ export type FormattedProp = {
   reverseEase: EaseFn
   _computeEaseFn: (defaultEase: EaseFn) => EaseFn
   _computeReverseEaseFn: (defaultEase: EaseFn) => EaseFn
+  keyframes?: Value[]
+  _keyframes?: number[]
 }
 
 /**
