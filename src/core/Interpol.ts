@@ -414,6 +414,8 @@ export class Interpol<K extends string = string> {
       const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
       const t = selectedEase(progress)
 
+      // If keyframes are present, interpolate between keyframes
+      // ex: x: [0, 25, 50]
       if (prop._keyframes) {
         // get number of segments (keyframes - 1)
         const segments = prop._keyframes.length - 1
