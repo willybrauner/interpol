@@ -11,7 +11,7 @@ const PARAMS = {
 }
 
 const itp = new Interpol({
-  paused: true,
+  // Keyframes example
   x: [0, -100, 100, -50, 50, -25, 25, 0],
   scale: [1, () => PARAMS.scale, 1],
   duration: () => PARAMS.duration,
@@ -23,7 +23,6 @@ const loop = async () => {
   await itp.play()
   loop()
 }
-loop()
 
 const pane = createTweekpane(itp, PARAMS, loop)
 

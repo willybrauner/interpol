@@ -419,7 +419,7 @@ export class Interpol<K extends string = string> {
       if (prop._keyframes) {
         // get number of segments
         const segments = prop._keyframes.length - 1
-        // scale easedProgress to the total number of segments
+        // scale t to the total number of segments
         const scaled = t * segments
         // get the current segment index 
         const idx = Math.min(Math.floor(scaled), segments - 1)
