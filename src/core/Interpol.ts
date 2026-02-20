@@ -414,15 +414,15 @@ export class Interpol<K extends string = string> {
       const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
       const t = selectedEase(progress)
 
-      if (prop._keyframes?.length > 2) {
+      if (prop._keyframes) {
         // get number of segments (keyframes - 1)
-        const segmentNumber = prop._keyframes.length - 1
+        const segments = prop._keyframes.length - 1
         // scale easedProgress to the total number of segments
-        const scaledProgress = t * segmentNumber
+        const scaled = t * segments
         // get the current segment index (clamped to valid range)
-        const idx = Math.min(Math.floor(scaledProgress), segmentNumber - 1)
+        const idx = Math.min(Math.floor(scaled), segments - 1)
         // calculate progress within the current segment (0 to 1)
-        const segmentProgress = scaledProgress - idx
+        const segmentProgress = scaled - idx
         // interpolate between the two keyframes of the current segment
         const a = prop._keyframes[idx]
         const b = prop._keyframes[idx + 1]
