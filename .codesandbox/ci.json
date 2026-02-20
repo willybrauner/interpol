@@ -3,6 +3,7 @@
   "packages": ["./"],
   "sandboxes": [
     "/examples/interpol-basic",
+    "/examples/interpol-keyframes",
     "/examples/interpol-bokeh",
     "/examples/interpol-colors",
     "/examples/interpol-easing",
