@@ -173,9 +173,13 @@ new Interpol({
   // to use only when `from` is `0`
   x: 100,
 
-  // 2. an array
+  // 2.1. an array
   // [from, to]
   x: [0, 100],
+
+  // 2.2. an array with multiples keyframes
+  // [keyframe1, keyframe2, ...]
+  x: [0, 100, -100, 50, 0],
 
   // 3. an object with explicite `from` and `to` properties
   // { from?, to, ease?, reverseEase? }
@@ -285,8 +289,8 @@ type Value = number | (() => number)
 export type PropsValues =
   // 1. to
   | Value
-  // 2. [from, to]
-  | [Value, Value]
+  // 2. [from, to] or [keyframe1, keyframe2, ...]
+  | Value[]
   // 3. { from, to, ease, reverseEase }
   | Partial<{ from: Value; to: Value; ease: Ease; reverseEase: Ease }>
 

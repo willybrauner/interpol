@@ -136,8 +136,15 @@ export class Interpol<K extends string = string> {
     // compute each internal prop properties
     for (const key of Object.keys(this.#props)) {
       const prop = this.#props[key]
-      prop._from = compute(prop.from)
-      prop._to = compute(prop.to)
+      // Compute keyframes if present
+      if (prop.keyframes) {
+        prop._keyframes = prop.keyframes.map((v) => compute(v))
+        prop._from = prop._keyframes[0]
+        prop._to = prop._keyframes[prop._keyframes.length - 1]
+      } else {
+        prop._from = compute(prop.from)
+        prop._to = compute(prop.to)
+      }
       prop.ease = prop._computeEaseFn(this.#_ease)
       prop.reverseEase = prop._computeReverseEaseFn(this.#_reverseEase)
     }
@@ -162,7 +169,7 @@ export class Interpol<K extends string = string> {
       return await this.play(from)
     }
 
-    this.#onEachProps((prop) => (prop.value = prop._to * from))
+    this.#interpolate(from)
     this.#time = this.#_duration * from
     this.#progress = from
     this.#isReversed = false
@@ -205,7 +212,7 @@ export class Interpol<K extends string = string> {
       return await this.reverse(from)
     }
 
-    this.#onEachProps((p) => (p.value = p._to * from))
+    this.#interpolate(from)
     this.#time = this.#_duration * from
     this.#progress = from
     this.#isReversed = true
@@ -400,13 +407,33 @@ export class Interpol<K extends string = string> {
   }
 
   /**
-   * Mute each props value key
+   * Mute/interpolate each props value
    */
-  #interpolate(progress): void {
-    // update prop.value
+  #interpolate(progress: number): void {
     this.#onEachProps((prop) => {
       const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
-      prop.value = round(prop._from + (prop._to - prop._from) * selectedEase(progress), 1000)
+      const t = selectedEase(progress)
+
+      // If keyframes are present, interpolate between keyframes
+      // ex: x: [0, 25, 50]
+      if (prop._keyframes) {
+        // get number of segments
+        const segments = prop._keyframes.length - 1
+        // scale t to the total number of segments
+        const scaled = t * segments
+        // get the current segment index 
+        const idx = Math.min(Math.floor(scaled), segments - 1)
+        // interpolate between the two keyframes of the current segment
+        const a = prop._keyframes[idx]
+        const b = prop._keyframes[idx + 1]
+        prop.value = round(a + (b - a) * (scaled - idx), 1000)
+      }
+
+      // In other cases, simple from/to interpolation
+      // ex: x: [0, 25] | x: { from: 0, to: 25 } | x: 25
+      else {
+        prop.value = round(prop._from + (prop._to - prop._from) * t, 1000)
+      }
     })
   }
 
@@ -417,11 +444,14 @@ export class Interpol<K extends string = string> {
     return Object.keys(props).reduce(
       (acc, key: K) => {
         let p = props[key as K]
+        const isKeyframes = Array.isArray(p) && p.length > 2
         acc[key as K] = {
-          from: p?.[0] ?? p?.["from"] ?? 0,
+          from: isKeyframes ? p[0] : (p?.[0] ?? p?.["from"] ?? 0),
           _from: null,
-          to: p?.[1] ?? p?.["to"] ?? p ?? 0,
+          to: isKeyframes ? p[p.length - 1] : (p?.[1] ?? p?.["to"] ?? p ?? 0),
           _to: null,
+          keyframes: isKeyframes ? p : undefined,
+          _keyframes: undefined,
           value: null,
           // will be exec by refresh and set _ease
           _computeEaseFn: (globalEase) => {
