@@ -417,18 +417,16 @@ export class Interpol<K extends string = string> {
       // If keyframes are present, interpolate between keyframes
       // ex: x: [0, 25, 50]
       if (prop._keyframes) {
-        // get number of segments (keyframes - 1)
+        // get number of segments
         const segments = prop._keyframes.length - 1
         // scale easedProgress to the total number of segments
         const scaled = t * segments
-        // get the current segment index (clamped to valid range)
+        // get the current segment index 
         const idx = Math.min(Math.floor(scaled), segments - 1)
-        // calculate progress within the current segment (0 to 1)
-        const segmentProgress = scaled - idx
         // interpolate between the two keyframes of the current segment
         const a = prop._keyframes[idx]
         const b = prop._keyframes[idx + 1]
-        prop.value = round(a + (b - a) * segmentProgress, 1000)
+        prop.value = round(a + (b - a) * (scaled - idx), 1000)
       }
 
       // In other cases, simple from/to interpolation
