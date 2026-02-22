@@ -70,8 +70,7 @@ export class Timeline {
     this.#isPaused = paused
     this.ID = ++TL_ID
     this.#ticker = engine.ticker
-    // waiting for all adds register before log
-    queueMicrotask(() => this.#log("adds", this.#adds))
+    if (this.#debugEnable) queueMicrotask(() => this.#log("adds", this.#adds))
   }
 
   /**
@@ -335,10 +334,8 @@ export class Timeline {
 
   /**
    * Log util
-   * Active @wbe/debug only if debugEnable is true
-   * @param rest
    */
   #log(...rest: any[]): void {
-    this.#debugEnable && console.log(`%ctimeline`, `color: rgb(217,50,133)`, this.ID || "", ...rest)
+    console.log(`%ctimeline`, `color: rgb(217,50,133)`, this.ID || "", ...rest)
   }
 }

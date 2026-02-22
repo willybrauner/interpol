@@ -292,11 +292,7 @@ export class Interpol<K extends string = string> {
         this.#hasProgressCompleted = false
       }
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-      this.#log(`progress onUpdate`, {
-        props: this.#callbackProps,
-        time: this.#time,
-        progress: this.#progress,
-      })
+      if (this.debugEnable) this.#log(`progress onUpdate`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
     }
 
     // onStart
@@ -312,11 +308,7 @@ export class Interpol<K extends string = string> {
       this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
       this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
       this.#hasProgressOnStart = true
-      this.#log(`progress onStart`, {
-        props: this.#callbackProps,
-        time: this.#time,
-        progress: this.#progress,
-      })
+      if (this.debugEnable) this.#log(`progress onStart`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
     }
 
     // onComplete
@@ -334,11 +326,7 @@ export class Interpol<K extends string = string> {
         this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
         this.#lastProgress = this.#progress
         this.#hasProgressCompleted = true
-        this.#log(`progress onComplete`, {
-          props: this.#callbackProps,
-          time: this.#time,
-          progress: this.#progress,
-        })
+        if (this.debugEnable) this.#log(`progress onComplete`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
       }
     }
 
@@ -379,15 +367,11 @@ export class Interpol<K extends string = string> {
 
     // Pass value, time and progress
     this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-    this.#log("handleTick onUpdate", {
-      props: this.#callbackProps,
-      t: this.#time,
-      p: this.#progress,
-    })
+    if (this.debugEnable) this.#log("handleTick onUpdate", { props: this.#callbackProps, t: this.#time, p: this.#progress })
 
     // on play complete
     if (!this.#isReversed && this.#progress === 1) {
-      this.#log(`handleTick onComplete!`)
+      if (this.debugEnable) this.#log(`handleTick onComplete!`)
       this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
       this.#onCompleteDeferred?.resolve()
       this.stop()
@@ -529,6 +513,6 @@ export class Interpol<K extends string = string> {
    * Log util
    */
   #log(...rest: any[]): void {
-    this.debugEnable && console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
+    console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
   }
 }
