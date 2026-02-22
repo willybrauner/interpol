@@ -83,7 +83,9 @@ export class Ticker {
     this.#onUpdateObj.delta = this.#delta
     this.#onUpdateObj.time = this.#time
     this.#onUpdateObj.elapsed = this.#elapsed
-    for (const { handler } of this.#handlers) handler(this.#onUpdateObj)
+    for (let i = 0; i < this.#handlers.length; i++) {
+      this.#handlers[i].handler(this.#onUpdateObj)
+    }
   }
 
   #initEvents(): void {
