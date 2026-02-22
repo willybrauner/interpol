@@ -1,5 +1,27 @@
 # @wbe/interpol
 
+## 0.29.0
+
+### Minor Changes
+
+- 3d5589c: Access to some global properties via `engine` object:
+
+  before:
+
+  ```ts
+  import { InterpolOptions } from "@wbe/interpol"
+
+  InterpolOptions.ticker.add(() => {})
+  ```
+
+  after:
+
+  ```ts
+  import { engine } from "@wbe/interpol"
+
+  engine.ticker.add(() => {})
+  ```
+
 ## 0.28.0
 
 ### Minor Changes
