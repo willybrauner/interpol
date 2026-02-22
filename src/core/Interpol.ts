@@ -154,14 +154,6 @@ export class Interpol<K extends string = string> {
     }
   }
 
-  /**
-   * @deprecated use refresh() instead
-   */
-  public refreshComputedValues(): void {
-    console.warn(`Interpol.refreshComputedValues() is deprecated. Use Interpol.refresh() instead.`)
-    this.refresh()
-  }
-
   public async play(from: number = 0, allowReplay = true): Promise<any> {
     if (this.#isPlaying && !allowReplay) return
     if (this.#isPlaying && this.#isReversed) {
