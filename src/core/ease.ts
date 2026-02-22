@@ -50,11 +50,17 @@ export type EaseFn = (t: number) => number
 export type Ease = EaseName | EaseFn
 export type Power = Record<string, EaseFn>
 
+// Created once outside of the easeAdapter function
+const _EASE_MAP: Record<string, Power | EaseFn> = {
+  linear: Linear,
+  power1: Power1,
+  power2: Power2,
+  power3: Power3,
+  power4: Power4,
+  expo: Expo,
+}
+
 export const easeAdapter = (ease: EaseName): EaseFn => {
-  let [type, direction] = ease.split(".") as [EaseType, EaseDirection]
-  if (type[0] === type[0].toLowerCase()) {
-    type = (type[0].toUpperCase() + type.slice(1)) as EaseType
-  }
-  const e = { Linear, Power1, Power2, Power3, Power4, Expo }
-  return e?.[type]?.[direction] ?? Linear
+  const [type, direction] = ease.split(".") as [EaseType, EaseDirection]
+  return (_EASE_MAP[type] as Power)?.[direction] ?? Linear
 }

@@ -12,7 +12,7 @@ import { clamp } from "../utils/clamp"
 import { round } from "../utils/round"
 import { compute } from "../utils/compute"
 import { noop } from "../utils/noop"
-import { Ease, easeAdapter, EaseFn, EaseName } from "./ease"
+import { Ease, easeAdapter, EaseFn, EaseName, Linear } from "./ease"
 import { Ticker } from "./Ticker"
 import { engine } from "./engine"
 let ID = 0
@@ -178,7 +178,7 @@ export class Interpol<K extends string = string> {
     // else, assign the value to callbackProps
     this.#callbackProps = fromStart
       ? this.#createPropsParamObjRef<K>(this.#props)
-      : this.#assignPropsValue<K>(this.#callbackProps, this.#props)
+      : this.#assignPropsValue<K>(this.#callbackProps)
 
     // Delay is set only on first play
     // If this play is trigger before onComplete, we don't wait again
@@ -282,7 +282,7 @@ export class Interpol<K extends string = string> {
     // Update time, interpolate and assign props value
     this.#time = clamp(0, this.#_duration * this.#progress, this.#_duration)
     this.#interpolate(this.#progress)
-    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps, this.#props)
+    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps)
 
     // if last & current progress are differents,
     // Or if progress param is the same this.progress, execute onUpdate
@@ -292,7 +292,10 @@ export class Interpol<K extends string = string> {
         this.#hasProgressCompleted = false
       }
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-      if (this.debugEnable) this.#log(`progress onUpdate`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+      // prettier-ignore
+      if (this.debugEnable) {
+        this.#log(`progress onUpdate`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+      }
     }
 
     // onStart
@@ -308,7 +311,10 @@ export class Interpol<K extends string = string> {
       this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
       this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
       this.#hasProgressOnStart = true
-      if (this.debugEnable) this.#log(`progress onStart`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+      // prettier-ignore
+      if (this.debugEnable) {
+        this.#log(`progress onStart`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+      }
     }
 
     // onComplete
@@ -326,7 +332,10 @@ export class Interpol<K extends string = string> {
         this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
         this.#lastProgress = this.#progress
         this.#hasProgressCompleted = true
-        if (this.debugEnable) this.#log(`progress onComplete`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+        // prettier-ignore
+        if (this.debugEnable) {
+          this.#log(`progress onComplete`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+        }
       }
     }
 
@@ -345,13 +354,9 @@ export class Interpol<K extends string = string> {
       for (let i = 0; i < this.#propValues.length; i++) {
         this.#propValues[i].value = this.#propValues[i]._to
       }
-      const obj = {
-        props: this.#assignPropsValue<K>(this.#callbackProps, this.#props),
-        time: this.#_duration,
-        progress: 1,
-      }
-      this.#onUpdate(obj.props, obj.time, obj.progress, this)
-      this.#onComplete(obj.props, obj.time, obj.progress, this)
+      this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps)
+      this.#onUpdate(this.#callbackProps, this.#_duration, 1, this)
+      this.#onComplete(this.#callbackProps, this.#_duration, 1, this)
       this.#onCompleteDeferred?.resolve()
       this.stop()
       return
@@ -363,15 +368,20 @@ export class Interpol<K extends string = string> {
     this.#time = clamp(0, this.#_duration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#_duration), 1)
     this.#interpolate(this.#progress)
-    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps, this.#props)
-
+    this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps)
     // Pass value, time and progress
     this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-    if (this.debugEnable) this.#log("handleTick onUpdate", { props: this.#callbackProps, t: this.#time, p: this.#progress })
+    // prettier-ignore
+    if (this.debugEnable) {
+      this.#log("handleTick onUpdate", { props: this.#callbackProps, t: this.#time, p: this.#progress})
+    }
 
     // on play complete
     if (!this.#isReversed && this.#progress === 1) {
-      if (this.debugEnable) this.#log(`handleTick onComplete!`)
+      // prettier-ignore
+      if (this.debugEnable) {
+        this.#log(`handleTick onComplete!`, { props: this.#callbackProps,t: this.#time,p: this.#progress })
+      }
       this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
       this.#onCompleteDeferred?.resolve()
       this.stop()
@@ -473,10 +483,7 @@ export class Interpol<K extends string = string> {
    * Assign props value to propsValue object
    * in order to keep the same reference on each frame
    */
-  #assignPropsValue<P extends K>(
-    propsValue: CallbackProps<K>,
-    props: Record<P, FormattedProp>,
-  ): CallbackProps<P> {
+  #assignPropsValue<P extends K>(propsValue: CallbackProps<K>): CallbackProps<P> {
     for (let i = 0; i < this.#propKeys.length; i++) {
       propsValue[this.#propKeys[i] as P] = this.#propValues[i].value
     }
@@ -490,22 +497,28 @@ export class Interpol<K extends string = string> {
    * @returns ease function
    */
   #chooseEase(e: Value<Ease>): EaseFn {
-    if (e == null) return (t) => t
-    // First, compute the value if it's a function that returns Ease
-    const computedEase = compute(e)
-
-    // if computed value is a string, return the corresponding ease function
-    if (typeof computedEase === "string") {
-      return easeAdapter(computedEase as EaseName) as EaseFn
+    if (e == null) {
+      return Linear
     }
-    // if initial "e" param is a function that returns a number (EaseFn)
-    // deduce that it's an EaseFn, ex: ease = (t) => t * t
-    else if (typeof (e as (t: number) => number)?.(0) === "number") {
-      return e as EaseFn
+    // If it's a string ease name, resolve it directly
+    else if (typeof e === "string") {
+      return easeAdapter(e as EaseName)
     }
-    // else return the computed result ex: () => (t) => t * t transformed as (t) => t * t
+    // If it's not a function, fallback
+    else if (typeof e !== "function") {
+      return Linear
+    }
+    // e is a function: either an EaseFn (t => number) or a factory (() => Ease)
     else {
-      return computedEase as EaseFn
+      const test = (e as (t: number) => number)(0)
+      // If calling e(0) returns a number, it's an EaseFn, ex: ease = (t) => t * t
+      if (typeof test === "number") return e as EaseFn
+      // If calling e() returns a function, it's a factory (() => EaseFn)
+      else if (typeof test === "function") return test as EaseFn
+      // If calling e() returns a string, it's a factory (() => EaseName)
+      else if (typeof test === "string") return easeAdapter(test as EaseName)
+      // In other cases, fallback to Linear
+      else return Linear
     }
   }
 
