@@ -480,13 +480,13 @@ Global option Object is available to set property for each Interpol & Timeline i
 It's possible to disable the internal raf and use your own raf callback if needed.
 
 ```ts
-import { InterpolOptions } from "@wbe/interpol"
+import { engine } from "@wbe/interpol"
 
 // disable internal raf to use your own raf
-InterpolOptions.ticker.disable()
+engine.ticker.disable()
 const tick = (e) => {
   // execute Ticker.raf() callback on your own raf
-  InterpolOptions.ticker.raf(e)
+  engine.ticker.raf(e)
   requestAnimationFrame(tick)
 }
 requestAnimationFrame(tick)
@@ -497,26 +497,26 @@ requestAnimationFrame(tick)
 The internal Ticker instance is available for a global application use. You can add your own raf callback to the Ticker instance and choose the rank of the callback handler.
 
 ```ts
-import { InterpolOptions } from "@wbe/interpol"
+import { engine } from "@wbe/interpol"
 
 // Set a new raf callback to the Ticker instance
 const tickHandler = (t) => console.log(t)
 const rank = 1
-InterpolOptions.ticker.add(tickHandler, rank)
+engine.ticker.add(tickHandler, rank)
 // ...
-InterpolOptions.ticker.remove(tick)
+engine.ticker.remove(tick)
 ```
 
 ### Defaults properties
 
 ```ts
-import { InterpolOptions } from "@wbe/interpol"
+import { engine } from "@wbe/interpol"
 // Set default duration factor for all interpol instances, 1 is millisecond / 1000 is second
-InterpolOptions.durationFactor = 1
+engine.durationFactor = 1
 // Set default duration for all interpol instances
-InterpolOptions.duration = 1000
+engine.duration = 1000
 // Set default easing for all interpol instances
-InterpolOptions.ease = (t) => t * t
+engine.ease = (t) => t * t
 ```
 
 ## Dev

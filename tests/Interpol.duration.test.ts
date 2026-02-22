@@ -1,11 +1,11 @@
 import { it, expect, describe, afterEach } from "vitest"
-import { Interpol, InterpolOptions } from "../src"
+import { Interpol, engine } from "../src"
 import "./_setup"
 import { Value } from "../src/core/types"
 
 describe.concurrent("Interpol duration", () => {
   afterEach(() => {
-    InterpolOptions.durationFactor = 1
+    engine.durationFactor = 1
   })
 
   it("should have 1 as durationFactor by default", async () => {
@@ -20,8 +20,8 @@ describe.concurrent("Interpol duration", () => {
 
   it("should use duration in second for global interpol instances", async () => {
     // use the default durationFactor (1)
-    InterpolOptions.durationFactor = 1000
-    InterpolOptions.duration = 0.2
+    engine.durationFactor = 1000
+    engine.duration = 0.2
     return new Interpol({
       onComplete: (_, time) => {
         expect(time).toBe(200)
@@ -32,7 +32,7 @@ describe.concurrent("Interpol duration", () => {
   it("should accept custom durationFactor", async () => {
     const test = (durationFactor: number, duration: Value) => {
       // set the custom durationFactor
-      InterpolOptions.durationFactor = durationFactor
+      engine.durationFactor = durationFactor
       return new Interpol({
         duration,
         onComplete: (_, time) => {

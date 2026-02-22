@@ -7,7 +7,7 @@ export type { IAdd } from "./core/Timeline"
 export { Interpol } from "./core/Interpol"
 export { Timeline } from "./core/Timeline"
 export { Ticker } from "./core/Ticker"
-export { InterpolOptions } from "./core/options"
+export { engine } from "./core/engine"
 
 // Aditional core utils
 export { Power1, Power2, Power3, Power4, Expo, easeAdapter } from "./core/ease"

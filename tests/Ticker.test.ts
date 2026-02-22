@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest"
-import { Interpol, InterpolOptions, Ticker } from "../src"
+import { Interpol, engine, Ticker } from "../src"
 import { wait } from "./utils/wait"
 import "./_setup"
 
 describe.concurrent("Ticker", () => {
   it("should be disable from options ", () => {
     // disable ticker
-    InterpolOptions.ticker.disable()
+    engine.ticker.disable()
 
     const mock = vi.fn()
     return new Promise(async (resolve: any) => {

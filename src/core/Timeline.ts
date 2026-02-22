@@ -5,7 +5,7 @@ import { deferredPromise } from "../utils/deferredPromise"
 import { clamp } from "../utils/clamp"
 import { round } from "../utils/round"
 import { noop } from "../utils/noop"
-import { InterpolOptions } from "./options"
+import { engine } from "./engine"
 
 export interface IAdd {
   itp: Interpol
@@ -68,7 +68,7 @@ export class Timeline {
     this.#debugEnable = debug
     this.#isPaused = paused
     this.ID = ++TL_ID
-    this.#ticker = InterpolOptions.ticker
+    this.#ticker = engine.ticker
     // waiting for all adds register before log
     setTimeout(() => this.#log("adds", this.#adds), 1)
   }
@@ -96,7 +96,7 @@ export class Timeline {
 
     let fOffset: number
     let startTime: number
-    const factor: number = InterpolOptions.durationFactor
+    const factor: number = engine.durationFactor
 
     // Relative position in TL
     if (typeof offset === "string") {

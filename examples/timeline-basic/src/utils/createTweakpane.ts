@@ -1,4 +1,4 @@
-import { Interpol, InterpolOptions, Timeline } from "@wbe/interpol"
+import { Interpol, engine, Timeline } from "@wbe/interpol"
 import { Pane } from "tweakpane"
 
 /**
@@ -108,7 +108,7 @@ export const createTweekpane = (
   }
 
   // Update display on animation frame
-  InterpolOptions.ticker.add(() => updateDisplay())
+  engine.ticker.add(() => updateDisplay())
 
   return pane
 }
