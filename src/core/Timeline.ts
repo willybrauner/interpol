@@ -164,15 +164,12 @@ export class Timeline {
       this.#isReversed = false
       return this.#onCompleteDeferred.promise
     }
-    if (this.#isPlaying) {
-      this.#time = this.#tlDuration * from
-      this.#progress = from
-      this.#isReversed = false
-      return this.#onCompleteDeferred.promise
-    }
     this.#time = this.#tlDuration * from
     this.#progress = from
     this.#isReversed = false
+    if (this.#isPlaying) {
+      return this.#onCompleteDeferred.promise
+    }
     this.#isPlaying = true
     this.#isPaused = false
     this.#ticker.add(this.#handleTick)
