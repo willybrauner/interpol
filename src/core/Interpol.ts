@@ -78,6 +78,8 @@ export class Interpol<K extends string = string> {
   #onCompleteDeferred = deferredPromise()
   #hasProgressOnStart = false
   #hasProgressCompleted = false
+  #propKeys: string[] = []
+  #propValues: FormattedProp[] = []
 
   constructor({
     duration = engine.duration,
@@ -126,6 +128,8 @@ export class Interpol<K extends string = string> {
   public refresh(): void {
     // re preprare all props
     this.#props = this.#prepareProps<K>(this.#originalProps)
+    this.#propKeys = Object.keys(this.#props)
+    this.#propValues = this.#propKeys.map((k) => this.#props[k])
 
     // compute global options
     this.#_duration = compute(this.#duration) * engine.durationFactor
@@ -134,8 +138,8 @@ export class Interpol<K extends string = string> {
     this.#_reverseEase = this.#chooseEase(this.#reverseEase)
 
     // compute each internal prop properties
-    for (const key of Object.keys(this.#props)) {
-      const prop = this.#props[key]
+    for (let i = 0; i < this.#propValues.length; i++) {
+      const prop = this.#propValues[i]
       // Compute keyframes if present
       if (prop.keyframes) {
         prop._keyframes = prop.keyframes.map((v) => compute(v))
@@ -403,7 +407,7 @@ export class Interpol<K extends string = string> {
    * Utility function to execute a callback on each props
    */
   #onEachProps(fn: (prop: FormattedProp) => void): void {
-    for (const key of Object.keys(this.#props)) fn(this.#props[key])
+    for (let i = 0; i < this.#propValues.length; i++) fn(this.#propValues[i])
   }
 
   /**
@@ -484,10 +488,11 @@ export class Interpol<K extends string = string> {
   #createPropsParamObjRef<K extends keyof Props>(
     props: Record<K, FormattedProp>,
   ): CallbackProps<K> {
-    return Object.keys(props).reduce((acc, key: K) => {
-      acc[key as K] = props[key]._from
-      return acc
-    }, {} as any)
+    const acc: any = {}
+    for (let i = 0; i < this.#propKeys.length; i++) {
+      acc[this.#propKeys[i]] = this.#propValues[i]._from
+    }
+    return acc as CallbackProps<K>
   }
 
   /**
@@ -498,8 +503,8 @@ export class Interpol<K extends string = string> {
     propsValue: CallbackProps<K>,
     props: Record<P, FormattedProp>,
   ): CallbackProps<P> {
-    for (const key of Object.keys(propsValue)) {
-      propsValue[key as P] = props[key].value
+    for (let i = 0; i < this.#propKeys.length; i++) {
+      propsValue[this.#propKeys[i] as P] = this.#propValues[i].value
     }
     return propsValue
   }
