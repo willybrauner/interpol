@@ -353,7 +353,7 @@ export class Interpol<K extends string = string> {
     }
   }
 
-  #handleTick = async ({ delta }): Promise<any> => {
+  #handleTick = ({ delta }): void => {
     // Specific case if duration is 0, execute onComplete and return
     if (this.#_duration <= 0) {
       this.#onEachProps((p) => (p.value = p._to))
@@ -421,7 +421,7 @@ export class Interpol<K extends string = string> {
         const segments = prop._keyframes.length - 1
         // scale t to the total number of segments
         const scaled = t * segments
-        // get the current segment index 
+        // get the current segment index
         const idx = Math.min(Math.floor(scaled), segments - 1)
         // interpolate between the two keyframes of the current segment
         const a = prop._keyframes[idx]

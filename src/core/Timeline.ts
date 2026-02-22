@@ -256,7 +256,7 @@ export class Timeline {
    * @private
    */
   // prettier-ignore
-  #handleTick = async ({ delta }): Promise<any> => {
+  #handleTick =  ({ delta }): void => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress, false)
