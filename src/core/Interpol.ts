@@ -75,7 +75,7 @@ export class Interpol<K extends string = string> {
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
   #timeout: ReturnType<typeof setTimeout>
-  #onCompleteDeferred = deferredPromise()
+  #onCompleteDeferred: ReturnType<typeof deferredPromise> | null = null
   #hasProgressOnStart = false
   #hasProgressCompleted = false
   #propKeys: string[] = []
@@ -198,8 +198,8 @@ export class Interpol<K extends string = string> {
       },
       this.#time > 0 ? 0 : this.#_delay,
     )
-    this.#onCompleteDeferred = deferredPromise()
-    return this.#onCompleteDeferred.promise
+    if (!this.inTl) this.#onCompleteDeferred = deferredPromise()
+    return this.#onCompleteDeferred?.promise
   }
 
   public async reverse(from: number = 1, allowReplay = true): Promise<any> {
@@ -207,8 +207,8 @@ export class Interpol<K extends string = string> {
     // If is playing normal direction, change to reverse and return a new promise
     if (this.#isPlaying && !this.#isReversed) {
       this.#isReversed = true
-      this.#onCompleteDeferred = deferredPromise()
-      return this.#onCompleteDeferred.promise
+      if (!this.inTl) this.#onCompleteDeferred = deferredPromise()
+      return this.#onCompleteDeferred?.promise
     }
     // If is playing reverse, restart reverse
     if (this.#isPlaying && this.#isReversed) {
@@ -225,9 +225,8 @@ export class Interpol<K extends string = string> {
 
     // start ticker only if is single Interpol, not TL
     this.ticker.add(this.#handleTick)
-    // create new onComplete deferred Promise and return it
-    this.#onCompleteDeferred = deferredPromise()
-    return this.#onCompleteDeferred.promise
+    if (!this.inTl) this.#onCompleteDeferred = deferredPromise()
+    return this.#onCompleteDeferred?.promise
   }
 
   public pause(): void {
@@ -373,7 +372,7 @@ export class Interpol<K extends string = string> {
       }
       this.#onUpdate(obj.props, obj.time, obj.progress, this)
       this.#onComplete(obj.props, obj.time, obj.progress, this)
-      this.#onCompleteDeferred.resolve()
+      this.#onCompleteDeferred?.resolve()
       this.stop()
       return
     }
@@ -398,12 +397,12 @@ export class Interpol<K extends string = string> {
     if (!this.#isReversed && this.#progress === 1) {
       this.#log(`handleTick onComplete!`)
       this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
-      this.#onCompleteDeferred.resolve()
+      this.#onCompleteDeferred?.resolve()
       this.stop()
     }
     // on reverse complete
     if (this.#isReversed && this.#progress === 0) {
-      this.#onCompleteDeferred.resolve()
+      this.#onCompleteDeferred?.resolve()
       this.stop()
     }
   }
