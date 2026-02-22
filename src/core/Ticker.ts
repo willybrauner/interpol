@@ -30,7 +30,10 @@ export class Ticker {
     this.#keepElapsed = 0
     this.#enable = true
     this.#isClient = isClient()
-    this.#initEvents()
+    // pause the ticker when the tab is not visible
+    if (this.#isClient) {
+      document.addEventListener("visibilitychange", this.#handleVisibility)
+    }
     // wait a microtask in case disable() is called synchronously after construction
     queueMicrotask(() => this.play())
   }
@@ -69,7 +72,9 @@ export class Ticker {
     this.#isRunning = false
     this.#keepElapsed = 0
     this.#elapsed = 0
-    this.#removeEvents()
+    if (this.#isClient) {
+      document.removeEventListener("visibilitychange", this.#handleVisibility)
+    }
     if (this.#enable && this.#isClient && this.#rafId) {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = null
@@ -85,18 +90,6 @@ export class Ticker {
     this.#onUpdateObj.elapsed = this.#elapsed
     for (let i = 0; i < this.#handlers.length; i++) {
       this.#handlers[i].handler(this.#onUpdateObj)
-    }
-  }
-
-  #initEvents(): void {
-    if (this.#isClient) {
-      document.addEventListener("visibilitychange", this.#handleVisibility)
-    }
-  }
-
-  #removeEvents(): void {
-    if (this.#isClient) {
-      document.removeEventListener("visibilitychange", this.#handleVisibility)
     }
   }
 
