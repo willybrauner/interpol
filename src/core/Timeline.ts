@@ -56,6 +56,7 @@ export class Timeline {
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
   #reverseLoop = false
+  #autoplayScheduled = false
 
   constructor({
     onUpdate = noop,
@@ -69,8 +70,7 @@ export class Timeline {
     this.#isPaused = paused
     this.ID = ++TL_ID
     this.#ticker = engine.ticker
-    // waiting for all adds register before log
-    setTimeout(() => this.#log("adds", this.#adds), 1)
+    if (this.#debugEnable) queueMicrotask(() => this.#log("adds", this.#adds))
   }
 
   /**
@@ -144,8 +144,15 @@ export class Timeline {
       this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
 
-    // hack needed because we need to waiting all adds register if this is an autoplay
-    if (!this.isPaused) setTimeout(() => this.play(), 0)
+    // Defer autoplay to after all chained add() calls complete.
+    // Deduplicated: only one microtask is scheduled no matter how many add() calls are chained.
+    if (!this.isPaused && !this.#autoplayScheduled) {
+      this.#autoplayScheduled = true
+      queueMicrotask(() => {
+        this.#autoplayScheduled = false
+        this.play()
+      })
+    }
 
     // return the Timeline instance to chain methods
     return this
@@ -157,15 +164,12 @@ export class Timeline {
       this.#isReversed = false
       return this.#onCompleteDeferred.promise
     }
-    if (this.#isPlaying) {
-      this.#time = this.#tlDuration * from
-      this.#progress = from
-      this.#isReversed = false
-      return this.#onCompleteDeferred.promise
-    }
     this.#time = this.#tlDuration * from
     this.#progress = from
     this.#isReversed = false
+    if (this.#isPlaying) {
+      return this.#onCompleteDeferred.promise
+    }
     this.#isPlaying = true
     this.#isPaused = false
     this.#ticker.add(this.#handleTick)
@@ -239,14 +243,6 @@ export class Timeline {
   }
 
   /**
-   * @deprecated use refresh() instead
-   */
-  public refreshComputedValues(): void {
-    console.warn(`Timeline.refreshComputedValues() is deprecated. Use Timeline.refresh() instead.`)
-    this.refresh()
-  }
-
-  /**
    * Handle Tick
    * On each tick
    * - update time and progress
@@ -256,7 +252,7 @@ export class Timeline {
    * @private
    */
   // prettier-ignore
-  #handleTick = async ({ delta }): Promise<any> => {
+  #handleTick =  ({ delta }): void => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
     this.#updateAdds(this.#time, this.#progress, false)
@@ -288,7 +284,16 @@ export class Timeline {
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
     // Then progress all itps
-    this.#onAllAdds((add) => {
+
+    // prepare loop parameters depending on reversed state
+    const startIndex = this.#reverseLoop ? this.#adds.length - 1 : 0
+    const endIndex = this.#reverseLoop ? -1 : this.#adds.length
+    const step = this.#reverseLoop ? -1 : 1
+
+    // don't use #onAllAdds util for performance reason
+    // this loop is called on each frames
+    for (let i = startIndex; i !== endIndex; i += step) {
+      const add = this.#adds[i]
       // Register last and current progress in current add
       add.progress.last = add.progress.current
       // For callbacks with duration 0, trigger when tlTime >= start time
@@ -300,7 +305,7 @@ export class Timeline {
           : (tlTime - add.time.start) / add.itp.duration
       // progress current itp
       add.itp.progress(add.progress.current, suppressEvents)
-    }, this.#reverseLoop)
+    }
   }
 
   /**
@@ -318,10 +323,8 @@ export class Timeline {
 
   /**
    * Log util
-   * Active @wbe/debug only if debugEnable is true
-   * @param rest
    */
   #log(...rest: any[]): void {
-    this.#debugEnable && console.log(`%ctimeline`, `color: rgb(217,50,133)`, this.ID || "", ...rest)
+    console.log(`%ctimeline`, `color:#d93285`, this.ID || "", ...rest)
   }
 }

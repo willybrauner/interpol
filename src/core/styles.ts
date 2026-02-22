@@ -45,7 +45,8 @@ export const styles = (
   if (!Array.isArray(element)) element = [element as HTMLElement]
 
   // for each element
-  for (const el of element) {
+  for (let j = 0; j < element.length; j++) {
+    const el = element[j]
     const cache = CACHE.get(el) || {}
 
     // for each key
@@ -54,12 +55,17 @@ export const styles = (
       // Specific case for "translate3d"
       // if x, y, z are keys
       if (COORDS.has(key)) {
-        const val = (c) => formatValue(c, props?.[c] ?? cache?.[c] ?? "0px", autoUnits)
+        const val = (c: string) => formatValue(c, props?.[c] ?? cache?.[c] ?? "0px", autoUnits)
         cache.translate3d = `translate3d(${val("x")}, ${val("y")}, ${val("z")})`
         cache[key] = `${v}`
       }
       // Other transform properties
-      else if (key.match(/^(translate|rotate|scale|skew)/)) {
+      else if (
+        key.startsWith("translate") ||
+        key.startsWith("rotate") ||
+        key.startsWith("scale") ||
+        key.startsWith("skew")
+      ) {
         cache[key] = `${key}(${v})`
       }
 
@@ -74,9 +80,10 @@ export const styles = (
 
     // Get the string of transform properties without COORDS (x, y and z values)
     // ex: translate3d(0px, 11px, 0px) scale(1) rotate(1deg)
-    const transformString = Object.keys(cache)
-      .reduce((a, b) => (COORDS.has(b) ? a : a + cache[b] + " "), "")
-      .trim()
+    let transformString = ""
+    for (const k in cache) {
+      if (!COORDS.has(k)) transformString += cache[k] + " "
+    }
 
     // Finally Apply the join transform string properties with values of COORDS
     if (transformString !== "") el.style.transform = transformString

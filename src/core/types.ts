@@ -64,7 +64,6 @@ export type InterpolConstructBase<K extends string = string> = {
   immediateRender?: boolean
   delay?: Value
   debug?: boolean
-  beforeStart?: CallBack<K>
   onStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>

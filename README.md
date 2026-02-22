@@ -327,15 +327,6 @@ interface IInterpolConstruct<K extends keyof Props> {
   // default: `false`
   debug?: boolean
 
-  // Called when interpol is ready to play
-  // default: /
-  beforeStart?: (
-    props: Record<K, number>,
-    time: number,
-    progress: number,
-    instance: Interpol,
-  ) => void
-
   // Called one frame before the interpol start with default params values
   // default: /
   onStart?: (props: Record<K, number>, time: number, progress: number, instance: Interpol) => void

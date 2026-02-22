@@ -46,7 +46,7 @@ describe.concurrent("Timeline callbacks", () => {
     })
   })
 
-  it("Call onUpdate once on beforeStart if immediateRender is true", () => {
+  it("Call onUpdate once if immediateRender is true", () => {
     return new Promise(async (resolve: any) => {
       const onUpdate = vi.fn()
       const onUpdate2 = vi.fn()
