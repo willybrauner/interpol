@@ -1,6 +1,5 @@
 import "./index.css"
 import { styles, Timeline } from "@wbe/interpol"
-import { Pane } from "tweakpane"
 import { createTweekpane } from "./utils/createTweakpane"
 
 const wrapper = document.querySelector<HTMLElement>(".wrapper")!

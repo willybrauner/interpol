@@ -7,7 +7,6 @@ import { calcCoords } from "./utils/calcCoords"
 import { createTweekpane } from "./utils/createTweakpane"
 import { randomRange } from "./utils/randomRange"
 import { useWindowSize } from "./utils/useWindowSize"
-import { Pane } from "tweakpane"
 
 export function App() {
   const ball = useRef<HTMLDivElement>(null)
