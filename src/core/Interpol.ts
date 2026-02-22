@@ -292,9 +292,12 @@ export class Interpol<K extends string = string> {
         this.#hasProgressCompleted = false
       }
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-      // prettier-ignore
       if (this.debugEnable) {
-        this.#log(`progress onUpdate`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+        this.#log(`progress onUpdate`, {
+          props: this.#callbackProps,
+          time: this.#time,
+          progress: this.#progress,
+        })
       }
     }
 
@@ -311,9 +314,13 @@ export class Interpol<K extends string = string> {
       this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
       this.#onStart(this.#callbackProps, this.#time, this.#progress, this)
       this.#hasProgressOnStart = true
-      // prettier-ignore
+
       if (this.debugEnable) {
-        this.#log(`progress onStart`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+        this.#log(`progress onStart`, {
+          props: this.#callbackProps,
+          time: this.#time,
+          progress: this.#progress,
+        })
       }
     }
 
@@ -332,9 +339,13 @@ export class Interpol<K extends string = string> {
         this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
         this.#lastProgress = this.#progress
         this.#hasProgressCompleted = true
-        // prettier-ignore
+
         if (this.debugEnable) {
-          this.#log(`progress onComplete`, { props: this.#callbackProps, time: this.#time, progress: this.#progress })
+          this.#log(`progress onComplete`, {
+            props: this.#callbackProps,
+            time: this.#time,
+            progress: this.#progress,
+          })
         }
       }
     }
@@ -371,16 +382,23 @@ export class Interpol<K extends string = string> {
     this.#callbackProps = this.#assignPropsValue<K>(this.#callbackProps)
     // Pass value, time and progress
     this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
-    // prettier-ignore
+
     if (this.debugEnable) {
-      this.#log("handleTick onUpdate", { props: this.#callbackProps, t: this.#time, p: this.#progress})
+      this.#log("handleTick onUpdate", {
+        props: this.#callbackProps,
+        t: this.#time,
+        p: this.#progress,
+      })
     }
 
     // on play complete
     if (!this.#isReversed && this.#progress === 1) {
-      // prettier-ignore
       if (this.debugEnable) {
-        this.#log(`handleTick onComplete!`, { props: this.#callbackProps,t: this.#time,p: this.#progress })
+        this.#log(`handleTick onComplete!`, {
+          props: this.#callbackProps,
+          t: this.#time,
+          p: this.#progress,
+        })
       }
       this.#onComplete(this.#callbackProps, this.#time, this.#progress, this)
       this.#onCompleteDeferred?.resolve()
