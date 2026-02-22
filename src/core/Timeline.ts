@@ -288,7 +288,16 @@ export class Timeline {
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
     // Then progress all itps
-    this.#onAllAdds((add) => {
+
+    // prepare loop parameters depending on reversed state
+    const startIndex = this.#reverseLoop ? this.#adds.length - 1 : 0
+    const endIndex = this.#reverseLoop ? -1 : this.#adds.length
+    const step = this.#reverseLoop ? -1 : 1
+
+    // don't use #onAllAdds util for performance reason
+    // this loop is called on each frames
+    for (let i = startIndex; i !== endIndex; i += step) {
+      const add = this.#adds[i]
       // Register last and current progress in current add
       add.progress.last = add.progress.current
       // For callbacks with duration 0, trigger when tlTime >= start time
@@ -300,7 +309,7 @@ export class Timeline {
           : (tlTime - add.time.start) / add.itp.duration
       // progress current itp
       add.itp.progress(add.progress.current, suppressEvents)
-    }, this.#reverseLoop)
+    }
   }
 
   /**

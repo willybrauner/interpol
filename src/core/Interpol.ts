@@ -249,7 +249,9 @@ export class Interpol<K extends string = string> {
 
   public stop(): void {
     if (!this.inTl || (this.inTl && this.#isReversed)) {
-      this.#onEachProps((prop) => (prop.value = prop._from))
+      for (let i = 0; i < this.#propValues.length; i++) {
+        this.#propValues[i].value = this.#propValues[i]._from
+      }
       this.#time = 0
       this.#lastProgress = this.#progress
       this.#progress = 0
@@ -360,7 +362,10 @@ export class Interpol<K extends string = string> {
   #handleTick = ({ delta }): void => {
     // Specific case if duration is 0, execute onComplete and return
     if (this.#_duration <= 0) {
-      this.#onEachProps((p) => (p.value = p._to))
+      // assign to each prop its "to" value
+      for (let i = 0; i < this.#propValues.length; i++) {
+        this.#propValues[i].value = this.#propValues[i]._to
+      }
       const obj = {
         props: this.#assignPropsValue<K>(this.#callbackProps, this.#props),
         time: this.#_duration,
@@ -404,17 +409,11 @@ export class Interpol<K extends string = string> {
   }
 
   /**
-   * Utility function to execute a callback on each props
-   */
-  #onEachProps(fn: (prop: FormattedProp) => void): void {
-    for (let i = 0; i < this.#propValues.length; i++) fn(this.#propValues[i])
-  }
-
-  /**
    * Mute/interpolate each props value
    */
   #interpolate(progress: number): void {
-    this.#onEachProps((prop) => {
+    for (let i = 0; i < this.#propValues.length; i++) {
+      const prop = this.#propValues[i]
       const selectedEase = this.#isReversed && prop.reverseEase ? prop.reverseEase : prop.ease
       const t = selectedEase(progress)
 
@@ -438,7 +437,7 @@ export class Interpol<K extends string = string> {
       else {
         prop.value = round(prop._from + (prop._to - prop._from) * t, 1000)
       }
-    })
+    }
   }
 
   /**
