@@ -70,7 +70,6 @@ export class Interpol<K extends string = string> {
   #ease: Value<Ease>
   #reverseEase: Value<Ease>
   #originalProps: Omit<InterpolConstruct<K>, keyof InterpolConstructBase<K>>
-  #beforeStart: CallBack<K>
   #onStart: CallBack<K>
   #onUpdate: CallBack<K>
   #onComplete: CallBack<K>
@@ -88,7 +87,6 @@ export class Interpol<K extends string = string> {
     paused = false,
     delay = 0,
     immediateRender = false,
-    beforeStart = noop,
     onStart = noop,
     onUpdate = noop,
     onComplete = noop,
@@ -101,7 +99,6 @@ export class Interpol<K extends string = string> {
     this.#isPaused = paused
     this.#delay = delay
     this.#immediateRender = immediateRender
-    this.#beforeStart = beforeStart
     this.#onStart = onStart
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
@@ -116,11 +113,11 @@ export class Interpol<K extends string = string> {
     this.refresh()
     // Create callback props object
     this.#callbackProps = this.#createPropsParamObjRef<K>(this.#props)
-    // Initial callbacks
-    this.#beforeStart(this.#callbackProps, this.#time, this.#progress, this)
+    // Initial callback
     if (this.#immediateRender) {
       this.#onUpdate(this.#callbackProps, this.#time, this.#progress, this)
     }
+    // auto play if not paused
     if (!this.#isPaused) this.play()
   }
 
