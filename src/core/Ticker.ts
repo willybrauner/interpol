@@ -31,8 +31,8 @@ export class Ticker {
     this.#enable = true
     this.#isClient = isClient()
     this.#initEvents()
-    // wait a frame in case disableRaf is set to true
-    setTimeout(() => this.play(), 0)
+    // wait a microtask in case disable() is called synchronously after construction
+    queueMicrotask(() => this.play())
   }
 
   public disable(): void {

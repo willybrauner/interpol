@@ -56,6 +56,7 @@ export class Timeline {
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
   #reverseLoop = false
+  #autoplayScheduled = false
 
   constructor({
     onUpdate = noop,
@@ -70,7 +71,7 @@ export class Timeline {
     this.ID = ++TL_ID
     this.#ticker = engine.ticker
     // waiting for all adds register before log
-    setTimeout(() => this.#log("adds", this.#adds), 1)
+    queueMicrotask(() => this.#log("adds", this.#adds))
   }
 
   /**
@@ -144,8 +145,15 @@ export class Timeline {
       this.#adds[i].progress.end = currAdd.time.end / this.#tlDuration || 0
     })
 
-    // hack needed because we need to waiting all adds register if this is an autoplay
-    if (!this.isPaused) setTimeout(() => this.play(), 0)
+    // Defer autoplay to after all chained add() calls complete.
+    // Deduplicated: only one microtask is scheduled no matter how many add() calls are chained.
+    if (!this.isPaused && !this.#autoplayScheduled) {
+      this.#autoplayScheduled = true
+      queueMicrotask(() => {
+        this.#autoplayScheduled = false
+        this.play()
+      })
+    }
 
     // return the Timeline instance to chain methods
     return this
