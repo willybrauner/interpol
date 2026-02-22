@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  min-width: 100lvw;
+  min-height: 100lvh;
+  overflow: hidden;
+  background-color: #171717;
+}
+
+#root {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+  align-items: center;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.element {
+  width: clamp(60px, 8vw, 90px);
+  height: clamp(60px, 8vw, 90px);
+  border-radius: 20%;
+  opacity: 0;
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.35),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Group A */
+.wrapper-a .element:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.wrapper-a .element:nth-child(2) { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
+.wrapper-a .element:nth-child(3) { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+
+/* Group B */
+.wrapper-b .element:nth-child(1) { background: linear-gradient(135deg, #f953c6 0%, #b91d73 100%); }
+.wrapper-b .element:nth-child(2) { background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%); }
+.wrapper-b .element:nth-child(3) { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); }

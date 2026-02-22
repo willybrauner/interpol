@@ -8,7 +8,7 @@ import { noop } from "../utils/noop"
 import { engine } from "./engine"
 
 export interface IAdd {
-  itp: Interpol
+  itp: Interpol | Timeline
   time: { start: number; end: number; offset: number }
   progress: { start?: number; end?: number; current: number; last: number }
   _isAbsoluteOffset?: boolean
@@ -48,6 +48,7 @@ export class Timeline {
     return this.#ticker
   }
 
+  public inTl = false
   #playFrom = 0
   #reverseFrom = 1
   #onCompleteDeferred = deferredPromise()
@@ -75,25 +76,37 @@ export class Timeline {
 
   /**
    * Add a new interpol obj or instance in Timeline or a callback function
-   * @param interpol Interpol | InterpolConstruct<K> | (() => void),
+   * @param data Timeline | Interpol | InterpolConstruct<K> | (() => void),
    * @param offset Default "0" is relative position in TL
    */
   public add<K extends keyof Props>(
-    interpol: Interpol | InterpolConstruct<K> | (() => void),
+    data: Timeline | Interpol | InterpolConstruct<K> | (() => void),
     offset: number | string = "0",
   ): Timeline {
     // Prepare the new Interpol instance
     // If interpol param is a callback function, we transform it to an Interpol instance
-    if (typeof interpol === "function") {
-      interpol = new Interpol({ duration: 0, onComplete: interpol })
+    if (typeof data === "function") {
+      data = new Interpol({ duration: 0, onComplete: data })
     }
-    const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
-    itp.stop()
-    itp.refresh()
-    itp.ticker = this.#ticker
-    itp.inTl = true
-    if (this.#debugEnable) itp.debugEnable = this.#debugEnable
 
+    // If data is an InterpolConstruct obj, create a new Interpol instance with it
+    const instance: Interpol | Timeline =
+      data instanceof Interpol || data instanceof Timeline ? data : new Interpol<K>(data)
+
+    // Before all, store and refresh
+    instance.stop()
+    instance.refresh()
+
+    // flag this instance as being in a TL
+    instance.inTl = true
+
+    // Only if the instance is an Interpol
+    if (instance instanceof Interpol) {
+      instance.ticker = this.#ticker
+      if (this.#debugEnable) instance.debugEnable = this.#debugEnable
+    }
+
+    // Start the offset calculation
     let fOffset: number
     let startTime: number
     const factor: number = engine.durationFactor
@@ -110,22 +123,22 @@ export class Timeline {
           : // or get the previous (absolute)
             this.#adds?.[this.#adds.length - 1] || null
 
-      this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
+      this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + instance.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
     }
     // Absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset * factor
-      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
+      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + instance.duration)
       startTime = fOffset ?? 0
     }
 
     // push new Add instance in local
     this.#adds.push({
-      itp,
+      itp: instance,
       time: {
         start: startTime,
-        end: startTime + itp.duration,
+        end: startTime + instance.duration,
         offset: fOffset,
       },
       progress: {
@@ -146,7 +159,7 @@ export class Timeline {
 
     // Defer autoplay to after all chained add() calls complete.
     // Deduplicated: only one microtask is scheduled no matter how many add() calls are chained.
-    if (!this.isPaused && !this.#autoplayScheduled) {
+    if (!this.isPaused && !this.inTl && !this.#autoplayScheduled) {
       this.#autoplayScheduled = true
       queueMicrotask(() => {
         this.#autoplayScheduled = false
