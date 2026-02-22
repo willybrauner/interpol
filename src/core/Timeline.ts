@@ -246,14 +246,6 @@ export class Timeline {
   }
 
   /**
-   * @deprecated use refresh() instead
-   */
-  public refreshComputedValues(): void {
-    console.warn(`Timeline.refreshComputedValues() is deprecated. Use Timeline.refresh() instead.`)
-    this.refresh()
-  }
-
-  /**
    * Handle Tick
    * On each tick
    * - update time and progress
