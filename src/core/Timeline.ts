@@ -328,6 +328,6 @@ export class Timeline {
    * Log util
    */
   #log(...rest: any[]): void {
-    console.log(`%ctimeline`, `color: rgb(217,50,133)`, this.ID || "", ...rest)
+    console.log(`%ctimeline`, `color:#d93285`, this.ID || "", ...rest)
   }
 }

@@ -526,6 +526,6 @@ export class Interpol<K extends string = string> {
    * Log util
    */
   #log(...rest: any[]): void {
-    console.log(`%cinterpol`, `color: rgb(53,158,182)`, this.ID || "", ...rest)
+    console.log(`%cinterpol`, `color:#359eb6`, this.ID || "", ...rest)
   }
 }
