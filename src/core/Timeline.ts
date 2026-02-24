@@ -166,6 +166,9 @@ export class Timeline {
   }
 
   public async play(from: number = 0): Promise<any> {
+    // If owned by a parent timeline, this instance is driven via progress()
+    if (this.inTl) return
+
     this.#playFrom = from
     if (this.#isPlaying && this.#isReversed) {
       this.#isReversed = false
@@ -179,12 +182,15 @@ export class Timeline {
     }
     this.#isPlaying = true
     this.#isPaused = false
-    if (!this.inTl) this.ticker.add(this.#handleTick)
+    this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
 
   public async reverse(from: number = 1): Promise<any> {
+    // If owned by a parent timeline, this instance is driven via progress()
+    if (this.inTl) return
+
     this.#reverseFrom = from
     // If TL is playing in normal direction, change to reverse and return a new promise
     if (this.#isPlaying && !this.#isReversed) {
@@ -204,7 +210,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    if (!this.inTl) this.ticker.add(this.#handleTick)
+    this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
