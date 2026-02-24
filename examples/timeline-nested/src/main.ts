@@ -1,5 +1,6 @@
 import "./index.css"
 import { styles, Timeline } from "@wbe/interpol"
+import { createTweekpane } from "./utils/createTweakpane"
 
 // ---------------------------------------------------------------------------------------
 
@@ -130,3 +131,8 @@ const loop = async () => {
   loop()
 }
 loop()
+
+const pane = createTweekpane(tl, {}, loop)
+pane.on("change", () => {
+  tl.refresh()
+})

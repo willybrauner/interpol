@@ -87,11 +87,10 @@ export class Timeline {
     const instance: Interpol | Timeline =
       data instanceof Interpol || data instanceof Timeline ? data : new Interpol<K>(data)
 
-    // Before all
+    // Stop first to fully clean up (remove tick handler, reset state)
     instance.stop()
-    instance.refresh()
 
-    // For current instance, set 'inTl' flag, ticker and debugEnable
+    // Then flag as child of this timeline, set ticker and debugEnable
     instance.inTl = true
     instance.ticker = this.ticker
     instance.debugEnable = this.debugEnable
@@ -180,7 +179,7 @@ export class Timeline {
     }
     this.#isPlaying = true
     this.#isPaused = false
-    this.ticker.add(this.#handleTick)
+    if (!this.inTl) this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -205,7 +204,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    this.ticker.add(this.#handleTick)
+    if (!this.inTl) this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -214,7 +213,7 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = true
     this.#onAllAdds((e) => e.instance.pause())
-    this.ticker.remove(this.#handleTick)
+    if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
 
   public resume(): void {
@@ -222,7 +221,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isPlaying = true
     this.#onAllAdds((e) => e.instance.resume())
-    this.ticker.add(this.#handleTick)
+    if (!this.inTl) this.ticker.add(this.#handleTick)
   }
 
   public stop(): void {
@@ -232,7 +231,7 @@ export class Timeline {
     this.#isPaused = false
     this.#isReversed = false
     this.#onAllAdds((e) => e.instance.stop())
-    this.ticker.remove(this.#handleTick)
+    if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
 
   public progress(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
