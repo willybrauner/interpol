@@ -14,7 +14,7 @@ export default defineConfig({
     compress: true,
     mangle: {
       properties: {
-        regex: /^(#.+)$/,
+        regex: /^(#.+|_isAbsoluteOffset)$/,
       },
     },
   },

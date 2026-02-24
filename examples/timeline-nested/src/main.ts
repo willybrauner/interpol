@@ -118,9 +118,11 @@ tlGroupB.add(tlB_shuffle)
 tlGroupB.add(tlB_out)
 
 //  main timeline: both groups run in parallel
-const tl = new Timeline({ paused: true })
+const tl = new Timeline({ paused: true, debug: false })
 tl.add(tlGroupA, 0)
 tl.add(tlGroupB, 100)
+
+console.log(tl.adds)
 
 const loop = async () => {
   await tl.play()

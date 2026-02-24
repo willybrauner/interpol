@@ -107,21 +107,21 @@ const ItpLine = (props: { add: IAdd; wratio: number; index: number }) => {
 
   useEffect(() => {
     if (!add) return
-    return add.itp.ticker.add(() => {
-      setProgress(add.itp.progress() as number)
+    return add.instance.ticker.add(() => {
+      setProgress(add.instance.progress() as number)
     })
   }, [add])
 
   return (
     <div
-      className={css.itpLineWrapper}
+      className={css.instanceLineWrapper}
       style={{
-        width: `${add.itp.duration * wratio}px`,
+        width: `${add.instance.duration * wratio}px`,
         transform: `translateX(${add.time.start * wratio}px)`,
       }}
     >
-      <div className={css.itpLine} />
-      <div className={css.itpLineProgress} style={{ transform: `scaleX(${progress})` }} />
+      <div className={css.instanceLine} />
+      <div className={css.instanceLineProgress} style={{ transform: `scaleX(${progress})` }} />
     </div>
   )
 }
