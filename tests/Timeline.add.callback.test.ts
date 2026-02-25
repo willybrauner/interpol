@@ -194,4 +194,17 @@ describe("Timeline add callback", () => {
     await tl.play()
     for (let i = 1; i <= 5; i++) expect(cb).toHaveBeenNthCalledWith(i, i)
   })
+
+
+  it('should accept Timeline data', async () => {
+    const cb = vi.fn()
+    const tl = new Timeline({ paused: true })
+    const tl2 = new Timeline({ paused: true })
+    tl2.add(() => cb(), "+=100")
+    tl2.add(() => cb(), "+=100")
+    
+    tl.add(tl2, 100)
+    await tl.play()
+    expect(cb).toHaveBeenCalledTimes(2)
+  })
 })

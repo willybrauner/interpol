@@ -8,7 +8,7 @@ import { noop } from "../utils/noop"
 import { engine } from "./engine"
 
 export interface IAdd {
-  itp: Interpol
+  instance: Interpol | Timeline
   time: { start: number; end: number; offset: number }
   progress: { start?: number; end?: number; current: number; last: number }
   _isAbsoluteOffset?: boolean
@@ -43,15 +43,14 @@ export class Timeline {
   public get duration(): number {
     return this.#tlDuration
   }
-  #ticker: Ticker
-  public get ticker(): Ticker {
-    return this.#ticker
-  }
+
+  public ticker: Ticker
+  public inTl = false
+  public debugEnable: boolean
 
   #playFrom = 0
   #reverseFrom = 1
   #onCompleteDeferred = deferredPromise()
-  #debugEnable: boolean
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
@@ -66,43 +65,51 @@ export class Timeline {
   }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
-    this.#debugEnable = debug
+    this.debugEnable = debug
     this.#isPaused = paused
     this.ID = ++TL_ID
-    this.#ticker = engine.ticker
-    if (this.#debugEnable) queueMicrotask(() => this.#log("adds", this.#adds))
+    this.ticker = engine.ticker
   }
 
   /**
    * Add a new interpol obj or instance in Timeline or a callback function
-   * @param interpol Interpol | InterpolConstruct<K> | (() => void),
+   * @param data Timeline | Interpol | InterpolConstruct<K> | (() => void),
    * @param offset Default "0" is relative position in TL
    */
   public add<K extends keyof Props>(
-    interpol: Interpol | InterpolConstruct<K> | (() => void),
+    data: Timeline | Interpol | InterpolConstruct<K> | (() => void),
     offset: number | string = "0",
   ): Timeline {
-    // Prepare the new Interpol instance
     // If interpol param is a callback function, we transform it to an Interpol instance
-    if (typeof interpol === "function") {
-      interpol = new Interpol({ duration: 0, onComplete: interpol })
-    }
-    const itp = interpol instanceof Interpol ? interpol : new Interpol<K>(interpol)
-    itp.stop()
-    itp.refresh()
-    itp.ticker = this.#ticker
-    itp.inTl = true
-    if (this.#debugEnable) itp.debugEnable = this.#debugEnable
+    if (typeof data === "function") data = new Interpol({ duration: 0, onComplete: data })
 
+    // If data is an InterpolConstruct obj, create a new Interpol instance with it
+    const instance: Interpol | Timeline =
+      data instanceof Interpol || data instanceof Timeline ? data : new Interpol<K>(data)
+
+    // Stop first to fully clean up (remove tick handler, reset state)
+    instance.stop()
+
+    // Then flag as child of this timeline, set ticker and debugEnable
+    instance.inTl = true
+    instance.ticker = this.ticker
+    instance.debugEnable = this.debugEnable
+    // Propagate ticker and debugEnable to nested Timeline children
+    if (instance instanceof Timeline) this.#propagateToChildrenTl(instance)
+
+    // Start the offset calculation
     let fOffset: number
     let startTime: number
     const factor: number = engine.durationFactor
 
-    // Relative position in TL
+    // Calculate the relative position of the current instance in TL
     if (typeof offset === "string") {
       fOffset = parseFloat(offset.includes("=") ? offset.split("=").join("") : offset) * factor
       const relativeAdds = this.#adds.filter((add) => !add._isAbsoluteOffset)
 
+      // Get the previous 'add' instance to calculate start time of the new one
+      // If there is at least one relative add, get the one with the biggest end time
+      // If there is no relative add, get the previous add (absolute) if exist, or null
       const prevAdd =
         relativeAdds?.length > 0
           ? // get previous relative add add with the biggest end time
@@ -110,22 +117,22 @@ export class Timeline {
           : // or get the previous (absolute)
             this.#adds?.[this.#adds.length - 1] || null
 
-      this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + itp.duration + fOffset)
+      this.#tlDuration = Math.max(this.#tlDuration, this.#tlDuration + instance.duration + fOffset)
       startTime = prevAdd ? prevAdd.time.end + fOffset : fOffset
     }
     // Absolute position in TL
     else if (typeof offset === "number") {
       fOffset = offset * factor
-      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + itp.duration)
+      this.#tlDuration = Math.max(0, this.#tlDuration, fOffset + instance.duration)
       startTime = fOffset ?? 0
     }
 
     // push new Add instance in local
     this.#adds.push({
-      itp,
+      instance,
       time: {
         start: startTime,
-        end: startTime + itp.duration,
+        end: startTime + instance.duration,
         offset: fOffset,
       },
       progress: {
@@ -146,7 +153,7 @@ export class Timeline {
 
     // Defer autoplay to after all chained add() calls complete.
     // Deduplicated: only one microtask is scheduled no matter how many add() calls are chained.
-    if (!this.isPaused && !this.#autoplayScheduled) {
+    if (!this.isPaused && !this.inTl && !this.#autoplayScheduled) {
       this.#autoplayScheduled = true
       queueMicrotask(() => {
         this.#autoplayScheduled = false
@@ -159,6 +166,9 @@ export class Timeline {
   }
 
   public async play(from: number = 0): Promise<any> {
+    // If owned by a parent timeline, this instance is driven via progress()
+    if (this.inTl) return
+
     this.#playFrom = from
     if (this.#isPlaying && this.#isReversed) {
       this.#isReversed = false
@@ -172,12 +182,15 @@ export class Timeline {
     }
     this.#isPlaying = true
     this.#isPaused = false
-    this.#ticker.add(this.#handleTick)
+    this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
 
   public async reverse(from: number = 1): Promise<any> {
+    // If owned by a parent timeline, this instance is driven via progress()
+    if (this.inTl) return
+
     this.#reverseFrom = from
     // If TL is playing in normal direction, change to reverse and return a new promise
     if (this.#isPlaying && !this.#isReversed) {
@@ -197,7 +210,7 @@ export class Timeline {
     this.#isPlaying = true
     this.#isPaused = false
 
-    this.#ticker.add(this.#handleTick)
+    this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
@@ -205,16 +218,16 @@ export class Timeline {
   public pause(): void {
     this.#isPlaying = false
     this.#isPaused = true
-    this.#onAllAdds((e) => e.itp.pause())
-    this.#ticker.remove(this.#handleTick)
+    this.#onAllAdds((e) => e.instance.pause())
+    if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
 
   public resume(): void {
     if (!this.#isPaused) return
     this.#isPaused = false
     this.#isPlaying = true
-    this.#onAllAdds((e) => e.itp.resume())
-    this.#ticker.add(this.#handleTick)
+    this.#onAllAdds((e) => e.instance.resume())
+    if (!this.inTl) this.ticker.add(this.#handleTick)
   }
 
   public stop(): void {
@@ -223,8 +236,8 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
-    this.#onAllAdds((e) => e.itp.stop())
-    this.#ticker.remove(this.#handleTick)
+    this.#onAllAdds((e) => e.instance.stop())
+    if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
 
   public progress(value?: number, suppressEvents = true, suppressTlEvents = true): number | void {
@@ -232,14 +245,14 @@ export class Timeline {
     if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, value, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds(this.#time, this.#progress, suppressEvents)
+    this.#updateAdds(this.#time, this.#progress, suppressEvents, suppressTlEvents)
     if (value === 1 && !suppressTlEvents) {
       this.#onComplete(this.#time, this.#progress)
     }
   }
 
   public refresh(): void {
-    this.#onAllAdds((e) => e.itp.refresh())
+    this.#onAllAdds((e) => e.instance.refresh())
   }
 
   /**
@@ -248,14 +261,11 @@ export class Timeline {
    * - update time and progress
    * - update all adds
    * - check if is completed
-   * @param delta
-   * @private
    */
-  // prettier-ignore
-  #handleTick =  ({ delta }): void => {
+  #handleTick = ({ delta }): void => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds(this.#time, this.#progress, false)
+    this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
       this.#onComplete(this.#time, this.#progress)
@@ -276,7 +286,7 @@ export class Timeline {
    * @param tlProgress
    * @param suppressEvents
    */
-  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true): void {
+  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true, suppressTlEvents = true): void {
     // Determine if the Adds loop should be reversed
     if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
     if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
@@ -300,11 +310,11 @@ export class Timeline {
       // In other case, calculate the current progress
       // prettier-ignore
       add.progress.current =
-        add.itp.duration === 0
+        add.instance.duration === 0
           ? tlTime >= add.time.start ? 1 : 0
-          : (tlTime - add.time.start) / add.itp.duration
+          : (tlTime - add.time.start) / add.instance.duration
       // progress current itp
-      add.itp.progress(add.progress.current, suppressEvents)
+      add.instance.progress(add.progress.current, suppressEvents, suppressTlEvents)
     }
   }
 
@@ -322,9 +332,15 @@ export class Timeline {
   }
 
   /**
-   * Log util
+   * Propagate ticker and debugEnable to nested Timeline children
    */
-  #log(...rest: any[]): void {
-    console.log(`%ctimeline`, `color:#d93285`, this.ID || "", ...rest)
+  #propagateToChildrenTl(tl: Timeline): void {
+    for (const add of tl.adds) {
+      add.instance.ticker = this.ticker
+      add.instance.debugEnable = this.debugEnable
+      if (add.instance instanceof Timeline) {
+        this.#propagateToChildrenTl(add.instance)
+      }
+    }
   }
 }
