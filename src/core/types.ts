@@ -44,6 +44,8 @@ export type FormattedProp = {
   _keyframes?: number[]
 }
 
+export type Meta = Record<string, any>
+
 /**
  * Interpol
  *
@@ -67,7 +69,7 @@ export type InterpolConstructBase<K extends string = string> = {
   onStart?: CallBack<K>
   onUpdate?: CallBack<K>
   onComplete?: CallBack<K>
-  meta?: Record<string, any>
+  meta?: Meta
 }
 
 // @credit Philippe Elsass
@@ -89,4 +91,5 @@ export interface TimelineConstruct {
   onUpdate?: TimelineCallback
   onComplete?: TimelineCallback
   ticker?: Ticker
+  meta?: Meta
 }
