@@ -245,7 +245,7 @@ export class Timeline {
     if (this.#isPlaying) this.pause()
     this.#progress = clamp(0, value, 1)
     this.#time = clamp(0, this.#tlDuration * this.#progress, this.#tlDuration)
-    this.#updateAdds(this.#time, this.#progress, suppressEvents)
+    this.#updateAdds(this.#time, this.#progress, suppressEvents, suppressTlEvents)
     if (value === 1 && !suppressTlEvents) {
       this.#onComplete(this.#time, this.#progress)
     }
@@ -265,7 +265,7 @@ export class Timeline {
   #handleTick = ({ delta }): void => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    this.#updateAdds(this.#time, this.#progress, false)
+    this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
       this.#onComplete(this.#time, this.#progress)
@@ -286,7 +286,7 @@ export class Timeline {
    * @param tlProgress
    * @param suppressEvents
    */
-  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true): void {
+  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true, suppressTlEvents = true): void {
     // Determine if the Adds loop should be reversed
     if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
     if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
@@ -314,7 +314,7 @@ export class Timeline {
           ? tlTime >= add.time.start ? 1 : 0
           : (tlTime - add.time.start) / add.instance.duration
       // progress current itp
-      add.instance.progress(add.progress.current, suppressEvents)
+      add.instance.progress(add.progress.current, suppressEvents, suppressTlEvents)
     }
   }
 
