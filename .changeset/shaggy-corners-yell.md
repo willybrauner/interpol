@@ -2,9 +2,11 @@
 "@wbe/interpol": minor
 ---
 
-Nested timelines support
+# Nested timelines support
 
 This branch implements full **nested timelines** support, allowing `Timeline.add()` to accept a `Timeline` instance in addition to `Interpol` and callbacks. We can now use ulimited nested timelines/interpols to create complex and flexibles animations by timeline chunks!
+
+<video src="https://github.com/user-attachments/assets/28187857-aa66-48ef-b1fb-1bcc43b9fb2e" controls autoplay loop muted></video>
 
 ```typescript
 const tl1 = new Timeline()
@@ -58,5 +60,3 @@ Timeline (main)
 
 - Unit tests are available in `Timeline.nested.test.ts`
 - Visual example added: `examples/timeline-nested/` demonstrates real-world nested timeline animation
-
-https://github.com/user-attachments/assets/28187857-aa66-48ef-b1fb-1bcc43b9fb2e
