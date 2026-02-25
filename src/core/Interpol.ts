@@ -6,6 +6,7 @@ import {
   Value,
   CallbackProps,
   InterpolConstructBase,
+  Meta,
 } from "./types"
 import { deferredPromise } from "../utils/deferredPromise"
 import { clamp } from "../utils/clamp"
@@ -22,6 +23,7 @@ export class Interpol<K extends string = string> {
   public ticker: Ticker
   public inTl = false
   public debugEnable: boolean
+  public meta: Meta
 
   #_duration: number
   public get duration() {
@@ -62,7 +64,6 @@ export class Interpol<K extends string = string> {
     return this.#props
   }
 
-  meta: Record<string, any>
   #duration: Value
   #delay: Value
   #callbackProps: CallbackProps<K>

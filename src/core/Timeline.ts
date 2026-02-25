@@ -1,5 +1,5 @@
 import { Interpol } from "./Interpol"
-import { InterpolConstruct, Props, TimelineConstruct } from "./types"
+import { InterpolConstruct, Meta, Props, TimelineConstruct } from "./types"
 import { Ticker } from "./Ticker"
 import { deferredPromise } from "../utils/deferredPromise"
 import { clamp } from "../utils/clamp"
@@ -47,6 +47,7 @@ export class Timeline {
   public ticker: Ticker
   public inTl = false
   public debugEnable: boolean
+  public meta: Meta
 
   #playFrom = 0
   #reverseFrom = 1
@@ -62,11 +63,13 @@ export class Timeline {
     onComplete = noop,
     debug = false,
     paused = false,
+    meta = {},
   }: TimelineConstruct = {}) {
     this.#onUpdate = onUpdate
     this.#onComplete = onComplete
     this.debugEnable = debug
     this.#isPaused = paused
+    this.meta = meta
     this.ID = ++TL_ID
     this.ticker = engine.ticker
   }
@@ -286,7 +289,12 @@ export class Timeline {
    * @param tlProgress
    * @param suppressEvents
    */
-  #updateAdds(tlTime: number, tlProgress: number, suppressEvents = true, suppressTlEvents = true): void {
+  #updateAdds(
+    tlTime: number,
+    tlProgress: number,
+    suppressEvents = true,
+    suppressTlEvents = true,
+  ): void {
     // Determine if the Adds loop should be reversed
     if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
     if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
