@@ -180,6 +180,8 @@ export class Timeline {
     this.#time = this.#tlDuration * from
     this.#progress = from
     this.#isReversed = false
+    this.#lastTlProgress = from
+    this.#reverseLoop = false
     if (this.#isPlaying) {
       return this.#onCompleteDeferred.promise
     }
@@ -212,6 +214,7 @@ export class Timeline {
     this.#isReversed = true
     this.#isPlaying = true
     this.#isPaused = false
+    this.#lastTlProgress = from
 
     this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
@@ -266,8 +269,10 @@ export class Timeline {
    * - check if is completed
    */
   #handleTick = ({ delta }): void => {
-    this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
-    this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
+    // Resync #time from progress (rounded) to avoid floating-point mismatch
+    // ex: raw time=999.8 while progress === 1, which would skip onComplete
+    this.#progress = clamp(0, round((this.#time + (this.#isReversed ? -delta : delta)) / this.#tlDuration), 1)
+    this.#time = this.#tlDuration * this.#progress
     this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
