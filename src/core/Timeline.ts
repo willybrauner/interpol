@@ -242,8 +242,6 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
-    this.#lastTlProgress = 0
-    this.#reverseLoop = false
     this.#onAllAdds((e) => e.instance.stop())
     if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
@@ -271,14 +269,10 @@ export class Timeline {
    * - check if is completed
    */
   #handleTick = ({ delta }): void => {
-    this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
-    this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    // Resync time from rounded progress at boundaries to avoid floating-point mismatch
-    // Without this, round() can produce progress===1 while #time is 999.8 (for example) instead of 1000,
-    // onComplete could be never triggered
-    if (this.#progress === 1 || this.#progress === 0) {
-      this.#time = this.#tlDuration * this.#progress
-    }
+    // Resync #time from progress (rounded) to avoid floating-point mismatch
+    // ex: raw time=999.8 while progress === 1, which would skip onComplete
+    this.#progress = clamp(0, round((this.#time + (this.#isReversed ? -delta : delta)) / this.#tlDuration), 1)
+    this.#time = this.#tlDuration * this.#progress
     this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
