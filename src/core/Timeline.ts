@@ -180,6 +180,8 @@ export class Timeline {
     this.#time = this.#tlDuration * from
     this.#progress = from
     this.#isReversed = false
+    this.#lastTlProgress = from
+    this.#reverseLoop = false
     if (this.#isPlaying) {
       return this.#onCompleteDeferred.promise
     }
@@ -212,6 +214,7 @@ export class Timeline {
     this.#isReversed = true
     this.#isPlaying = true
     this.#isPaused = false
+    this.#lastTlProgress = from
 
     this.ticker.add(this.#handleTick)
     this.#onCompleteDeferred = deferredPromise()
@@ -239,6 +242,8 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
+    this.#lastTlProgress = 0
+    this.#reverseLoop = false
     this.#onAllAdds((e) => e.instance.stop())
     if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
@@ -268,6 +273,12 @@ export class Timeline {
   #handleTick = ({ delta }): void => {
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
+    // Resync time from rounded progress at boundaries to avoid floating-point mismatch
+    // Without this, round() can produce progress===1 while #time is 999.8 (for example) instead of 1000,
+    // onComplete could be never triggered
+    if (this.#progress === 1 || this.#progress === 0) {
+      this.#time = this.#tlDuration * this.#progress
+    }
     this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
