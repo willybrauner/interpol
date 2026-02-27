@@ -10,7 +10,7 @@ export const createTweekpane = (
   PARAMS: Record<any, any>,
   yoyo?: () => Promise<void>,
 ): Pane => {
-  const pane = new Pane({ title: "Controls", expanded: true })
+  const pane = new Pane({ title: "Controls", expanded: false })
 
   /**
    * Controls folder

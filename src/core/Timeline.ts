@@ -242,7 +242,11 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
-    this.#onAllAdds((e) => e.instance.stop())
+    this.#onAllAdds((e) => {
+      e.instance.stop()
+      e.progress.current = 0
+      e.progress.last = 0
+    })
     if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
 
@@ -269,10 +273,12 @@ export class Timeline {
    * - check if is completed
    */
   #handleTick = ({ delta }): void => {
-    // Resync #time from progress (rounded) to avoid floating-point mismatch
-    // ex: raw time=999.8 while progress === 1, which would skip onComplete
-    this.#progress = clamp(0, round((this.#time + (this.#isReversed ? -delta : delta)) / this.#tlDuration), 1)
-    this.#time = this.#tlDuration * this.#progress
+    // Keep #time raw (no quantization mid-animation) for accurate child add progress.
+    // Only snap #time at boundaries so child adds receive exact 0/1 on completion.
+    this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
+    this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
+    if (this.#progress === 1) this.#time = this.#tlDuration
+    if (this.#progress === 0) this.#time = 0
     this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
@@ -321,11 +327,17 @@ export class Timeline {
       add.progress.last = add.progress.current
       // For callbacks with duration 0, trigger when tlTime >= start time
       // In other case, calculate the current progress
+
       // prettier-ignore
       add.progress.current =
         add.instance.duration === 0
           ? tlTime >= add.time.start ? 1 : 0
           : (tlTime - add.time.start) / add.instance.duration
+
+      // Skip adds that are out of their time range and were already out of range.
+      // This prevents inactive adds from overwriting active ones with their _from values.
+      if (add.progress.current < 0 && add.progress.last <= 0) continue
+      if (add.progress.current > 1 && add.progress.last > 1) continue
       // progress current itp
       add.instance.progress(add.progress.current, suppressEvents, suppressTlEvents)
     }

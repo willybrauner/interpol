@@ -4,7 +4,7 @@ import { createTweekpane } from "./utils/createTweakpane"
 
 const wrapper = document.querySelector<HTMLElement>(".wrapper")!
 const elements: HTMLElement[] = []
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 1; i++) {
   const div = document.createElement("div")
   div.className = "element"
   elements.push(div)
@@ -26,8 +26,7 @@ function easeInOutBack(x: number): number {
 
 const tl = new Timeline()
 
-const duration = 800
-const curringOnUpdate = (el: HTMLElement) => (props: any) => styles(el, props)
+const duration = 3000
 
 for (let i = 0; i < elements.length; i++) {
   const el = elements[i]
@@ -37,7 +36,10 @@ for (let i = 0; i < elements.length; i++) {
       scale: { from: 1, to: 0.8, ease: "power1.out" },
       duration,
       ease: "power2.inOut",
-      onUpdate: curringOnUpdate(el),
+      onUpdate: ({ rotate, scale }) => {
+        console.log(i, "rotate", rotate, "scale", scale)
+        styles(el, { rotate, scale })
+      },
     },
     `-=${i > 0 ? duration * 0.75 : 0}`,
   )
@@ -50,7 +52,10 @@ for (let i = 0; i < elements.length; i++) {
       x: [0, (i % 2 === 0 ? 1 : -1) * 150],
       duration: duration * 1,
       ease: easeInOutBack,
-      onUpdate: curringOnUpdate(el),
+      onUpdate: ({ x }) => {
+        console.log(i, "x", x)
+        styles(el, { x })
+      },
     },
     `-=${i > 0 ? duration * 0.75 : 0}`,
   )
@@ -59,7 +64,10 @@ for (let i = 0; i < elements.length; i++) {
       scale: { from: 0.8, to: 1, ease: "power1.out" },
       duration: duration * 0.75,
       ease: "power2.out",
-      onUpdate: curringOnUpdate(el),
+      onUpdate: ({ scale }) => {
+        console.log(i, "scale", scale)
+        styles(el, { scale })
+      },
     },
     `-=${duration}`,
   )
@@ -72,11 +80,16 @@ for (let i = 0; i < elements.length; i++) {
       x: [() => (i % 2 === 0 ? 1 : -1) * 150, 0],
       duration: duration * 1,
       ease: easeOutBack,
-      onUpdate: curringOnUpdate(el),
+      onUpdate: ({ x }) => {
+        console.log(i, "x", x)
+        styles(el, { x })
+      },
     },
     `-=${duration * 0.75}`,
   )
 }
+
+console.log("timeline", tl)
 
 const yoyo = async () => {
   await tl.play()
