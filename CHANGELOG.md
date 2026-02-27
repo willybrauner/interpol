@@ -1,5 +1,15 @@
 # @wbe/interpol
 
+## 0.31.3
+
+### Patch Changes
+
+- 7e5a5d2: Prevent add progress from exceeding their range
+  - Prevent `add` progress from exceeding their range
+  - Rename `reverseLoop` by `iterateAddsBackward`
+  - Update bundle size limit to 3.6KB
+  - Rework timeline examples
+
 ## 0.31.2
 
 ### Patch Changes
