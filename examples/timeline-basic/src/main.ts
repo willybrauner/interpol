@@ -54,8 +54,6 @@ for (let i = 0; i < elements.length; i++) {
   main.add(tl, i * 200)
 }
 
-console.log(main.adds)
-
 const yoyo = async () => {
   await main.play()
   yoyo()
