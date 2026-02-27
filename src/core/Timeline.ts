@@ -273,12 +273,14 @@ export class Timeline {
    * - check if is completed
    */
   #handleTick = ({ delta }): void => {
-    // Keep #time raw (no quantization mid-animation) for accurate child add progress.
-    // Only snap #time at boundaries so child adds receive exact 0/1 on completion.
+    // Keep #time raw for accurate child add progress
     this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
     this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
-    if (this.#progress === 1) this.#time = this.#tlDuration
-    if (this.#progress === 0) this.#time = 0
+    // Only snap #time at boundaries so child adds receive exact 0/1 at the end
+    if (this.#progress === 1 || this.#progress === 0) {
+      this.#time = this.#tlDuration * this.#progress
+    }
+    // Update all adds (itps/timelines)
     this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
@@ -294,7 +296,7 @@ export class Timeline {
   }
 
   /**
-   * Update all adds (itps)
+   * Update all adds (itps/timelines)
    * Main update function witch progress all adds on there relative time in TL
    * @param tlTime
    * @param tlProgress
