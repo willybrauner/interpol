@@ -20,7 +20,7 @@
   padding: 20px 0;
 }
 
-.itpLineWrapper {
+.instanceLineWrapper {
   overflow: hidden;
   position: relative;
   height: 8px;
@@ -31,14 +31,14 @@
   }
 }
 
-.itpLine {
+.instanceLine {
   border-radius: 10px;
   height: 100%;
   background-color: #333;
   position: relative;
 }
 
-.itpLineProgress {
+.instanceLineProgress {
   transform-origin: left;
   position: absolute;
   top: 0;

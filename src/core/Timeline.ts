@@ -55,7 +55,7 @@ export class Timeline {
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
-  #reverseLoop = false
+  #iterateAddsBackward = false
   #autoplayScheduled = false
 
   constructor({
@@ -181,7 +181,7 @@ export class Timeline {
     this.#progress = from
     this.#isReversed = false
     this.#lastTlProgress = from
-    this.#reverseLoop = false
+    this.#iterateAddsBackward = false
     if (this.#isPlaying) {
       return this.#onCompleteDeferred.promise
     }
@@ -242,7 +242,11 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
-    this.#onAllAdds((e) => e.instance.stop())
+    this.#onAllAdds((e) => {
+      e.instance.stop()
+      e.progress.current = 0
+      e.progress.last = 0
+    })
     if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
 
@@ -269,10 +273,14 @@ export class Timeline {
    * - check if is completed
    */
   #handleTick = ({ delta }): void => {
-    // Resync #time from progress (rounded) to avoid floating-point mismatch
-    // ex: raw time=999.8 while progress === 1, which would skip onComplete
-    this.#progress = clamp(0, round((this.#time + (this.#isReversed ? -delta : delta)) / this.#tlDuration), 1)
-    this.#time = this.#tlDuration * this.#progress
+    // Keep #time raw for accurate child add progress
+    this.#time = clamp(0, this.#tlDuration, this.#time + (this.#isReversed ? -delta : delta))
+    this.#progress = clamp(0, round(this.#time / this.#tlDuration), 1)
+    // Only snap #time at boundaries so child adds receive exact 0/1 at the end
+    if (this.#progress === 1 || this.#progress === 0) {
+      this.#time = this.#tlDuration * this.#progress
+    }
+    // Update all adds (itps/timelines)
     this.#updateAdds(this.#time, this.#progress, false, false)
     // on play complete
     if ((!this.#isReversed && this.#progress === 1) || this.#tlDuration === 0) {
@@ -288,7 +296,7 @@ export class Timeline {
   }
 
   /**
-   * Update all adds (itps)
+   * Update all adds (itps/timelines)
    * Main update function witch progress all adds on there relative time in TL
    * @param tlTime
    * @param tlProgress
@@ -301,17 +309,21 @@ export class Timeline {
     suppressTlEvents = true,
   ): void {
     // Determine if the Adds loop should be reversed
-    if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
-    if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
+    if (this.#lastTlProgress > tlProgress && !this.#iterateAddsBackward) {
+      this.#iterateAddsBackward = true
+    }
+    if (this.#lastTlProgress < tlProgress && this.#iterateAddsBackward) {
+      this.#iterateAddsBackward = false
+    }
     this.#lastTlProgress = tlProgress
+
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
-    // Then progress all itps
 
     // prepare loop parameters depending on reversed state
-    const startIndex = this.#reverseLoop ? this.#adds.length - 1 : 0
-    const endIndex = this.#reverseLoop ? -1 : this.#adds.length
-    const step = this.#reverseLoop ? -1 : 1
+    const startIndex = this.#iterateAddsBackward ? this.#adds.length - 1 : 0
+    const endIndex = this.#iterateAddsBackward ? -1 : this.#adds.length
+    const step = this.#iterateAddsBackward ? -1 : 1
 
     // don't use #onAllAdds util for performance reason
     // this loop is called on each frames
@@ -321,11 +333,19 @@ export class Timeline {
       add.progress.last = add.progress.current
       // For callbacks with duration 0, trigger when tlTime >= start time
       // In other case, calculate the current progress
-      // prettier-ignore
       add.progress.current =
         add.instance.duration === 0
-          ? tlTime >= add.time.start ? 1 : 0
+          ? // prettier-ignore
+            tlTime >= add.time.start ? 1 : 0
           : (tlTime - add.time.start) / add.instance.duration
+
+      // Skip adds that are out of their time range and were already out of range.
+      // This prevents inactive adds from overwriting active ones with their _from values.
+      if (
+        (add.progress.current < 0 && add.progress.last <= 0) ||
+        (add.progress.current > 1 && add.progress.last > 1)
+      )
+        continue
       // progress current itp
       add.instance.progress(add.progress.current, suppressEvents, suppressTlEvents)
     }
