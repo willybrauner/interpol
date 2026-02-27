@@ -4,7 +4,7 @@ import { createTweekpane } from "./utils/createTweakpane"
 
 const wrapper = document.querySelector<HTMLElement>(".wrapper")!
 const elements: HTMLElement[] = []
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 3; i++) {
   const div = document.createElement("div")
   div.className = "element"
   elements.push(div)
@@ -26,7 +26,7 @@ function easeInOutBack(x: number): number {
 
 const tl = new Timeline()
 
-const duration = 3000
+const duration = 800
 
 for (let i = 0; i < elements.length; i++) {
   const el = elements[i]
@@ -37,7 +37,6 @@ for (let i = 0; i < elements.length; i++) {
       duration,
       ease: "power2.inOut",
       onUpdate: ({ rotate, scale }) => {
-        console.log(i, "rotate", rotate, "scale", scale)
         styles(el, { rotate, scale })
       },
     },
@@ -53,7 +52,6 @@ for (let i = 0; i < elements.length; i++) {
       duration: duration * 1,
       ease: easeInOutBack,
       onUpdate: ({ x }) => {
-        console.log(i, "x", x)
         styles(el, { x })
       },
     },
@@ -65,7 +63,6 @@ for (let i = 0; i < elements.length; i++) {
       duration: duration * 0.75,
       ease: "power2.out",
       onUpdate: ({ scale }) => {
-        console.log(i, "scale", scale)
         styles(el, { scale })
       },
     },
@@ -81,15 +78,12 @@ for (let i = 0; i < elements.length; i++) {
       duration: duration * 1,
       ease: easeOutBack,
       onUpdate: ({ x }) => {
-        console.log(i, "x", x)
         styles(el, { x })
       },
     },
-    `-=${duration * 0.75}`,
+     `-=${i=== 0 ? 0 : duration * 0.75}`,
   )
 }
-
-console.log("timeline", tl)
 
 const yoyo = async () => {
   await tl.play()
