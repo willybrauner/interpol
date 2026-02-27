@@ -55,7 +55,7 @@ export class Timeline {
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
   #lastTlProgress = 0
-  #reverseLoop = false
+  #iterateAddsBackward = false
   #autoplayScheduled = false
 
   constructor({
@@ -181,7 +181,7 @@ export class Timeline {
     this.#progress = from
     this.#isReversed = false
     this.#lastTlProgress = from
-    this.#reverseLoop = false
+    this.#iterateAddsBackward = false
     if (this.#isPlaying) {
       return this.#onCompleteDeferred.promise
     }
@@ -307,17 +307,19 @@ export class Timeline {
     suppressTlEvents = true,
   ): void {
     // Determine if the Adds loop should be reversed
-    if (this.#lastTlProgress > tlProgress && !this.#reverseLoop) this.#reverseLoop = true
-    if (this.#lastTlProgress < tlProgress && this.#reverseLoop) this.#reverseLoop = false
+    if (this.#lastTlProgress > tlProgress && !this.#iterateAddsBackward)
+      this.#iterateAddsBackward = true
+    if (this.#lastTlProgress < tlProgress && this.#iterateAddsBackward)
+      this.#iterateAddsBackward = false
     this.#lastTlProgress = tlProgress
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
     // Then progress all itps
 
     // prepare loop parameters depending on reversed state
-    const startIndex = this.#reverseLoop ? this.#adds.length - 1 : 0
-    const endIndex = this.#reverseLoop ? -1 : this.#adds.length
-    const step = this.#reverseLoop ? -1 : 1
+    const startIndex = this.#iterateAddsBackward ? this.#adds.length - 1 : 0
+    const endIndex = this.#iterateAddsBackward ? -1 : this.#adds.length
+    const step = this.#iterateAddsBackward ? -1 : 1
 
     // don't use #onAllAdds util for performance reason
     // this loop is called on each frames
@@ -327,11 +329,10 @@ export class Timeline {
       add.progress.last = add.progress.current
       // For callbacks with duration 0, trigger when tlTime >= start time
       // In other case, calculate the current progress
-
-      // prettier-ignore
       add.progress.current =
         add.instance.duration === 0
-          ? tlTime >= add.time.start ? 1 : 0
+          ? // prettier-ignore
+            tlTime >= add.time.start ? 1 : 0
           : (tlTime - add.time.start) / add.instance.duration
 
       // Skip adds that are out of their time range and were already out of range.
