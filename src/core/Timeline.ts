@@ -307,14 +307,16 @@ export class Timeline {
     suppressTlEvents = true,
   ): void {
     // Determine if the Adds loop should be reversed
-    if (this.#lastTlProgress > tlProgress && !this.#iterateAddsBackward)
+    if (this.#lastTlProgress > tlProgress && !this.#iterateAddsBackward) {
       this.#iterateAddsBackward = true
-    if (this.#lastTlProgress < tlProgress && this.#iterateAddsBackward)
+    }
+    if (this.#lastTlProgress < tlProgress && this.#iterateAddsBackward) {
       this.#iterateAddsBackward = false
+    }
     this.#lastTlProgress = tlProgress
+
     // Call constructor onUpdate
     this.#onUpdate(tlTime, tlProgress)
-    // Then progress all itps
 
     // prepare loop parameters depending on reversed state
     const startIndex = this.#iterateAddsBackward ? this.#adds.length - 1 : 0
@@ -337,8 +339,11 @@ export class Timeline {
 
       // Skip adds that are out of their time range and were already out of range.
       // This prevents inactive adds from overwriting active ones with their _from values.
-      if (add.progress.current < 0 && add.progress.last <= 0) continue
-      if (add.progress.current > 1 && add.progress.last > 1) continue
+      if (
+        (add.progress.current < 0 && add.progress.last <= 0) ||
+        (add.progress.current > 1 && add.progress.last > 1)
+      )
+        continue
       // progress current itp
       add.instance.progress(add.progress.current, suppressEvents, suppressTlEvents)
     }
