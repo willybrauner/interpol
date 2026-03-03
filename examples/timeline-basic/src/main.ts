@@ -11,15 +11,13 @@ for (let i = 0; i < 3; i++) {
   wrapper.appendChild(div)
 }
 
-const main = new Timeline({debug: false, onComplete:(time, progress)=> {
-  console.log("---Timeline completed---", time, progress)
-}})
-
+const main = new Timeline({ debug: false })
 const duration = 800
 
+// Test case of the callback position at the start of the timeline
 main.add(() => {
-  console.log("---Timeline started---")
-}, "0")
+  console.log("Timeline started")
+})
 
 for (let i = 0; i < elements.length; i++) {
   const el = elements[i]
@@ -44,6 +42,8 @@ for (let i = 0; i < elements.length; i++) {
       styles(el, { x })
     },
   })
+
+  
 
   tl.add(
     {
