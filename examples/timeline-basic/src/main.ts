@@ -11,9 +11,13 @@ for (let i = 0; i < 3; i++) {
   wrapper.appendChild(div)
 }
 
-const main = new Timeline()
-
+const main = new Timeline({ debug: false })
 const duration = 800
+
+// Test case of the callback position at the start of the timeline
+main.add(() => {
+  console.log("Timeline started")
+})
 
 for (let i = 0; i < elements.length; i++) {
   const el = elements[i]
@@ -39,6 +43,8 @@ for (let i = 0; i < elements.length; i++) {
     },
   })
 
+  
+
   tl.add(
     {
       scale: { from: 0.8, to: 1, ease: "power1.out" },
@@ -54,10 +60,12 @@ for (let i = 0; i < elements.length; i++) {
   main.add(tl, i * 200)
 }
 
+console.log(main.adds)
+
 const yoyo = async () => {
   await main.play()
   yoyo()
 }
-yoyo()
+main.play()
 
 createTweekpane(main, {}, yoyo)

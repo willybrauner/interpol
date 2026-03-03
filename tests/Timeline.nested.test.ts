@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol, Timeline } from "../src"
 import "./_setup"
+import { wait } from "./utils/wait"
 
 describe("Timeline nested", () => {
   it("should store nested Timeline instances when added", () => {
@@ -201,5 +202,91 @@ describe("Timeline nested", () => {
 
     await main.play()
     expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+
+  it("should reset the nested timelines properly on play/replay", async () => {
+    // Use mocks to track first and last call values
+    const tl1Mock = vi.fn()
+    const tl2Mock = vi.fn()
+
+    const tl1 = new Timeline({ paused: true })
+    tl1.add({ duration: 50, v: [0, 100], onUpdate: ({ v }) => tl1Mock(v) })
+
+    const tl2 = new Timeline({ paused: true })
+    tl2.add({ duration: 50, v: [0, 200], onUpdate: ({ v }) => tl2Mock(v) })
+
+    const main = new Timeline({ paused: true })
+    main.add(tl1)
+    main.add(tl2)
+
+    // Get the first and last call values
+    const firstV1Call = () => tl1Mock.mock.calls[0][0]
+    const firstV2Call = () => tl2Mock.mock.calls[0][0]
+    const lastV1Call = () => tl1Mock.mock.calls.at(-1)[0]
+    const lastV2Call = () => tl2Mock.mock.calls.at(-1)[0]
+
+    //  ---------- START
+
+    // 1. First play: values should reach their "to" values
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
+    await main.play()
+
+    expect(lastV1Call()).toBe(100)
+    expect(lastV2Call()).toBe(200)
+
+    // 2. Replay: children must reset to "from" values, then reach "to" again
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
+    await main.play()
+    // from
+    expect(firstV1Call()).toBe(0)
+    expect(firstV2Call()).toBe(0)
+    // TO
+    expect(lastV1Call()).toBe(100)
+    expect(lastV2Call()).toBe(200)
+
+    // 3. Play: stop mid-way → play again → should complete properly
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
+    main.play()
+    await wait(5)
+    main.stop()
+    expect(firstV1Call()).toBe(0)
+    expect(firstV2Call()).toBe(0)
+
+    // Now replay and verify it completes normally
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
+    await main.play()
+
+    expect(lastV1Call()).toBe(100)
+    expect(lastV2Call()).toBe(200)
+  })
+
+  it("should reset deeply nested timelines (3 levels) on play/replay", async () => {
+    const vMock = vi.fn()
+
+    const inner = new Timeline({ paused: true })
+    inner.add({ duration: 10, v: [0, 50], onUpdate: ({ v }) => vMock(v) })
+
+    const mid = new Timeline({ paused: true })
+    mid.add(inner)
+
+    const main = new Timeline({ paused: true })
+    main.add(mid)
+
+    const firstVCall = () => vMock.mock.calls[0][0]
+    const lastVCall = () => vMock.mock.calls.at(-1)[0]
+
+    // First play
+    await main.play()
+    expect(lastVCall()).toBe(50)
+
+    // Replay: should reset to 0 then reach 50
+    vMock.mockClear()
+    await main.play()
+    expect(firstVCall()).toBe(0)
+    expect(lastVCall()).toBe(50)
   })
 })

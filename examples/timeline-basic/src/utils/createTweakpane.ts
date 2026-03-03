@@ -10,7 +10,7 @@ export const createTweekpane = (
   PARAMS: Record<any, any>,
   yoyo?: () => Promise<void>,
 ): Pane => {
-  const pane = new Pane({ title: "Controls", expanded: false })
+  const pane = new Pane({ title: "Controls", expanded: true })
 
   /**
    * Controls folder
@@ -27,7 +27,7 @@ export const createTweekpane = (
   const progressBinding = controlsFolder
     .addBinding({ progress: itp.progress() }, "progress", { min: 0, max: 1 })
     .on("change", (ev) => {
-      itp.progress(ev?.value || 0)
+      itp.progress(ev?.value || 0, false, false)
     })
 
   /**

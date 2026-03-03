@@ -237,19 +237,14 @@ export class Interpol<K extends string = string> {
   }
 
   public stop(): void {
-    if (!this.inTl || (this.inTl && this.#isReversed)) {
-      for (let i = 0; i < this.#propValues.length; i++) {
-        this.#propValues[i].value = this.#propValues[i]._from
-      }
-      this.#time = 0
-      this.#lastProgress = this.#progress
-      this.#progress = 0
-    }
-
+    this.#time = 0
+    this.#lastProgress = 0
+    this.#progress = 0
+    this.#hasProgressOnStart = false
+    this.#hasProgressCompleted = false
     this.#isPlaying = false
     this.#isPaused = false
     clearTimeout(this.#timeout)
-
     if (!this.inTl) {
       this.#isReversed = false
       this.ticker.remove(this.#handleTick)

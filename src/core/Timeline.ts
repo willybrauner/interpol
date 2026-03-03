@@ -49,8 +49,6 @@ export class Timeline {
   public debugEnable: boolean
   public meta: Meta
 
-  #playFrom = 0
-  #reverseFrom = 1
   #onCompleteDeferred = deferredPromise()
   #onUpdate: (time: number, progress: number) => void
   #onComplete: (time: number, progress: number) => void
@@ -169,55 +167,45 @@ export class Timeline {
   }
 
   public async play(from: number = 0): Promise<any> {
-    // If owned by a parent timeline, this instance is driven via progress()
     if (this.inTl) return
-
-    this.#playFrom = from
     if (this.#isPlaying && this.#isReversed) {
       this.#isReversed = false
       return this.#onCompleteDeferred.promise
     }
-    this.#time = this.#tlDuration * from
-    this.#progress = from
-    this.#isReversed = false
-    this.#lastTlProgress = from
-    this.#iterateAddsBackward = false
-    if (this.#isPlaying) {
-      return this.#onCompleteDeferred.promise
-    }
+    const restart = this.#isPlaying
+    this.#reset(from)
+    // Reset children that were previously animated back to their initial state (fires onUpdate)
+    // Skip children already at `from` to preserve computed-from values on first play
+    this.#onAllAdds((e) => {
+      if (e.instance.progress() !== from) {
+        e.instance.progress(from, true, true)
+      }
+    })
     this.#isPlaying = true
-    this.#isPaused = false
     this.ticker.add(this.#handleTick)
-    this.#onCompleteDeferred = deferredPromise()
+    if (!restart) this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
 
   public async reverse(from: number = 1): Promise<any> {
-    // If owned by a parent timeline, this instance is driven via progress()
     if (this.inTl) return
-
-    this.#reverseFrom = from
-    // If TL is playing in normal direction, change to reverse and return a new promise
     if (this.#isPlaying && !this.#isReversed) {
       this.#isReversed = true
       this.#onCompleteDeferred = deferredPromise()
       return this.#onCompleteDeferred.promise
     }
-    // If is playing reverse, restart reverse
-    if (this.#isPlaying && this.#isReversed) {
-      this.stop()
-      return await this.reverse(from)
-    }
-
-    this.#time = this.#tlDuration * from
-    this.#progress = from
+    const restart = this.#isPlaying
+    this.#reset(from)
+    // Reset children that need repositioning to their end state before reversing
+    this.#onAllAdds((e) => {
+      if (e.instance.progress() !== from) {
+        e.instance.progress(from, true, true)
+      }
+    })
     this.#isReversed = true
     this.#isPlaying = true
-    this.#isPaused = false
-    this.#lastTlProgress = from
-
     this.ticker.add(this.#handleTick)
-    this.#onCompleteDeferred = deferredPromise()
+    if (!restart) this.#onCompleteDeferred = deferredPromise()
     return this.#onCompleteDeferred.promise
   }
 
@@ -237,15 +225,20 @@ export class Timeline {
   }
 
   public stop(): void {
-    this.#progress = 0
-    this.#time = 0
+    this.#reset()
+  }
+
+  #reset(from = 0): void {
+    this.#time = this.#tlDuration * from
+    this.#progress = from
+    this.#lastTlProgress = from
+    this.#iterateAddsBackward = false
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
     this.#onAllAdds((e) => {
-      e.instance.stop()
-      e.progress.current = 0
-      e.progress.last = 0
+      e.progress.current = from
+      e.progress.last = from
     })
     if (!this.inTl) this.ticker.remove(this.#handleTick)
   }
