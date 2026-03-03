@@ -11,7 +11,9 @@ for (let i = 0; i < 3; i++) {
   wrapper.appendChild(div)
 }
 
-const main = new Timeline({debug: false})
+const main = new Timeline({debug: false, onComplete:(time, progress)=> {
+  console.log("---Timeline completed---", time, progress)
+}})
 
 const duration = 800
 

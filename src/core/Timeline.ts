@@ -174,6 +174,13 @@ export class Timeline {
     }
     const restart = this.#isPlaying
     this.#reset(from)
+    // Reset children that were previously animated back to their initial state (fires onUpdate)
+    // Skip children already at `from` to preserve computed-from values on first play
+    this.#onAllAdds((e) => {
+      if (e.instance.progress() !== from) {
+        e.instance.progress(from, true, true)
+      }
+    })
     this.#isPlaying = true
     this.ticker.add(this.#handleTick)
     if (!restart) this.#onCompleteDeferred = deferredPromise()
@@ -189,6 +196,12 @@ export class Timeline {
     }
     const restart = this.#isPlaying
     this.#reset(from)
+    // Reset children that need repositioning to their end state before reversing
+    this.#onAllAdds((e) => {
+      if (e.instance.progress() !== from) {
+        e.instance.progress(from, true, true)
+      }
+    })
     this.#isReversed = true
     this.#isPlaying = true
     this.ticker.add(this.#handleTick)
@@ -224,9 +237,8 @@ export class Timeline {
     this.#isPaused = false
     this.#isReversed = false
     this.#onAllAdds((e) => {
-      e.instance.stop()
-      e.progress.current = 0
-      e.progress.last = 0
+      e.progress.current = from
+      e.progress.last = from
     })
     if (!this.inTl) this.ticker.remove(this.#handleTick)
   }

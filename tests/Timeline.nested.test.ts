@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Interpol, Timeline } from "../src"
 import "./_setup"
+import { wait } from "./utils/wait"
 
 describe("Timeline nested", () => {
   it("should store nested Timeline instances when added", () => {
@@ -201,5 +202,91 @@ describe("Timeline nested", () => {
 
     await main.play()
     expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+
+  it("should reset the nested timelines properly on play/replay", async () => {
+    const lastValues: Record<string, number> = { v1: -1, v2: -1 }
+    const capturedValues1: number[] = []
+    const capturedValues2: number[] = []
+    const onUpdate1 = vi.fn(({ v }) => {
+      lastValues.v1 = v
+      capturedValues1.push(v)
+    })
+    const onUpdate2 = vi.fn(({ v }) => {
+      lastValues.v2 = v
+      capturedValues2.push(v)
+    })
+
+    const tl1 = new Timeline({ paused: true })
+    tl1.add({ duration: 10, v: [0, 100], onUpdate: onUpdate1 })
+
+    const tl2 = new Timeline({ paused: true })
+    tl2.add({ duration: 10, v: [0, 200], onUpdate: onUpdate2 })
+
+    const main = new Timeline({ paused: true })
+    main.add(tl1)
+    main.add(tl2)
+
+    // 1) First play: values should reach their "to" values
+    await main.play()
+    expect(lastValues.v1).toBe(100)
+    expect(lastValues.v2).toBe(200)
+
+    // 2) Replay: children must reset to "from" values, then reach "to" again
+    capturedValues1.length = 0
+    capturedValues2.length = 0
+    onUpdate1.mockClear()
+    onUpdate2.mockClear()
+    await main.play()
+    // First captured value after reset should be 0 (from)
+    expect(capturedValues1[0]).toBe(0)
+    expect(capturedValues2[0]).toBe(0)
+    // and end at "to" values
+    expect(lastValues.v1).toBe(100)
+    expect(lastValues.v2).toBe(200)
+
+    // 3) Play → stop mid-way → play again → should complete properly
+    main.play()
+    await wait(5)
+    main.stop()
+    expect(capturedValues1[0]).toBe(0)
+    expect(capturedValues2[0]).toBe(0)
+    expect(lastValues.v1).toBe(0)
+    expect(lastValues.v2).toBe(0)
+    // Now replay — children may already be at 0 from the reset in the previous play,
+    // so no explicit reset call is needed. Just verify the animation completes properly.
+    await main.play()
+    // End at "to" values
+    expect(lastValues.v1).toBe(100)
+    expect(lastValues.v2).toBe(200)
+  })
+
+  it("should reset deeply nested timelines (3 levels) on play/replay", async () => {
+    const lastValue = { v: -1 }
+    const capturedValues: number[] = []
+    const onUpdate = vi.fn(({ v }) => {
+      lastValue.v = v
+      capturedValues.push(v)
+    })
+
+    const inner = new Timeline({ paused: true })
+    inner.add({ duration: 10, v: [0, 50], onUpdate })
+
+    const mid = new Timeline({ paused: true })
+    mid.add(inner)
+
+    const main = new Timeline({ paused: true })
+    main.add(mid)
+
+    // First play
+    await main.play()
+    expect(lastValue.v).toBe(50)
+
+    // Replay → should reset to 0 then reach 50
+    capturedValues.length = 0
+    onUpdate.mockClear()
+    await main.play()
+    expect(capturedValues[0]).toBe(0)
+    expect(lastValue.v).toBe(50)
   })
 })
