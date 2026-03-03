@@ -237,12 +237,6 @@ export class Interpol<K extends string = string> {
   }
 
   public stop(): void {
-    // Always reset visual props to _from so next play starts from scratch
-    // for (let i = 0; i < this.#propValues.length; i++) {
-    //   this.#propValues[i].value = this.#propValues[i]._from
-    // }
-
-    // Reset tracking flags so callbacks fire correctly on next play
     this.#time = 0
     this.#lastProgress = 0
     this.#progress = 0
@@ -251,7 +245,6 @@ export class Interpol<K extends string = string> {
     this.#isPlaying = false
     this.#isPaused = false
     clearTimeout(this.#timeout)
-
     if (!this.inTl) {
       this.#isReversed = false
       this.ticker.remove(this.#handleTick)
