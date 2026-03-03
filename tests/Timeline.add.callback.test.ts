@@ -1,6 +1,7 @@
 import { it, expect, describe, vi } from "vitest"
 import { Timeline } from "../src"
 import "./_setup"
+import { wait } from "./utils/wait"
 
 describe("Timeline add callback", () => {
   /**
@@ -195,16 +196,61 @@ describe("Timeline add callback", () => {
     for (let i = 1; i <= 5; i++) expect(cb).toHaveBeenNthCalledWith(i, i)
   })
 
-
-  it('should accept Timeline data', async () => {
+  it("should accept Timeline data", async () => {
     const cb = vi.fn()
     const tl = new Timeline({ paused: true })
     const tl2 = new Timeline({ paused: true })
     tl2.add(() => cb(), "+=100")
     tl2.add(() => cb(), "+=100")
-    
+
     tl.add(tl2, 100)
     await tl.play()
     expect(cb).toHaveBeenCalledTimes(2)
+  })
+
+  it("should execute callback at time 0, on play, replay, play → stop → play", async () => {
+    return new Promise(async (resolve: any) => {
+      const cb = vi.fn()
+      const onComplete = vi.fn()
+      const duration = 100
+
+      const tl = new Timeline({ paused: true })
+      tl.add(cb, 0)
+      tl.add({
+        duration,
+        v: [0, 100],
+        onComplete,
+      })
+
+      // Simple play
+      await tl.play()
+      expect(cb).toHaveBeenCalledTimes(1)
+      expect(onComplete).toHaveBeenCalledTimes(1)
+
+      // Play after end
+      await tl.play()
+      expect(cb).toHaveBeenCalledTimes(2)
+      expect(onComplete).toHaveBeenCalledTimes(2)
+
+      // play -> replay during play
+      tl.play()
+      await wait(duration / 2)
+      expect(cb).toHaveBeenCalledTimes(3)
+      await tl.play()
+      expect(cb).toHaveBeenCalledTimes(4)
+      expect(onComplete).toHaveBeenCalledTimes(3)
+
+      // play -> stop during play -> play
+      tl.play()
+      await wait(duration / 2)
+      tl.stop()
+      expect(cb).toHaveBeenCalledTimes(5)
+      tl.play()
+      await wait(duration / 2)
+      tl.stop()
+      expect(cb).toHaveBeenCalledTimes(6)
+      expect(onComplete).toHaveBeenCalledTimes(3)
+      resolve()
+    })
   })
 })

@@ -11,9 +11,13 @@ for (let i = 0; i < 3; i++) {
   wrapper.appendChild(div)
 }
 
-const main = new Timeline()
+const main = new Timeline({debug: false})
 
 const duration = 800
+
+main.add(() => {
+  console.log("---Timeline started---")
+}, "0")
 
 for (let i = 0; i < elements.length; i++) {
   const el = elements[i]
@@ -54,10 +58,12 @@ for (let i = 0; i < elements.length; i++) {
   main.add(tl, i * 200)
 }
 
+console.log(main.adds)
+
 const yoyo = async () => {
   await main.play()
   yoyo()
 }
-yoyo()
+main.play()
 
 createTweekpane(main, {}, yoyo)
