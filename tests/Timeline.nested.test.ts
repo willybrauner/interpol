@@ -205,8 +205,7 @@ describe("Timeline nested", () => {
   })
 
   it("should reset the nested timelines properly on play/replay", async () => {
-    // Use mocks that receive the primitive value directly — primitives are captured
-    // by value in mock.calls, unlike mutated objects which always show the final state
+    // Use mocks to track first and last call values
     const tl1Mock = vi.fn()
     const tl2Mock = vi.fn()
 
@@ -220,8 +219,7 @@ describe("Timeline nested", () => {
     main.add(tl1)
     main.add(tl2)
 
-
-    // Get the first and last call values 
+    // Get the first and last call values
     const firstV1Call = () => tl1Mock.mock.calls[0][0]
     const firstV2Call = () => tl2Mock.mock.calls[0][0]
     const lastV1Call = () => tl1Mock.mock.calls.at(-1)[0]
