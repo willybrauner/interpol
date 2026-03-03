@@ -205,72 +205,72 @@ describe("Timeline nested", () => {
   })
 
   it("should reset the nested timelines properly on play/replay", async () => {
-    const lastValues: Record<string, number> = { v1: -1, v2: -1 }
-    const capturedValues1: number[] = []
-    const capturedValues2: number[] = []
-    const onUpdate1 = vi.fn(({ v }) => {
-      lastValues.v1 = v
-      capturedValues1.push(v)
-    })
-    const onUpdate2 = vi.fn(({ v }) => {
-      lastValues.v2 = v
-      capturedValues2.push(v)
-    })
+    // Use mocks that receive the primitive value directly — primitives are captured
+    // by value in mock.calls, unlike mutated objects which always show the final state
+    const tl1Mock = vi.fn()
+    const tl2Mock = vi.fn()
 
     const tl1 = new Timeline({ paused: true })
-    tl1.add({ duration: 10, v: [0, 100], onUpdate: onUpdate1 })
+    tl1.add({ duration: 50, v: [0, 100], onUpdate: ({ v }) => tl1Mock(v) })
 
     const tl2 = new Timeline({ paused: true })
-    tl2.add({ duration: 10, v: [0, 200], onUpdate: onUpdate2 })
+    tl2.add({ duration: 50, v: [0, 200], onUpdate: ({ v }) => tl2Mock(v) })
 
     const main = new Timeline({ paused: true })
     main.add(tl1)
     main.add(tl2)
 
-    // 1) First play: values should reach their "to" values
-    await main.play()
-    expect(lastValues.v1).toBe(100)
-    expect(lastValues.v2).toBe(200)
 
-    // 2) Replay: children must reset to "from" values, then reach "to" again
-    capturedValues1.length = 0
-    capturedValues2.length = 0
-    onUpdate1.mockClear()
-    onUpdate2.mockClear()
-    await main.play()
-    // First captured value after reset should be 0 (from)
-    expect(capturedValues1[0]).toBe(0)
-    expect(capturedValues2[0]).toBe(0)
-    // and end at "to" values
-    expect(lastValues.v1).toBe(100)
-    expect(lastValues.v2).toBe(200)
+    // Get the first and last call values 
+    const firstV1Call = () => tl1Mock.mock.calls[0][0]
+    const firstV2Call = () => tl2Mock.mock.calls[0][0]
+    const lastV1Call = () => tl1Mock.mock.calls.at(-1)[0]
+    const lastV2Call = () => tl2Mock.mock.calls.at(-1)[0]
 
-    // 3) Play → stop mid-way → play again → should complete properly
+    //  ---------- START
+
+    // 1. First play: values should reach their "to" values
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
+    await main.play()
+
+    expect(lastV1Call()).toBe(100)
+    expect(lastV2Call()).toBe(200)
+
+    // 2. Replay: children must reset to "from" values, then reach "to" again
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
+    await main.play()
+    // from
+    expect(firstV1Call()).toBe(0)
+    expect(firstV2Call()).toBe(0)
+    // TO
+    expect(lastV1Call()).toBe(100)
+    expect(lastV2Call()).toBe(200)
+
+    // 3. Play: stop mid-way → play again → should complete properly
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
     main.play()
     await wait(5)
     main.stop()
-    expect(capturedValues1[0]).toBe(0)
-    expect(capturedValues2[0]).toBe(0)
-    expect(lastValues.v1).toBe(0)
-    expect(lastValues.v2).toBe(0)
-    // Now replay — children may already be at 0 from the reset in the previous play,
-    // so no explicit reset call is needed. Just verify the animation completes properly.
+    expect(firstV1Call()).toBe(0)
+    expect(firstV2Call()).toBe(0)
+
+    // Now replay and verify it completes normally
+    tl1Mock.mockClear()
+    tl2Mock.mockClear()
     await main.play()
-    // End at "to" values
-    expect(lastValues.v1).toBe(100)
-    expect(lastValues.v2).toBe(200)
+
+    expect(lastV1Call()).toBe(100)
+    expect(lastV2Call()).toBe(200)
   })
 
   it("should reset deeply nested timelines (3 levels) on play/replay", async () => {
-    const lastValue = { v: -1 }
-    const capturedValues: number[] = []
-    const onUpdate = vi.fn(({ v }) => {
-      lastValue.v = v
-      capturedValues.push(v)
-    })
+    const vMock = vi.fn()
 
     const inner = new Timeline({ paused: true })
-    inner.add({ duration: 10, v: [0, 50], onUpdate })
+    inner.add({ duration: 10, v: [0, 50], onUpdate: ({ v }) => vMock(v) })
 
     const mid = new Timeline({ paused: true })
     mid.add(inner)
@@ -278,15 +278,17 @@ describe("Timeline nested", () => {
     const main = new Timeline({ paused: true })
     main.add(mid)
 
+    const firstVCall = () => vMock.mock.calls[0][0]
+    const lastVCall = () => vMock.mock.calls.at(-1)[0]
+
     // First play
     await main.play()
-    expect(lastValue.v).toBe(50)
+    expect(lastVCall()).toBe(50)
 
-    // Replay → should reset to 0 then reach 50
-    capturedValues.length = 0
-    onUpdate.mockClear()
+    // Replay: should reset to 0 then reach 50
+    vMock.mockClear()
     await main.play()
-    expect(capturedValues[0]).toBe(0)
-    expect(lastValue.v).toBe(50)
+    expect(firstVCall()).toBe(0)
+    expect(lastVCall()).toBe(50)
   })
 })
