@@ -540,6 +540,7 @@ These projects have been built with Interpol. PRs are open to add your project t
 - [julienjussey.com](https://julienjussey.com)
 - [theoplawinski.com](https://www.theoplawinski.com)
 - [willybrauner.com](https://willybrauner.com)
+- [bureaurouge.com](https://bureaurouge.com)
 
 ## Thanks to
 
