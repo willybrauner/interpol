@@ -376,6 +376,7 @@ itp.pause()
 itp.resume()
 
 // Stop the interpol, will reset time, delta and progress.
+// To dispose an instance, stop it and drop your reference, there is no kill() to call.
 // stop(): void
 itp.stop()
 
@@ -446,6 +447,7 @@ tl.pause()
 tl.resume()
 
 // stop the timeline, will reset time, delta and progress.
+// To dispose an instance, stop it and drop your reference, there is no kill() to call.
 // stop(): void
 tl.stop()
 

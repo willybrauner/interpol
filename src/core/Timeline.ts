@@ -157,6 +157,8 @@ export class Timeline {
     if (!this.isPaused && !this.inTl && !this.#autoplayScheduled) {
       this.#autoplayScheduled = true
       queueMicrotask(() => {
+        // Canceled by an explicit play(), reverse() or stop() call in the meantime
+        if (!this.#autoplayScheduled) return
         this.#autoplayScheduled = false
         this.play()
       })
@@ -236,6 +238,7 @@ export class Timeline {
     this.#isPlaying = false
     this.#isPaused = false
     this.#isReversed = false
+    this.#autoplayScheduled = false
     this.#onAllAdds((e) => {
       e.progress.current = from
       e.progress.last = from
