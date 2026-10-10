@@ -1,25 +1,19 @@
-import { defineConfig } from "tsup"
+import { defineConfig } from "tsdown"
 import { spawn } from "child_process"
 
 export default defineConfig({
   entry: { interpol: "src/index.ts" },
-  splitting: false,
   clean: true,
-  minify: "terser",
+  minify: true,
   dts: true,
   format: ["cjs", "esm"],
   name: "interpol",
   sourcemap: true,
-  terserOptions: {
-    compress: true,
-    mangle: {
-      properties: {
-        regex: /^(#.+|_isAbsoluteOffset)$/,
-      },
-    },
-  },
+  target: "esnext",
+  // keep interpol.js (esm) & interpol.cjs (cjs) as output file names
+  fixedExtension: false,
   async onSuccess() {
-    const process = spawn("npx", ["size-limit"], { shell: true })
+    const process = spawn("npx size-limit", { shell: true })
     process.stdout.on("data", (data) => console.log(data.toString()))
   },
 })

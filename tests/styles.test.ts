@@ -44,8 +44,9 @@ describe.concurrent("styles DOM helpers", () => {
 
     // the second element should not be affected by the first element
     // false as third argument to disable auto add px
-    styles(el2, { x: 2 }, false)
-    expect(el2.style.transform).toBe("translate3d(2, 0px, 0px)")
+    // (0 is the only valid unitless length, the DOM drops invalid declarations)
+    styles(el2, { x: 0 }, false)
+    expect(el2.style.transform).toBe("translate3d(0, 0px, 0px)")
 
     // the third too should not be affected by the others
     styles(el3, { x: "10rem", y: "40%", skewX: 0.5 })
@@ -86,13 +87,13 @@ describe.concurrent("styles DOM helpers", () => {
     expect(el.style.transform).toBe("translateX(1px)")
     styles(el, { translateY: 1 }, true)
     expect(el.style.transform).toBe("translateX(1px) translateY(1px)")
-    styles(el, { translateZ: 1 }, false)
-    expect(el.style.transform).toBe("translateX(1px) translateY(1px) translateZ(1)")
+    styles(el, { translateZ: 0 }, false)
+    expect(el.style.transform).toBe("translateX(1px) translateY(1px) translateZ(0)")
 
     // special case
-    styles(el, { translateX: "10" }, true)
-    expect(el.style.transform).toBe("translateX(10) translateY(1px) translateZ(1)")
+    styles(el, { translateX: "0" }, true)
+    expect(el.style.transform).toBe("translateX(0) translateY(1px) translateZ(0)")
     styles(el, { translateX: 10 }, true)
-    expect(el.style.transform).toBe("translateX(10px) translateY(1px) translateZ(1)")
+    expect(el.style.transform).toBe("translateX(10px) translateY(1px) translateZ(0)")
   })
 })

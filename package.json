@@ -33,8 +33,8 @@
   ],
   "scripts": {
     "dev": "pnpm --parallel --color --filter './examples/*' run dev",
-    "build": "tsup",
-    "build:watch": "tsup --watch --sourcemap",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch --sourcemap",
     "test": "vitest run",
     "test:watch": "vitest --reporter verbose",
     "size": "size-limit",
@@ -45,23 +45,22 @@
     "clean": "rm -rf dist && find . -type d -name 'node_modules' -prune -exec rm -rf '{}' +"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.5",
-    "@size-limit/preset-small-lib": "^11.2.0",
-    "@types/node": "^24.0.13",
-    "jsdom": "^26.1.0",
-    "prettier": "^3.6.2",
-    "size-limit": "^11.2.0",
-    "terser": "^5.43.1",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.4",
-    "vitest": "^3.2.4"
+    "@changesets/cli": "^3.0.3",
+    "@size-limit/preset-small-lib": "^14.2.0",
+    "@types/node": "^26.6.5",
+    "jsdom": "^30.1.2",
+    "prettier": "^3.9.10",
+    "size-limit": "^14.2.0",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   },
   "prettier": {
     "semi": false,
     "printWidth": 100
   },
-  "packageManager": "pnpm@8.15.4",
+  "packageManager": "pnpm@12.10.1",
   "size-limit": [
     {
       "name": "@wbe/interpol",
