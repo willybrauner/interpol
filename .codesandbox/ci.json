@@ -15,5 +15,5 @@
     "/examples/timeline-basic",
     "/examples/timeline-visual"
   ],
-  "node": "18"
+  "node": "22"
 }
