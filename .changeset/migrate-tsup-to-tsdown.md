@@ -10,3 +10,4 @@ Migrate the build from `tsup` to `tsdown` and update all dependencies to their l
 - Minification: still done by `terser` (as a rolldown plugin) to keep properties mangling, the bundle size is unchanged (~3.5kB brotli).
 - Dependencies: TypeScript 7, Vite 8, Vitest 5, jsdom 30, size-limit 14, changesets 3, pnpm 12.
 - Tests: jsdom 30 drops invalid CSS declarations like a browser does, `styles()` tests now use valid unitless values (`0`) to check `autoUnits = false`. The `styles()` behavior is unchanged.
+- Remove codesandbox ci, no longer compatible
