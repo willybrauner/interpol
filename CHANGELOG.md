@@ -1,5 +1,13 @@
 # @wbe/interpol
 
+## 0.32.0
+
+### Minor Changes
+
+- 7d74369: Fix `styles()` memory leak: the internal cache is now a `WeakMap`, elements removed from the DOM are no longer retained.
+  - `styles()` accepts `SVGElement`
+  - (breaking change) `styles()` no longer accepts plain objects, a leftover of the removed `el` option
+
 ## 0.31.4
 
 ### Patch Changes
