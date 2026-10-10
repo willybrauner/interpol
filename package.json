@@ -51,6 +51,7 @@
     "jsdom": "^30.1.2",
     "prettier": "^3.9.10",
     "size-limit": "^14.2.0",
+    "terser": "^5.51.2",
     "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
