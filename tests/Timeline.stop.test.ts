@@ -58,4 +58,28 @@ describe.concurrent("Timeline stop", () => {
 
     return Promise.all(tls)
   })
+
+  it("Timeline should not autoplay if stop() is called synchronously after add()", async () => {
+    const tlOnUpdate = vi.fn()
+    const itpOnUpdate = vi.fn()
+    const tl = new Timeline({ onUpdate: tlOnUpdate })
+    tl.add({ v: [0, 100], duration: 50, onUpdate: itpOnUpdate })
+    tl.stop()
+
+    await wait(100)
+    expect(tlOnUpdate).toHaveBeenCalledTimes(0)
+    expect(itpOnUpdate).toHaveBeenCalledTimes(0)
+    expect(tl.isPlaying).toBe(false)
+  })
+
+  it("Timeline should stay reversed if reverse() is called synchronously after add()", async () => {
+    const tl = new Timeline()
+    tl.add({ v: [0, 100], duration: 200 })
+    tl.reverse()
+
+    // let the autoplay microtask run
+    await Promise.resolve()
+    expect(tl.isReversed).toBe(true)
+    tl.stop()
+  })
 })
