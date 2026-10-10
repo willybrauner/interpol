@@ -80,22 +80,6 @@ describe.concurrent("styles DOM helpers", () => {
     for (let el of arr) expect(el.style.transformOrigin).toBe("center")
   })
 
-  it("should set props on a simple object", async () => {
-    const obj: Record<string, number | string> = {}
-    styles(obj, { foo: 10, bar: "a" })
-    expect(obj).toEqual({ foo: "10px", bar: "a" })
-
-    // transform keys are set as simple properties
-    styles(obj, { x: 1, rotate: 10, scale: 2 })
-    expect(obj).toEqual({ foo: "10px", bar: "a", x: "1px", rotate: "10deg", scale: 2 })
-
-    // false as third argument to disable auto units
-    const obj2: Record<string, number | string> = {}
-    styles([obj, obj2], { x: 3 }, false)
-    expect(obj.x).toBe(3)
-    expect(obj2.x).toBe(3)
-  })
-
   it("should work with translateX translateY and translateZ", async () => {
     const { el, doc } = getDocument()
     styles(el, { translateX: 1 }, true)

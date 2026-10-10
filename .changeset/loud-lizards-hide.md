@@ -4,5 +4,5 @@
 
 Fix `styles()` memory leak: the internal cache is now a `WeakMap`, elements removed from the DOM are no longer retained.
 
-- `styles()` accepts `SVGElement` and arrays of plain objects
-- Fix a `TypeError` when a transform key (`x`, `rotate`, `scale`…) was set on a plain object
+- `styles()` accepts `SVGElement`
+- `styles()` no longer accepts plain objects, a leftover of the removed `el` option

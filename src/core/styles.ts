@@ -1,7 +1,7 @@
-type Target = HTMLElement | SVGElement | Record<string, number | string>
+type Target = HTMLElement | SVGElement
 
 // Using WeakMap instead of Map allows the cached element to not be retained once removed from the DOM.
-const CACHE = new WeakMap<object, Record<string, string>>()
+const CACHE = new WeakMap<Target, Record<string, string>>()
 const COORDS = new Set(["x", "y", "z"])
 const NO_PX = new Set([
   "opacity",
@@ -31,8 +31,8 @@ function formatValue(key: string, val: number | string, format = true): string |
 
 /**
  * Styles function
- * @description Set CSS properties on DOM element(s) or object properties
- * @param element DOM element or object, or an array of them
+ * @description Set CSS properties on DOM element(s)
+ * @param element DOM element or array of DOM elements
  * @param props Object of css properties to set
  * @param autoUnits Auto add "px" & "deg" units to number values, string values are not affected
  * @returns
@@ -43,18 +43,11 @@ export const styles = (
   autoUnits = true,
 ): void => {
   if (!element) return
-  if (!Array.isArray(element)) element = [element as HTMLElement]
+  if (!Array.isArray(element)) element = [element]
 
   // for each element
   for (let j = 0; j < element.length; j++) {
-    const el = element[j] as HTMLElement
-
-    // case this is a simple object, there is no transform to build
-    if (!el.style) {
-      for (let key in props) el[key] = formatValue(key, props[key], autoUnits)
-      continue
-    }
-
+    const el = element[j]
     const cache = CACHE.get(el) || {}
 
     // for each key
