@@ -1,6 +1,7 @@
-import { El, CallbackProps } from "./types"
+type Target = HTMLElement | SVGElement
 
-const CACHE = new Map<HTMLElement, Record<string, string>>()
+// Using WeakMap instead of Map allows the cached element to not be retained once removed from the DOM.
+const CACHE = new WeakMap<Target, Record<string, string>>()
 const COORDS = new Set(["x", "y", "z"])
 const NO_PX = new Set([
   "opacity",
@@ -30,19 +31,19 @@ function formatValue(key: string, val: number | string, format = true): string |
 
 /**
  * Styles function
- * @description Set CSS properties on DOM element(s) or object properties
- * @param element HTMLElement or array of HTMLElement or object
+ * @description Set CSS properties on DOM element(s)
+ * @param element DOM element or array of DOM elements
  * @param props Object of css properties to set
  * @param autoUnits Auto add "px" & "deg" units to number values, string values are not affected
  * @returns
  */
 export const styles = (
-  element: El,
-  props: CallbackProps<string, number | string>,
+  element: Target | Target[] | null,
+  props: Record<string, number | string>,
   autoUnits = true,
 ): void => {
   if (!element) return
-  if (!Array.isArray(element)) element = [element as HTMLElement]
+  if (!Array.isArray(element)) element = [element]
 
   // for each element
   for (let j = 0; j < element.length; j++) {
@@ -71,10 +72,7 @@ export const styles = (
 
       // All other properties, applying directly
       else {
-        // case this is a style property
-        if (el.style) el.style[key] = v && `${v}`
-        // case this is a simple object
-        else el[key] = v
+        el.style[key] = v && `${v}`
       }
     }
 

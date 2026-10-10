@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+  min-width: 100lvw;
+  min-height: 100lvh;
+  overflow: hidden;
+  background-color: #171717;
+}
+
+.page {
+  position: fixed;
+  inset: 0;
+}
+
+.element {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 30%;
+}
