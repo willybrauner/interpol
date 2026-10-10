@@ -7,8 +7,6 @@ import { Ease, EaseFn } from "./ease"
  *
  *
  */
-export type El = HTMLElement | HTMLElement[] | Record<any, number> | null
-
 // Value can be a type T or a function that return a type T
 export type Value<T = number> = T | (() => T)
 

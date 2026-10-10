@@ -223,8 +223,10 @@ The function uses a DOM cache to associate multiple transformation functions wit
 Definition:
 
 ```ts
+type Target = HTMLElement | SVGElement | Record<string, number | string>
+
 declare const styles: (
-  element: HTMLElement | HTMLElement[] | Record<any, number> | null,
+  element: Target | Target[] | null,
   props: Record<string, string | number>,
   autoUnits: boolean = true,
 ) => void
