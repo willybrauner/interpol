@@ -545,6 +545,7 @@ These projects have been built with Interpol. PRs are open to add your project t
 - [theoplawinski.com](https://www.theoplawinski.com)
 - [willybrauner.com](https://willybrauner.com)
 - [bureaurouge.com](https://bureaurouge.com)
+- [palmont.com](https://palmont.com)
 
 ## Thanks to
 
